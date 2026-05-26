@@ -195,7 +195,7 @@ export default function Billing() {
               <div style={{ fontSize: '.82rem', color: '#c0392b', opacity: .8 }}>
                 {account?.failureCount > 1
                   ? `${account.failureCount} failed attempts. Your account may be paused.`
-                  : 'We'll retry automatically. Update your card to avoid interruption.'}
+                  : "We'll retry automatically. Update your card to avoid interruption."}
               </div>
             </div>
             <button onClick={openPortal} style={{ ...btnStyle('red'), flexShrink: 0, marginLeft: 16 }}
