@@ -65,7 +65,7 @@ export function useAuth() {
         id:     customerId,
         name:   payload.name,
         email:  payload.email,
-        plan:   res.data.billing?.plan || payload.plan || 'starter',
+        plan:   String(res.data.billing?.plan || payload.plan || 'starter'),
         status: res.data.billing?.status || 'active',
         role:   payload.role,
         is_demo: payload.is_demo || false,
@@ -89,7 +89,7 @@ export function useAuth() {
         id:     memberData.customerId,
         name:   memberData.name,
         email:  memberData.email,
-        plan:   memberData.plan || 'starter',
+        plan:   String(memberData.plan || 'starter'),
         status: 'active',
         role:   memberData.role,
       });
