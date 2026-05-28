@@ -609,7 +609,7 @@ export default function AIVisibility() {
         <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
           {lastScanned && <span style={{ fontSize: '.75rem', color: '#7a7670' }}>Last scan: {new Date(lastScanned).toLocaleDateString()}</span>}
           <button onClick={triggerScan} disabled={scanning} style={{ padding: '7px 18px', borderRadius: 50, background: scanning ? '#f0eeea' : '#0a0a0a', color: scanning ? '#7a7670' : 'white', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit', transition: 'all .2s' }}>
-            {scanning ? '↻ Scanning…' : '↻ Run scan now'}
+            {scanning ? '↻ Scanning…' : data?.nextScanAt && new Date(data.nextScanAt) > new Date() ? `Next run: ${new Date(data.nextScanAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : '↻ Run scan now'}
           </button>
         </div>
       </div>

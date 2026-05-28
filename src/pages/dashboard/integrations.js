@@ -151,8 +151,18 @@ function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }
     setConnecting(true); setError('');
     try {
       if (integration.authType === 'oauth') {
-        // For OAuth: redirect to connect URL
-        const params = new URLSearchParams(fields);
+        // Google uses a different OAuth route
+        if (integration.id === 'google') {
+          if (!selectedLocation) {
+            setError('Please select a location first.');
+            setConnecting(false);
+            return;
+          }
+          window.location.href = `${API}/auth/google?locationId=${selectedLocation}`;
+          return;
+        }
+        // Other OAuth integrations
+        const params = new URLSearchParams({ ...fields, locationId: selectedLocation });
         window.location.href = `${API}/integrations/${integration.id}/connect?${params}`;
         return;
       }

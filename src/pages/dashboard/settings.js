@@ -179,7 +179,15 @@ function IntegrationsTab() {
             {status ? (
               <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.67rem', fontWeight: 700, padding: '3px 9px', borderRadius: 50 }}>✓ {status}</span>
             ) : (
-              <button style={{ ...btn(false), fontSize: '.8rem', padding: '6px 14px' }}>Connect →</button>
+              <button 
+                onClick={() => {
+                  const url = window.prompt('Enter your Yelp business URL:', 'https://www.yelp.com/biz/your-business');
+                  if (url && url.startsWith('http')) {
+                    localStorage.setItem('yelp_url', url);
+                    window.alert('Yelp URL saved ✓');
+                  }
+                }}
+                style={{ ...btn(false), fontSize: '.8rem', padding: '6px 14px' }}>Connect →</button>
             )}
           </div>
         </Card>
