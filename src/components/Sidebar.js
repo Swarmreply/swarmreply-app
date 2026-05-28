@@ -3,6 +3,7 @@
 // 6-item nav matching final prototype design
 // ============================================
 
+import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -11,18 +12,18 @@ const Bee = () => (
 );
 
 const NAV = [
-  { href: '/dashboard',                  label: 'Home',          icon: '⊞' },
-  { href: '/dashboard/reviews',          label: 'Reviews',       icon: '★',  badge: 3 },
-  { href: '/dashboard/inbox',            label: 'Inbox',         icon: '💬' },
-  { href: '/dashboard/ai-visibility',    label: 'AI Visibility', icon: '✦',  isNew: true },
-  { href: '/dashboard/grow',             label: 'Grow',          icon: '↑' },
-  { href: '/dashboard/campaigns',        label: 'Campaigns',     icon: '📣' },
-  { href: '/dashboard/pulse',            label: 'Pulse',         icon: '◎' },
-  { href: '/dashboard/approvals',        label: 'Approvals',     icon: '✓' },
-  { href: '/dashboard/rank-tracking',    label: 'Rank Tracking', icon: '⊕' },
-  { href: '/dashboard/reputation-widget', label: 'Rep Widget',   icon: '◈' },
-  { href: '/dashboard/settings',         label: 'Settings',      icon: '⚙' },
-  { href: '/dashboard/integrations',     label: 'Integrations',  icon: '⊗' },
+  { href: '/dashboard',                   label: 'Home',          icon: '⊞',  group: 1 },
+  { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 1, badge: 3 },
+  { href: '/dashboard/inbox',             label: 'Inbox',         icon: '💬', group: 1 },
+  { href: '/dashboard/ai-visibility',     label: 'AI Visibility', icon: '✦',  group: 1, isNew: true },
+  { href: '/dashboard/grow',              label: 'Grow',          icon: '↑',  group: 1 },
+  { href: '/dashboard/campaigns',         label: 'Campaigns',     icon: '📣', group: 1 },
+  { href: '/dashboard/pulse',             label: 'Pulse',         icon: '◎',  group: 1 },
+  { href: '/dashboard/approvals',         label: 'Approvals',     icon: '✓',  group: 2 },
+  { href: '/dashboard/rank-tracking',     label: 'Rank Tracking', icon: '📍', group: 2 },
+  { href: '/dashboard/reputation-widget', label: 'Rep Widget',    icon: '★',  group: 2 },
+  { href: '/dashboard/settings',          label: 'Settings',      icon: '⚙',  group: 3 },
+  { href: '/dashboard/integrations',      label: 'Integrations',  icon: '⊕',  group: 3 },
 ];
 
 const sbi = (active) => ({
@@ -69,10 +70,14 @@ export default function Sidebar({ customer }) {
 
       {/* Primary nav */}
       <nav style={{ flex: 1 }}>
-        {NAV.map(item => {
+        {NAV.map((item, i) => {
           const active = isActive(item.href);
+          const prevItem = NAV[i - 1];
+          const showDivider = i > 0 && item.group !== prevItem?.group;
           return (
-            <Link key={item.href} href={item.href} style={sbi(active)}
+            <React.Fragment key={item.href}>
+              {showDivider && <div style={{ height: 1, background: 'rgba(255,255,255,.07)', margin: '8px 14px' }} />}
+            <Link href={item.href} style={sbi(active)}
               onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,.07)'; e.currentTarget.style.color = 'rgba(255,255,255,.85)'; }}}
               onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,.45)'; }}}
             >
@@ -88,20 +93,10 @@ export default function Sidebar({ customer }) {
                 </span>
               ) : null}
             </Link>
+            </React.Fragment>
           );
         })}
 
-        {/* Divider */}
-        <div style={{ height: 1, background: 'rgba(255,255,255,.07)', margin: '10px 14px' }} />
-
-        {/* Settings */}
-        <Link href="/dashboard/settings" style={sbi(isActive('/dashboard/settings'))}
-          onMouseEnter={e => { if (!isActive('/dashboard/settings')) { e.currentTarget.style.background = 'rgba(255,255,255,.07)'; e.currentTarget.style.color = 'rgba(255,255,255,.85)'; }}}
-          onMouseLeave={e => { if (!isActive('/dashboard/settings')) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,.45)'; }}}
-        >
-          <span style={{ width: 20, height: 20, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', flexShrink: 0 }}>⚙</span>
-          <span style={{ flex: 1 }}>Settings</span>
-        </Link>
       </nav>
 
       {/* Plan badge */}

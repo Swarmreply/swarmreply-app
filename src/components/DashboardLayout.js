@@ -250,11 +250,7 @@ export default function DashboardLayout({ children, title }) {
       </div>
 
       {/* Mobile bottom nav */}
-      <MobileNav
-        pathname={router.pathname}
-        onMoreToggle={() => setMoreOpen(o => !o)}
-        moreOpen={moreOpen}
-      />
+      {/* Mobile nav hidden — sidebar handles all navigation */}
     </div>
   );
 }
