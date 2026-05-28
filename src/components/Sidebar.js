@@ -11,14 +11,18 @@ const Bee = () => (
 );
 
 const NAV = [
-  { href: '/dashboard',               label: 'Home',          icon: '⊞' },
-  { href: '/dashboard/reviews',       label: 'Reviews',       icon: '★',  badge: 3 },
-  { href: '/dashboard/inbox',         label: 'Inbox',         icon: '💬' },
-  { href: '/dashboard/ai-visibility', label: 'AI Visibility', icon: '✦',  isNew: true },
-  { href: '/dashboard/grow',          label: 'Grow',          icon: '↑' },
-  { href: '/dashboard/campaigns',     label: 'Campaigns',     icon: '📣' },
-  { href: '/dashboard/pulse',      label: 'Pulse',      icon: '◎' },
-  { href: '/dashboard/integrations', label: 'Integrations', icon: '⊕' },
+  { href: '/dashboard',                  label: 'Home',          icon: '⊞' },
+  { href: '/dashboard/reviews',          label: 'Reviews',       icon: '★',  badge: 3 },
+  { href: '/dashboard/inbox',            label: 'Inbox',         icon: '💬' },
+  { href: '/dashboard/ai-visibility',    label: 'AI Visibility', icon: '✦',  isNew: true },
+  { href: '/dashboard/grow',             label: 'Grow',          icon: '↑' },
+  { href: '/dashboard/campaigns',        label: 'Campaigns',     icon: '📣' },
+  { href: '/dashboard/pulse',            label: 'Pulse',         icon: '◎' },
+  { href: '/dashboard/approvals',        label: 'Approvals',     icon: '✓' },
+  { href: '/dashboard/rank-tracking',    label: 'Rank Tracking', icon: '⊕' },
+  { href: '/dashboard/reputation-widget', label: 'Rep Widget',   icon: '◈' },
+  { href: '/dashboard/settings',         label: 'Settings',      icon: '⚙' },
+  { href: '/dashboard/integrations',     label: 'Integrations',  icon: '⊗' },
 ];
 
 const sbi = (active) => ({
