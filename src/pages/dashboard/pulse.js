@@ -174,6 +174,7 @@ function ReportsTab() {
   const [range, setRange]   = useState('90d');
   const [report, setReport] = useState('sentiment');
 
+  const dropdownArrow = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7670' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`;
   return (
     <div style={{ padding: 24 }}>
       {/* Controls */}
@@ -189,7 +190,7 @@ function ReportsTab() {
             <select
               value={report}
               onChange={e => setReport(e.target.value)}
-              style={{ padding: '9px 36px 9px 16px', border: '1.5px solid #e4e0d8', borderRadius: 50, fontSize: '.84rem', fontFamily: 'inherit', background: 'white', cursor: 'pointer', outline: 'none', color: '#1a1a18', minWidth: 200, appearance: 'none', backgroundImage: "url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7670' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")", backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
+              style={{ padding: '9px 36px 9px 16px', border: '1.5px solid #e4e0d8', borderRadius: 50, fontSize: '.84rem', fontFamily: 'inherit', background: 'white', cursor: 'pointer', outline: 'none', color: '#1a1a18', minWidth: 200, appearance: 'none', backgroundImage: dropdownArrow, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
             >
               {REPORTS.map(r => (
                 <option key={r.id} value={r.id}>{r.icon} {r.label}</option>
