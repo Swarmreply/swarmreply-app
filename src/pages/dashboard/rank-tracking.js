@@ -72,7 +72,7 @@ export default function RankTracking() {
   const [adding, setAdding]       = useState(false);
   const [error, setError]         = useState('');
 
-  const MAX = 5;
+  const MAX = 32;
 
   useEffect(() => { if (customer) load(); }, [customer]);
 
@@ -96,7 +96,7 @@ export default function RankTracking() {
 
   async function addKeyword() {
     if (!newKw.trim()) return;
-    if (data.length >= MAX) return setError(`Maximum ${MAX} keywords reached`);
+    if (data.length >= MAX) return setError(`Maximum 32 keywords reached`);
     setAdding(true); setError('');
     try {
       await axios.post(`${API}/rank/keywords`, { keyword: newKw.trim() }, { headers: authH() });
@@ -126,7 +126,7 @@ export default function RankTracking() {
         {/* Stats */}
         <div className="grid-responsive-4" style={{ marginBottom: 20 }}>
           {[
-            ['Keywords tracked', data.length + '/' + MAX, 'active keywords'],
+            ['Keywords tracked', data.length + '/' + MAX, 'track up to 32 keywords'],
             ['Avg position', avgPosition ? '#' + avgPosition : '—', 'across all keywords'],
             ['In local pack', inPackCount, inPackCount === 1 ? 'keyword in map pack' : 'keywords in map pack'],
             ['Last checked', lastChecked ? new Date(lastChecked).toLocaleDateString() : 'Never', 'runs every Monday'],

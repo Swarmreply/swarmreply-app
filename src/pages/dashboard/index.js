@@ -253,6 +253,7 @@ export default function Dashboard() {
             dest="/dashboard/ai-visibility"
           />
           <StatCard
+            dest="/dashboard/surveys"
             label="NPS Score"
             value={stats?.nps_score ? `+${stats.nps_score}` : '+62'}
             sub="↑ Excellent"

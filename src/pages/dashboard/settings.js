@@ -17,7 +17,6 @@ const TABS = [
   { id: 'account',      label: 'Account'          },
   { id: 'team',         label: 'Team'             },
   { id: 'billing',      label: 'Billing'          },
-  { id: 'api',          label: 'API & Zapier'     },
 ];
 
 const TONES = [
@@ -549,7 +548,7 @@ function TeamTab() {
 export default function Settings() {
   const [tab, setTab] = useState('ai');
 
-  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab />, api: <APITab /> };
+  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
 
   return (
     <DashboardLayout title="Settings">

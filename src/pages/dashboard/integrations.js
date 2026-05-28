@@ -399,6 +399,26 @@ export default function Integrations() {
           </a>
         </div>
       </div>
+
+      {/* API Key & Zapier — merged from Settings */}
+      <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 16, padding: 24, marginTop: 20 }}>
+        <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 16 }}>API Key & Zapier</div>
+        <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 12, padding: '14px 16px', marginBottom: 14 }}>
+          <div style={{ fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>Your API Key</div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <code style={{ flex: 1, fontFamily: 'monospace', fontSize: '.78rem', background: 'white', border: '1px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18' }}>sr_live_••••••••••••••••••••</code>
+            <button style={{ padding: '6px 14px', borderRadius: 50, border: '1.5px solid #e4e0d8', background: 'white', fontSize: '.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Copy</button>
+          </div>
+          <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 8 }}>Use this key to authenticate requests to the SwarmReply API and Zapier.</div>
+        </div>
+        <div style={{ background: '#0a0a0a', borderRadius: 12, padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <div style={{ fontSize: '.84rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>Connect Zapier</div>
+            <div style={{ fontSize: '.75rem', color: 'rgba(255,255,255,.5)' }}>Access 7,000+ apps — trigger review requests from any tool</div>
+          </div>
+          <a href="https://zapier.com" target="_blank" rel="noopener noreferrer" style={{ padding: '8px 18px', borderRadius: 50, background: '#f5c842', color: '#0a0a0a', fontWeight: 700, fontSize: '.82rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>Browse Zapier →</a>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }
