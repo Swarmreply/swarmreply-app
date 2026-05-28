@@ -18,6 +18,20 @@ export function useAuth() {
 
   async function loadAuth() {
     try {
+      // Handle admin impersonation — token passed via URL param
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const impToken = params.get('impersonate_token');
+        if (impToken) {
+          localStorage.setItem('swarmreply_token', impToken);
+          // Clean URL without reloading
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, '', cleanUrl);
+          // Show impersonation banner
+          sessionStorage.setItem('impersonating', params.get('customer_name') || 'Customer');
+        }
+      }
+
       const token = localStorage.getItem('swarmreply_token');
       if (!token) { setLoading(false); return; }
 
