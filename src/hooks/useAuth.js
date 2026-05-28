@@ -50,21 +50,26 @@ export function useAuth() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      // For impersonated sessions, customerId may be same as id
+      const customerId = payload.customerId || payload.id;
+
       setMember({
-        id:         payload.memberId,
+        id:         payload.memberId || payload.id,
         name:       payload.name,
         email:      payload.email,
         role:       payload.role,
-        customerId: payload.customerId,
+        customerId: customerId,
       });
 
       setCustomer({
-        id:     payload.customerId,
+        id:     customerId,
         name:   payload.name,
         email:  payload.email,
-        plan:   res.data.billing?.plan || payload.plan,
+        plan:   res.data.billing?.plan || payload.plan || 'starter',
         status: res.data.billing?.status || 'active',
         role:   payload.role,
+        is_demo: payload.is_demo || false,
+        impersonated_by: payload.impersonated_by || null,
       });
 
     } catch (err) {
