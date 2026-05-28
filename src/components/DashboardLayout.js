@@ -173,6 +173,22 @@ export default function DashboardLayout({ children, title }) {
 
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
+      {/* ── ADMIN IMPERSONATION BANNER ── */}
+      {typeof window !== 'undefined' && sessionStorage.getItem('impersonating') && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
+          background: 'linear-gradient(90deg,#f5c842,#d4a515)',
+          color: '#0a0a0a', padding: '8px 20px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 12px rgba(0,0,0,.2)'
+        }}>
+          <span>⚡ ADMIN VIEW — Logged in as: {sessionStorage.getItem('impersonating')} — All actions are real</span>
+          <button onClick={() => { sessionStorage.removeItem('impersonating'); localStorage.removeItem('swarmreply_token'); window.close(); }}
+            style={{ background: 'rgba(0,0,0,.15)', border: 'none', borderRadius: 6, padding: '3px 10px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem' }}>
+            Exit ✕
+          </button>
+        </div>
+      )}
       {/* ── BILLING WARNING BANNER ── */}
       {billing?.bannerLevel === 'warn' && !dismissed && (
         <div style={{
