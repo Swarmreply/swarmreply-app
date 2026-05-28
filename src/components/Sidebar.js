@@ -7,20 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 const Bee = () => (
-  <svg width="26" height="26" viewBox="0 0 100 100" fill="none">
-    <ellipse cx="50" cy="60" rx="21" ry="26" fill="white"/>
-    <rect x="29" y="52" width="42" height="8" rx="2" fill="#f5c842" opacity=".95"/>
-    <rect x="29" y="65" width="42" height="7" rx="2" fill="#f5c842" opacity=".7"/>
-    <circle cx="50" cy="31" r="15" fill="white"/>
-    <circle cx="43.5" cy="29" r="4" fill="#0a0a0a"/><circle cx="56.5" cy="29" r="4" fill="#0a0a0a"/>
-    <circle cx="44.5" cy="29" r="2.2" fill="white"/><circle cx="57.5" cy="29" r="2.2" fill="white"/>
-    <path d="M44 36 Q50 41 56 36" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" fill="none"/>
-    <ellipse cx="23" cy="46" rx="15" ry="7.5" fill="rgba(245,200,66,.55)" transform="rotate(-28 23 46)"/>
-    <ellipse cx="77" cy="46" rx="15" ry="7.5" fill="rgba(245,200,66,.55)" transform="rotate(28 77 46)"/>
-    <polygon points="50,86 46,95 54,95" fill="white"/>
-    <ellipse cx="50" cy="18" rx="21" ry="5" fill="#f5c842"/>
-    <path d="M32 18 Q33 6 50 6 Q67 6 68 18 Z" fill="#f5c842"/>
-  </svg>
+  <img src="/Images/Bee_Logo.png" alt="SwarmReply" style={{width:28,height:28,objectFit:"contain"}} />
 );
 
 const NAV = [
