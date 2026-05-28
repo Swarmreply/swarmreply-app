@@ -26,7 +26,7 @@ export default function Login() {
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/customers/login`,
-        { email }
+        { email, password }
       );
       login(res.data.accessToken, res.data.member);
       router.push('/dashboard');
@@ -94,6 +94,39 @@ export default function Login() {
               />
             </div>
 
+            <div style={{ marginBottom: 20 }}>
+              <label style={{
+                display: 'block', fontSize: '0.78rem', fontWeight: 600,
+                letterSpacing: '0.06em', textTransform: 'uppercase',
+                color: '#7a7670', marginBottom: 8
+              }}>Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  style={{
+                    width: '100%', padding: '14px 16px',
+                    border: '1.5px solid #e4e0d8', borderRadius: 12,
+                    fontSize: '1rem', outline: 'none',
+                    fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(p => !p)}
+                  style={{
+                    position: 'absolute', right: 14, top: '50%',
+                    transform: 'translateY(-50%)', background: 'none',
+                    border: 'none', cursor: 'pointer', fontSize: '0.8rem',
+                    color: '#7a7670', padding: 4
+                  }}
+                >{showPw ? 'Hide' : 'Show'}</button>
+              </div>
+            </div>
+
             {error && (
               <div style={{
                 background: '#fee2e2', border: '1px solid #fca5a5',
@@ -104,10 +137,10 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading || !email}
+              disabled={loading || !email || !password}
               style={{
                 width: '100%', padding: 16, borderRadius: 50,
-                background: loading || !email ? '#c8c4bc' : '#0d0d0d',
+                background: loading || !email || !password ? '#c8c4bc' : '#0d0d0d',
                 color: 'white', border: 'none', fontSize: '1rem',
                 fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
                 fontFamily: 'DM Sans, sans-serif'
@@ -121,6 +154,10 @@ export default function Login() {
             marginTop: 24, textAlign: 'center',
             fontSize: '0.875rem', color: '#7a7670'
           }}>
+            <a href="/reset-password" style={{ color: '#7a7670' }}>
+              Forgot password?
+            </a>
+            <span style={{ margin: '0 10px' }}>·</span>
             Don't have an account?{' '}
             <a href="/checkout" style={{ color: '#0d0d0d', fontWeight: 600 }}>
               Get started →
