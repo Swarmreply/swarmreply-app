@@ -112,6 +112,28 @@ export default function Sidebar({ customer }) {
           )}
         </div>
       </div>
+
+      {/* Logout */}
+      <button
+        onClick={logout}
+        style={{
+          margin: '8px 12px 12px',
+          background: 'none',
+          border: '1px solid rgba(255,255,255,.12)',
+          borderRadius: 8,
+          padding: '8px 0',
+          cursor: 'pointer',
+          color: 'rgba(255,255,255,.4)',
+          fontSize: '0.75rem',
+          fontFamily: 'inherit',
+          width: 'calc(100% - 24px)',
+          transition: 'all .15s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.color = 'rgba(255,255,255,.8)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.3)'; }}
+        onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,.4)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)'; }}
+      >
+        Sign out
+      </button>
     </aside>
   );
 }
