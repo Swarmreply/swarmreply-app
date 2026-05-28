@@ -31,6 +31,7 @@ const NAV = [
   { href: '/dashboard/grow',          label: 'Grow',          icon: '↑' },
   { href: '/dashboard/campaigns',     label: 'Campaigns',     icon: '📣' },
   { href: '/dashboard/pulse',      label: 'Pulse',      icon: '◎' },
+  { href: '/dashboard/integrations', label: 'Integrations', icon: '⊕' },
 ];
 
 const sbi = (active) => ({
