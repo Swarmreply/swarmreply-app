@@ -174,8 +174,9 @@ function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }
           window.location.href = `${API}/auth/google?locationId=${selectedLocation}`;
           return;
         }
-        // Other OAuth integrations
-        const params = new URLSearchParams({ ...fields, locationId: selectedLocation });
+        // Other OAuth integrations — pass JWT as query param since browser redirects can't set headers
+        const token = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+        const params = new URLSearchParams({ ...fields, locationId: selectedLocation, token });
         window.location.href = `${API}/integrations/${integration.id}/connect?${params}`;
         return;
       }
