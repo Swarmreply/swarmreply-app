@@ -154,7 +154,9 @@ function StatusBadge({ status }) {
 function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }) {
   const [expanded, setExpanded]     = useState(false);
   const [fields, setFields]         = useState({});
-  const [connecting, setConnecting] = useState(false);
+  const [connecting, setConnecting]     = useState(false);
+  const [locations, setLocations]         = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [error, setError]           = useState('');
   const connected = connectedData?.status === 'connected';
 
@@ -342,8 +344,17 @@ export default function Integrations() {
 
   async function load() {
     try {
-      const res = await axios.get(`${API}/integrations`, { headers: authH() });
-      setIntegrations(res.data.integrations || []);
+      const [integRes, locRes] = await Promise.all([
+        axios.get(`${API}/integrations`, { headers: authH() }),
+        axios.get(`${API}/locations`,    { headers: authH() }),
+      ]);
+      setIntegrations(integRes.data.integrations || []);
+      const locs = locRes.data.locations || locRes.data || [];
+      setLocations(locs);
+      // Auto-select first location so OAuth connects immediately without extra step
+      if (locs.length > 0 && !selectedLocation) {
+        setSelectedLocation(locs[0].id);
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
