@@ -114,6 +114,8 @@ function TemplatesTab() {
   const [testSent, setTestSent]       = useState(false);
   const [testEmail, setTestEmail]     = useState('');
   const [showTest, setShowTest]       = useState(false);
+  const [sending, setSending]         = useState(false);
+  const [testError, setTestError]     = useState('');
   const [promoterMin, setPromoterMin] = useState(9);
   const [neutralMin, setNeutralMin]   = useState(7);
   const [slots, setSlots]             = useState(['google', '', '']);
@@ -137,6 +139,7 @@ function TemplatesTab() {
   function save() { setSaved(true); setTimeout(() => setSaved(false), 2500); }
   async function sendTest() {
     if (!testEmail.trim()) return;
+    setSending(true);
     try {
       await axios.post(`${API}/templates/test-send`, {
         destination: testEmail.trim(),
@@ -152,12 +155,16 @@ function TemplatesTab() {
         thresholds: { promoterMin, neutralMin },
         platforms:  slots.filter(Boolean),
       }, { headers: authHeaders() });
+      setTestSent(true);
+      setShowTest(false);
+      setTimeout(() => setTestSent(false), 4000);
     } catch (e) {
-      console.error('Test send failed:', e.message);
+      const msg = e.response?.data?.error || e.message || 'Send failed';
+      setTestError(msg);
+      setTimeout(() => setTestError(''), 6000);
+    } finally {
+      setSending(false);
     }
-    setTestSent(true);
-    setShowTest(false);
-    setTimeout(() => setTestSent(false), 3000);
   }
 
   const NAV = [
@@ -418,11 +425,12 @@ function TemplatesTab() {
               <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 8 }}>
                 <input placeholder="Your email or phone number..." value={testEmail} onChange={e => setTestEmail(e.target.value)}
                   style={{ flex: 1, padding: '8px 12px', border: '1.5px solid #e4e0d8', borderRadius: 8, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none' }} />
-                <button onClick={sendTest} style={{ padding: '8px 16px', borderRadius: 50, background: '#f5c842', color: '#0a0a0a', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit' }}>Send</button>
+                <button onClick={sendTest} disabled={sending} style={{ padding: '8px 16px', borderRadius: 50, background: '#f5c842', color: '#0a0a0a', border: 'none', cursor: sending ? 'not-allowed' : 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit', opacity: sending ? .7 : 1 }}>{sending ? 'Sending…' : 'Send'}</button>
                 <button onClick={() => setShowTest(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a7670', fontSize: '1rem' }}>✕</button>
               </div>
             )}
-            {testSent && <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 14px', marginBottom: 16, fontSize: '.82rem', color: '#1a6b45', fontWeight: 600 }}>✓ Test sent to {testEmail}</div>}
+            {testSent && <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 14px', marginBottom: 16, fontSize: '.82rem', color: '#1a6b45', fontWeight: 600 }}>✓ Test sent to {testEmail} — check your inbox</div>}
+            {testError && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 14px', marginBottom: 16, fontSize: '.82rem', color: '#c0392b' }}>✗ {testError}</div>}
             {sections[section]}
           </Card>
         </div>
