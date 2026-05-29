@@ -116,8 +116,9 @@ function OverviewTab({ report }) {
               { llm_name: 'gemini',  visibility_pct: 75 },
               { llm_name: 'perplexity', visibility_pct: 63 },
               { llm_name: 'claude',  visibility_pct: 75 },
+              { llm_name: 'grok',    visibility_pct: 58 },
             ]).map(m => {
-              const colors = { chatgpt:'#74aa9c', gemini:'#e8453c', perplexity:'#7c3aed', claude:'#0a0a0a' };
+              const colors = { chatgpt:'#74aa9c', gemini:'#e8453c', perplexity:'#7c3aed', claude:'#0a0a0a', grok:'#1a1a1a' };
               const color  = colors[m.llm_name?.toLowerCase()] || '#0a0a0a';
               const pct    = parseInt(m.visibility_pct) || 0;
               return (
@@ -306,7 +307,7 @@ function CompetitorsTab({ report }) {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 18, lineHeight: 1.7, maxWidth: 600 }}>
-        These are the businesses AI models recommended in the same queries where your business was evaluated — or in queries where you were not mentioned.
+        When someone asks ChatGPT, Gemini, or Perplexity "best [your business type] near me", AI models recommend a shortlist of businesses. The competitors below are the ones showing up in those results — sometimes instead of you, sometimes alongside you. A business with more mentions gets recommended more often, which means more new customers discovering them through AI search. Your goal is to move up this leaderboard by increasing your review volume, consistency across directories, and online presence.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
         <Card style={{ overflow: 'hidden' }}>
@@ -332,7 +333,7 @@ function CompetitorsTab({ report }) {
         </Card>
         <Card style={{ padding: 20, height: 'fit-content' }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>What makes competitors rank higher</div>
-          {['Higher review volume on Google — AI models treat review count as a trust signal.','Listed on more platforms — more data sources for AI models to reference.','More consistent NAP data — name, address, phone identical everywhere.'].map((tip, i) => (
+          {['More Google reviews — AI models treat review volume and recency as a primary trust signal when deciding who to recommend.', 'Listed on more directories — Yelp, TripAdvisor, Facebook, Apple Maps all feed AI training data. More listings = more AI citations.', 'Consistent NAP data — if your name, address, and phone differ across sites, AI models lose confidence and recommend competitors instead.', 'Faster reply rate — businesses that respond to reviews signal active engagement, which AI models factor into recommendations.'].map((tip, i) => (
             <div key={i} style={{ background: '#f8f7f4', borderRadius: 10, padding: '10px 13px', marginBottom: 8 }}>
               <div style={{ fontSize: '.78rem', color: '#7a7670', lineHeight: 1.55 }}>{tip}</div>
             </div>
@@ -608,9 +609,23 @@ export default function AIVisibility() {
         </div>
         <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
           {lastScanned && <span style={{ fontSize: '.75rem', color: '#7a7670' }}>Last scan: {new Date(lastScanned).toLocaleDateString()}</span>}
-          <button onClick={triggerScan} disabled={scanning} style={{ padding: '7px 18px', borderRadius: 50, background: scanning ? '#f0eeea' : '#0a0a0a', color: scanning ? '#7a7670' : 'white', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit', transition: 'all .2s' }}>
-            {scanning ? '↻ Scanning…' : report?.nextScanAt && new Date(report.nextScanAt) > new Date() ? `Next run: ${new Date(report.nextScanAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : '↻ Run scan now'}
-          </button>
+          {scanning ? (
+            <span style={{ fontSize: '.82rem', color: '#7a7670', fontWeight: 600 }}>↻ Scanning…</span>
+          ) : report?.nextScanAt && new Date(report.nextScanAt) > new Date() ? (
+            <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 8, padding: '6px 14px', textAlign: 'right' }}>
+              <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
+              <div style={{ fontSize: '.82rem', fontWeight: 600, color: '#0a0a0a', marginTop: 2 }}>
+                {new Date(report.nextScanAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                {' · '}
+                {new Date(report.nextScanAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+              </div>
+            </div>
+          ) : (
+            <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 8, padding: '6px 14px' }}>
+              <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
+              <div style={{ fontSize: '.82rem', color: '#7a7670', marginTop: 2 }}>Set frequency in ⚙ My Queries</div>
+            </div>
+          )}
         </div>
       </div>
 
