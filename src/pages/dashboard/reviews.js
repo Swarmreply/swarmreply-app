@@ -11,7 +11,6 @@ import { getReviews, getLocations } from '../../utils/api';
 const TABS = [
   { id: 'all',    label: 'All reviews' },
   { id: 'alerts', label: 'Alerts' },
-  { id: 'aivis',  label: '✦ AI Visibility' },
 ];
 
 const STARS = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
@@ -54,54 +53,6 @@ function ReviewCard({ review, onReply }) {
   );
 }
 
-function AIVisibilityTab() {
-  return (
-    <div style={{ padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 16, marginBottom: 18 }}>
-        <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '24px', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '3rem', fontWeight: 900, color: '#0a0a0a', lineHeight: 1 }}>73</div>
-          <div style={{ fontSize: '.68rem', fontWeight: 700, color: '#7a7670', letterSpacing: '.1em', textTransform: 'uppercase', margin: '4px 0 8px' }}>/100 AI Visibility Score</div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 11px', background: '#e8f5ef', borderRadius: 50 }}>
-            <span style={{ color: '#1a6b45', fontWeight: 700, fontSize: '.78rem' }}>+8</span>
-            <span style={{ fontSize: '.72rem', color: '#1a6b45' }}>this week</span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
-            {[['Queries run','32','4 AI models'],['Mentioned','24','73% rate'],['Positive','19','of mentions'],['Missed','8','not mentioned']].map(([l,v,s]) => (
-              <div key={l} style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '14px 16px' }}>
-                <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 }}>{l}</div>
-                <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', fontWeight: 900 }}>{v}</div>
-                <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 3 }}>{s}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '14px 16px' }}>
-            <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 10 }}>Visibility by AI model</div>
-            {[['ChatGPT','88%','#74aa9c'],['Gemini','75%','#e8453c'],['Perplexity','63%','#7c3aed'],['Claude','75%','#0a0a0a']].map(([name,pct,color]) => (
-              <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <span style={{ fontSize: '.84rem', fontWeight: 600, width: 90 }}>{name}</span>
-                <div style={{ flex: 1, height: 7, background: '#f0eeea', borderRadius: 4, overflow: 'hidden' }}>
-                  <div style={{ width: pct, height: '100%', background: color, borderRadius: 4 }} />
-                </div>
-                <span style={{ fontSize: '.8rem', fontWeight: 700, width: 36 }}>{pct}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div style={{ background: '#0a0a0a', borderRadius: 14, padding: '20px 24px' }}>
-        <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 12 }}>How to improve your score</div>
-        {['Keep Google reviews coming — AI models weight rating and review volume heavily.','Publish Google Posts weekly — fresh content signals an active business.','Keep listings synced across Apple Maps, Bing, and other platforms.'].map((tip, i) => (
-          <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#f5c842', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.65rem', fontWeight: 800, color: '#0a0a0a', flexShrink: 0 }}>{i+1}</span>
-            <div style={{ fontSize: '.8rem', color: 'rgba(255,255,255,.7)', lineHeight: 1.55 }}>{tip}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Reviews() {
   const { customer } = useAuth();
@@ -155,7 +106,7 @@ export default function Reviews() {
         ))}
       </div>
 
-      {tab === 'aivis' ? <AIVisibilityTab /> : (
+      (
         <div>
           {/* Filter bar */}
           {tab === 'all' && (
