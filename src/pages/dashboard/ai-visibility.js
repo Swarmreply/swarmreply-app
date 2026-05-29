@@ -362,7 +362,7 @@ function QueriesTab() {
   const [saving, setSaving]       = useState(false);
   const [saved, setSaved]         = useState(false);
   const [newQuery, setNewQuery]   = useState('');
-  const [customQueries, setCustom]= useState([]);
+  const [allQueries, setAllQueries] = useState([]);
   const [error, setError]         = useState('');
 
   const MAX = 32;
@@ -373,7 +373,12 @@ function QueriesTab() {
     try {
       const res = await axios.get(`${API}/llm/queries`, { headers: authHeaders() });
       setData(res.data);
-      setCustom(res.data.customQueries || []);
+      // Merge auto-generated and custom into one unified list
+      const combined = [
+        ...(res.data.autoQueries || []),
+        ...(res.data.customQueries || []),
+      ];
+      setAllQueries(combined);
     } catch (e) {
       console.error(e);
       // Demo fallback
@@ -396,7 +401,19 @@ function QueriesTab() {
         totalQueries: 11, maxQueries: 32, maxCustom: 24, remainingSlots: 21,
         locked: false, nextScanAt: null, lastScanAt: null,
       });
-      setCustom(['Best pasta restaurant in Sacramento','Italian catering Sacramento','Family restaurant midtown Sacramento']);
+      setAllQueries([
+        'What are the best restaurants in Sacramento?',
+        'Recommend a good restaurant near Sacramento',
+        'Who is the top-rated restaurant in Sacramento?',
+        "Tell me about Bella's Kitchen in Sacramento",
+        "What do customers say about Bella's Kitchen?",
+        "Is Bella's Kitchen in Sacramento good?",
+        'What is the best restaurant in Sacramento and why?',
+        'Compare restaurants in Sacramento',
+        'Best pasta restaurant in Sacramento',
+        'Italian catering Sacramento',
+        'Family restaurant midtown Sacramento',
+      ]);
     } finally {
       setLoading(false);
     }
@@ -406,7 +423,7 @@ function QueriesTab() {
     setSaving(true);
     setError('');
     try {
-      await axios.put(`${API}/llm/queries`, { customQueries }, { headers: authHeaders() });
+      await axios.put(`${API}/llm/queries`, { customQueries: allQueries }, { headers: authHeaders() });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       loadQueries();
@@ -421,29 +438,27 @@ function QueriesTab() {
     const q = newQuery.trim();
     if (!q) return;
     if (q.length > 200) { setError('Query must be under 200 characters.'); return; }
-    const autoCount = data?.autoQueries?.length || 8;
-    if (customQueries.length + autoCount >= MAX) {
-      setError(`Maximum ${MAX} total queries reached. Remove a custom query first.`);
+    if (allQueries.length >= MAX) {
+      setError(`Maximum ${MAX} queries reached. Remove one first.`);
       return;
     }
-    if (customQueries.includes(q)) { setError('This query already exists.'); return; }
-    setCustom(prev => [...prev, q]);
+    if (allQueries.includes(q)) { setError('This query already exists.'); return; }
+    setAllQueries(prev => [...prev, q]);
     setNewQuery('');
     setError('');
   }
 
   function removeQuery(idx) {
-    setCustom(prev => prev.filter((_, i) => i !== idx));
+    setAllQueries(prev => prev.filter((_, i) => i !== idx));
     setError('');
   }
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>Loading queries…</div>;
 
-  const autoQueries   = data?.autoQueries || [];
-  const totalUsed     = autoQueries.length + customQueries.length;
-  const pct           = Math.round((totalUsed / MAX) * 100);
-  const remaining     = MAX - totalUsed;
-  const locked        = data?.locked || false;
+  const totalUsed = allQueries.length;
+  const pct       = Math.round((totalUsed / MAX) * 100);
+  const remaining = MAX - totalUsed;
+  const locked    = data?.locked || false;
 
   return (
     <div style={{ padding: 24 }}>
@@ -460,9 +475,8 @@ function QueriesTab() {
           <div style={{ height: 8, background: '#f0eeea', borderRadius: 50, overflow: 'hidden', marginBottom: 8 }}>
             <div style={{ width: `${pct}%`, height: '100%', background: pct >= 90 ? '#f59e0b' : '#0a0a0a', borderRadius: 50, transition: 'width .4s' }} />
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.72rem', color: '#7a7670' }}>
-            <span>{autoQueries.length} auto-generated</span>
-            <span>{customQueries.length} custom</span>
+          <div style={{ fontSize: '.72rem', color: '#7a7670' }}>
+            {remaining > 0 ? `${remaining} slots remaining` : 'Maximum reached'}
           </div>
         </Card>
         <Card style={{ padding: 18 }}>
@@ -488,62 +502,43 @@ function QueriesTab() {
         </Card>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
 
-        {/* Auto-generated queries — read only */}
-        <Card style={{ overflow: 'hidden' }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: '.875rem' }}>Auto-generated queries</div>
-              <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 2 }}>Built from your business name, type, and city · Read only</div>
-            </div>
-            <span style={{ background: '#f0eeea', color: '#7a7670', fontSize: '.7rem', fontWeight: 700, padding: '2px 9px', borderRadius: 50 }}>{autoQueries.length}</span>
-          </div>
-          <div style={{ maxHeight: 420, overflowY: 'auto' }}>
-            {autoQueries.map((q, i) => (
-              <div key={i} style={{ padding: '11px 20px', borderBottom: '1px solid #f8f7f4', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', fontWeight: 700, color: '#7a7670', flexShrink: 0 }}>{i + 1}</div>
-                <span style={{ fontSize: '.84rem', color: '#3a3a38', flex: 1, lineHeight: 1.5 }}>{q}</span>
-                <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#1a6b45', flexShrink: 0 }} title="Auto-generated" />
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Custom queries — editable */}
+        {/* Unified query list — all editable */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <Card style={{ overflow: 'hidden', flex: 1 }}>
+          <Card style={{ overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '.875rem' }}>Your custom queries</div>
-                <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 2 }}>Add queries specific to your business · Editable weekly</div>
+                <div style={{ fontWeight: 600, fontSize: '.875rem' }}>Your queries</div>
+                <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 2 }}>All queries are editable — pre-loaded ones give you a head start</div>
               </div>
-              <span style={{ background: '#0a0a0a', color: 'white', fontSize: '.7rem', fontWeight: 700, padding: '2px 9px', borderRadius: 50 }}>{customQueries.length}</span>
+              <span style={{ background: '#0a0a0a', color: 'white', fontSize: '.7rem', fontWeight: 700, padding: '2px 9px', borderRadius: 50 }}>{totalUsed}/{MAX}</span>
             </div>
-            <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-              {customQueries.length === 0 ? (
+            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+              {allQueries.length === 0 ? (
                 <div style={{ padding: '24px 20px', textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>
-                  No custom queries yet.<br />
-                  <span style={{ fontSize: '.78rem' }}>Add queries your customers would ask AI — city + service combinations work best.</span>
+                  No queries yet. Add your first query below.
                 </div>
-              ) : customQueries.map((q, i) => (
+              ) : allQueries.map((q, i) => (
                 <div key={i} style={{ padding: '11px 20px', borderBottom: '1px solid #f8f7f4', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', fontWeight: 700, color: '#0a0a0a', flexShrink: 0 }}>{autoQueries.length + i + 1}</div>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', fontWeight: 700, color: '#0a0a0a', flexShrink: 0 }}>{i + 1}</div>
                   <span style={{ fontSize: '.84rem', color: '#3a3a38', flex: 1, lineHeight: 1.5 }}>{q}</span>
                   {!locked && (
-                    <button onClick={() => removeQuery(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a7670', fontSize: '.9rem', padding: '2px 4px', borderRadius: 5, lineHeight: 1 }} title="Remove">✕</button>
+                    <button onClick={() => removeQuery(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c8c4bc', fontSize: '.9rem', padding: '2px 6px', borderRadius: 5, lineHeight: 1, transition: 'color .15s' }}
+                      onMouseEnter={e => e.currentTarget.style.color='#c0392b'}
+                      onMouseLeave={e => e.currentTarget.style.color='#c8c4bc'}
+                      title="Remove">✕</button>
                   )}
                 </div>
               ))}
             </div>
-
             {/* Add query input */}
             {!locked && (
               <div style={{ padding: '12px 16px', borderTop: '1px solid #e4e0d8', display: 'flex', gap: 8 }}>
                 <input
                   value={newQuery} onChange={e => setNewQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addQuery()}
-                  placeholder={remaining > 0 ? 'Add a custom query… (press Enter)' : 'Maximum queries reached'}
+                  placeholder={remaining > 0 ? 'Add a query… (press Enter)' : 'Maximum 32 queries reached'}
                   disabled={remaining <= 0}
                   maxLength={200}
                   style={{ flex: 1, padding: '8px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', opacity: remaining <= 0 ? .5 : 1 }}
@@ -553,31 +548,28 @@ function QueriesTab() {
             )}
           </Card>
 
-          {/* Save button + error + tips */}
+          {/* Save button */}
           {!locked && (
             <div>
-              {error && (
-                <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: 9, padding: '9px 13px', fontSize: '.82rem', color: '#c0392b', marginBottom: 10 }}>{error}</div>
-              )}
-              {saved && (
-                <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 13px', fontSize: '.82rem', color: '#1a6b45', marginBottom: 10 }}>✓ Queries saved — will apply to your next weekly scan.</div>
-              )}
+              {error && <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: 9, padding: '9px 13px', fontSize: '.82rem', color: '#c0392b', marginBottom: 10 }}>{error}</div>}
+              {saved && <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 13px', fontSize: '.82rem', color: '#1a6b45', marginBottom: 10 }}>✓ Queries saved — will apply to your next weekly scan.</div>}
               <button onClick={saveQueries} disabled={saving} style={{ width: '100%', padding: 12, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: saving ? .6 : 1 }}>
                 {saving ? 'Saving…' : 'Save queries'}
               </button>
             </div>
           )}
-
-          <Card style={{ padding: 16 }}>
-            <div style={{ fontWeight: 600, fontSize: '.78rem', marginBottom: 10, color: '#0a0a0a' }}>Tips for good custom queries</div>
-            {['Include your city or neighbourhood — "best dentist in Midtown Sacramento"','Think like a customer — what would they ask AI before choosing you?','Try category + location combos — "Italian catering Sacramento weddings"','Use competitor-adjacent queries — "alternatives to [category] near me"'].map((tip, i) => (
-              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 7, fontSize: '.78rem', color: '#7a7670', lineHeight: 1.55 }}>
-                <span style={{ color: '#f5c842', fontWeight: 700, flexShrink: 0 }}>✦</span>
-                <span>{tip}</span>
-              </div>
-            ))}
-          </Card>
         </div>
+
+        {/* Tips sidebar */}
+        <Card style={{ padding: 16, height: 'fit-content' }}>
+          <div style={{ fontWeight: 600, fontSize: '.78rem', marginBottom: 10, color: '#0a0a0a' }}>Tips for good queries</div>
+          {['Include your city or neighbourhood — "best dentist in Midtown Sacramento"','Think like a customer — what would they ask AI before choosing you?','Try category + location combos — "Italian catering Sacramento weddings"','Use competitor-adjacent queries — "alternatives to [category] near me"'].map((tip, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 7, fontSize: '.78rem', color: '#7a7670', lineHeight: 1.55 }}>
+              <span style={{ color: '#f5c842', fontWeight: 700, flexShrink: 0 }}>✦</span>
+              <span>{tip}</span>
+            </div>
+          ))}
+        </Card>
       </div>
     </div>
   );
@@ -631,6 +623,10 @@ export default function AIVisibility() {
                 {new Date(report.nextScanAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
               </div>
             </div>
+          ) : !report?.lastScanAt ? (
+            <button onClick={triggerScan} disabled={scanning} style={{ background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.82rem' }}>
+              ↻ Run my first scan
+            </button>
           ) : (
             <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 8, padding: '6px 14px' }}>
               <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Scan frequency</div>
