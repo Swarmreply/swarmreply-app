@@ -4,6 +4,14 @@
 // ============================================
 
 import { useState } from 'react';
+import axios from 'axios';
+
+const API = process.env.NEXT_PUBLIC_API_URL;
+
+function authHeaders() {
+  const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
 import DashboardLayout from '../../components/DashboardLayout';
 import { useRouter } from 'next/router';
 
@@ -127,9 +135,28 @@ function TemplatesTab() {
   function removeSlot(idx) { const n=[...slots]; n[idx]=''; setSlots(n); }
 
   function save() { setSaved(true); setTimeout(() => setSaved(false), 2500); }
-  function sendTest() {
+  async function sendTest() {
     if (!testEmail.trim()) return;
-    setTestSent(true); setShowTest(false);
+    try {
+      await axios.post(`${API}/templates/test-send`, {
+        destination: testEmail.trim(),
+        template: {
+          smsRequest:       tmpl.smsRequest,
+          emailSubject:     tmpl.emailSubject,
+          emailBody:        tmpl.emailBody,
+          npsQuestion:      tmpl.npsQuestion,
+          promoterMessage:  tmpl.promoterMessage,
+          neutralQuestion:  tmpl.neutralQuestion,
+          detractorOpening: tmpl.detractorOpening,
+        },
+        thresholds: { promoterMin, neutralMin },
+        platforms:  slots.filter(Boolean),
+      }, { headers: authHeaders() });
+    } catch (e) {
+      console.error('Test send failed:', e.message);
+    }
+    setTestSent(true);
+    setShowTest(false);
     setTimeout(() => setTestSent(false), 3000);
   }
 
