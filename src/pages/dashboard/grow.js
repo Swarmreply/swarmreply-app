@@ -8,9 +8,10 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { useRouter } from 'next/router';
 
 const TABS = [
-  { id: 'requests', label: 'Review Requests' },
-  { id: 'surveys',  label: 'Surveys & NPS'   },
-  { id: 'import',   label: 'Import Contacts' },
+  { id: 'requests',  label: 'Review Requests'   },
+  { id: 'templates', label: 'Request Templates' },
+  { id: 'surveys',   label: 'Surveys & NPS'     },
+  { id: 'import',    label: 'Import Contacts'   },
 ];
 
 function Card({ children, style = {} }) {
@@ -79,6 +80,330 @@ function RequestsTab() {
     </div>
   );
 }
+
+const PLATFORMS = [
+  { id: 'google',   label: 'Google',   color: '#4285F4', icon: 'G' },
+  { id: 'facebook', label: 'Facebook', color: '#1877F2', icon: 'f' },
+  { id: 'yelp',     label: 'Yelp',     color: '#D32323', icon: 'Y' },
+];
+
+const DEFAULT_TMPL = {
+  smsRequest: "Hi {name}, thanks for choosing {business}! We'd love your feedback — it only takes 30 seconds. {link}",
+  emailSubject: 'How did we do, {name}?',
+  emailBody: "Hi {name},\n\nThank you for choosing {business}! Your experience matters to us.\n\nWe'd love to hear how we did — it only takes a moment.\n\nTap below to share your feedback:\n{link}\n\nThank you,\n{business} Team",
+  npsQuestion: 'How likely are you to recommend {business} to a friend or family member?',
+  promoterMessage: "We're so glad you had a great experience! Would you mind sharing it online? Your review helps other customers find us.",
+  neutralQuestion: 'Would you consider using {business} again in the future?',
+  detractorOpening: "We're sorry your experience didn't meet expectations. Your feedback helps us improve.",
+  detractorQ1: 'What aspect of your experience fell short?',
+  detractorQ2: 'What could we do better in the future?',
+  detractorClosing: 'Thank you for sharing this with us. We take every piece of feedback seriously.',
+};
+
+function TemplatesTab() {
+  const [section, setSection]         = useState('thresholds');
+  const [saved, setSaved]             = useState(false);
+  const [testSent, setTestSent]       = useState(false);
+  const [testEmail, setTestEmail]     = useState('');
+  const [showTest, setShowTest]       = useState(false);
+  const [promoterMin, setPromoterMin] = useState(9);
+  const [neutralMin, setNeutralMin]   = useState(7);
+  const [slots, setSlots]             = useState(['google', '', '']);
+  const [tmpl, setTmpl]               = useState(DEFAULT_TMPL);
+  const [shareAll, setShareAll]       = useState(false);
+  const [suppress, setSuppress]       = useState(false);
+
+  const detractorMax = neutralMin - 1;
+  const neutralMax   = promoterMin - 1;
+
+  function updateTmpl(key, val) { setTmpl(prev => ({ ...prev, [key]: val })); }
+
+  function setSlot(idx, val) {
+    const next = [...slots];
+    if (val && next.includes(val)) return;
+    next[idx] = val;
+    setSlots(next);
+  }
+  function removeSlot(idx) { const n=[...slots]; n[idx]=''; setSlots(n); }
+
+  function save() { setSaved(true); setTimeout(() => setSaved(false), 2500); }
+  function sendTest() {
+    if (!testEmail.trim()) return;
+    setTestSent(true); setShowTest(false);
+    setTimeout(() => setTestSent(false), 3000);
+  }
+
+  const NAV = [
+    { id: 'thresholds', label: '① Score thresholds' },
+    { id: 'platforms',  label: '② Review platforms'  },
+    { id: 'request',    label: '③ Request message'   },
+    { id: 'nps',        label: '④ NPS survey'        },
+    { id: 'promoter',   label: '⑤ Promoter path'     },
+    { id: 'neutral',    label: '⑥ Neutral path'      },
+    { id: 'detractor',  label: '⑦ Detractor path'    },
+    { id: 'locations',  label: '⑧ Locations'         },
+  ];
+
+  const inp = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' };
+  const lbl = { fontWeight: 600, fontSize: '.78rem', color: '#4a4a48', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6, display: 'block' };
+
+  function TField({ label, hint, children }) {
+    return (
+      <div style={{ marginBottom: 18 }}>
+        <span style={lbl}>{label}</span>
+        {children}
+        {hint && <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 5, lineHeight: 1.5 }}>{hint}</div>}
+      </div>
+    );
+  }
+
+  const sections = {
+    thresholds: (
+      <div>
+        <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 20, lineHeight: 1.7 }}>
+          Define what score range qualifies as Promoter, Neutral, or Detractor. This controls which follow-up path a customer is sent down after completing the NPS survey.
+        </div>
+        <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', height: 40, marginBottom: 12 }}>
+          <div style={{ flex: neutralMin, background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: '#c0392b' }}>Detractor · 0–{detractorMax}</div>
+          <div style={{ flex: Math.max(1, promoterMin - neutralMin), background: '#fef9c3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: '#92690a' }}>Neutral · {neutralMin}–{neutralMax}</div>
+          <div style={{ flex: 11 - promoterMin, background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: '#1a6b45' }}>Promoter · {promoterMin}–10</div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#7a7670', marginBottom: 20, padding: '0 2px' }}>
+          {[0,1,2,3,4,5,6,7,8,9,10].map(n => <span key={n} style={{ fontWeight: 600 }}>{n}</span>)}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <TField label="Neutral starts at" hint="Scores below this are Detractors (min 1, max 7)">
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+              {[1,2,3,4,5,6,7].map(n => (
+                <button key={n} onClick={() => n < promoterMin && setNeutralMin(n)}
+                  style={{ width: 36, height: 36, borderRadius: 8, border: '1.5px solid', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit',
+                    borderColor: neutralMin === n ? '#f5c842' : '#e4e0d8',
+                    background: neutralMin === n ? '#f5c842' : 'white',
+                    color: neutralMin === n ? '#0a0a0a' : '#7a7670' }}>{n}</button>
+              ))}
+            </div>
+          </TField>
+          <TField label="Promoter starts at" hint="Scores at or above this are Promoters">
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+              {[7,8,9,10].map(n => (
+                <button key={n} onClick={() => n > neutralMin && setPromoterMin(n)}
+                  style={{ width: 36, height: 36, borderRadius: 8, border: '1.5px solid', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit',
+                    borderColor: promoterMin === n ? '#22c55e' : '#e4e0d8',
+                    background: promoterMin === n ? '#dcfce7' : 'white',
+                    color: promoterMin === n ? '#1a6b45' : '#7a7670' }}>{n}</button>
+              ))}
+            </div>
+          </TField>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginTop: 8 }}>
+          {[
+            { label: 'Detractor', range: `0–${detractorMax}`, bg: '#fee2e2', border: '#fca5a5', tc: '#c0392b', desc: 'Taken to a feedback form to share their experience.' },
+            { label: 'Neutral', range: `${neutralMin}–${neutralMax}`, bg: '#fef9c3', border: '#fde68a', tc: '#92690a', desc: 'Asked if they would return. Yes → Promoter. No → Detractor.' },
+            { label: 'Promoter', range: `${promoterMin}–10`, bg: '#dcfce7', border: '#bbf7d0', tc: '#1a6b45', desc: 'Asked to leave a review on your priority platform.' },
+          ].map(p => (
+            <div key={p.label} style={{ background: p.bg, border: `1px solid ${p.border}`, borderRadius: 12, padding: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: '.84rem', color: p.tc, marginBottom: 4 }}>{p.label} · {p.range}</div>
+              <div style={{ fontSize: '.75rem', color: p.tc, lineHeight: 1.55, opacity: .85 }}>{p.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ),
+
+    platforms: (
+      <div>
+        <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 20, lineHeight: 1.7 }}>
+          Choose which review platforms to send Promoters to, and in what priority order. Slot 1 is shown first.
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 460 }}>
+          {slots.map((sv, idx) => {
+            const platform = PLATFORMS.find(p => p.id === sv);
+            return (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#0a0a0a', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 800, flexShrink: 0 }}>{idx+1}</div>
+                {platform ? (
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: `2px solid ${platform.color}`, borderRadius: 10, padding: '10px 14px' }}>
+                    <span style={{ fontWeight: 700, fontSize: '1rem', color: platform.color }}>{platform.icon}</span>
+                    <span style={{ fontWeight: 600, fontSize: '.875rem', flex: 1 }}>{platform.label}</span>
+                    <button onClick={() => removeSlot(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c8c4bc', fontSize: '1rem', padding: '2px 4px' }}
+                      onMouseEnter={e => e.currentTarget.style.color='#c0392b'}
+                      onMouseLeave={e => e.currentTarget.style.color='#c8c4bc'}>✕</button>
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, display: 'flex', gap: 8 }}>
+                    {PLATFORMS.map(p => (
+                      <button key={p.id} onClick={() => setSlot(idx, p.id)} disabled={slots.includes(p.id)}
+                        style={{ flex: 1, padding: '10px 8px', border: '1.5px solid #e4e0d8', borderRadius: 10, background: 'white',
+                          cursor: slots.includes(p.id) ? 'not-allowed' : 'pointer', opacity: slots.includes(p.id) ? .3 : 1,
+                          fontSize: '.78rem', fontWeight: 600, color: '#0a0a0a', fontFamily: 'inherit' }}>
+                        {p.icon} {p.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ),
+
+    request: (
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <TField label="SMS message" hint="Max 160 chars. Variables: {name} {business} {link}">
+          <textarea rows={3} style={inp} maxLength={160} value={tmpl.smsRequest} onChange={e => updateTmpl('smsRequest', e.target.value)} />
+          <div style={{ fontSize: '.7rem', color: tmpl.smsRequest.length > 150 ? '#c0392b' : '#7a7670', textAlign: 'right', marginTop: 4 }}>{tmpl.smsRequest.length}/160</div>
+        </TField>
+        <div>
+          <TField label="Email subject">
+            <input style={{ ...inp, resize: 'none' }} value={tmpl.emailSubject} onChange={e => updateTmpl('emailSubject', e.target.value)} />
+          </TField>
+          <TField label="Email body" hint="Variables: {name} {business} {link}">
+            <textarea rows={8} style={inp} value={tmpl.emailBody} onChange={e => updateTmpl('emailBody', e.target.value)} />
+          </TField>
+        </div>
+      </div>
+    ),
+
+    nps: (
+      <div style={{ maxWidth: 560 }}>
+        <TField label="Survey question" hint="Variables: {business}">
+          <textarea rows={2} style={inp} value={tmpl.npsQuestion} onChange={e => updateTmpl('npsQuestion', e.target.value)} />
+        </TField>
+        <div style={{ background: '#f8f7f4', borderRadius: 12, padding: 16, marginTop: 4 }}>
+          <div style={{ fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>Live preview</div>
+          <div style={{ fontSize: '.9rem', color: '#0a0a0a', fontWeight: 500, marginBottom: 14 }}>{tmpl.npsQuestion.replace(/{business}/g, 'Your Business')}</div>
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+            {[0,1,2,3,4,5,6,7,8,9,10].map(n => (
+              <div key={n} style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #e4e0d8', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.8rem', fontWeight: 600, color: '#7a7670' }}>{n}</div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#7a7670', marginTop: 6 }}>
+            <span>Not likely at all</span><span>Extremely likely</span>
+          </div>
+        </div>
+      </div>
+    ),
+
+    promoter: (
+      <div style={{ maxWidth: 560 }}>
+        <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', fontSize: '.8rem', color: '#1a6b45', marginBottom: 20 }}>
+          Shown to customers who scored {promoterMin}–10
+        </div>
+        <TField label="Promoter message" hint="Shown after NPS score, before review platform buttons.">
+          <textarea rows={4} style={inp} value={tmpl.promoterMessage} onChange={e => updateTmpl('promoterMessage', e.target.value)} />
+        </TField>
+        <div style={{ background: '#f8f7f4', borderRadius: 12, padding: 16 }}>
+          <div style={{ fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>Platform buttons preview</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {slots.filter(Boolean).map(sid => {
+              const p = PLATFORMS.find(x => x.id === sid);
+              return <div key={sid} style={{ padding: '9px 16px', borderRadius: 50, background: p.color, color: 'white', fontSize: '.8rem', fontWeight: 700 }}>{p.icon} Leave a review on {p.label}</div>;
+            })}
+            {!slots.some(Boolean) && <div style={{ fontSize: '.8rem', color: '#7a7670' }}>No platforms selected — add them in Review Platforms.</div>}
+          </div>
+        </div>
+      </div>
+    ),
+
+    neutral: (
+      <div style={{ maxWidth: 560 }}>
+        <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 14px', fontSize: '.8rem', color: '#92690a', marginBottom: 20 }}>
+          Shown to customers who scored {neutralMin}–{neutralMax}
+        </div>
+        <TField label="Follow-up question" hint="Shown after NPS. Yes → Promoter path. No → Detractor path. Variables: {business}">
+          <textarea rows={2} style={inp} value={tmpl.neutralQuestion} onChange={e => updateTmpl('neutralQuestion', e.target.value)} />
+        </TField>
+        <div style={{ background: '#f8f7f4', borderRadius: 12, padding: 16 }}>
+          <div style={{ fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 12 }}>Routing preview</div>
+          <div style={{ fontSize: '.875rem', color: '#0a0a0a', marginBottom: 14 }}>{tmpl.neutralQuestion.replace(/{business}/g, 'Your Business')}</div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: '#dcfce7', border: '1px solid #bbf7d0', fontSize: '.8rem', color: '#1a6b45', fontWeight: 600, textAlign: 'center' }}>Yes → Promoter path</div>
+            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: '#fee2e2', border: '1px solid #fca5a5', fontSize: '.8rem', color: '#c0392b', fontWeight: 600, textAlign: 'center' }}>No → Detractor path</div>
+          </div>
+        </div>
+      </div>
+    ),
+
+    detractor: (
+      <div style={{ maxWidth: 560 }}>
+        <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 10, padding: '10px 14px', fontSize: '.8rem', color: '#c0392b', marginBottom: 20 }}>
+          Shown to customers who scored 0–{detractorMax}, or neutral customers who said they would not return
+        </div>
+        <TField label="Opening message"><textarea rows={2} style={inp} value={tmpl.detractorOpening} onChange={e => updateTmpl('detractorOpening', e.target.value)} /></TField>
+        <TField label="Question 1 — What fell short" hint="Free text response"><input style={{ ...inp, resize: 'none' }} value={tmpl.detractorQ1} onChange={e => updateTmpl('detractorQ1', e.target.value)} /></TField>
+        <TField label="Question 2 — How to improve" hint="Free text response"><input style={{ ...inp, resize: 'none' }} value={tmpl.detractorQ2} onChange={e => updateTmpl('detractorQ2', e.target.value)} /></TField>
+        <TField label="Closing message"><textarea rows={3} style={inp} value={tmpl.detractorClosing} onChange={e => updateTmpl('detractorClosing', e.target.value)} /></TField>
+      </div>
+    ),
+
+    locations: (
+      <div style={{ maxWidth: 520 }}>
+        <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 20, lineHeight: 1.7 }}>
+          Control whether this template is shared with or visible from other locations on your account.
+        </div>
+        {[
+          { val: shareAll, setter: setShareAll, title: 'Share this template across all locations', desc: 'Other locations on your account can see and apply this template.', bg: shareAll ? '#dcfce7' : 'white', border: shareAll ? '#bbf7d0' : '#e4e0d8' },
+          { val: suppress, setter: setSuppress, title: 'Suppress templates from other locations', desc: 'Hide templates shared by other locations. Only your own templates will appear.', bg: suppress ? '#f8f7f4' : 'white', border: suppress ? '#c8c4bc' : '#e4e0d8' },
+        ].map((item, i) => (
+          <div key={i} onClick={() => item.setter(v => !v)}
+            style={{ background: item.bg, border: `1.5px solid ${item.border}`, borderRadius: 12, padding: '14px 16px', marginBottom: 12, display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer', transition: 'all .15s' }}>
+            <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${item.val ? '#0a0a0a' : '#c8c4bc'}`, background: item.val ? '#0a0a0a' : 'white', flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {item.val && <span style={{ color: 'white', fontSize: '.65rem', fontWeight: 900 }}>✓</span>}
+            </div>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '.875rem', color: '#0a0a0a', marginBottom: 3 }}>{item.title}</div>
+              <div style={{ fontSize: '.78rem', color: '#7a7670', lineHeight: 1.55 }}>{item.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+  };
+
+  const titles = { thresholds:'Score thresholds', platforms:'Review platforms', request:'Request message', nps:'NPS survey', promoter:'Promoter path', neutral:'Neutral path', detractor:'Detractor path', locations:'Location sharing' };
+
+  return (
+    <div style={{ padding: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20 }}>
+        <div>
+          <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden' }}>
+            {NAV.map(n => (
+              <button key={n.id} onClick={() => setSection(n.id)}
+                style={{ width: '100%', padding: '11px 14px', border: 'none', textAlign: 'left', background: section === n.id ? '#0a0a0a' : 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.78rem', fontWeight: section === n.id ? 700 : 500, color: section === n.id ? 'white' : '#4a4a48', borderBottom: '1px solid #f0eeea', transition: 'all .12s' }}>
+                {n.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Card style={{ padding: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, fontSize: '1rem' }}>{titles[section]}</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setShowTest(v => !v)} style={{ padding: '8px 16px', borderRadius: 50, background: 'white', border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.8rem', fontWeight: 600, fontFamily: 'inherit', color: '#4a4a48' }}>✉ Send test</button>
+                <button onClick={save} style={{ padding: '8px 18px', borderRadius: 50, background: saved ? '#1a6b45' : '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit', transition: 'background .2s' }}>
+                  {saved ? '✓ Saved' : 'Save'}
+                </button>
+              </div>
+            </div>
+            {showTest && (
+              <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 8 }}>
+                <input placeholder="Your email or phone number..." value={testEmail} onChange={e => setTestEmail(e.target.value)}
+                  style={{ flex: 1, padding: '8px 12px', border: '1.5px solid #e4e0d8', borderRadius: 8, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none' }} />
+                <button onClick={sendTest} style={{ padding: '8px 16px', borderRadius: 50, background: '#f5c842', color: '#0a0a0a', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit' }}>Send</button>
+                <button onClick={() => setShowTest(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a7670', fontSize: '1rem' }}>✕</button>
+              </div>
+            )}
+            {testSent && <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 14px', marginBottom: 16, fontSize: '.82rem', color: '#1a6b45', fontWeight: 600 }}>✓ Test sent to {testEmail}</div>}
+            {sections[section]}
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function SurveysTab() {
   return (
@@ -173,7 +498,8 @@ export default function Grow() {
           }}>{t.label}</button>
         ))}
       </div>
-      {tab === 'requests' && <RequestsTab />}
+      {tab === 'requests'  && <RequestsTab />}
+      {tab === 'templates' && <TemplatesTab />}
       {tab === 'surveys'  && <SurveysTab />}
       {tab === 'import'   && <ImportTab />}
     </DashboardLayout>
