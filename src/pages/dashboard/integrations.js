@@ -121,6 +121,17 @@ const INTEGRATIONS = [
       { label: 'API key',  key: 'apiKey',  type: 'password', placeholder: 'Your Acuity API key'  },
     ],
   },
+  {
+    id:          'jobber',
+    name:        'Jobber',
+    icon:        '🔧',
+    color:       '#F5A623',
+    category:    'Field Service',
+    description: 'Send review requests automatically when a Jobber job is completed.',
+    trigger:     'Job completed',
+    authType:    'oauth',
+    delay:       60,
+  },
 ];
 
 const CATEGORIES = ['All', 'Reviews', 'Payments', 'CRM', 'E-commerce', 'Fitness & Wellness', 'Appointments'];
