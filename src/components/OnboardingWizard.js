@@ -139,12 +139,14 @@ export default function OnboardingWizard({ customer, onComplete }) {
   }
 
   async function skipAll() {
+    // Persist skip decision so wizard never auto-shows again on this device
+    localStorage.setItem('onboarding_skipped', '1');
     try {
       await axios.post(`${API}/onboarding/skip`, {}, { headers: authHeaders() });
-      onComplete();
     } catch (err) {
-      onComplete(); // skip anyway
+      // Route may not exist — that's fine, localStorage flag is what matters
     }
+    onComplete();
   }
 
   // ── STEP ACTIONS ────────────────────────────────────────────────────────────

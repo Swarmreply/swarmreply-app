@@ -99,6 +99,10 @@ export default function DashboardLayout({ children, title }) {
   async function checkOnboarding() {
     setWizardChecked(true);
     if (router.pathname === '/dashboard/billing') return;
+
+    // If user already skipped, never show again until they reset from Settings
+    if (localStorage.getItem('onboarding_skipped') === '1') return;
+
     try {
       const t = localStorage.getItem('swarmreply_token');
       const res = await axios.get(`${API}/onboarding/status`, {
