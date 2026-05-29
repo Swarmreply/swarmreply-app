@@ -106,8 +106,7 @@ export default function Reviews() {
         ))}
       </div>
 
-      (
-        <div>
+      <div>
           {/* Filter bar */}
           {tab === 'all' && (
             <div style={{ padding: '12px 24px', background: 'white', borderBottom: '1px solid #e4e0d8', display: 'flex', gap: 8 }}>
@@ -134,8 +133,7 @@ export default function Reviews() {
               filtered.map(r => <ReviewCard key={r.id} review={r} />)
             )}
           </div>
-        </div>
-      )}
+      </div>
     </DashboardLayout>
   );
 }
