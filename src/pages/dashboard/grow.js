@@ -95,7 +95,13 @@ const PLATFORMS = [
   { id: 'yelp',     label: 'Yelp',     color: '#D32323', icon: 'Y' },
 ];
 
+const SWARMREPLY_LOGO = 'https://app.swarmreply.com/bee-logo.png';
+const SWARMREPLY_COLOR = '#f5c842';
+
 const DEFAULT_TMPL = {
+  brandColor: SWARMREPLY_COLOR,
+  brandLogo: SWARMREPLY_LOGO,
+  buttonText: 'Share Your Feedback →',
   smsRequest: "Hi {name}, thanks for choosing {business}! We'd love your feedback — it only takes 30 seconds. {link}",
   emailSubject: 'How did we do, {name}?',
   emailBody: "Hi {name},\n\nThank you for choosing {business}! Your experience matters to us.\n\nWe'd love to hear how we did — it only takes a moment.\n\nTap below to share your feedback:\n{link}\n\nThank you,\n{business} Team",
@@ -120,6 +126,7 @@ function TemplatesTab() {
   const [neutralMin, setNeutralMin]   = useState(7);
   const [slots, setSlots]             = useState(['google', '', '']);
   const [tmpl, setTmpl]               = useState(DEFAULT_TMPL);
+  const [logoPreview, setLogoPreview]  = useState('');
   const [shareAll, setShareAll]       = useState(false);
   const [suppress, setSuppress]       = useState(false);
 
@@ -151,6 +158,9 @@ function TemplatesTab() {
           promoterMessage:  tmpl.promoterMessage,
           neutralQuestion:  tmpl.neutralQuestion,
           detractorOpening: tmpl.detractorOpening,
+          brandColor:       tmpl.brandColor,
+          brandLogo:        tmpl.brandLogo,
+          buttonText:       tmpl.buttonText,
         },
         thresholds: { promoterMin, neutralMin },
         platforms:  slots.filter(Boolean),
@@ -168,14 +178,15 @@ function TemplatesTab() {
   }
 
   const NAV = [
-    { id: 'thresholds', label: '① Score thresholds' },
-    { id: 'platforms',  label: '② Review platforms'  },
-    { id: 'request',    label: '③ Request message'   },
-    { id: 'nps',        label: '④ NPS survey'        },
-    { id: 'promoter',   label: '⑤ Promoter path'     },
-    { id: 'neutral',    label: '⑥ Neutral path'      },
-    { id: 'detractor',  label: '⑦ Detractor path'    },
-    { id: 'locations',  label: '⑧ Locations'         },
+    { id: 'branding',   label: '① Branding'          },
+    { id: 'thresholds', label: '② Score thresholds' },
+    { id: 'platforms',  label: '③ Review platforms'  },
+    { id: 'request',    label: '④ Request message'   },
+    { id: 'nps',        label: '⑤ NPS survey'        },
+    { id: 'promoter',   label: '⑥ Promoter path'     },
+    { id: 'neutral',    label: '⑦ Neutral path'      },
+    { id: 'detractor',  label: '⑧ Detractor path'    },
+    { id: 'locations',  label: '⑨ Locations'         },
   ];
 
   const inp = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' };
@@ -192,6 +203,75 @@ function TemplatesTab() {
   }
 
   const sections = {
+    branding: (
+      <div style={{ maxWidth: 560 }}>
+        <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 20, lineHeight: 1.7 }}>
+          Your brand color and logo appear in the email banner and footer of every review request sent to your customers.
+        </div>
+
+        <TField label="Brand color" hint="Used for the email banner, button, and footer background.">
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 6 }}>
+            <input type="color" value={tmpl.brandColor} onChange={e => updateTmpl('brandColor', e.target.value)}
+              style={{ width: 48, height: 40, border: '1.5px solid #e4e0d8', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
+            <input value={tmpl.brandColor} onChange={e => updateTmpl('brandColor', e.target.value)}
+              style={{ ...inp, width: 120, resize: 'none' }} placeholder="#f5c842" />
+            <div style={{ display: 'flex', gap: 6 }}>
+              {['#0a0a0a','#f5c842','#1877F2','#4285F4','#D32323','#1a6b45','#7c3aed','#ea580c'].map(c => (
+                <button key={c} onClick={() => updateTmpl('brandColor', c)}
+                  style={{ width: 24, height: 24, borderRadius: '50%', background: c, border: tmpl.brandColor === c ? '2px solid #0a0a0a' : '2px solid transparent', cursor: 'pointer' }} />
+              ))}
+            </div>
+          </div>
+        </TField>
+
+        <TField label="Business logo URL" hint="Paste a URL to your logo image (PNG or JPG). Shown in the email header. Recommended: 200×60px.">
+          <input style={{ ...inp, resize: 'none' }} value={tmpl.brandLogo}
+            onChange={e => updateTmpl('brandLogo', e.target.value)}
+            placeholder="https://yourwebsite.com/logo.png" />
+          {tmpl.brandLogo && (
+            <div style={{ marginTop: 10, background: '#f8f7f4', borderRadius: 9, padding: 12, textAlign: 'center' }}>
+              <img src={tmpl.brandLogo} alt="Logo preview" style={{ maxHeight: 60, maxWidth: 200, objectFit: 'contain' }}
+                onError={e => { e.target.style.display='none'; }} />
+            </div>
+          )}
+        </TField>
+
+        <TField label="Button text" hint="The call-to-action button in the email.">
+          <input style={{ ...inp, resize: 'none' }} value={tmpl.buttonText}
+            onChange={e => updateTmpl('buttonText', e.target.value)} />
+        </TField>
+
+        {/* Live email preview */}
+        <div style={{ marginTop: 8 }}>
+          <span style={lbl}>Email preview</span>
+          <div style={{ border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', fontFamily: 'sans-serif' }}>
+            {/* Banner */}
+            <div style={{ background: tmpl.brandColor, padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              {tmpl.brandLogo
+                ? <img src={tmpl.brandLogo} alt="Logo" style={{ maxHeight: 48, maxWidth: 160, objectFit: 'contain' }} onError={e => e.target.style.display='none'} />
+                : <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0a0a0a', letterSpacing: '-.01em' }}>Your Business</div>
+              }
+            </div>
+            {/* Body */}
+            <div style={{ padding: '28px 32px', background: 'white' }}>
+              <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#0a0a0a', marginBottom: 12 }}>How did we do, {'{name}'}?</div>
+              <div style={{ fontSize: '.875rem', color: '#3a3a38', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap' }}>
+                {tmpl.emailBody.split('{link}')[0].replace(/{name}/g, 'Test Customer').replace(/{business}/g, 'Your Business')}
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                <div style={{ display: 'inline-block', background: tmpl.brandColor, color: '#0a0a0a', padding: '14px 28px', borderRadius: 50, fontWeight: 700, fontSize: '.9rem', cursor: 'pointer' }}>
+                  {tmpl.buttonText || 'Share Your Feedback →'}
+                </div>
+              </div>
+            </div>
+            {/* Footer */}
+            <div style={{ background: tmpl.brandColor, padding: '14px 32px', opacity: .85 }}>
+              <div style={{ fontSize: '.72rem', color: '#0a0a0a', opacity: .7, textAlign: 'center' }}>Sent by SwarmReply on behalf of Your Business</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ),
     thresholds: (
       <div>
         <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 20, lineHeight: 1.7 }}>
