@@ -306,9 +306,6 @@ function CompetitorsTab({ report }) {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 18, lineHeight: 1.7, maxWidth: 600 }}>
-        When someone asks ChatGPT, Gemini, or Perplexity "best [your business type] near me", AI models recommend a shortlist of businesses. The competitors below are the ones showing up in those results — sometimes instead of you, sometimes alongside you. A business with more mentions gets recommended more often, which means more new customers discovering them through AI search. Your goal is to move up this leaderboard by increasing your review volume, consistency across directories, and online presence.
-      </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
         <Card style={{ overflow: 'hidden' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>AI competitor leaderboard</div>
@@ -331,6 +328,19 @@ function CompetitorsTab({ report }) {
             );
           })}
         </Card>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <Card style={{ padding: 20 }}>
+          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 10 }}>What you're looking at</div>
+          <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: '0 0 10px' }}>
+            When someone asks ChatGPT, Gemini, or Perplexity a question such as "best business near me", AI models recommend a shortlist of businesses. The competitors above are the ones showing up in those results. Sometimes those competitors are showing up instead of you, sometimes they are alongside you.
+          </p>
+          <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: '0 0 10px' }}>
+            A business with more mentions, reviews and overall web presence gets recommended more often, which means more new customers discovering them through AI search.
+          </p>
+          <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: 0 }}>
+            Your goal is to move up this leaderboard by increasing your review volume, consistency across directories, and online presence.
+          </p>
+        </Card>
         <Card style={{ padding: 20, height: 'fit-content' }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>What makes competitors rank higher</div>
           {['More Google reviews — AI models treat review volume and recency as a primary trust signal when deciding who to recommend.', 'Listed on more directories — Yelp, TripAdvisor, Facebook, Apple Maps all feed AI training data. More listings = more AI citations.', 'Consistent NAP data — if your name, address, and phone differ across sites, AI models lose confidence and recommend competitors instead.', 'Faster reply rate — businesses that respond to reviews signal active engagement, which AI models factor into recommendations.'].map((tip, i) => (
@@ -339,6 +349,7 @@ function CompetitorsTab({ report }) {
             </div>
           ))}
         </Card>
+        </div>
       </div>
     </div>
   );
@@ -622,8 +633,8 @@ export default function AIVisibility() {
             </div>
           ) : (
             <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 8, padding: '6px 14px' }}>
-              <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
-              <div style={{ fontSize: '.82rem', color: '#7a7670', marginTop: 2 }}>Set frequency in ⚙ My Queries</div>
+              <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Scan frequency</div>
+              <div style={{ fontSize: '.82rem', color: '#0a0a0a', fontWeight: 600, marginTop: 2 }}>Weekly</div>
             </div>
           )}
         </div>
