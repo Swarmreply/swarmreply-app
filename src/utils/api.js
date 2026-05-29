@@ -17,6 +17,10 @@ const api = axios.create({
 
 // Add auth token to every request
 api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('swarmreply_token');
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
   const customerId = localStorage.getItem('swarmreply_customer_id');
   if (customerId) {
     config.headers['x-customer-id'] = customerId;
