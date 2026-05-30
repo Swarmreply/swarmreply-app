@@ -562,7 +562,7 @@ export default function Campaigns() {
         {tab === 'list' && (
           <>
             <UsageMeter used={usage.used || usage.campaign_sms_sent || 634}
-      {tab === 'social' && <SocialPostsTab />} limit={usage.limit || usage.sms_limit || 2000} />
+      limit={usage.limit || usage.sms_limit || 2000} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
               <StatCard label="Total sent" value="1,284" sub="Across all campaigns" />
               <StatCard label="Delivery rate" value="96%" sub="↑ +2% vs industry avg" />
@@ -661,6 +661,7 @@ export default function Campaigns() {
           </div>
         </div>
       )}
+      {tab === 'social' && <SocialPostsTab />}
     </DashboardLayout>
   );
 }
