@@ -37,57 +37,335 @@ function StatCard({ label, value, sub }) {
 }
 
 function RequestsTab() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [sent, setSent] = useState(false);
+  const [name, setName]         = useState('');
+  const [email, setEmail]       = useState('');
+  const [phone, setPhone]       = useState('');
+  const [sent, setSent]         = useState(false);
+  const [sending, setSending]   = useState(false);
 
-  function send() {
+  // Survey results state
+  const [surveys, setSurveys]       = useState([]);
+  const [loadingSurveys, setLoadingSurveys] = useState(true);
+  const [search, setSearch]         = useState('');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [selected, setSelected]     = useState(null);
+
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  function authH() {
+    const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  }
+
+  useEffect(() => { loadSurveys(); }, []);
+
+  async function loadSurveys() {
+    setLoadingSurveys(true);
+    try {
+      const res = await axios.get(`${API}/surveys`, { headers: authH() });
+      setSurveys(res.data.surveys || []);
+    } catch (e) {
+      // demo data while API is being built
+      setSurveys([
+        { id: '1', customer_name: 'Sarah Mitchell', customer_email: 'sarah@example.com', nps_score: 9, path: 'promoter', completed_at: new Date(Date.now()-2*60*60*1000).toISOString(), left_review: true },
+        { id: '2', customer_name: 'James Torres',   customer_email: 'james@example.com', nps_score: 4, path: 'detractor', completed_at: new Date(Date.now()-24*60*60*1000).toISOString(), left_review: false, detractor_q1: 'The technician arrived 2 hours late with no communication.', detractor_q2: 'Better scheduling and communication when running behind.' },
+        { id: '3', customer_name: 'Rachel Kim',     customer_email: 'rachel@example.com', nps_score: 7, path: 'neutral', completed_at: new Date(Date.now()-2*24*60*60*1000).toISOString(), left_review: false, would_return: true },
+        { id: '4', customer_name: 'David Chen',     customer_email: 'david@example.com', nps_score: 2, path: 'detractor', completed_at: new Date(Date.now()-3*24*60*60*1000).toISOString(), left_review: false, detractor_q1: 'The work was not completed to the standard I expected.', detractor_q2: 'More attention to detail and a follow-up inspection.' },
+        { id: '5', customer_name: 'Maria Garcia',   customer_email: 'maria@example.com', nps_score: 10, path: 'promoter', completed_at: new Date(Date.now()-5*24*60*60*1000).toISOString(), left_review: true },
+        { id: '6', customer_name: 'Tom Wallace',    customer_email: 'tom@example.com', nps_score: 6, path: 'detractor', completed_at: new Date(Date.now()-7*24*60*60*1000).toISOString(), left_review: false, detractor_q1: 'Pricing was higher than quoted.', detractor_q2: 'Provide accurate upfront pricing with no surprises.' },
+      ]);
+    } finally {
+      setLoadingSurveys(false);
+    }
+  }
+
+  async function send() {
     if (!name.trim() || (!email.trim() && !phone.trim())) return;
+    setSending(true);
+    try {
+      await axios.post(`${API}/review-requests/send`, { name, email, phone }, { headers: authH() });
+    } catch (e) { console.error(e); }
     setSent(true);
+    setSending(false);
     setTimeout(() => setSent(false), 3000);
     setName(''); setEmail(''); setPhone('');
   }
 
+  // Filter logic
+  const now = new Date();
+  const filtered = surveys.filter(s => {
+    const matchSearch = !search.trim() ||
+      s.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
+      s.customer_email?.toLowerCase().includes(search.toLowerCase());
+    const d = new Date(s.completed_at);
+    const matchDate =
+      dateFilter === 'all'   ? true :
+      dateFilter === 'today' ? d.toDateString() === now.toDateString() :
+      dateFilter === 'week'  ? (now - d) < 7*24*60*60*1000 :
+      dateFilter === 'month' ? (now - d) < 30*24*60*60*1000 : true;
+    return matchSearch && matchDate;
+  });
+
+  function pathBadge(path, score) {
+    const cfg = {
+      promoter:  { bg: '#dcfce7', color: '#1a6b45', label: `Promoter · ${score}` },
+      neutral:   { bg: '#fef9c3', color: '#92690a', label: `Neutral · ${score}` },
+      detractor: { bg: '#fee2e2', color: '#c0392b', label: `Detractor · ${score}` },
+    }[path] || { bg: '#f0eeea', color: '#7a7670', label: score };
+    return (
+      <span style={{ background: cfg.bg, color: cfg.color, fontSize: '.67rem', fontWeight: 700,
+        padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>
+        {cfg.label}
+      </span>
+    );
+  }
+
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    const diff = (now - d) / 1000;
+    if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    if (diff < 604800) return Math.floor(diff/86400) + 'd ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
   return (
     <div style={{ padding: 24 }}>
+      {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
         <StatCard label="Sent this month" value="47" sub="↑ +12 vs last month" />
-        <StatCard label="Open rate" value="68%" sub="↑ +4% vs last month" />
+        <StatCard label="Open rate"        value="68%" sub="↑ +4% vs last month" />
         <StatCard label="Reviews generated" value="11" sub="↑ +3 vs last month" />
-        <StatCard label="Conversion rate" value="23%" sub="Industry avg 12%" />
+        <StatCard label="Conversion rate"   value="23%" sub="Industry avg 12%" />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
-        <Card>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>Recent sends</div>
-          {[['Sarah M.','Email · Opened','2h ago','Opened'],['James T.','SMS · Delivered','Yesterday','Pending'],['Rachel K.','Email · Reviewed','3 days ago','Reviewed']].map(([n,ch,t,s]) => (
-            <div key={n} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, flexShrink: 0 }}>{n[0]}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '.84rem' }}>{n}</div>
-                <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 2 }}>{ch} · {t}</div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
+
+        {/* Survey results table */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Card>
+            {/* Header + search + filter */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e4e0d8' }}>
+              <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 12 }}>Completed surveys</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {/* Search */}
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#7a7670', fontSize: '.85rem' }}>🔍</span>
+                  <input
+                    value={search} onChange={e => setSearch(e.target.value)}
+                    placeholder="Search by name or email…"
+                    style={{ width: '100%', padding: '8px 12px 8px 30px', border: '1.5px solid #e4e0d8', borderRadius: 9,
+                      fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+                {/* Date filter */}
+                <select value={dateFilter} onChange={e => setDateFilter(e.target.value)}
+                  style={{ padding: '8px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9,
+                    fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', background: 'white', cursor: 'pointer' }}>
+                  <option value="all">All time</option>
+                  <option value="today">Today</option>
+                  <option value="week">Last 7 days</option>
+                  <option value="month">Last 30 days</option>
+                </select>
+                <button onClick={loadSurveys} style={{ padding: '8px 14px', borderRadius: 9, background: '#f0eeea',
+                  border: 'none', cursor: 'pointer', fontSize: '.8rem', color: '#4a4a48', fontFamily: 'inherit' }}>
+                  ↻
+                </button>
               </div>
-              <span style={{ fontSize: '.67rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50, background: s === 'Reviewed' ? '#e8f5ef' : s === 'Opened' ? '#e8f0fe' : '#fef3cd', color: s === 'Reviewed' ? '#1a6b45' : s === 'Opened' ? '#1a4baa' : '#92690a' }}>{s}</span>
             </div>
-          ))}
-        </Card>
+
+            {/* Table header */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
+              padding: '8px 20px', background: '#f8f7f4',
+              fontSize: '.67rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+              <span>Customer</span>
+              <span>Email</span>
+              <span>Result</span>
+              <span>Review</span>
+              <span>Date</span>
+            </div>
+
+            {/* Rows */}
+            {loadingSurveys ? (
+              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>Loading surveys…</div>
+            ) : filtered.length === 0 ? (
+              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>
+                {search ? 'No surveys match your search.' : 'No completed surveys yet.'}
+              </div>
+            ) : filtered.map(s => (
+              <div key={s.id}
+                onClick={() => setSelected(s)}
+                style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
+                  padding: '12px 20px', borderBottom: '1px solid #f8f7f4', cursor: 'pointer',
+                  transition: 'background .1s', alignItems: 'center' }}
+                onMouseEnter={e => e.currentTarget.style.background='#fafaf9'}
+                onMouseLeave={e => e.currentTarget.style.background='white'}>
+                {/* Name */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#f0eeea',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 700, fontSize: '.78rem', flexShrink: 0, color: '#4a4a48' }}>
+                    {s.customer_name?.[0] || '?'}
+                  </div>
+                  <span style={{ fontWeight: 600, fontSize: '.84rem', color: '#0a0a0a',
+                    textDecoration: 'underline', textDecorationColor: '#c8c4bc' }}>
+                    {s.customer_name}
+                  </span>
+                </div>
+                {/* Email */}
+                <span style={{ fontSize: '.78rem', color: '#7a7670', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {s.customer_email}
+                </span>
+                {/* Path badge */}
+                <span>{pathBadge(s.path, s.nps_score)}</span>
+                {/* Left review */}
+                <span style={{ fontSize: '.78rem', color: s.left_review ? '#1a6b45' : '#c8c4bc', fontWeight: 600 }}>
+                  {s.left_review ? '✓ Yes' : '— No'}
+                </span>
+                {/* Date */}
+                <span style={{ fontSize: '.75rem', color: '#7a7670' }}>{fmtDate(s.completed_at)}</span>
+              </div>
+            ))}
+
+            {/* Footer count */}
+            <div style={{ padding: '10px 20px', borderTop: '1px solid #e4e0d8', fontSize: '.73rem', color: '#7a7670' }}>
+              {filtered.length} of {surveys.length} surveys
+            </div>
+          </Card>
+        </div>
+
+        {/* Send request panel */}
         <Card style={{ padding: 20, height: 'fit-content' }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Send a review request</div>
           {sent && <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#1a6b45', marginBottom: 12 }}>✓ Sent successfully!</div>}
-          {[['Customer name *','text','Enter name…',name,setName],['Email','email','customer@example.com',email,setEmail],['Phone (SMS)',  'tel','+1 555 000 0000',phone,setPhone]].map(([l,t,p,v,s]) => (
+          {[['Customer name *','text','Enter name…',name,setName],['Email','email','customer@example.com',email,setEmail],['Phone (SMS)','tel','+1 555 000 0000',phone,setPhone]].map(([l,t,p,v,s]) => (
             <div key={l} style={{ marginBottom: 10 }}>
               <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 4 }}>{l}</label>
-              <input type={t} value={v} onChange={e => s(e.target.value)} placeholder={p} style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none' }} />
+              <input type={t} value={v} onChange={e => s(e.target.value)} placeholder={p}
+                style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none' }} />
             </div>
           ))}
-          <button onClick={send} style={{ width: '100%', padding: 11, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', marginTop: 4 }}>
-            Send request →
+          <button onClick={send} disabled={sending}
+            style={{ width: '100%', padding: 11, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', marginTop: 4, opacity: sending ? .6 : 1 }}>
+            {sending ? 'Sending…' : 'Send request →'}
           </button>
         </Card>
       </div>
+
+      {/* Survey detail slide-over */}
+      {selected && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 999, display: 'flex' }}>
+          {/* Backdrop */}
+          <div style={{ flex: 1, background: 'rgba(0,0,0,.35)' }} onClick={() => setSelected(null)} />
+          {/* Panel */}
+          <div style={{ width: 480, background: 'white', height: '100%', overflowY: 'auto',
+            boxShadow: '-4px 0 32px rgba(0,0,0,.12)', display: 'flex', flexDirection: 'column' }}>
+            {/* Panel header */}
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e4e0d8', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f0eeea',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 800, fontSize: '1rem', flexShrink: 0 }}>
+                {selected.customer_name?.[0]}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: '.95rem' }}>{selected.customer_name}</div>
+                <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2 }}>{selected.customer_email}</div>
+              </div>
+              <button onClick={() => setSelected(null)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#7a7670', padding: '4px 8px' }}>✕</button>
+            </div>
+
+            <div style={{ padding: 24, flex: 1 }}>
+              {/* Score + path */}
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.5rem', fontWeight: 800,
+                  background: selected.path === 'promoter' ? '#dcfce7' : selected.path === 'detractor' ? '#fee2e2' : '#fef9c3',
+                  color: selected.path === 'promoter' ? '#1a6b45' : selected.path === 'detractor' ? '#c0392b' : '#92690a' }}>
+                  {selected.nps_score}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'capitalize' }}>{selected.path}</div>
+                  <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 2 }}>{fmtDate(selected.completed_at)}</div>
+                </div>
+                <div style={{ marginLeft: 'auto', fontSize: '.78rem', fontWeight: 600,
+                  color: selected.left_review ? '#1a6b45' : '#7a7670' }}>
+                  {selected.left_review ? '✓ Left a review' : '✗ No review left'}
+                </div>
+              </div>
+
+              {/* Detractor answers */}
+              {selected.path === 'detractor' && (
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '.84rem', marginBottom: 14, color: '#c0392b' }}>Detractor feedback</div>
+                  {selected.detractor_q1 && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>What fell short</div>
+                      <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: '#3a3a38', lineHeight: 1.65 }}>
+                        "{selected.detractor_q1}"
+                      </div>
+                    </div>
+                  )}
+                  {selected.detractor_q2 && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>How to improve</div>
+                      <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: '#3a3a38', lineHeight: 1.65 }}>
+                        "{selected.detractor_q2}"
+                      </div>
+                    </div>
+                  )}
+                  {!selected.detractor_q1 && !selected.detractor_q2 && (
+                    <div style={{ color: '#7a7670', fontSize: '.84rem' }}>No written feedback provided.</div>
+                  )}
+                </div>
+              )}
+
+              {/* Neutral path result */}
+              {selected.path === 'neutral' && (
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '.84rem', marginBottom: 14, color: '#92690a' }}>Neutral response</div>
+                  <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: '#3a3a38' }}>
+                    Would return: <strong>{selected.would_return ? 'Yes' : 'No'}</strong>
+                    {selected.would_return
+                      ? ' — Customer was directed to leave a review.'
+                      : ' — Customer was directed to the feedback form.'}
+                  </div>
+                </div>
+              )}
+
+              {/* Promoter path result */}
+              {selected.path === 'promoter' && (
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '.84rem', marginBottom: 14, color: '#1a6b45' }}>Promoter response</div>
+                  <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: '#3a3a38' }}>
+                    {selected.left_review
+                      ? '✓ Customer clicked through to leave a review.'
+                      : 'Customer was shown the review prompt but did not click through.'}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div style={{ marginTop: 24, display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => { window.location.href = 'mailto:' + selected.customer_email; }}
+                  style={{ flex: 1, padding: '10px 0', borderRadius: 50, background: '#0a0a0a', color: 'white',
+                    border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit' }}>
+                  ✉ Email customer
+                </button>
+                <button onClick={() => setSelected(null)}
+                  style={{ padding: '10px 18px', borderRadius: 50, background: 'white', color: '#4a4a48',
+                    border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.82rem', fontFamily: 'inherit' }}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 const PLATFORMS = [
   { id: 'google',   label: 'Google',   color: '#4285F4', icon: 'G' },
