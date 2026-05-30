@@ -3,14 +3,15 @@
 // SMS Campaigns — list / contacts / segments / compliance
 // ============================================
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 const TABS = [
-  { id: 'list',       label: 'Campaigns'   },
+  { id: 'list',       label: 'Campaigns'    },
+  { id: 'social',     label: 'Social Posts' },
   { id: 'contacts',   label: 'Contacts'    },
   { id: 'segments',   label: 'Segments'    },
   { id: 'compliance', label: 'Compliance'  },
@@ -58,6 +59,455 @@ function UsageMeter({ used = 634, limit = 2000 }) {
         <span>Starter: 500/mo · Growth: 2,000/mo · Agency: unlimited</span>
       </div>
     </Card>
+  );
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SOCIAL POSTS TAB
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Platform definitions with content type compatibility
+const SOCIAL_PLATFORMS = [
+  { id: 'facebook',  name: 'Facebook',  icon: '📘', color: '#1877F2', connection: 'meta',
+    supports: ['text','text_image','link','video','reel'] },
+  { id: 'instagram', name: 'Instagram', icon: '📷', color: '#E1306C', connection: 'meta',
+    supports: ['text_image','video','reel'],
+    unsupported_reason: 'Instagram does not support text-only or link posts via API.' },
+  { id: 'linkedin',  name: 'LinkedIn',  icon: '💼', color: '#0A66C2', connection: 'linkedin',
+    supports: ['text','text_image','link','video'] },
+  { id: 'google',    name: 'Google Business', icon: '🔍', color: '#4285F4', connection: 'google_posts',
+    supports: ['text','text_image','link'],
+    unsupported_reason: 'Google Business Posts do not support video or Reels.' },
+  { id: 'tiktok',   name: 'TikTok',    icon: '🎵', color: '#000000', connection: 'tiktok',
+    supports: ['video'],
+    unsupported_reason: 'TikTok only supports video posts.' },
+];
+
+const CONTENT_TYPES = [
+  { id: 'text',       label: 'Text only',       icon: '📝', desc: 'A text post with no media' },
+  { id: 'text_image', label: 'Text + Image',     icon: '🖼', desc: 'Text post with one or more images' },
+  { id: 'link',       label: 'Link post',        icon: '🔗', desc: 'Share a URL with a preview' },
+  { id: 'video',      label: 'Video',            icon: '🎬', desc: 'Upload and post a video' },
+  { id: 'reel',       label: 'Reel / Short',     icon: '📱', desc: 'Short-form vertical video' },
+];
+
+function SocialPostsTab() {
+  const [step, setStep]             = useState('type');    // type → platforms → compose → confirm
+  const [contentType, setContentType] = useState(null);
+  const [selectedPlatforms, setSelectedPlatforms] = useState([]);
+  const [postText, setPostText]     = useState('');
+  const [postLink, setPostLink]     = useState('');
+  const [postImage, setPostImage]   = useState(null);
+  const [postVideo, setPostVideo]   = useState(null);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('');
+  const [publishing, setPublishing] = useState(false);
+  const [posts, setPosts]           = useState([]);
+  const [view, setView]             = useState('create'); // create | history
+  const [published, setPublished]   = useState(false);
+
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  function authH() {
+    const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  }
+
+  // Demo post history
+  const demoPosts = [
+    { id:'1', text:'Summer hours are here! We are open 7 days a week through Labor Day.', platforms:['facebook','google'], content_type:'text', status:'live', published_at: new Date(Date.now()-2*86400000).toISOString(), platform_statuses:{ facebook:'live', google:'live' } },
+    { id:'2', text:'Check out our latest work! #quality #craftmanship', platforms:['facebook','instagram'], content_type:'text_image', status:'live', published_at: new Date(Date.now()-5*86400000).toISOString(), platform_statuses:{ facebook:'live', instagram:'live' } },
+    { id:'3', text:'New service video — watch how we do it.', platforms:['tiktok','instagram'], content_type:'video', status:'pending_approval', published_at: new Date(Date.now()-86400000).toISOString(), platform_statuses:{ tiktok:'pending_approval', instagram:'live' } },
+  ];
+
+  function togglePlatform(id) {
+    setSelectedPlatforms(prev =>
+      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    );
+  }
+
+  function compatiblePlatforms() {
+    if (!contentType) return [];
+    return SOCIAL_PLATFORMS.map(p => ({
+      ...p,
+      compatible: p.supports.includes(contentType),
+    }));
+  }
+
+  async function publish() {
+    if (!postText.trim() && contentType === 'text') return;
+    if (selectedPlatforms.length === 0) return;
+    setPublishing(true);
+    try {
+      await fetch(`${API}/social/post`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authH() },
+        body: JSON.stringify({
+          platforms: selectedPlatforms,
+          contentType,
+          text: postText,
+          link: postLink,
+          scheduleAt: scheduleDate && scheduleTime ? `${scheduleDate}T${scheduleTime}` : null,
+        }),
+      });
+    } catch(e) { console.error(e); }
+    setPublished(true);
+    setPublishing(false);
+  }
+
+  function reset() {
+    setStep('type'); setContentType(null); setSelectedPlatforms([]);
+    setPostText(''); setPostLink(''); setPostImage(null); setPostVideo(null);
+    setScheduleDate(''); setScheduleTime(''); setPublished(false);
+  }
+
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    const diff = (Date.now() - d) / 1000;
+    if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+    return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+  }
+
+  function statusBadge(status) {
+    const cfg = {
+      live:             { bg:'#dcfce7', color:'#1a6b45', label:'Live' },
+      pending_approval: { bg:'#fef9c3', color:'#92690a', label:'Pending TikTok approval' },
+      scheduled:        { bg:'#e0f2fe', color:'#0369a1', label:'Scheduled' },
+      failed:           { bg:'#fee2e2', color:'#c0392b', label:'Failed' },
+    }[status] || { bg:'#f0eeea', color:'#7a7670', label: status };
+    return <span style={{ background:cfg.bg, color:cfg.color, fontSize:'.67rem', fontWeight:700, padding:'2px 8px', borderRadius:50 }}>{cfg.label}</span>;
+  }
+
+  const inp = { width:'100%', padding:'10px 13px', border:'1.5px solid #e4e0d8', borderRadius:9, fontSize:'.84rem', fontFamily:'inherit', outline:'none', boxSizing:'border-box' };
+
+  if (published) return (
+    <div style={{ padding:32, textAlign:'center' }}>
+      <div style={{ fontSize:'2.5rem', marginBottom:16 }}>🎉</div>
+      <div style={{ fontWeight:700, fontSize:'1.1rem', marginBottom:8 }}>
+        {scheduleDate ? 'Post scheduled!' : 'Post submitted!'}
+      </div>
+      <div style={{ fontSize:'.84rem', color:'#7a7670', marginBottom:24, lineHeight:1.65 }}>
+        {scheduleDate
+          ? `Your post will go live on ${new Date(scheduleDate+'T'+scheduleTime).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}.`
+          : 'Your post has been sent to the selected platforms. It may take a few minutes to appear.'}
+        {selectedPlatforms.includes('tiktok') && (
+          <span><br/><strong>TikTok:</strong> Open the TikTok app to review and publish your video from Drafts.</span>
+        )}
+      </div>
+      <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
+        <button onClick={reset} style={{ padding:'10px 24px', borderRadius:50, background:'#0a0a0a', color:'white', border:'none', cursor:'pointer', fontWeight:700, fontFamily:'inherit' }}>Create another post</button>
+        <button onClick={() => { reset(); setView('history'); }} style={{ padding:'10px 24px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontFamily:'inherit', color:'#4a4a48' }}>View post history</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ padding:24 }}>
+      {/* Top bar */}
+      <div style={{ display:'flex', gap:8, marginBottom:20 }}>
+        <button onClick={() => setView('create')} style={{ padding:'8px 18px', borderRadius:50, background: view==='create' ? '#0a0a0a' : 'white', color: view==='create' ? 'white' : '#4a4a48', border:'1.5px solid', borderColor: view==='create' ? '#0a0a0a' : '#e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.82rem', fontFamily:'inherit' }}>+ Create post</button>
+        <button onClick={() => setView('history')} style={{ padding:'8px 18px', borderRadius:50, background: view==='history' ? '#0a0a0a' : 'white', color: view==='history' ? 'white' : '#4a4a48', border:'1.5px solid', borderColor: view==='history' ? '#0a0a0a' : '#e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.82rem', fontFamily:'inherit' }}>Post history</button>
+      </div>
+
+      {/* POST HISTORY VIEW */}
+      {view === 'history' && (
+        <div>
+          {demoPosts.length === 0 ? (
+            <div style={{ padding:40, textAlign:'center', color:'#7a7670' }}>No posts yet.</div>
+          ) : demoPosts.map(post => {
+            const platforms = SOCIAL_PLATFORMS.filter(p => post.platforms.includes(p.id));
+            return (
+              <div key={post.id} style={{ background:'white', border:'1px solid #e4e0d8', borderRadius:12, padding:'16px 20px', marginBottom:12 }}>
+                <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:'.875rem', color:'#0a0a0a', lineHeight:1.6, marginBottom:10 }}>{post.text}</div>
+                    <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:8 }}>
+                      {platforms.map(p => (
+                        <span key={p.id} style={{ display:'flex', alignItems:'center', gap:4, background: p.color+'18', color:p.color, fontSize:'.72rem', fontWeight:700, padding:'3px 9px', borderRadius:50 }}>
+                          {p.icon} {p.name}
+                          {post.platform_statuses?.[p.id] && (
+                            <span style={{ opacity:.7 }}>· {post.platform_statuses[p.id] === 'live' ? 'Live' : post.platform_statuses[p.id] === 'pending_approval' ? 'Pending' : post.platform_statuses[p.id]}</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ textAlign:'right', flexShrink:0 }}>
+                    {statusBadge(post.status)}
+                    <div style={{ fontSize:'.73rem', color:'#7a7670', marginTop:6 }}>{fmtDate(post.published_at)}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* CREATE POST FLOW */}
+      {view === 'create' && (
+        <div style={{ maxWidth:680 }}>
+          {/* Step indicator */}
+          <div style={{ display:'flex', gap:4, marginBottom:24, alignItems:'center' }}>
+            {[['type','1','Content type'],['platforms','2','Platforms'],['compose','3','Write post'],['confirm','4','Review & post']].map(([s,n,label],i,arr) => {
+              const steps = ['type','platforms','compose','confirm'];
+              const idx = steps.indexOf(step);
+              const thisIdx = steps.indexOf(s);
+              const done = thisIdx < idx;
+              const active = s === step;
+              return (
+                <React.Fragment key={s}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                    <div style={{ width:26, height:26, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'.72rem', fontWeight:800, background: done ? '#0a0a0a' : active ? '#f5c842' : '#f0eeea', color: done ? 'white' : active ? '#0a0a0a' : '#7a7670' }}>
+                      {done ? '✓' : n}
+                    </div>
+                    <span style={{ fontSize:'.75rem', fontWeight: active ? 700 : 500, color: active ? '#0a0a0a' : '#7a7670' }}>{label}</span>
+                  </div>
+                  {i < arr.length-1 && <div style={{ flex:1, height:1, background:'#e4e0d8', minWidth:16 }} />}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
+          {/* STEP 1: Content type */}
+          {step === 'type' && (
+            <div>
+              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:6 }}>What type of content are you posting?</div>
+              <div style={{ fontSize:'.82rem', color:'#7a7670', marginBottom:16 }}>Your selection will determine which platforms are available.</div>
+              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                {CONTENT_TYPES.map(ct => (
+                  <div key={ct.id} onClick={() => setContentType(ct.id)}
+                    style={{ padding:'14px 16px', border:'1.5px solid', borderRadius:12, cursor:'pointer', display:'flex', alignItems:'center', gap:14, transition:'all .12s',
+                      borderColor: contentType===ct.id ? '#0a0a0a' : '#e4e0d8',
+                      background: contentType===ct.id ? '#0a0a0a' : 'white' }}>
+                    <span style={{ fontSize:'1.3rem' }}>{ct.icon}</span>
+                    <div>
+                      <div style={{ fontWeight:700, fontSize:'.875rem', color: contentType===ct.id ? 'white' : '#0a0a0a' }}>{ct.label}</div>
+                      <div style={{ fontSize:'.75rem', color: contentType===ct.id ? 'rgba(255,255,255,.7)' : '#7a7670', marginTop:2 }}>{ct.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button disabled={!contentType} onClick={() => setStep('platforms')}
+                style={{ marginTop:20, padding:'11px 28px', borderRadius:50, background: contentType ? '#0a0a0a' : '#f0eeea', color: contentType ? 'white' : '#c8c4bc', border:'none', cursor: contentType ? 'pointer' : 'not-allowed', fontWeight:700, fontSize:'.875rem', fontFamily:'inherit' }}>
+                Next: Choose platforms →
+              </button>
+            </div>
+          )}
+
+          {/* STEP 2: Platform selector */}
+          {step === 'platforms' && (
+            <div>
+              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:6 }}>Select platforms to post to</div>
+              <div style={{ fontSize:'.82rem', color:'#7a7670', marginBottom:16 }}>Greyed out platforms don't support your content type.</div>
+              <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                {compatiblePlatforms().map(p => {
+                  const isSelected = selectedPlatforms.includes(p.id);
+                  const disabled = !p.compatible;
+                  return (
+                    <div key={p.id} onClick={() => !disabled && togglePlatform(p.id)}
+                      style={{ padding:'14px 16px', border:'1.5px solid', borderRadius:12,
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        opacity: disabled ? .45 : 1, transition:'all .12s',
+                        borderColor: isSelected ? p.color : '#e4e0d8',
+                        background: isSelected ? p.color+'12' : 'white' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                        {/* Checkbox */}
+                        <div style={{ width:20, height:20, borderRadius:5, border:'2px solid', flexShrink:0,
+                          borderColor: isSelected ? p.color : '#c8c4bc',
+                          background: isSelected ? p.color : 'white',
+                          display:'flex', alignItems:'center', justifyContent:'center' }}>
+                          {isSelected && <span style={{ color:'white', fontSize:'.65rem', fontWeight:900 }}>✓</span>}
+                        </div>
+                        <span style={{ fontSize:'1.2rem' }}>{p.icon}</span>
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontWeight:700, fontSize:'.875rem' }}>{p.name}</div>
+                          {disabled && p.unsupported_reason && (
+                            <div style={{ fontSize:'.73rem', color:'#7a7670', marginTop:2 }}>
+                              ⊘ {p.unsupported_reason}
+                            </div>
+                          )}
+                          {p.id === 'tiktok' && isSelected && (
+                            <div style={{ fontSize:'.73rem', color:'#92690a', marginTop:2 }}>
+                              ⚠ Videos go to TikTok Drafts — you'll approve from the TikTok app
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ display:'flex', gap:8, marginTop:20 }}>
+                <button onClick={() => setStep('type')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'#4a4a48' }}>← Back</button>
+                <button disabled={selectedPlatforms.length === 0} onClick={() => setStep('compose')}
+                  style={{ padding:'11px 28px', borderRadius:50, background: selectedPlatforms.length ? '#0a0a0a' : '#f0eeea', color: selectedPlatforms.length ? 'white' : '#c8c4bc', border:'none', cursor: selectedPlatforms.length ? 'pointer' : 'not-allowed', fontWeight:700, fontSize:'.875rem', fontFamily:'inherit' }}>
+                  Next: Write your post →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Compose */}
+          {step === 'compose' && (
+            <div>
+              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:16 }}>Write your post</div>
+
+              {/* Platform char limit hints */}
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
+                {selectedPlatforms.map(pid => {
+                  const p = SOCIAL_PLATFORMS.find(x => x.id === pid);
+                  const limits = { facebook:'63,206 chars', instagram:'2,200 chars', linkedin:'3,000 chars', google:'1,500 chars', tiktok:'2,200 chars' };
+                  return (
+                    <span key={pid} style={{ fontSize:'.68rem', background: p.color+'18', color:p.color, padding:'2px 8px', borderRadius:50, fontWeight:600 }}>
+                      {p.icon} {p.name} · {limits[pid]}
+                    </span>
+                  );
+                })}
+              </div>
+
+              {/* Post text */}
+              <div style={{ marginBottom:16 }}>
+                <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Post text</label>
+                <textarea rows={6} value={postText} onChange={e => setPostText(e.target.value)}
+                  placeholder="Write your post here…"
+                  style={{ ...inp, resize:'vertical' }} />
+                <div style={{ fontSize:'.7rem', color:'#7a7670', textAlign:'right', marginTop:4 }}>{postText.length} characters</div>
+              </div>
+
+              {/* Link field */}
+              {(contentType === 'link') && (
+                <div style={{ marginBottom:16 }}>
+                  <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>URL</label>
+                  <input type="url" value={postLink} onChange={e => setPostLink(e.target.value)}
+                    placeholder="https://" style={{ ...inp }} />
+                </div>
+              )}
+
+              {/* Image upload */}
+              {(contentType === 'text_image') && (
+                <div style={{ marginBottom:16 }}>
+                  <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Image</label>
+                  <div style={{ border:'2px dashed #e4e0d8', borderRadius:12, padding:'24px', textAlign:'center', cursor:'pointer', background:'#f8f7f4' }}
+                    onClick={() => document.getElementById('img-upload').click()}>
+                    {postImage ? (
+                      <div>
+                        <img src={URL.createObjectURL(postImage)} alt="" style={{ maxHeight:120, maxWidth:'100%', borderRadius:8, objectFit:'contain' }} />
+                        <div style={{ fontSize:'.75rem', color:'#7a7670', marginTop:8 }}>{postImage.name}</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize:'1.5rem', marginBottom:8 }}>🖼</div>
+                        <div style={{ fontSize:'.82rem', color:'#7a7670' }}>Click to upload an image</div>
+                        <div style={{ fontSize:'.72rem', color:'#c8c4bc', marginTop:4 }}>JPG, PNG or GIF · Max 10MB</div>
+                      </div>
+                    )}
+                    <input id="img-upload" type="file" accept="image/*" style={{ display:'none' }}
+                      onChange={e => setPostImage(e.target.files[0])} />
+                  </div>
+                </div>
+              )}
+
+              {/* Video upload */}
+              {(contentType === 'video' || contentType === 'reel') && (
+                <div style={{ marginBottom:16 }}>
+                  <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Video file</label>
+                  <div style={{ border:'2px dashed #e4e0d8', borderRadius:12, padding:'24px', textAlign:'center', cursor:'pointer', background:'#f8f7f4' }}
+                    onClick={() => document.getElementById('vid-upload').click()}>
+                    {postVideo ? (
+                      <div>
+                        <div style={{ fontSize:'1.5rem', marginBottom:8 }}>🎬</div>
+                        <div style={{ fontSize:'.82rem', fontWeight:600 }}>{postVideo.name}</div>
+                        <div style={{ fontSize:'.72rem', color:'#7a7670', marginTop:4 }}>{(postVideo.size/1024/1024).toFixed(1)} MB</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize:'1.5rem', marginBottom:8 }}>🎬</div>
+                        <div style={{ fontSize:'.82rem', color:'#7a7670' }}>Click to upload a video</div>
+                        <div style={{ fontSize:'.72rem', color:'#c8c4bc', marginTop:4 }}>MP4 or MOV · Max 500MB</div>
+                      </div>
+                    )}
+                    <input id="vid-upload" type="file" accept="video/*" style={{ display:'none' }}
+                      onChange={e => setPostVideo(e.target.files[0])} />
+                  </div>
+                </div>
+              )}
+
+              {/* Schedule */}
+              <div style={{ background:'#f8f7f4', borderRadius:12, padding:'14px 16px', marginBottom:16 }}>
+                <div style={{ fontWeight:600, fontSize:'.82rem', marginBottom:10 }}>Schedule (optional)</div>
+                <div style={{ display:'flex', gap:10 }}>
+                  <div style={{ flex:1 }}>
+                    <label style={{ display:'block', fontSize:'.7rem', color:'#7a7670', marginBottom:4 }}>Date</label>
+                    <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      style={{ ...inp }} />
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <label style={{ display:'block', fontSize:'.7rem', color:'#7a7670', marginBottom:4 }}>Time</label>
+                    <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
+                      style={{ ...inp }} />
+                  </div>
+                </div>
+                {!scheduleDate && <div style={{ fontSize:'.72rem', color:'#7a7670', marginTop:8 }}>Leave blank to post immediately.</div>}
+              </div>
+
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={() => setStep('platforms')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'#4a4a48' }}>← Back</button>
+                <button disabled={!postText.trim()} onClick={() => setStep('confirm')}
+                  style={{ padding:'11px 28px', borderRadius:50, background: postText.trim() ? '#0a0a0a' : '#f0eeea', color: postText.trim() ? 'white' : '#c8c4bc', border:'none', cursor: postText.trim() ? 'pointer' : 'not-allowed', fontWeight:700, fontSize:'.875rem', fontFamily:'inherit' }}>
+                  Next: Review →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: Confirm & publish */}
+          {step === 'confirm' && (
+            <div>
+              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:16 }}>Review your post</div>
+
+              {/* Preview */}
+              <div style={{ background:'#f8f7f4', borderRadius:14, padding:'18px 20px', marginBottom:20 }}>
+                <div style={{ fontSize:'.875rem', color:'#0a0a0a', lineHeight:1.7, marginBottom:14, whiteSpace:'pre-wrap' }}>{postText}</div>
+                {postLink && <div style={{ fontSize:'.78rem', color:'#1a4baa', marginBottom:10 }}>🔗 {postLink}</div>}
+                {postImage && <img src={URL.createObjectURL(postImage)} alt="" style={{ maxHeight:160, borderRadius:8, objectFit:'cover' }} />}
+                {postVideo && <div style={{ fontSize:'.82rem', color:'#7a7670' }}>🎬 {postVideo.name}</div>}
+                <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:14 }}>
+                  {selectedPlatforms.map(pid => {
+                    const p = SOCIAL_PLATFORMS.find(x => x.id === pid);
+                    return (
+                      <span key={pid} style={{ fontSize:'.72rem', background:p.color+'18', color:p.color, padding:'3px 9px', borderRadius:50, fontWeight:700 }}>
+                        {p.icon} {p.name}
+                      </span>
+                    );
+                  })}
+                </div>
+                {scheduleDate && (
+                  <div style={{ marginTop:12, fontSize:'.78rem', color:'#0369a1', fontWeight:600 }}>
+                    🕐 Scheduled for {new Date(scheduleDate+'T'+scheduleTime).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+                  </div>
+                )}
+              </div>
+
+              {/* TikTok notice */}
+              {selectedPlatforms.includes('tiktok') && (
+                <div style={{ background:'#fef9c3', border:'1px solid #fde68a', borderRadius:10, padding:'12px 14px', marginBottom:16, fontSize:'.8rem', color:'#92690a', lineHeight:1.65 }}>
+                  <strong>TikTok:</strong> Your video will be sent to your TikTok Drafts folder. Open the TikTok app to review and publish it. This is required by TikTok's API.
+                </div>
+              )}
+
+              <div style={{ display:'flex', gap:8 }}>
+                <button onClick={() => setStep('compose')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'#4a4a48' }}>← Edit</button>
+                <button onClick={publish} disabled={publishing}
+                  style={{ flex:1, padding:'12px 28px', borderRadius:50, background: publishing ? '#f0eeea' : '#0a0a0a', color: publishing ? '#c8c4bc' : 'white', border:'none', cursor: publishing ? 'not-allowed' : 'pointer', fontWeight:700, fontSize:'.95rem', fontFamily:'inherit' }}>
+                  {publishing ? 'Publishing…' : scheduleDate ? '🕐 Schedule post' : '🚀 Publish now'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -111,7 +561,8 @@ export default function Campaigns() {
       <div style={{ padding: 24 }}>
         {tab === 'list' && (
           <>
-            <UsageMeter used={usage.used || usage.campaign_sms_sent || 634} limit={usage.limit || usage.sms_limit || 2000} />
+            <UsageMeter used={usage.used || usage.campaign_sms_sent || 634}
+      {tab === 'social' && <SocialPostsTab />} limit={usage.limit || usage.sms_limit || 2000} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
               <StatCard label="Total sent" value="1,284" sub="Across all campaigns" />
               <StatCard label="Delivery rate" value="96%" sub="↑ +2% vs industry avg" />

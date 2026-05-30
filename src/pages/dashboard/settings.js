@@ -13,7 +13,7 @@ import Link from 'next/link';
 const TABS = [
   { id: 'ai',           label: 'AI Replies'       },
   { id: 'webchat',      label: 'Webchat & AI Agent'},
-  { id: 'integrations', label: 'Integrations'     },
+  { id: 'integrations', label: 'Social Media Connections' },
   { id: 'account',      label: 'Account'          },
   { id: 'team',         label: 'Team'             },
   { id: 'billing',      label: 'Billing'          },
@@ -177,40 +177,177 @@ function WebchatTab() {
 }
 
 function IntegrationsTab() {
+  const [connecting, setConnecting] = useState(null);
+  const [connected, setConnected]   = useState({});
+  const [tooltip, setTooltip]       = useState(null);
+
+  const API = process.env.NEXT_PUBLIC_API_URL;
+
+  function authH() {
+    const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  }
+
+  const PLATFORMS = [
+    {
+      id: 'meta',
+      name: 'Meta',
+      subtitle: 'Facebook & Instagram',
+      icon: '📘',
+      color: '#1877F2',
+      description: 'Connect your Meta Business account to post to Facebook Pages and Instagram Business profiles.',
+      authType: 'oauth',
+      scopes: ['pages_manage_posts','instagram_content_publish','pages_read_engagement'],
+      tooltip: 'You need a Facebook Business Page and/or Instagram Business account connected to Meta Business Suite. Personal accounts are not supported.',
+      provides: ['Facebook Posts', 'Instagram Posts'],
+    },
+    {
+      id: 'linkedin',
+      name: 'LinkedIn',
+      subtitle: 'Company Pages',
+      icon: '💼',
+      color: '#0A66C2',
+      description: 'Connect your LinkedIn Company Page to publish updates, articles, and media.',
+      authType: 'oauth',
+      tooltip: 'You need to be an admin of a LinkedIn Company Page. Personal LinkedIn profiles are not supported for posting via API.',
+      provides: ['LinkedIn Posts'],
+    },
+    {
+      id: 'google_posts',
+      name: 'Google Business',
+      subtitle: 'Google Posts',
+      icon: '🔍',
+      color: '#4285F4',
+      description: 'Post updates, offers, and events directly to your Google Business Profile.',
+      authType: 'oauth',
+      tooltip: 'Connect the Google account that manages your Google Business Profile. You can find this at business.google.com.',
+      provides: ['Google Posts'],
+    },
+    {
+      id: 'tiktok',
+      name: 'TikTok',
+      subtitle: 'Video posts',
+      icon: '🎵',
+      color: '#000000',
+      description: 'Upload videos to TikTok. Posts go to your TikTok drafts for your final review before publishing.',
+      authType: 'oauth',
+      tooltip: 'TikTok requires you to review and approve each video post from within the TikTok app before it goes live. This is a TikTok API requirement.',
+      provides: ['TikTok Videos'],
+      note: 'Posts require approval in the TikTok app',
+    },
+  ];
+
+  function connect(platform) {
+    setConnecting(platform.id);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+    window.location.href = `${API}/social/connect/${platform.id}?token=${token}`;
+  }
+
+  function disconnect(platformId) {
+    if (!confirm(`Disconnect ${platformId}? Your post history will be kept.`)) return;
+    setConnected(prev => ({ ...prev, [platformId]: false }));
+  }
+
   return (
-    <div style={{ maxWidth: 720, display: 'flex', flexDirection: 'column', gap: 11 }}>
-      {[
-        ['🔍','Google Business Profile','Reviews synced · AI replies · Listings · Google Posts','#4285F4','Connected'],
-        ['📘','Facebook Reviews','AI replies enabled','#1877F2','Connected'],
-        ['⭐','Yelp','Add your review link for routing','#D32323',null],
-        ['⚡','Zapier','7,000+ apps · connect via Zapier dashboard','#f5c842',null],
-      ].map(([icon, name, desc, color, status]) => (
-        <Card key={name} style={{ padding: 18, borderLeft: `4px solid ${color}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 10, background: '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', flexShrink: 0 }}>{icon}</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600, fontSize: '.9rem', marginBottom: 3 }}>{name}</div>
-              <div style={{ fontSize: '.78rem', color: '#7a7670' }}>{desc}</div>
+    <div style={{ maxWidth: 680 }}>
+      <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 24, lineHeight: 1.7 }}>
+        Connect your social media accounts to enable posting from the <strong>Social Posts</strong> section in Campaigns.
+        Each connection is per-location — connect separately for each business location if needed.
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {PLATFORMS.map(p => {
+          const isConnected = connected[p.id];
+          const isConnecting = connecting === p.id;
+          return (
+            <div key={p.id} style={{ background: 'white', border: `1.5px solid ${isConnected ? p.color : '#e4e0d8'}`,
+              borderRadius: 14, padding: '18px 20px', transition: 'border-color .2s' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                {/* Icon */}
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: p.color + '18',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', flexShrink: 0 }}>
+                  {p.icon}
+                </div>
+
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                    <span style={{ fontWeight: 700, fontSize: '.9rem' }}>{p.name}</span>
+                    <span style={{ fontSize: '.73rem', color: '#7a7670' }}>{p.subtitle}</span>
+                    {p.note && (
+                      <span style={{ fontSize: '.67rem', background: '#fef9c3', color: '#92690a',
+                        padding: '2px 7px', borderRadius: 50, fontWeight: 700 }}>
+                        ⚠ {p.note}
+                      </span>
+                    )}
+                    {isConnected && (
+                      <span style={{ fontSize: '.67rem', background: '#dcfce7', color: '#1a6b45',
+                        padding: '2px 7px', borderRadius: 50, fontWeight: 700 }}>✓ Connected</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '.8rem', color: '#7a7670', lineHeight: 1.6, marginBottom: 10 }}>
+                    {p.description}
+                  </div>
+
+                  {/* What it unlocks */}
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                    {p.provides?.map(pr => (
+                      <span key={pr} style={{ fontSize: '.67rem', background: '#f0eeea', color: '#4a4a48',
+                        padding: '2px 8px', borderRadius: 50, fontWeight: 600 }}>{pr}</span>
+                    ))}
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {isConnected ? (
+                      <button onClick={() => disconnect(p.id)}
+                        style={{ padding: '8px 16px', borderRadius: 50, background: 'white',
+                          border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.78rem',
+                          fontWeight: 600, fontFamily: 'inherit', color: '#7a7670' }}>
+                        Disconnect
+                      </button>
+                    ) : (
+                      <button onClick={() => connect(p)}
+                        disabled={isConnecting}
+                        style={{ padding: '9px 20px', borderRadius: 50, background: isConnecting ? '#f0eeea' : p.color,
+                          border: 'none', cursor: isConnecting ? 'not-allowed' : 'pointer',
+                          fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit',
+                          color: isConnecting ? '#7a7670' : 'white', transition: 'all .15s' }}>
+                        {isConnecting ? 'Connecting…' : `Connect ${p.name}`}
+                      </button>
+                    )}
+
+                    {/* How to get credentials tooltip */}
+                    <button
+                      onClick={() => setTooltip(tooltip === p.id ? null : p.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer',
+                        fontSize: '.78rem', color: '#7a7670', padding: '4px 8px',
+                        textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                      How does this work?
+                    </button>
+                  </div>
+
+                  {/* Tooltip */}
+                  {tooltip === p.id && (
+                    <div style={{ marginTop: 12, background: '#f8f7f4', border: '1px solid #e4e0d8',
+                      borderRadius: 10, padding: '12px 14px', fontSize: '.8rem', color: '#4a4a48', lineHeight: 1.65 }}>
+                      <div style={{ fontWeight: 700, marginBottom: 6 }}>ℹ What you need</div>
+                      {p.tooltip}
+                      <div style={{ marginTop: 8, fontWeight: 600, color: '#0a0a0a' }}>
+                        When you click "Connect {p.name}", you'll be taken to {p.name}'s login page to authorize SwarmReply. No credentials are stored — we only keep the access token {p.name} provides.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-            {status ? (
-              <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.67rem', fontWeight: 700, padding: '3px 9px', borderRadius: 50 }}>✓ {status}</span>
-            ) : (
-              <button 
-                onClick={() => {
-                  const url = window.prompt('Enter your Yelp business URL:', 'https://www.yelp.com/biz/your-business');
-                  if (url && url.startsWith('http')) {
-                    localStorage.setItem('yelp_url', url);
-                    window.alert('Yelp URL saved ✓');
-                  }
-                }}
-                style={{ ...btn(false), fontSize: '.8rem', padding: '6px 14px' }}>Connect →</button>
-            )}
-          </div>
-        </Card>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }
+
 
 function AccountTab() {
   const { customer } = useAuth();
