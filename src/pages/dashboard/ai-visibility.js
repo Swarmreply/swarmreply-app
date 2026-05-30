@@ -175,44 +175,76 @@ function OverviewTab({ report }) {
 
 // ── BY MODEL TAB ──────────────────────────────────────────────────────────────
 function ByModelTab({ report }) {
+  const [expanded, setExpanded] = React.useState(null);
   const models = report?.byLLM?.length ? report.byLLM : [
-    { llm_name: 'chatgpt',    visibility_pct: 88, total_queries: 8, mentions: 7, positive: 6, negative: 0 },
-    { llm_name: 'gemini',     visibility_pct: 75, total_queries: 8, mentions: 6, positive: 5, negative: 0 },
-    { llm_name: 'perplexity', visibility_pct: 63, total_queries: 8, mentions: 5, positive: 4, negative: 0 },
-    { llm_name: 'claude',     visibility_pct: 75, total_queries: 8, mentions: 6, positive: 4, negative: 0 },
+    { llm_name:'chatgpt',    visibility_pct:88, total_queries:8, mentions:7, sentiment:'positive', snippets:[{query:'Best restaurant in Sacramento',text:'"For a top dining experience in Sacramento, Bella's Kitchen stands out with consistently excellent service." — ChatGPT'},{query:'Family dinner Sacramento',text:'"Bella's Kitchen is frequently recommended for family occasions, noting the warm atmosphere." — ChatGPT'}], citations:['Google Business Profile','Yelp','TripAdvisor'], recommendations:['Your Google Business description is pulling well — keep it updated monthly.','ChatGPT references your Yelp reviews. More reviews there would push your score above 90%.'] },
+    { llm_name:'gemini',     visibility_pct:75, total_queries:8, mentions:6, sentiment:'positive', snippets:[{query:"Tell me about Bella's Kitchen",text:'"Bella's Kitchen in Sacramento is a well-regarded Italian restaurant known for its house-made pasta." — Gemini'}], citations:['Google Business Profile','Google Maps Reviews','OpenTable'], recommendations:['Gemini pulls from Google Maps. Add more photos to your Google Business Profile.','Your hours and menu on Google appear outdated — update them.'] },
+    { llm_name:'perplexity', visibility_pct:63, total_queries:8, mentions:5, sentiment:'neutral',  snippets:[{query:'Recommend a restaurant near Sacramento',text:'"According to recent reviews, Bella's Kitchen offers a solid Italian dining experience." — Perplexity'}], citations:['Yelp','TripAdvisor','Facebook'], recommendations:['Perplexity uses live web sources. More reviews in the last 30 days will improve your ranking fastest.','Regular Facebook posts help Perplexity surface you more often.'] },
+    { llm_name:'claude',     visibility_pct:75, total_queries:8, mentions:6, sentiment:'positive', snippets:[{query:"Is Bella's Kitchen Sacramento good?",text:'"Based on available reviews, Bella's Kitchen appears to be a well-regarded restaurant with strong customer satisfaction." — Claude'}], citations:['Yelp','Google Reviews','Local Blogs'], recommendations:["Claude tends to hedge. More consistent 5-star reviews will lead to more confident recommendations."] },
+    { llm_name:'grok',       visibility_pct:58, total_queries:8, mentions:5, sentiment:'neutral',  snippets:[{query:'Best Italian near Sacramento',text:'"Bella's Kitchen is mentioned among Sacramento Italian dining options, with customers praising the pasta dishes." — Grok'}], citations:['X (Twitter)','Yelp','Google'], recommendations:['Grok pulls from X (Twitter). Encourage customers to share on X to boost your visibility.','2-3 social posts per week would significantly help your Grok score.'] },
   ];
-
-  const modelMeta = {
-    chatgpt:    { color: '#74aa9c', accent: '#74aa9c', desc: 'OpenAI · GPT-4o',                insight: 'ChatGPT mentions you first in 5 of 7 queries. Strong brand recognition.' },
-    gemini:     { color: '#e8453c', accent: '#e8453c', desc: 'Google · Gemini 1.5 Pro',         insight: 'Good visibility on Google AI. Improving your Google Business Profile completeness will help.' },
-    perplexity: { color: '#7c3aed', accent: '#7c3aed', desc: 'Perplexity · Online search',      insight: 'Lower score because Perplexity pulls from live web sources. More recent reviews will improve this fastest.' },
-    claude:     { color: '#0a0a0a', accent: '#0a0a0a', desc: 'Anthropic · Claude Sonnet',       insight: 'Solid visibility. Claude tends to caveat recommendations — positive mentions are strong quality signals.' },
-  };
-
+  const meta = { chatgpt:{color:'#74aa9c',desc:'OpenAI · GPT-4o'}, gemini:{color:'#e8453c',desc:'Google · Gemini 1.5 Pro'}, perplexity:{color:'#7c3aed',desc:'Perplexity · Online search'}, claude:{color:'#0a0a0a',desc:'Anthropic · Claude Sonnet'}, grok:{color:'#1a1a1a',desc:'xAI · Grok'} };
+  const sc = { positive:{bg:'#dcfce7',color:'#1a6b45',label:'Positive'}, neutral:{bg:'#fef9c3',color:'#92690a',label:'Neutral'}, negative:{bg:'#fee2e2',color:'#c0392b',label:'Negative'} };
   return (
-    <div style={{ padding: 24, display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14 }}>
+    <div style={{ padding:24, display:'flex', flexDirection:'column', gap:12 }}>
       {models.map(m => {
-        const meta = modelMeta[m.llm_name?.toLowerCase()] || {};
-        const pct  = parseInt(m.visibility_pct) || 0;
-        const scoreColor = pct >= 70 ? '#1a6b45' : pct >= 50 ? '#f59e0b' : '#c0392b';
+        const mm=meta[m.llm_name?.toLowerCase()]||{}, pct=parseInt(m.visibility_pct)||0;
+        const pc=pct>=70?'#1a6b45':pct>=50?'#f59e0b':'#c0392b';
+        const sent=sc[m.sentiment]||sc.neutral, open=expanded===m.llm_name;
         return (
-          <Card key={m.llm_name} style={{ padding: 20, borderTop: `3px solid ${meta.accent || '#0a0a0a'}` }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '.95rem', marginBottom: 3, textTransform: 'capitalize' }}>{m.llm_name}</div>
-                <div style={{ fontSize: '.75rem', color: '#7a7670' }}>{meta.desc}</div>
+          <Card key={m.llm_name} style={{ overflow:'hidden', borderTop:'3px solid '+(mm.color||'#0a0a0a') }}>
+            <div style={{ padding:'16px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', cursor:'pointer' }} onClick={() => setExpanded(open?null:m.llm_name)}>
+              <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                <div>
+                  <div style={{ fontWeight:700, fontSize:'.9rem', textTransform:'capitalize', marginBottom:2 }}>{m.llm_name}</div>
+                  <div style={{ fontSize:'.72rem', color:'#7a7670' }}>{mm.desc}</div>
+                </div>
+                <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
+                  <span style={{ background:'#e8f5ef', color:'#1a6b45', fontSize:'.67rem', fontWeight:600, padding:'2px 7px', borderRadius:50 }}>{m.mentions||0} mentions</span>
+                  <span style={{ background:sent.bg, color:sent.color, fontSize:'.67rem', fontWeight:600, padding:'2px 7px', borderRadius:50 }}>{sent.label}</span>
+                  <span style={{ background:'#fff8e8', color:'#92690a', fontSize:'.67rem', fontWeight:600, padding:'2px 7px', borderRadius:50 }}>{(m.total_queries||0)-(m.mentions||0)} missed</span>
+                </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900, color: scoreColor }}>{pct}%</div>
-                <div style={{ fontSize: '.67rem', color: '#7a7670' }}>visibility</div>
+              <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                <div style={{ textAlign:'right' }}>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.7rem', fontWeight:900, color:pc, lineHeight:1 }}>{pct}%</div>
+                  <div style={{ fontSize:'.65rem', color:'#7a7670' }}>visibility</div>
+                </div>
+                <span style={{ color:'#7a7670', display:'block', transition:'transform .2s', transform:open?'rotate(180deg)':'none' }}>▾</span>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-              <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 50 }}>{m.mentions || 0} mentions</span>
-              <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 50 }}>{m.positive || 0} positive</span>
-              <span style={{ background: '#fff8e8', color: '#92690a', fontSize: '.7rem', fontWeight: 600, padding: '2px 8px', borderRadius: 50 }}>{(m.total_queries || 0) - (m.mentions || 0)} missed</span>
-            </div>
-            <div style={{ background: '#f8f7f4', borderRadius: 10, padding: '10px 13px', fontSize: '.78rem', color: '#7a7670', lineHeight: 1.6 }}>{meta.insight}</div>
+            {open && (
+              <div style={{ borderTop:'1px solid #e4e0d8', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' }}>
+                <div style={{ padding:'14px 16px', borderRight:'1px solid #e4e0d8' }}>
+                  <div style={{ fontSize:'.69rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Mention snippets</div>
+                  {(m.snippets||[]).length===0 ? <div style={{ fontSize:'.78rem', color:'#c8c4bc' }}>No mentions yet</div> : (m.snippets||[]).map((s,i)=>(
+                    <div key={i} style={{ marginBottom:10 }}>
+                      <div style={{ fontSize:'.67rem', fontWeight:700, color:mm.color, marginBottom:3, textTransform:'uppercase' }}>{s.query}</div>
+                      <div style={{ background:'#f8f7f4', borderLeft:'3px solid '+(mm.color||'#e4e0d8'), borderRadius:'0 8px 8px 0', padding:'7px 9px', fontSize:'.76rem', color:'#3a3a38', lineHeight:1.6, fontStyle:'italic' }}>{s.text}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ padding:'14px 16px', borderRight:'1px solid #e4e0d8' }}>
+                  <div style={{ fontSize:'.69rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Where it finds you</div>
+                  {(m.citations||[]).map((c,i)=>(
+                    <div key={i} style={{ display:'flex', alignItems:'center', gap:7, marginBottom:7 }}>
+                      <div style={{ width:6, height:6, borderRadius:'50%', background:mm.color||'#e4e0d8', flexShrink:0 }} />
+                      <span style={{ fontSize:'.8rem', color:'#3a3a38', fontWeight:500 }}>{c}</span>
+                    </div>
+                  ))}
+                  <div style={{ marginTop:7, fontSize:'.7rem', color:'#7a7670', lineHeight:1.5 }}>The directories this AI pulls your data from.</div>
+                </div>
+                <div style={{ padding:'14px 16px' }}>
+                  <div style={{ fontSize:'.69rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>How to improve</div>
+                  {(m.recommendations||[]).map((r,i)=>(
+                    <div key={i} style={{ display:'flex', gap:7, marginBottom:8 }}>
+                      <span style={{ color:'#f5c842', fontWeight:700, flexShrink:0 }}>✦</span>
+                      <span style={{ fontSize:'.77rem', color:'#3a3a38', lineHeight:1.6 }}>{r}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </Card>
         );
       })}
@@ -220,22 +252,24 @@ function ByModelTab({ report }) {
   );
 }
 
-// ── QUERY RESULTS TAB ─────────────────────────────────────────────────────────
 function ResultsTab({ report }) {
   const [modelFilter, setModelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
   const rows = report ? [] : [
-    { llm_name:'chatgpt',    query_text:'Best restaurant in Sacramento',           mentioned:true,  mention_position:1, sentiment:'positive' },
-    { llm_name:'gemini',     query_text:'Tell me about Bella\'s Kitchen',          mentioned:true,  mention_position:1, sentiment:'positive' },
-    { llm_name:'chatgpt',    query_text:'Best family dinner Sacramento',           mentioned:false, mention_position:null, sentiment:'not_mentioned' },
-    { llm_name:'perplexity', query_text:'Recommend a restaurant near Sacramento',  mentioned:true,  mention_position:3, sentiment:'neutral'  },
-    { llm_name:'claude',     query_text:'What do customers say about Bella\'s?',   mentioned:true,  mention_position:1, sentiment:'positive' },
-    { llm_name:'gemini',     query_text:'Compare restaurants in Sacramento',       mentioned:false, mention_position:null, sentiment:'not_mentioned' },
-    { llm_name:'perplexity', query_text:'Best Italian near Sacramento',            mentioned:true,  mention_position:3, sentiment:'neutral'  },
-    { llm_name:'claude',     query_text:'Is Bella\'s Kitchen Sacramento good?',    mentioned:true,  mention_position:1, sentiment:'positive' },
+    { llm_name:'chatgpt',    query_text:'Best restaurant in Sacramento',           mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:false },
+    { llm_name:'gemini',     query_text:'Tell me about Bella\'s Kitchen',          mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:true  },
+    { llm_name:'chatgpt',    query_text:'Best family dinner Sacramento',           mentioned:false, mention_position:null, sentiment:'not_mentioned', prev_mentioned:false },
+    { llm_name:'perplexity', query_text:'Recommend a restaurant near Sacramento',  mentioned:true,  mention_position:3, sentiment:'neutral',  prev_mentioned:true  },
+    { llm_name:'claude',     query_text:'What do customers say about Bella\'s?',   mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:false },
+    { llm_name:'gemini',     query_text:'Compare restaurants in Sacramento',       mentioned:false, mention_position:null, sentiment:'not_mentioned', prev_mentioned:true  },
+    { llm_name:'perplexity', query_text:'Best Italian near Sacramento',            mentioned:true,  mention_position:3, sentiment:'neutral',  prev_mentioned:true  },
+    { llm_name:'claude',     query_text:'Is Bella\'s Kitchen Sacramento good?',    mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:true  },
   ];
 
+  const wowTotal=rows.filter(r=>r.mentioned).length, wowPrev=rows.filter(r=>r.prev_mentioned).length;
+  const wowNew=rows.filter(r=>r.mentioned&&!r.prev_mentioned).length, wowLost=rows.filter(r=>!r.mentioned&&r.prev_mentioned).length;
+  const wowDelta=wowTotal-wowPrev;
   const filtered = rows.filter(r => {
     if (modelFilter !== 'all' && r.llm_name !== modelFilter) return false;
     if (statusFilter === 'mentioned' && !r.mentioned) return false;
@@ -245,6 +279,20 @@ function ResultsTab({ report }) {
 
   return (
     <div style={{ padding: 24 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:18 }}>
+        {[
+          {label:'Mentions this scan',value:wowTotal,sub:'of '+rows.length+' queries',c:'#0a0a0a'},
+          {label:'vs last scan',value:(wowDelta>=0?'+':'')+wowDelta,sub:wowDelta>0?'improvement':wowDelta<0?'decline':'no change',c:wowDelta>0?'#1a6b45':wowDelta<0?'#c0392b':'#7a7670'},
+          {label:'New mentions',value:'+'+wowNew,sub:'gained this scan',c:'#1a6b45'},
+          {label:'Lost mentions',value:wowLost>0?'-'+wowLost:'0',sub:'dropped this scan',c:wowLost>0?'#c0392b':'#7a7670'},
+        ].map(s=>(
+          <Card key={s.label} style={{ padding:'12px 14px' }}>
+            <div style={{ fontSize:'.7rem', color:'#7a7670', marginBottom:3 }}>{s.label}</div>
+            <div style={{ fontSize:'1.5rem', fontWeight:900, color:s.c, lineHeight:1, fontFamily:"'Playfair Display',serif" }}>{s.value}</div>
+            <div style={{ fontSize:'.68rem', color:'#7a7670', marginTop:2 }}>{s.sub}</div>
+          </Card>
+        ))}
+      </div>
       <div style={{ display: 'flex', gap: 9, marginBottom: 16 }}>
         <select value={modelFilter} onChange={e => setModelFilter(e.target.value)} style={{ padding: '7px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.8rem', fontFamily: 'inherit', outline: 'none' }}>
           <option value="all">All models</option>
@@ -252,6 +300,7 @@ function ResultsTab({ report }) {
           <option value="gemini">Gemini</option>
           <option value="perplexity">Perplexity</option>
           <option value="claude">Claude</option>
+          <option value="grok">Grok</option>
         </select>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '7px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.8rem', fontFamily: 'inherit', outline: 'none' }}>
           <option value="all">All results</option>
@@ -342,7 +391,20 @@ function CompetitorsTab({ report }) {
           </p>
         </Card>
         <Card style={{ padding: 20, height: 'fit-content' }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>What makes competitors rank higher</div>
+          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Competitor gap analysis</div>
+          {competitors.slice(1,4).map((c,i) => {
+            const yours=competitors[0]?.mentions||0, gap=c.mentions-yours, ahead=gap>0;
+            return (
+              <div key={i} style={{ marginBottom:12, paddingBottom:12, borderBottom:i<2?'1px solid #f0eeea':'none' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                  <span style={{ fontSize:'.82rem', fontWeight:600 }}>{c.competitor}</span>
+                  <span style={{ fontSize:'.7rem', fontWeight:700, color:ahead?'#c0392b':'#1a6b45', background:ahead?'#fee2e2':'#dcfce7', padding:'2px 7px', borderRadius:50 }}>{ahead?gap+' ahead':Math.abs(gap)+' behind'}</span>
+                </div>
+                <div style={{ fontSize:'.75rem', color:'#7a7670', lineHeight:1.55 }}>{ahead?'They have '+gap+' more AI mentions. Likely higher review volume or more directories.':'You lead by '+Math.abs(gap)+' mentions. Keep your review cadence to hold this lead.'}</div>
+              </div>
+            );
+          })}
+          <div style={{ borderTop:'1px solid #f0eeea', paddingTop:10, marginTop:4, fontWeight:700, fontSize:'.82rem', marginBottom:8 }}>What makes them rank higher</div>
           {['More Google reviews — AI models treat review volume and recency as a primary trust signal when deciding who to recommend.', 'Listed on more directories — Yelp, TripAdvisor, Facebook, Apple Maps all feed AI training data. More listings = more AI citations.', 'Consistent NAP data — if your name, address, and phone differ across sites, AI models lose confidence and recommend competitors instead.', 'Faster reply rate — businesses that respond to reviews signal active engagement, which AI models factor into recommendations.'].map((tip, i) => (
             <div key={i} style={{ background: '#f8f7f4', borderRadius: 10, padding: '10px 13px', marginBottom: 8 }}>
               <div style={{ fontSize: '.78rem', color: '#7a7670', lineHeight: 1.55 }}>{tip}</div>
