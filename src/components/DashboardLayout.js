@@ -119,7 +119,7 @@ export default function DashboardLayout({ children, title }) {
     if (router.pathname === '/dashboard/settings') return;
     try {
       const t = localStorage.getItem('swarmreply_token');
-      const res = await axios.get(`${API}/billing/status`, {
+      const res = await axios.get(`${API}/billing/health`, {
         headers: t ? { Authorization: `Bearer ${t}` } : {}
       });
       setBilling(res.data.billing);
