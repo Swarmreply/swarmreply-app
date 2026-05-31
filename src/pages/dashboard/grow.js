@@ -65,15 +65,8 @@ function RequestsTab() {
       const res = await axios.get(`${API}/surveys`, { headers: authH() });
       setSurveys(res.data.surveys || []);
     } catch (e) {
-      // demo data while API is being built
-      setSurveys([
-        { id: '1', customer_name: 'Sarah Mitchell', customer_email: 'sarah@example.com', nps_score: 9, path: 'promoter', completed_at: new Date(Date.now()-2*60*60*1000).toISOString(), left_review: true },
-        { id: '2', customer_name: 'James Torres',   customer_email: 'james@example.com', nps_score: 4, path: 'detractor', completed_at: new Date(Date.now()-24*60*60*1000).toISOString(), left_review: false, detractor_q1: 'The technician arrived 2 hours late with no communication.', detractor_q2: 'Better scheduling and communication when running behind.' },
-        { id: '3', customer_name: 'Rachel Kim',     customer_email: 'rachel@example.com', nps_score: 7, path: 'neutral', completed_at: new Date(Date.now()-2*24*60*60*1000).toISOString(), left_review: false, would_return: true },
-        { id: '4', customer_name: 'David Chen',     customer_email: 'david@example.com', nps_score: 2, path: 'detractor', completed_at: new Date(Date.now()-3*24*60*60*1000).toISOString(), left_review: false, detractor_q1: 'The work was not completed to the standard I expected.', detractor_q2: 'More attention to detail and a follow-up inspection.' },
-        { id: '5', customer_name: 'Maria Garcia',   customer_email: 'maria@example.com', nps_score: 10, path: 'promoter', completed_at: new Date(Date.now()-5*24*60*60*1000).toISOString(), left_review: true },
-        { id: '6', customer_name: 'Tom Wallace',    customer_email: 'tom@example.com', nps_score: 6, path: 'detractor', completed_at: new Date(Date.now()-7*24*60*60*1000).toISOString(), left_review: false, detractor_q1: 'Pricing was higher than quoted.', detractor_q2: 'Provide accurate upfront pricing with no surprises.' },
-      ]);
+      console.error('Failed to load surveys:', e.message);
+      setSurveys([]);
     } finally {
       setLoadingSurveys(false);
     }
@@ -412,6 +405,20 @@ function TemplatesTab() {
   const [neutralMin, setNeutralMin]   = useState(7);
   const [slots, setSlots]             = useState(['google', '', '']);
   const [tmpl, setTmpl]               = useState(DEFAULT_TMPL);
+
+  useEffect(() => {
+    axios.get(`${API}/templates`, { headers: authHeaders() })
+      .then(r => {
+        const t = r.data.template || {};
+        setTmpl(prev => ({ ...prev, ...t }));
+        if (t.promoterMin) setPromoterMin(t.promoterMin);
+        if (t.neutralMin)  setNeutralMin(t.neutralMin);
+        if (Array.isArray(t.platforms) && t.platforms.length) {
+          setSlots([t.platforms[0] || '', t.platforms[1] || '', t.platforms[2] || '']);
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [logoPreview, setLogoPreview]  = useState('');
   const [shareAll, setShareAll]       = useState(false);
   const [suppress, setSuppress]       = useState(false);
@@ -429,7 +436,23 @@ function TemplatesTab() {
   }
   function removeSlot(idx) { const n=[...slots]; n[idx]=''; setSlots(n); }
 
-  function save() { setSaved(true); setTimeout(() => setSaved(false), 2500); }
+  async function save() {
+    try {
+      await axios.put(`${API}/templates`, { template: {
+        brandColor, brandLogo: tmpl.brandLogo, buttonText: tmpl.buttonText,
+        promoterMin, neutralMin,
+        smsRequest: tmpl.smsRequest, emailSubject: tmpl.emailSubject, emailBody: tmpl.emailBody,
+        npsQuestion: tmpl.npsQuestion, promoterMessage: tmpl.promoterMessage,
+        neutralQuestion: tmpl.neutralQuestion, detractorOpening: tmpl.detractorOpening,
+        detractorQ1: tmpl.detractorQ1, detractorQ2: tmpl.detractorQ2, detractorClosing: tmpl.detractorClosing,
+        platforms: slots.filter(Boolean),
+      }}, { headers: authHeaders() });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      alert('Failed to save template: ' + (e.response?.data?.error || e.message));
+    }
+  }
   async function sendTest() {
     if (!testEmail.trim()) return;
     setSending(true);
