@@ -14,6 +14,7 @@ const TABS = [
   { id: 'ai',           label: 'AI Replies'       },
   { id: 'webchat',      label: 'Webchat & AI Agent'},
   { id: 'integrations', label: 'Social Media Connections' },
+  { id: 'reviewlinks',  label: 'Review Links'     },
   { id: 'account',      label: 'Account'          },
   { id: 'team',         label: 'Team'             },
   { id: 'billing',      label: 'Billing'          },
@@ -348,6 +349,103 @@ function IntegrationsTab() {
   );
 }
 
+
+function ReviewLinksTab() {
+  const [locations, setLocations] = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [saving, setSaving]       = useState(null);
+  const [savedId, setSavedId]     = useState(null);
+
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  function authH() {
+    const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API}/locations/review-urls`, { headers: authH() });
+      setLocations(res.data.locations || []);
+    } catch (e) {
+      setLocations([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function update(id, field, value) {
+    setLocations(prev => prev.map(l => l.id === id ? { ...l, [field]: value } : l));
+  }
+
+  async function save(loc) {
+    setSaving(loc.id);
+    try {
+      await axios.put(`${API}/locations/${loc.id}/review-urls`, {
+        googleReviewUrl:   loc.google_review_url,
+        facebookReviewUrl: loc.facebook_review_url,
+        yelpReviewUrl:     loc.yelp_review_url,
+      }, { headers: authH() });
+      setSavedId(loc.id);
+      setTimeout(() => setSavedId(null), 2500);
+    } catch (e) {
+      alert('Failed to save: ' + (e.response?.data?.error || e.message));
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  const inp = { width: '100%', padding: '9px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' };
+  const label = { display: 'block', fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 5 };
+
+  const PLATFORMS = [
+    { key: 'google_review_url',   name: 'Google',   color: '#4285F4', placeholder: 'https://g.page/r/...', hint: 'In your Google Business Profile, go to "Ask for reviews" to copy your short review link.' },
+    { key: 'facebook_review_url', name: 'Facebook', color: '#1877F2', placeholder: 'https://facebook.com/YourPage/reviews', hint: 'Your Facebook Page URL followed by /reviews.' },
+    { key: 'yelp_review_url',     name: 'Yelp',     color: '#D32323', placeholder: 'https://yelp.com/writeareview/biz/...', hint: 'On your Yelp business page, copy the "Write a Review" link.' },
+  ];
+
+  return (
+    <div style={{ maxWidth: 680 }}>
+      <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 24, lineHeight: 1.7 }}>
+        When a happy customer (a promoter) completes your survey, they'll be sent to these links to leave a public review. Only platforms with a link set will be shown to customers.
+      </div>
+
+      {loading ? (
+        <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>Loading locations…</div>
+      ) : locations.length === 0 ? (
+        <Card style={{ padding: 24, textAlign: 'center' }}>
+          <div style={{ fontSize: '.875rem', color: '#7a7670' }}>No locations yet. Add a location first to set up review links.</div>
+        </Card>
+      ) : locations.map(loc => (
+        <Card key={loc.id} style={{ padding: 22, marginBottom: 16 }}>
+          <div style={{ fontWeight: 700, fontSize: '.95rem', marginBottom: 18 }}>{loc.business_name || 'Location'}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {PLATFORMS.map(p => (
+              <div key={p.key}>
+                <label style={label}>
+                  <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: p.color, marginRight: 6 }} />
+                  {p.name} review link
+                </label>
+                <input style={inp} type="url" placeholder={p.placeholder}
+                  value={loc[p.key] || ''} onChange={e => update(loc.id, p.key, e.target.value)} />
+                <div style={{ fontSize: '.72rem', color: '#a8a4a0', marginTop: 4 }}>{p.hint}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 18 }}>
+            <button onClick={() => save(loc)} disabled={saving === loc.id}
+              style={{ padding: '9px 22px', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: saving === loc.id ? 'wait' : 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit' }}>
+              {saving === loc.id ? 'Saving…' : 'Save links'}
+            </button>
+            {savedId === loc.id && <span style={{ fontSize: '.8rem', color: '#1a6b45', fontWeight: 600 }}>✓ Saved</span>}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 function AccountTab() {
   const { customer } = useAuth();
@@ -709,7 +807,7 @@ function TeamTab() {
 export default function Settings() {
   const [tab, setTab] = useState('ai');
 
-  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
+  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
 
   return (
     <DashboardLayout title="Settings">
