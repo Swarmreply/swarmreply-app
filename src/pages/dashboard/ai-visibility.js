@@ -6,7 +6,7 @@
 // the 32 weekly queries before each scan.
 // ============================================
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
