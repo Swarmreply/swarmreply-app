@@ -189,6 +189,22 @@ function IntegrationsTab() {
     return t ? { Authorization: `Bearer ${t}` } : {};
   }
 
+  // Load which platforms are actually connected (was never fetched before, so
+  // connected accounts always showed "Connect"). Also runs after the OAuth
+  // redirect back to ?connected=<platform>.
+  useEffect(() => { loadConnections(); }, []);
+
+  async function loadConnections() {
+    try {
+      const res = await axios.get(`${API}/social/connections`, { headers: authH() });
+      const map = {};
+      (res.data.platforms || []).forEach(p => { map[p] = true; });
+      setConnected(map);
+    } catch (e) {
+      setConnected({});
+    }
+  }
+
   const PLATFORMS = [
     {
       id: 'meta',
@@ -244,9 +260,14 @@ function IntegrationsTab() {
     window.location.href = `${API}/social/connect/${platform.id}?token=${token}`;
   }
 
-  function disconnect(platformId) {
+  async function disconnect(platformId) {
     if (!confirm(`Disconnect ${platformId}? Your post history will be kept.`)) return;
-    setConnected(prev => ({ ...prev, [platformId]: false }));
+    try {
+      await axios.post(`${API}/social/disconnect/${platformId}`, {}, { headers: authH() });
+      setConnected(prev => ({ ...prev, [platformId]: false }));
+    } catch (e) {
+      alert('Failed to disconnect: ' + (e.response?.data?.error || e.message));
+    }
   }
 
   return (
