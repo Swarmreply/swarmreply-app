@@ -27,6 +27,7 @@ export default function ReviewPage({ preview }) {
   const [score, setScore]       = useState(null);
   const [d1, setD1]             = useState('');
   const [d2, setD2]             = useState('');
+  const [wouldReturn, setWouldReturn] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [data, setData]         = useState(DEMO);
   const [loading, setLoading]   = useState(!preview);
@@ -52,7 +53,13 @@ export default function ReviewPage({ preview }) {
   async function submit(extra) {
     setSubmitting(true);
     if (!preview && token) {
-      await axios.post(API + '/review/' + token + '/submit', { npsScore: score, path: getPath(score), ...extra }).catch(() => {});
+      try {
+        await axios.post(API + '/review/' + token + '/submit', {
+          npsScore: score, path: getPath(score), wouldReturn, ...extra
+        });
+      } catch (e) {
+        console.error('Survey submit failed:', e.message);
+      }
     }
     setSubmitting(false);
   }
@@ -103,8 +110,8 @@ export default function ReviewPage({ preview }) {
             <div style={card}>
               <h2 style={{ fontSize: '1.05rem', fontWeight: 700, textAlign: 'center', marginBottom: 24, lineHeight: 1.5 }}>{data.neutralQuestion.replace(/{business}/g, data.businessName)}</h2>
               <div style={{ display: 'flex', gap: 10 }}>
-                <button onClick={() => setStep('promoter')} style={{ flex: 1, padding: 14, borderRadius: 12, background: '#dcfce7', border: '1.5px solid #bbf7d0', cursor: 'pointer', fontWeight: 700, fontSize: '.875rem', color: '#1a6b45', fontFamily: 'inherit' }}>Yes, I would</button>
-                <button onClick={() => setStep('detractor')} style={{ flex: 1, padding: 14, borderRadius: 12, background: '#fee2e2', border: '1.5px solid #fca5a5', cursor: 'pointer', fontWeight: 700, fontSize: '.875rem', color: '#c0392b', fontFamily: 'inherit' }}>No, I wouldn't</button>
+                <button onClick={() => { setWouldReturn(true); setStep('promoter'); }} style={{ flex: 1, padding: 14, borderRadius: 12, background: '#dcfce7', border: '1.5px solid #bbf7d0', cursor: 'pointer', fontWeight: 700, fontSize: '.875rem', color: '#1a6b45', fontFamily: 'inherit' }}>Yes, I would</button>
+                <button onClick={() => { setWouldReturn(false); setStep('detractor'); }} style={{ flex: 1, padding: 14, borderRadius: 12, background: '#fee2e2', border: '1.5px solid #fca5a5', cursor: 'pointer', fontWeight: 700, fontSize: '.875rem', color: '#c0392b', fontFamily: 'inherit' }}>No, I wouldn't</button>
               </div>
             </div>
           )}
