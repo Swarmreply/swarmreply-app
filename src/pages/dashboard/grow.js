@@ -855,20 +855,9 @@ function BulkSendTab() {
       setContacts(res.data.contacts || []);
       setSegments(res.data.segments || []);
     } catch (e) {
-      // demo data
-      setContacts([
-        { id:'1', name:'Sarah Mitchell', email:'sarah@example.com', phone:'+15551112222', segment:'recent', last_request:null },
-        { id:'2', name:'James Torres',   email:'james@example.com', phone:'+15553334444', segment:'recent', last_request:'2026-04-10' },
-        { id:'3', name:'Rachel Kim',     email:'rachel@example.com', phone:'', segment:'vip', last_request:null },
-        { id:'4', name:'David Chen',     email:'david@example.com', phone:'+15555556666', segment:'vip', last_request:null },
-        { id:'5', name:'Maria Garcia',   email:'maria@example.com', phone:'', segment:'all', last_request:'2026-03-20' },
-        { id:'6', name:'Tom Wallace',    email:'tom@example.com', phone:'+15557778888', segment:'recent', last_request:null },
-      ]);
-      setSegments([
-        { id:'all',    name:'All contacts',    count:6 },
-        { id:'recent', name:'Recent customers', count:3 },
-        { id:'vip',    name:'VIP customers',    count:2 },
-      ]);
+      console.error('Failed to load contacts:', e.message);
+      setContacts([]);
+      setSegments([{ id: 'all', name: 'All contacts', count: 0 }]);
     } finally {
       setLoading(false);
     }
@@ -1045,26 +1034,149 @@ function SurveysTab() {
 }
 
 function ImportTab() {
+  const [parsed, setParsed]   = useState([]);   // [{name,email,phone}]
+  const [filename, setFilename] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [result, setResult]   = useState(null);
+  const [error, setError]     = useState('');
+  const [history, setHistory] = useState([]);
+
+  const API = process.env.NEXT_PUBLIC_API_URL;
+
+  useEffect(() => { loadHistory(); }, []);
+
+  async function loadHistory() {
+    try {
+      const res = await axios.get(`${API}/contacts/imports`, { headers: authHeaders() });
+      setHistory(res.data.imports || []);
+    } catch (e) { setHistory([]); }
+  }
+
+  function parseCsv(text) {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (!lines.length) return [];
+    // Detect header row
+    const header = lines[0].toLowerCase();
+    const hasHeader = /name|email|phone/.test(header);
+    let nameIdx = 0, emailIdx = 1, phoneIdx = 2;
+    if (hasHeader) {
+      const cols = lines[0].split(',').map(c => c.trim().toLowerCase());
+      nameIdx  = cols.findIndex(c => c.includes('name'));
+      emailIdx = cols.findIndex(c => c.includes('email') || c.includes('e-mail'));
+      phoneIdx = cols.findIndex(c => c.includes('phone') || c.includes('mobile') || c.includes('cell'));
+    }
+    const dataLines = hasHeader ? lines.slice(1) : lines;
+    return dataLines.map(line => {
+      const cells = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+      return {
+        name:  nameIdx  >= 0 ? (cells[nameIdx]  || '') : '',
+        email: emailIdx >= 0 ? (cells[emailIdx] || '') : '',
+        phone: phoneIdx >= 0 ? (cells[phoneIdx] || '') : '',
+      };
+    }).filter(r => r.email || r.phone);
+  }
+
+  function handleFile(file) {
+    if (!file) return;
+    setError(''); setResult(null);
+    setFilename(file.name);
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const rows = parseCsv(e.target.result);
+        if (!rows.length) { setError('No valid rows found. Make sure your CSV has name, email, and phone columns.'); setParsed([]); return; }
+        setParsed(rows);
+      } catch (err) {
+        setError('Could not read that file. Please upload a valid CSV.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  async function doImport() {
+    if (!parsed.length) return;
+    setImporting(true);
+    setError('');
+    try {
+      const res = await axios.post(`${API}/contacts/import`,
+        { rows: parsed, filename, segment: 'all' },
+        { headers: authHeaders() });
+      setResult(res.data);
+      setParsed([]);
+      setFilename('');
+      loadHistory();
+    } catch (e) {
+      setError(e.response?.data?.error || 'Import failed. Please try again.');
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+        {/* Import card */}
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Import contacts</div>
           <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.6 }}>Upload a CSV from your PMS, CRM, or POS. We import names, emails, and phone numbers.</div>
-          <div style={{ border: '2px dashed #e4e0d8', borderRadius: 12, padding: 32, textAlign: 'center', marginBottom: 14, cursor: 'pointer' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>⇪</div>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>Drop CSV here or click to browse</div>
-            <div style={{ fontSize: '.78rem', color: '#7a7670' }}>CSV with name, email, phone columns</div>
-          </div>
-          <button style={{ width: '100%', padding: 11, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' }}>Import contacts</button>
+
+          {result ? (
+            <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 12, padding: '16px 18px', marginBottom: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: '.9rem', color: '#1a6b45', marginBottom: 4 }}>✓ Import complete</div>
+              <div style={{ fontSize: '.82rem', color: '#1a6b45' }}>{result.imported} contact{result.imported !== 1 ? 's' : ''} imported{result.skipped > 0 ? `, ${result.skipped} skipped (duplicates or missing email/phone)` : ''}.</div>
+              <button onClick={() => setResult(null)} style={{ marginTop: 10, padding: '7px 16px', borderRadius: 50, background: 'white', border: '1.5px solid #bbf7d0', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit', color: '#1a6b45' }}>Import another</button>
+            </div>
+          ) : (
+            <>
+              <div onClick={() => document.getElementById('csv-input').click()}
+                style={{ border: '2px dashed #e4e0d8', borderRadius: 12, padding: 32, textAlign: 'center', marginBottom: 14, cursor: 'pointer' }}>
+                <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>⇪</div>
+                <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>
+                  {filename ? filename : 'Drop CSV here or click to browse'}
+                </div>
+                <div style={{ fontSize: '.78rem', color: '#7a7670' }}>
+                  {parsed.length ? `${parsed.length} contact${parsed.length !== 1 ? 's' : ''} ready to import` : 'CSV with name, email, phone columns'}
+                </div>
+                <input id="csv-input" type="file" accept=".csv,text/csv" style={{ display: 'none' }}
+                  onChange={e => handleFile(e.target.files[0])} />
+              </div>
+
+              {error && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.8rem', color: '#c0392b', marginBottom: 12 }}>✗ {error}</div>}
+
+              {parsed.length > 0 && (
+                <div style={{ marginBottom: 12, maxHeight: 140, overflowY: 'auto', border: '1px solid #f0eeea', borderRadius: 9 }}>
+                  {parsed.slice(0, 50).map((r, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 12px', borderBottom: '1px solid #f8f7f4', fontSize: '.78rem' }}>
+                      <span style={{ fontWeight: 600 }}>{r.name || '(no name)'}</span>
+                      <span style={{ color: '#7a7670' }}>{r.email || r.phone}</span>
+                    </div>
+                  ))}
+                  {parsed.length > 50 && <div style={{ padding: '7px 12px', fontSize: '.73rem', color: '#7a7670', textAlign: 'center' }}>+ {parsed.length - 50} more</div>}
+                </div>
+              )}
+
+              <button onClick={doImport} disabled={!parsed.length || importing}
+                style={{ width: '100%', padding: 11, borderRadius: 50, background: (!parsed.length || importing) ? '#f0eeea' : '#0a0a0a', color: (!parsed.length || importing) ? '#c8c4bc' : 'white', border: 'none', cursor: (!parsed.length || importing) ? 'not-allowed' : 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' }}>
+                {importing ? 'Importing…' : parsed.length ? `Import ${parsed.length} contact${parsed.length !== 1 ? 's' : ''}` : 'Import contacts'}
+              </button>
+            </>
+          )}
         </Card>
+
+        {/* Recent imports */}
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Recent imports</div>
-          {[['May import','142 contacts','May 15'],['April import','98 contacts','Apr 12']].map(([n,c,d]) => (
-            <div key={n} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#f8f7f4', borderRadius: 10, marginBottom: 8 }}>
+          {history.length === 0 ? (
+            <div style={{ fontSize: '.8rem', color: '#7a7670', textAlign: 'center', padding: '20px 0' }}>No imports yet.</div>
+          ) : history.map(imp => (
+            <div key={imp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#f8f7f4', borderRadius: 10, marginBottom: 8 }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '.84rem' }}>{n}</div>
-                <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 2 }}>{c} · {d}</div>
+                <div style={{ fontWeight: 600, fontSize: '.84rem' }}>{imp.filename}</div>
+                <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 2 }}>{imp.imported} imported{imp.skipped > 0 ? ` · ${imp.skipped} skipped` : ''} · {fmtDate(imp.created_at)}</div>
               </div>
               <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.67rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>Complete</span>
             </div>
