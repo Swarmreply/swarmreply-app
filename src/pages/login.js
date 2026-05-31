@@ -159,7 +159,7 @@ export default function Login() {
             </a>
             <span style={{ margin: '0 10px' }}>·</span>
             Don't have an account?{' '}
-            <a href="/checkout" style={{ color: '#0d0d0d', fontWeight: 600 }}>
+            <a href="https://swarmreply.com/signup.html" style={{ color: '#0d0d0d', fontWeight: 600 }}>
               Get started →
             </a>
           </div>
