@@ -39,12 +39,9 @@ export default function Billing() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
-  const [upgrading, setUpgrading] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(null);
   const [toast, setToast] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
@@ -86,25 +83,6 @@ export default function Billing() {
     } catch (err) {
       showToast(err.response?.data?.error || 'Could not open billing portal', 'error');
       setPortalLoading(false);
-    }
-  }
-
-  async function handleUpgrade() {
-    if (!selectedPlan) return;
-    try {
-      setUpgrading(true);
-      const res = await axios.post(
-        `${API}/billing/upgrade`,
-        { planId: selectedPlan },
-        { headers: authHeaders() }
-      );
-      showToast(res.data.message);
-      setShowUpgradeModal(false);
-      await loadBilling();
-    } catch (err) {
-      showToast(err.response?.data?.error || 'Failed to update plan', 'error');
-    } finally {
-      setUpgrading(false);
     }
   }
 
@@ -157,7 +135,7 @@ export default function Billing() {
     </DashboardLayout>
   );
 
-  const { plan, account, stripe, availablePlans } = billing || {};
+  const { plan, account, stripe, locationCount, pricing, billingCycle } = billing || {};
   const statusInfo = STATUS_LABELS[account?.status] || STATUS_LABELS.active;
   const cancelAtEnd = stripe?.cancelAtPeriodEnd;
   const hasPaymentIssue = account?.paymentFailed;
@@ -245,8 +223,9 @@ export default function Billing() {
                 </span>
               </div>
               <div style={{ fontSize: '1.1rem', color: '#7a7670', marginBottom: 16 }}>
-                {plan?.price ? `$${plan.price}/month` : 'Custom pricing'}
-                {plan?.locations ? ` · ${plan.locations === 1 ? '1 location' : `Up to ${plan.locations} locations`}` : ' · Unlimited locations'}
+                {pricing
+                  ? `$${pricing.monthly}/${billingCycle === 'annual' ? 'mo billed annually' : 'month'} · ${locationCount === 1 ? '1 location' : `${locationCount} locations`}`
+                  : (plan?.price ? `$${plan.price}/month` : 'Custom pricing')}
               </div>
               {/* Features */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
@@ -288,72 +267,56 @@ export default function Billing() {
           </div>
         </div>
 
-        {/* ── PLAN SWITCHER ── */}
+        {/* ── LOCATIONS & PRICING ── */}
         <div style={cardStyle}>
-          <div style={sectionLabel}>Change plan</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginTop: 14 }}>
-            {availablePlans?.filter(p => p.id !== 'agency').map(p => (
-              <div
-                key={p.id}
-                onClick={() => {
-                  if (!p.current) { setSelectedPlan(p.id); setShowUpgradeModal(true); }
-                }}
-                style={{
-                  border: p.current ? '2px solid #0a0a0a' : '1.5px solid #e4e0d8',
-                  borderRadius: 14, padding: '18px 20px',
-                  cursor: p.current ? 'default' : 'pointer',
-                  background: p.current ? '#f8f7f4' : '#fff',
-                  transition: 'all .15s',
-                  opacity: cancelAtEnd && !p.current ? .6 : 1
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                  <div style={{ fontWeight: 700, fontSize: '.9rem', color: '#0a0a0a' }}>{p.name}</div>
-                  {p.current && (
-                    <span style={{ background: '#0a0a0a', color: '#fff', fontSize: '.62rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>
-                      Current
-                    </span>
-                  )}
+          <div style={sectionLabel}>Locations &amp; pricing</div>
+          <div style={{ fontSize: '.82rem', color: '#7a7670', margin: '6px 0 16px', lineHeight: 1.6 }}>
+            Every feature is included at every location. Your bill is based on how many
+            locations you have — add or remove a location and billing updates automatically.
+          </div>
+
+          {pricing?.rows?.length ? (
+            <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden' }}>
+              {pricing.rows.map((r, i) => (
+                <div key={i} style={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  padding: '12px 16px', borderBottom: '1px solid #f0eeea', fontSize: '.875rem'
+                }}>
+                  <span style={{ color: '#4a4a48' }}>
+                    {r.label}{r.qty > 1 ? ` (${r.qty} × $${r.rate})` : ''}
+                  </span>
+                  <span style={{ fontWeight: 600, color: '#0a0a0a' }}>${r.qty * r.rate}/mo</span>
                 </div>
-                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.6rem', fontWeight: 900, color: '#0a0a0a', marginBottom: 4 }}>
-                  ${p.price}<span style={{ fontSize: '.9rem', fontWeight: 400, color: '#7a7670' }}>/mo</span>
-                </div>
-                <div style={{ fontSize: '.75rem', color: '#7a7670', marginBottom: 12 }}>
-                  {p.locations === 1 ? '1 location' : `Up to ${p.locations} locations`}
-                </div>
-                {!p.current && (
-                  <div style={{
-                    background: p.price > (plan?.price || 0) ? '#0a0a0a' : '#f8f7f4',
-                    color:      p.price > (plan?.price || 0) ? '#fff' : '#0a0a0a',
-                    border:     p.price > (plan?.price || 0) ? 'none' : '1.5px solid #e4e0d8',
-                    borderRadius: 50, padding: '7px 14px', fontSize: '.78rem', fontWeight: 600,
-                    textAlign: 'center'
-                  }}>
-                    {p.price > (plan?.price || 0) ? 'Upgrade →' : 'Downgrade'}
-                  </div>
-                )}
-              </div>
-            ))}
-            {/* Agency card */}
-            <div style={{
-              border: plan?.id === 'agency' ? '2px solid #92690a' : '1.5px solid #e4e0d8',
-              borderRadius: 14, padding: '18px 20px', background: '#fff'
-            }}>
-              <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 8 }}>Agency</div>
-              <div style={{ fontWeight: 600, fontSize: '1rem', color: '#0a0a0a', marginBottom: 4 }}>Custom pricing</div>
-              <div style={{ fontSize: '.75rem', color: '#7a7670', marginBottom: 12 }}>Unlimited locations</div>
-              <a href="mailto:hello@swarmreply.com?subject=Agency Plan Inquiry" style={{
-                display: 'block', background: '#f5c842', color: '#0a0a0a',
-                borderRadius: 50, padding: '7px 14px', fontSize: '.78rem', fontWeight: 600,
-                textAlign: 'center', textDecoration: 'none'
+              ))}
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '14px 16px', background: '#f8f7f4', fontWeight: 700
               }}>
-                Contact sales →
-              </a>
+                <span>Total {billingCycle === 'annual' ? '(billed annually)' : 'per month'}</span>
+                <span style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.15rem' }}>
+                  ${pricing.monthly}/mo
+                </span>
+              </div>
             </div>
+          ) : (
+            <div style={{ fontSize: '.875rem', color: '#7a7670' }}>
+              Pricing details will appear once your subscription is active.
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 16, flexWrap: 'wrap' }}>
+            <a href="/dashboard/locations/add" style={{ ...btnStyle('outline'), textDecoration: 'none', display: 'inline-block' }}>
+              + Add a location
+            </a>
+            <span style={{ fontSize: '.78rem', color: '#7a7670' }}>
+              Managing 26+ locations?{' '}
+              <a href="mailto:hello@swarmreply.com?subject=Agency Plan Inquiry" style={{ color: '#1a4baa', fontWeight: 600 }}>
+                Talk to us about Agency pricing →
+              </a>
+            </span>
           </div>
           <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 12, lineHeight: 1.6 }}>
-            Plan changes take effect immediately. Stripe prorates the difference automatically.
-            No contracts — cancel anytime.
+            Location changes are prorated by Stripe automatically. No contracts — cancel anytime.
           </div>
         </div>
 
@@ -441,44 +404,6 @@ export default function Billing() {
         </div>
 
       </div>
-
-      {/* ── UPGRADE MODAL ── */}
-      {showUpgradeModal && selectedPlan && (
-        <div style={modalOverlay} onClick={() => setShowUpgradeModal(false)}>
-          <div style={modalCard} onClick={e => e.stopPropagation()}>
-            <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', fontWeight: 700, marginBottom: 8 }}>
-              {availablePlans.find(p => p.id === selectedPlan)?.price > (plan?.price || 0)
-                ? 'Upgrade your plan'
-                : 'Downgrade your plan'}
-            </div>
-            <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 20, lineHeight: 1.65 }}>
-              Switching from <strong>{plan?.name}</strong> to{' '}
-              <strong>{availablePlans.find(p => p.id === selectedPlan)?.name}</strong>.
-              Stripe will prorate the difference on your next invoice.
-              Your new plan takes effect immediately.
-            </p>
-            <div style={{ background: '#f8f7f4', borderRadius: 11, padding: '14px 16px', marginBottom: 20 }}>
-              <div style={{ fontSize: '.75rem', fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>
-                New plan
-              </div>
-              <div style={{ fontWeight: 600, fontSize: '.95rem' }}>
-                {availablePlans.find(p => p.id === selectedPlan)?.name} — ${availablePlans.find(p => p.id === selectedPlan)?.price}/mo
-              </div>
-              <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2 }}>
-                {availablePlans.find(p => p.id === selectedPlan)?.locations === 1 ? '1 location' : `Up to ${availablePlans.find(p => p.id === selectedPlan)?.locations} locations`}
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowUpgradeModal(false)}
-                style={{ ...btnStyle('outline'), flex: 1 }}>Cancel</button>
-              <button onClick={handleUpgrade} disabled={upgrading}
-                style={{ ...btnStyle('primary'), flex: 1 }}>
-                {upgrading ? 'Updating…' : 'Confirm change'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── CANCEL MODAL ── */}
       {showCancelModal && (
