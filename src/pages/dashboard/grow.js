@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 const TABS = [
   { id: 'requests',  label: 'Review Requests'   },
   { id: 'templates', label: 'Request Templates' },
+  { id: 'bulk',      label: 'Bulk Send'         },
   { id: 'surveys',   label: 'Surveys & NPS'     },
   { id: 'import',    label: 'Import Contacts'   },
 ];
@@ -805,6 +806,174 @@ function TemplatesTab() {
 }
 
 
+function BulkSendTab() {
+  const [contacts, setContacts]   = useState([]);
+  const [segments, setSegments]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [selected, setSelected]   = useState([]);    // array of contact ids
+  const [segment, setSegment]     = useState('all');
+  const [search, setSearch]       = useState('');
+  const [sending, setSending]     = useState(false);
+  const [result, setResult]       = useState(null);
+  const [error, setError]         = useState('');
+
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  function authH() {
+    const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  }
+
+  useEffect(() => { loadContacts(); }, []);
+
+  async function loadContacts() {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API}/contacts`, { headers: authH() });
+      setContacts(res.data.contacts || []);
+      setSegments(res.data.segments || []);
+    } catch (e) {
+      // demo data
+      setContacts([
+        { id:'1', name:'Sarah Mitchell', email:'sarah@example.com', phone:'+15551112222', segment:'recent', last_request:null },
+        { id:'2', name:'James Torres',   email:'james@example.com', phone:'+15553334444', segment:'recent', last_request:'2026-04-10' },
+        { id:'3', name:'Rachel Kim',     email:'rachel@example.com', phone:'', segment:'vip', last_request:null },
+        { id:'4', name:'David Chen',     email:'david@example.com', phone:'+15555556666', segment:'vip', last_request:null },
+        { id:'5', name:'Maria Garcia',   email:'maria@example.com', phone:'', segment:'all', last_request:'2026-03-20' },
+        { id:'6', name:'Tom Wallace',    email:'tom@example.com', phone:'+15557778888', segment:'recent', last_request:null },
+      ]);
+      setSegments([
+        { id:'all',    name:'All contacts',    count:6 },
+        { id:'recent', name:'Recent customers', count:3 },
+        { id:'vip',    name:'VIP customers',    count:2 },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const filtered = contacts.filter(c => {
+    const inSegment = segment === 'all' || c.segment === segment;
+    const matchSearch = !search.trim() ||
+      c.name?.toLowerCase().includes(search.toLowerCase()) ||
+      c.email?.toLowerCase().includes(search.toLowerCase());
+    return inSegment && matchSearch;
+  });
+
+  function toggle(id) {
+    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  }
+  function toggleAll() {
+    const ids = filtered.map(c => c.id);
+    const allSelected = ids.every(id => selected.includes(id));
+    if (allSelected) setSelected(prev => prev.filter(id => !ids.includes(id)));
+    else setSelected(prev => [...new Set([...prev, ...ids])]);
+  }
+
+  async function sendBulk() {
+    if (selected.length === 0) { setError('Select at least one contact.'); return; }
+    setSending(true);
+    setError('');
+    const targets = contacts.filter(c => selected.includes(c.id));
+    try {
+      const res = await axios.post(`${API}/review-requests/bulk-send`,
+        { contacts: targets.map(c => ({ name: c.name, email: c.email, phone: c.phone })) },
+        { headers: authH() });
+      setResult({ sent: res.data.sent ?? targets.length, failed: res.data.failed ?? 0 });
+      setSelected([]);
+    } catch (e) {
+      setError(e.response?.data?.error || 'Bulk send failed. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(c => selected.includes(c.id));
+
+  if (result) return (
+    <div style={{ padding: 32, textAlign: 'center' }}>
+      <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>📨</div>
+      <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: 8 }}>Review requests sent!</div>
+      <div style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 24 }}>
+        {result.sent} request{result.sent !== 1 ? 's' : ''} sent successfully{result.failed > 0 ? `, ${result.failed} failed` : ''}.
+      </div>
+      <button onClick={() => setResult(null)} style={{ padding: '10px 24px', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>Send more</button>
+    </div>
+  );
+
+  return (
+    <div style={{ padding: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
+        {/* Contact list */}
+        <Card>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid #e4e0d8' }}>
+            <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 12 }}>Select contacts</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <select value={segment} onChange={e => setSegment(e.target.value)}
+                style={{ padding: '8px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', background: 'white', cursor: 'pointer' }}>
+                {segments.map(s => <option key={s.id} value={s.id}>{s.name} ({s.count})</option>)}
+              </select>
+              <div style={{ flex: 1, position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#7a7670', fontSize: '.85rem' }}>🔍</span>
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or email…"
+                  style={{ width: '100%', padding: '8px 12px 8px 30px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Select all */}
+          <div onClick={toggleAll} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderBottom: '1px solid #f0eeea', cursor: 'pointer', background: '#f8f7f4' }}>
+            <div style={{ width: 18, height: 18, borderRadius: 5, border: '2px solid', borderColor: allFilteredSelected ? '#0a0a0a' : '#c8c4bc', background: allFilteredSelected ? '#0a0a0a' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {allFilteredSelected && <span style={{ color: 'white', fontSize: '.6rem', fontWeight: 900 }}>✓</span>}
+            </div>
+            <span style={{ fontSize: '.8rem', fontWeight: 600, color: '#4a4a48' }}>Select all ({filtered.length})</span>
+          </div>
+
+          {/* Rows */}
+          <div style={{ maxHeight: 440, overflowY: 'auto' }}>
+            {loading ? (
+              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>Loading contacts…</div>
+            ) : filtered.length === 0 ? (
+              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>No contacts found. Import contacts first.</div>
+            ) : filtered.map(c => {
+              const isSel = selected.includes(c.id);
+              return (
+                <div key={c.id} onClick={() => toggle(c.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px', borderBottom: '1px solid #f8f7f4', cursor: 'pointer', background: isSel ? '#fafaf9' : 'white' }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 5, border: '2px solid', borderColor: isSel ? '#0a0a0a' : '#c8c4bc', background: isSel ? '#0a0a0a' : 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isSel && <span style={{ color: 'white', fontSize: '.6rem', fontWeight: 900 }}>✓</span>}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: '.84rem', color: '#0a0a0a' }}>{c.name || '(no name)'}</div>
+                    <div style={{ fontSize: '.75rem', color: '#7a7670' }}>{c.email}{c.phone ? ' · ' + c.phone : ''}</div>
+                  </div>
+                  {c.last_request && <span style={{ fontSize: '.68rem', color: '#92690a', background: '#fef9c3', padding: '2px 7px', borderRadius: 50 }}>Sent {new Date(c.last_request).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>}
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+
+        {/* Send panel */}
+        <Card style={{ padding: 20, height: 'fit-content' }}>
+          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Send review requests</div>
+          <div style={{ background: '#f8f7f4', borderRadius: 10, padding: '14px 16px', marginBottom: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0a0a0a' }}>{selected.length}</div>
+            <div style={{ fontSize: '.78rem', color: '#7a7670' }}>contact{selected.length !== 1 ? 's' : ''} selected</div>
+          </div>
+          {error && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.8rem', color: '#c0392b', marginBottom: 12 }}>✗ {error}</div>}
+          <div style={{ fontSize: '.78rem', color: '#7a7670', lineHeight: 1.6, marginBottom: 16 }}>
+            Each contact will receive your branded review request email with a link to the NPS survey. Contacts without an email are skipped.
+          </div>
+          <button onClick={sendBulk} disabled={sending || selected.length === 0}
+            style={{ width: '100%', padding: 12, borderRadius: 50, background: (sending || selected.length === 0) ? '#f0eeea' : '#0a0a0a', color: (sending || selected.length === 0) ? '#c8c4bc' : 'white', border: 'none', cursor: (sending || selected.length === 0) ? 'not-allowed' : 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' }}>
+            {sending ? 'Sending…' : `Send ${selected.length || ''} request${selected.length !== 1 ? 's' : ''} →`}
+          </button>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 function SurveysTab() {
   return (
     <div style={{ padding: 24 }}>
@@ -900,6 +1069,7 @@ export default function Grow() {
       </div>
       {tab === 'requests'  && <RequestsTab />}
       {tab === 'templates' && <TemplatesTab />}
+      {tab === 'bulk'     && <BulkSendTab />}
       {tab === 'surveys'  && <SurveysTab />}
       {tab === 'import'   && <ImportTab />}
     </DashboardLayout>
