@@ -39,7 +39,7 @@ export default function Inbox() {
 
   async function loadSessions() {
     try {
-      const res = await axios.get(`${API}/webchat/sessions`, {
+      const res = await axios.get(`${API}/webchat/inbox`, {
         headers: authHeaders(),
         params: { status: filter }
       });
@@ -56,7 +56,7 @@ export default function Inbox() {
   async function openSession(session) {
     setActive(session);
     try {
-      const res = await axios.get(`${API}/webchat/sessions/${session.id}/messages`, { headers: authHeaders() });
+      const res = await axios.get(`${API}/webchat/session/${session.id}`, { headers: authHeaders() });
       setMessages(res.data.messages || []);
     } catch (e) { setMessages([]); }
   }
@@ -65,7 +65,7 @@ export default function Inbox() {
     if (!reply.trim() || !active) return;
     setSending(true);
     try {
-      await axios.post(`${API}/webchat/sessions/${active.id}/reply`, { message: reply }, { headers: authHeaders() });
+      await axios.post(`${API}/webchat/session/${active.id}/reply`, { body: reply }, { headers: authHeaders() });
       setMessages(prev => [...prev, { role: 'agent', content: reply, created_at: new Date().toISOString() }]);
       setReply('');
     } catch (e) { console.error(e); }
