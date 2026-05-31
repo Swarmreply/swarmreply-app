@@ -78,16 +78,22 @@ function RequestsTab() {
     }
   }
 
+  const [sendError, setSendError] = useState('');
   async function send() {
-    if (!name.trim() || (!email.trim() && !phone.trim())) return;
+    if (!email.trim()) { setSendError('Email is required.'); return; }
     setSending(true);
+    setSendError('');
     try {
       await axios.post(`${API}/review-requests/send`, { name, email, phone }, { headers: authH() });
-    } catch (e) { console.error(e); }
-    setSent(true);
-    setSending(false);
-    setTimeout(() => setSent(false), 3000);
-    setName(''); setEmail(''); setPhone('');
+      setSent(true);
+      setName(''); setEmail(''); setPhone('');
+      setTimeout(() => setSent(false), 4000);
+    } catch (e) {
+      setSendError(e.response?.data?.error || 'Failed to send. Please try again.');
+      setTimeout(() => setSendError(''), 6000);
+    } finally {
+      setSending(false);
+    }
   }
 
   // Filter logic
@@ -236,8 +242,9 @@ function RequestsTab() {
         {/* Send request panel */}
         <Card style={{ padding: 20, height: 'fit-content' }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Send a review request</div>
-          {sent && <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#1a6b45', marginBottom: 12 }}>✓ Sent successfully!</div>}
-          {[['Customer name *','text','Enter name…',name,setName],['Email','email','customer@example.com',email,setEmail],['Phone (SMS)','tel','+1 555 000 0000',phone,setPhone]].map(([l,t,p,v,s]) => (
+          {sent && <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#1a6b45', marginBottom: 12 }}>✓ Review request sent!</div>}
+          {sendError && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#c0392b', marginBottom: 12 }}>✗ {sendError}</div>}
+          {[['Customer name','text','Enter name… (optional)',name,setName],['Email *','email','customer@example.com',email,setEmail],['Phone (SMS, optional)','tel','+1 555 000 0000',phone,setPhone]].map(([l,t,p,v,s]) => (
             <div key={l} style={{ marginBottom: 10 }}>
               <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 4 }}>{l}</label>
               <input type={t} value={v} onChange={e => s(e.target.value)} placeholder={p}
