@@ -45,14 +45,11 @@ export function useAuth() {
         return;
       }
 
-      // Fetch fresh customer data
-      const res = await axios.get(`${API}/billing/status`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
       // For impersonated sessions, customerId may be same as id
       const customerId = payload.customerId || payload.id;
 
+      // Set identity from the token immediately — this is always valid if the
+      // token decoded and isn't expired. Don't make the session depend on billing.
       setMember({
         id:         payload.memberId || payload.id,
         name:       payload.name,
@@ -61,19 +58,38 @@ export function useAuth() {
         customerId: customerId,
       });
 
+      // Try to refresh plan/status info. A failure here should NOT log the user out.
+      let billing = null;
+      try {
+        const res = await axios.get(`${API}/billing/status`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        billing = res.data.billing;
+      } catch (billErr) {
+        // If the token itself is rejected (401), clear it. Otherwise keep the session.
+        if (billErr.response?.status === 401) {
+          localStorage.removeItem('swarmreply_token');
+          setMember(null);
+          setCustomer(null);
+          setLoading(false);
+          return;
+        }
+        console.warn('Could not refresh billing status:', billErr.message);
+      }
+
       setCustomer({
         id:     customerId,
         name:   payload.name,
         email:  payload.email,
-        plan:   String(res.data.billing?.plan || payload.plan || 'starter'),
-        status: res.data.billing?.status || 'active',
+        plan:   String(billing?.plan || payload.plan || 'starter'),
+        status: billing?.status || 'active',
         role:   payload.role,
         is_demo: payload.is_demo || false,
         impersonated_by: payload.impersonated_by || null,
       });
 
     } catch (err) {
-      // Token invalid or expired — clear it
+      // Token couldn't even be decoded — it's genuinely invalid.
       localStorage.removeItem('swarmreply_token');
       setError(err.message);
     } finally {
