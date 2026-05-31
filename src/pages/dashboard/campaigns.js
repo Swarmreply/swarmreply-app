@@ -113,12 +113,23 @@ function SocialPostsTab() {
     return t ? { Authorization: `Bearer ${t}` } : {};
   }
 
-  // Demo post history
-  const demoPosts = [
-    { id:'1', text:'Summer hours are here! We are open 7 days a week through Labor Day.', platforms:['facebook','google'], content_type:'text', status:'live', published_at: new Date(Date.now()-2*86400000).toISOString(), platform_statuses:{ facebook:'live', google:'live' } },
-    { id:'2', text:'Check out our latest work! #quality #craftmanship', platforms:['facebook','instagram'], content_type:'text_image', status:'live', published_at: new Date(Date.now()-5*86400000).toISOString(), platform_statuses:{ facebook:'live', instagram:'live' } },
-    { id:'3', text:'New service video — watch how we do it.', platforms:['tiktok','instagram'], content_type:'video', status:'pending_approval', published_at: new Date(Date.now()-86400000).toISOString(), platform_statuses:{ tiktok:'pending_approval', instagram:'live' } },
-  ];
+  // Load real post history
+  useEffect(() => { loadPosts(); }, []);
+  async function loadPosts() {
+    try {
+      const res = await fetch(`${API}/social/posts`, { headers: authH() });
+      const data = await res.json();
+      setPosts((data.posts || []).map(p => ({
+        id: p.id,
+        text: p.text_content || '',
+        platforms: Array.isArray(p.platforms) ? p.platforms : (() => { try { return JSON.parse(p.platforms); } catch { return []; } })(),
+        content_type: p.content_type,
+        status: p.status,
+        published_at: p.created_at,
+        platform_statuses: (() => { try { return typeof p.platform_results === 'string' ? JSON.parse(p.platform_results) : (p.platform_results || {}); } catch { return {}; } })(),
+      })));
+    } catch (e) { setPosts([]); }
+  }
 
   function togglePlatform(id) {
     setSelectedPlatforms(prev =>
@@ -134,12 +145,15 @@ function SocialPostsTab() {
     }));
   }
 
+  const [publishResults, setPublishResults] = useState(null);
+  const [publishError, setPublishError]     = useState('');
   async function publish() {
     if (!postText.trim() && contentType === 'text') return;
     if (selectedPlatforms.length === 0) return;
     setPublishing(true);
+    setPublishError('');
     try {
-      await fetch(`${API}/social/post`, {
+      const res = await fetch(`${API}/social/post`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authH() },
         body: JSON.stringify({
@@ -150,9 +164,20 @@ function SocialPostsTab() {
           scheduleAt: scheduleDate && scheduleTime ? `${scheduleDate}T${scheduleTime}` : null,
         }),
       });
-    } catch(e) { console.error(e); }
-    setPublished(true);
-    setPublishing(false);
+      const data = await res.json();
+      if (!res.ok) {
+        setPublishError(data.error || 'Post failed. Check your connections in Settings.');
+        setPublishing(false);
+        return;
+      }
+      setPublishResults(data.results || {});
+      setPublished(true);
+      loadPosts();
+    } catch(e) {
+      setPublishError('Post failed. Please try again.');
+    } finally {
+      setPublishing(false);
+    }
   }
 
   function reset() {
@@ -186,6 +211,16 @@ function SocialPostsTab() {
       <div style={{ fontWeight:700, fontSize:'1.1rem', marginBottom:8 }}>
         {scheduleDate ? 'Post scheduled!' : 'Post submitted!'}
       </div>
+      {publishResults && Object.values(publishResults).some(r => r.status === 'error') && (
+        <div style={{ maxWidth:420, margin:'0 auto 16px', textAlign:'left' }}>
+          {Object.entries(publishResults).map(([plat, r]) => (
+            <div key={plat} style={{ display:'flex', justifyContent:'space-between', fontSize:'.78rem', padding:'4px 0', color: r.status==='error' ? '#c0392b' : '#1a6b45' }}>
+              <span style={{ textTransform:'capitalize' }}>{plat}</span>
+              <span>{r.status === 'error' ? ('Failed: ' + (r.error||'')) : r.status === 'pending_approval' ? 'Pending approval' : 'Posted'}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={{ fontSize:'.84rem', color:'#7a7670', marginBottom:24, lineHeight:1.65 }}>
         {scheduleDate
           ? `Your post will go live on ${new Date(scheduleDate+'T'+scheduleTime).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}.`
@@ -212,9 +247,9 @@ function SocialPostsTab() {
       {/* POST HISTORY VIEW */}
       {view === 'history' && (
         <div>
-          {demoPosts.length === 0 ? (
+          {posts.length === 0 ? (
             <div style={{ padding:40, textAlign:'center', color:'#7a7670' }}>No posts yet.</div>
-          ) : demoPosts.map(post => {
+          ) : posts.map(post => {
             const platforms = SOCIAL_PLATFORMS.filter(p => post.platforms.includes(p.id));
             return (
               <div key={post.id} style={{ background:'white', border:'1px solid #e4e0d8', borderRadius:12, padding:'16px 20px', marginBottom:12 }}>
@@ -496,6 +531,12 @@ function SocialPostsTab() {
                 </div>
               )}
 
+              {publishError && (
+                <div style={{ background:'#fee2e2', border:'1px solid #fca5a5', borderRadius:10, padding:'12px 14px', marginBottom:16, fontSize:'.8rem', color:'#c0392b', lineHeight:1.6 }}>
+                  ✗ {publishError}
+                </div>
+              )}
+
               <div style={{ display:'flex', gap:8 }}>
                 <button onClick={() => setStep('compose')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'#4a4a48' }}>← Edit</button>
                 <button onClick={publish} disabled={publishing}
@@ -564,10 +605,10 @@ export default function Campaigns() {
             <UsageMeter used={usage.used || usage.campaign_sms_sent || 634}
       limit={usage.limit || usage.sms_limit || 2000} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
-              <StatCard label="Total sent" value="1,284" sub="Across all campaigns" />
-              <StatCard label="Delivery rate" value="96%" sub="↑ +2% vs industry avg" />
-              <StatCard label="Opt-out rate" value="0.4%" sub="Well below 2% threshold" />
-              <StatCard label="Replies" value="47" sub="From last 3 campaigns" />
+              <StatCard label="Total sent" value={(usage.total_sent ?? 0).toLocaleString()} sub="Across all campaigns" />
+              <StatCard label="Campaigns sent" value={(usage.total_campaigns ?? 0).toLocaleString()} sub="Completed campaigns" />
+              <StatCard label="SMS remaining" value={Math.max(0, (usage.limit || 2000) - (usage.used || 0)).toLocaleString()} sub={"of " + (usage.limit || 2000).toLocaleString() + " this month"} />
+              <StatCard label="Replies" value={(usage.total_replies ?? 0).toLocaleString()} sub="Across all campaigns" />
             </div>
             <Card style={{ overflow: 'hidden' }}>
               <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>All campaigns</div>
