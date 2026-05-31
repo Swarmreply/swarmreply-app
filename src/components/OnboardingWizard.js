@@ -126,8 +126,6 @@ export default function OnboardingWizard({ customer, onComplete }) {
     setSaving(true);
     try {
       const ob = await loadStatus();
-      const stepKeys = ['business_created','google_connected','tone_configured','review_request_sent','survey_configured'];
-      const done = ob?.steps?.[stepKeys[stepNum - 1]];
       if (ob?.completed) {
         setTimeout(() => onComplete(), 600);
       } else {
@@ -305,7 +303,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
           {/* Step list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {STEPS.map(s => {
-              const done    = status?.steps?.find(st => st.step === s.n)?.completed;
+              const done    = (Array.isArray(status?.steps) ? status.steps : []).find(st => st.step === s.n)?.completed;
               const current = s.n === activeStep;
               return (
                 <div
@@ -567,7 +565,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               </div>
 
               {/* Already done state */}
-              {status?.steps?.find(s => s.step === step.n)?.completed && (
+              {(Array.isArray(status?.steps) ? status.steps : []).find(s => s.step === step.n)?.completed && (
                 <div style={{
                   marginTop: 14, display: 'flex', alignItems: 'center', gap: 7,
                   fontSize: '.78rem', color: '#1a6b45', fontWeight: 600
