@@ -256,7 +256,7 @@ function ResultsTab({ report }) {
   const [modelFilter, setModelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const rows = report ? [] : [
+  const rows = report?.results?.length ? report.results : (report ? [] : [
     { llm_name:'chatgpt',    query_text:'Best restaurant in Sacramento',           mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:false },
     { llm_name:'gemini',     query_text:'Tell me about Bella\'s Kitchen',          mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:true  },
     { llm_name:'chatgpt',    query_text:'Best family dinner Sacramento',           mentioned:false, mention_position:null, sentiment:'not_mentioned', prev_mentioned:false },
@@ -265,7 +265,7 @@ function ResultsTab({ report }) {
     { llm_name:'gemini',     query_text:'Compare restaurants in Sacramento',       mentioned:false, mention_position:null, sentiment:'not_mentioned', prev_mentioned:true  },
     { llm_name:'perplexity', query_text:'Best Italian near Sacramento',            mentioned:true,  mention_position:3, sentiment:'neutral',  prev_mentioned:true  },
     { llm_name:'claude',     query_text:'Is Bella\'s Kitchen Sacramento good?',    mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:true  },
-  ];
+  ]);
 
   const wowTotal=rows.filter(r=>r.mentioned).length, wowPrev=rows.filter(r=>r.prev_mentioned).length;
   const wowNew=rows.filter(r=>r.mentioned&&!r.prev_mentioned).length, wowLost=rows.filter(r=>!r.mentioned&&r.prev_mentioned).length;
@@ -657,10 +657,19 @@ export default function AIVisibility() {
   async function triggerScan() {
     setScanning(true);
     try {
-      await axios.post(`${API}/llm/scan`, {}, { headers: authHeaders() });
-      setTimeout(loadReport, 5000);
-    } catch (e) { console.error(e); }
-    finally { setTimeout(() => setScanning(false), 3500); }
+      // Scan writes the report before responding, so use the response directly
+      const res = await axios.post(`${API}/llm/scan`, {}, { headers: authHeaders() });
+      if (res.data.report) {
+        setReport(res.data.report);
+        setLastScanned(res.data.report?.run?.completed_at);
+      } else {
+        await loadReport();
+      }
+    } catch (e) {
+      console.error('Scan failed:', e.response?.data?.error || e.message);
+    } finally {
+      setScanning(false);
+    }
   }
 
   return (
