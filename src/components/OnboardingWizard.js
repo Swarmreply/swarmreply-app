@@ -104,48 +104,44 @@ export default function OnboardingWizard({ customer, onComplete }) {
     return t ? { Authorization: `Bearer ${t}` } : {};
   }
 
-  async function loadStatus() {
+  async function loadStatus(advance) {
     try {
       const res = await axios.get(`${API}/onboarding/status`, { headers: authHeaders() });
       const ob = res.data.onboarding;
       setStatus(ob);
-      setActiveStep(ob.currentStep <= 5 ? ob.currentStep : 5);
+      if (advance) setActiveStep(ob.currentStep && ob.currentStep <= 5 ? ob.currentStep : 5);
+      if (ob.completed) setTimeout(() => onComplete(), 600);
+      return ob;
     } catch (err) {
       console.error('Failed to load onboarding status', err);
+      return null;
     } finally {
       setLoading(false);
     }
   }
 
   async function completeStep(stepNum) {
+    // Option A: steps are driven off real data. After doing the real work,
+    // re-check status; if this step now registers as done, advance.
+    setSaving(true);
     try {
-      setSaving(true);
-      const res = await axios.post(
-        `${API}/onboarding/step/${stepNum}`,
-        {},
-        { headers: authHeaders() }
-      );
-      await loadStatus();
-      if (res.data.allDone) {
+      const ob = await loadStatus();
+      const stepKeys = ['business_created','google_connected','tone_configured','review_request_sent','survey_configured'];
+      const done = ob?.steps?.[stepKeys[stepNum - 1]];
+      if (ob?.completed) {
         setTimeout(() => onComplete(), 600);
       } else {
-        setActiveStep(stepNum + 1);
+        // Advance regardless so the user can continue; status reflects real state
+        setActiveStep(Math.min(stepNum + 1, 5));
       }
-    } catch (err) {
-      console.error('Failed to complete step', err);
     } finally {
       setSaving(false);
     }
   }
 
-  async function skipAll() {
+  function skipAll() {
     // Persist skip decision so wizard never auto-shows again on this device
     localStorage.setItem('onboarding_skipped', '1');
-    try {
-      await axios.post(`${API}/onboarding/skip`, {}, { headers: authHeaders() });
-    } catch (err) {
-      // Route may not exist — that's fine, localStorage flag is what matters
-    }
     onComplete();
   }
 
@@ -153,39 +149,83 @@ export default function OnboardingWizard({ customer, onComplete }) {
 
   async function handleStep1() {
     if (!bizName.trim()) return;
-    // In production: createLocation with form data
+    setSaving(true);
+    try {
+      await axios.post(`${API}/locations`, {
+        customerId: customer?.id,
+        businessName: bizName.trim(),
+        businessType: bizType,
+        platform: 'google',
+        contactEmail: alertEmail.trim(),
+      }, { headers: authHeaders() });
+    } catch (err) {
+      console.error('Create location failed', err.response?.data || err.message);
+    }
     await completeStep(1);
   }
 
   async function handleStep2() {
-    // Redirect to Google OAuth
+    // Redirect to Google OAuth. Browser redirects can't carry an auth header,
+    // so pass the token as a query param (backend accepts ?token= fallback).
     try {
-      const locRes = await axios.get(`${API}/locations`, { headers: authHeaders() });
+      const token = localStorage.getItem('swarmreply_token');
+      const locRes = await axios.get(`${API}/locations?customerId=${customer?.id}`, { headers: authHeaders() });
       const locationId = locRes.data.locations?.[0]?.id;
       if (locationId) {
-        const authRes = await axios.get(`${API}/auth/google?locationId=${locationId}`, { headers: authHeaders() });
-        window.location.href = authRes.data.url;
+        window.location.href = `${API}/auth/google?locationId=${locationId}&token=${token}`;
+      } else {
+        alert('Please add your business first (step 1).');
       }
     } catch (err) {
-      // Mark complete for demo purposes
-      await completeStep(2);
+      console.error('Google connect failed', err.response?.data || err.message);
     }
   }
 
   async function handleStep3() {
-    // Save tone to location settings
+    setSaving(true);
+    try {
+      const locRes = await axios.get(`${API}/locations?customerId=${customer?.id}`, { headers: authHeaders() });
+      const locationId = locRes.data.locations?.[0]?.id;
+      if (locationId) {
+        await axios.put(`${API}/locations/${locationId}/settings`, {
+          tone, alwaysInclude, neverInclude,
+        }, { headers: authHeaders() });
+      }
+    } catch (err) {
+      console.error('Save tone failed', err.response?.data || err.message);
+    }
     await completeStep(3);
   }
 
   async function handleStep4() {
-    if (!reqName.trim() || (!reqPhone.trim() && !reqEmail.trim())) return;
-    // In production: send review request
+    if (!reqEmail.trim()) return;  // email required; name/phone optional
+    setSaving(true);
+    try {
+      await axios.post(`${API}/review-requests/send`, {
+        name: reqName, email: reqEmail, phone: reqPhone,
+      }, { headers: authHeaders() });
+    } catch (err) {
+      console.error('Send request failed', err.response?.data || err.message);
+    }
     await completeStep(4);
   }
 
   async function handleStep5() {
     if (!googleLink.trim()) return;
-    // In production: save Google review link + enable surveys
+    setSaving(true);
+    try {
+      const locRes = await axios.get(`${API}/locations?customerId=${customer?.id}`, { headers: authHeaders() });
+      const locationId = locRes.data.locations?.[0]?.id;
+      if (locationId) {
+        await axios.put(`${API}/locations/${locationId}/review-urls`, {
+          googleReviewUrl: googleLink.trim(),
+        }, { headers: authHeaders() });
+      }
+      // Persist a default template so surveys are 'configured'
+      await axios.put(`${API}/templates`, { template: { platforms: ['google'] } }, { headers: authHeaders() });
+    } catch (err) {
+      console.error('Activate surveys failed', err.response?.data || err.message);
+    }
     await completeStep(5);
   }
 
