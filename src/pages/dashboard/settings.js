@@ -60,25 +60,63 @@ function AITab() {
   const [alwaysInclude, setAlways]= useState('');
   const [neverInclude, setNever]  = useState('');
   const [saved, setSaved]         = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const [saving, setSaving]       = useState(false);
 
   useEffect(() => { if (customer) load(); }, [customer]);
 
   async function load() {
     const locs = await getLocations(customer.id).catch(() => []);
-    setLocations(locs);
-    if (locs[0]) { setSelected(locs[0]); setTone(locs[0].tone || 'warm'); }
+    setLocations(Array.isArray(locs) ? locs : []);
+    if (locs[0]) pickLocation(locs[0]);
+  }
+
+  // Populate the form from a location's saved settings
+  function pickLocation(loc) {
+    setSelected(loc);
+    setTone(loc.tone || 'warm');
+    setAlways(loc.always_include || '');
+    setNever(loc.never_include || '');
+    setAutoReply(loc.auto_reply !== false); // default on; respects an explicit false
   }
 
   async function save() {
     if (!selected) return;
-    await updateLocationSettings(selected.id, { tone, auto_reply: autoReply, always_include: alwaysInclude, never_include: neverInclude }).catch(() => {});
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setSaving(true);
+    setSaveError(null);
+    try {
+      // Field names must be camelCase to match the backend (PUT /locations/:id/settings).
+      const res = await updateLocationSettings(selected.id, { tone, alwaysInclude, neverInclude, autoReply });
+      if (res && res.success === false) throw new Error(res.error || 'Save failed');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      setSaveError(err?.response?.data?.error || err?.message || 'Could not save. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {locations.length > 1 && (
+          <Card style={{ padding: 20 }}>
+            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 10 }}>Location</div>
+            <select
+              style={inp}
+              value={selected?.id || ''}
+              onChange={e => {
+                const loc = locations.find(l => l.id === e.target.value);
+                if (loc) pickLocation(loc);
+              }}
+            >
+              {locations.map(l => (
+                <option key={l.id} value={l.id}>{l.business_name || 'Location'}</option>
+              ))}
+            </select>
+          </Card>
+        )}
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Reply tone</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -105,7 +143,8 @@ function AITab() {
             <Toggle on={autoReply} onChange={setAutoReply} />
           </div>
           {saved && <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#1a6b45', marginBottom: 10 }}>✓ Saved</div>}
-          <button onClick={save} style={{ ...btn(true), width: '100%', padding: 12, marginTop: 8 }}>Save AI settings</button>
+          {saveError && <div style={{ background: '#fdecea', border: '1px solid #f5c6cb', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#a4282a', marginBottom: 10 }}>{saveError}</div>}
+          <button onClick={save} disabled={saving} style={{ ...btn(true), width: '100%', padding: 12, marginTop: 8, opacity: saving ? .6 : 1 }}>{saving ? 'Saving…' : 'Save AI settings'}</button>
         </Card>
       </div>
       <Card style={{ padding: 20, height: 'fit-content' }}>
@@ -139,39 +178,210 @@ function AITab() {
 }
 
 function WebchatTab() {
+  const { customer } = useAuth();
+  const API = process.env.NEXT_PUBLIC_API_URL;
+  function authHeaders() {
+    const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  }
+
+  const [locations, setLocations] = useState([]);
+  const [locationId, setLocationId] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Widget settings (webchat_configs)
+  const [greetingTitle, setGreetingTitle] = useState('');
+  const [welcomeMessage, setWelcomeMessage] = useState('');
+  const [notifyEmail, setNotifyEmail] = useState('');
+  const [notifySms, setNotifySms] = useState('');
+  const [widgetToken, setWidgetToken] = useState('');
+
+  // AI agent settings (webchat_ai_configs)
   const [agentOn, setAgentOn] = useState(false);
+  const [agentMode, setAgentMode] = useState('always');
+  const [agentName, setAgentName] = useState('AI Assistant');
+
+  // UI state
+  const [savingWidget, setSavingWidget] = useState(false);
+  const [savingAI, setSavingAI] = useState(false);
+  const [widgetMsg, setWidgetMsg] = useState(null);
+  const [aiMsg, setAiMsg] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [genToken, setGenToken] = useState(false);
+
+  useEffect(() => { if (customer) loadLocations(); }, [customer]);
+  useEffect(() => { if (locationId) loadConfig(locationId); }, [locationId]);
+
+  async function loadLocations() {
+    const locs = await getLocations(customer.id).catch(() => []);
+    const list = Array.isArray(locs) ? locs : [];
+    setLocations(list);
+    if (list[0]) setLocationId(list[0].id);
+    else setLoading(false);
+  }
+
+  async function loadConfig(locId) {
+    setLoading(true);
+    setWidgetMsg(null); setAiMsg(null);
+    try {
+      const [cfgRes, aiRes] = await Promise.all([
+        axios.get(`${API}/webchat/settings?locationId=${locId}`, { headers: authHeaders() }),
+        axios.get(`${API}/webchat/ai/settings?locationId=${locId}`, { headers: authHeaders() }),
+      ]);
+      const c = cfgRes.data.config || {};
+      setGreetingTitle(c.greeting_title || '');
+      setWelcomeMessage(c.welcome_message || '');
+      setNotifyEmail(c.notify_email || '');
+      setNotifySms(c.notify_sms || '');
+      setWidgetToken(c.widget_token || '');
+
+      const ai = aiRes.data.config || {};
+      setAgentOn(!!ai.is_enabled);
+      setAgentMode(ai.mode || 'always');
+      setAgentName(ai.agent_name || 'AI Assistant');
+    } catch (err) {
+      setWidgetMsg({ type: 'error', text: err?.response?.data?.error || 'Could not load webchat settings.' });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveWidget() {
+    if (!locationId) return;
+    setSavingWidget(true); setWidgetMsg(null);
+    try {
+      await axios.put(`${API}/webchat/settings`, {
+        locationId,
+        greeting_title: greetingTitle,
+        welcome_message: welcomeMessage,
+        notify_email: notifyEmail,
+        notify_sms: notifySms,
+      }, { headers: authHeaders() });
+      setWidgetMsg({ type: 'ok', text: '✓ Saved' });
+      setTimeout(() => setWidgetMsg(null), 2000);
+    } catch (err) {
+      setWidgetMsg({ type: 'error', text: err?.response?.data?.error || 'Could not save. Please try again.' });
+    } finally {
+      setSavingWidget(false);
+    }
+  }
+
+  async function saveAI() {
+    if (!locationId) return;
+    setSavingAI(true); setAiMsg(null);
+    try {
+      await axios.put(`${API}/webchat/ai/settings`, {
+        locationId,
+        is_enabled: agentOn,
+        mode: agentMode,
+        agent_name: agentName,
+      }, { headers: authHeaders() });
+      setAiMsg({ type: 'ok', text: '✓ Saved' });
+      setTimeout(() => setAiMsg(null), 2000);
+    } catch (err) {
+      setAiMsg({ type: 'error', text: err?.response?.data?.error || 'Could not save. Please try again.' });
+    } finally {
+      setSavingAI(false);
+    }
+  }
+
+  async function generateToken() {
+    if (!locationId) return;
+    setGenToken(true); setWidgetMsg(null);
+    try {
+      const res = await axios.post(`${API}/webchat/settings/rotate-token`, { locationId }, { headers: authHeaders() });
+      setWidgetToken(res.data.widget_token || '');
+    } catch (err) {
+      setWidgetMsg({ type: 'error', text: err?.response?.data?.error || 'Could not generate token.' });
+    } finally {
+      setGenToken(false);
+    }
+  }
+
+  const embedCode = widgetToken
+    ? `<script src="https://swarmreply.com/chat-widget.js" data-token="${widgetToken}"></script>`
+    : '';
+
+  function copyEmbed() {
+    if (!embedCode || typeof navigator === 'undefined' || !navigator.clipboard) return;
+    navigator.clipboard.writeText(embedCode).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  }
+
+  const msgStyle = (m) => ({
+    background: m.type === 'error' ? '#fdecea' : '#e8f5ef',
+    border: `1px solid ${m.type === 'error' ? '#f5c6cb' : '#bbf7d0'}`,
+    color: m.type === 'error' ? '#a4282a' : '#1a6b45',
+    borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', marginBottom: 10,
+  });
+
+  if (loading && !locations.length) {
+    return <div style={{ fontSize: '.85rem', color: '#7a7670', padding: 20 }}>Loading…</div>;
+  }
+  if (!locations.length) {
+    return <div style={{ fontSize: '.85rem', color: '#7a7670', padding: 20 }}>Add a location first to set up webchat.</div>;
+  }
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
-      <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Webchat widget</div>
-        <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14, lineHeight: 1.6 }}>Embed a chat bubble on your website. Visitors start a conversation — their number is captured and moves to SMS.</div>
-        <Field label="Greeting title"><input style={inp} defaultValue="Chat with us" /></Field>
-        <Field label="Welcome message"><input style={inp} defaultValue="Hi! 👋 How can we help you today?" /></Field>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', margin: '14px 0 10px' }}>Embed code</div>
-        <div style={{ background: '#0a0a0a', color: '#f5c842', borderRadius: 10, padding: 12, fontFamily: 'monospace', fontSize: '.72rem', lineHeight: 1.8, marginBottom: 8 }}>
-          {'<script\n  src="https://swarmreply.com/chat-widget.js"\n  data-token="wc_tok_..."\n></script>'}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {locations.length > 1 && (
+        <Card style={{ padding: 20 }}>
+          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 10 }}>Location</div>
+          <select style={inp} value={locationId || ''} onChange={e => setLocationId(e.target.value)}>
+            {locations.map(l => <option key={l.id} value={l.id}>{l.business_name || 'Location'}</option>)}
+          </select>
+        </Card>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+        <Card style={{ padding: 20 }}>
+          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Webchat widget</div>
+          <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14, lineHeight: 1.6 }}>Embed a chat bubble on your website. Visitors start a conversation — their number is captured and moves to SMS.</div>
+          <Field label="Greeting title"><input style={inp} value={greetingTitle} onChange={e => setGreetingTitle(e.target.value)} placeholder="Chat with us" /></Field>
+          <Field label="Welcome message"><input style={inp} value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} placeholder="Hi! 👋 How can we help you today?" /></Field>
+
+          <div style={{ fontWeight: 600, fontSize: '.875rem', margin: '14px 0 10px' }}>Embed code</div>
+          {embedCode ? (
+            <div style={{ background: '#0a0a0a', color: '#f5c842', borderRadius: 10, padding: 12, fontFamily: 'monospace', fontSize: '.72rem', lineHeight: 1.6, marginBottom: 8, wordBreak: 'break-all' }}>
+              {embedCode}
+            </div>
+          ) : (
+            <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 8 }}>No embed token yet — generate one to get your install snippet.</div>
+          )}
+          {embedCode
+            ? <button onClick={copyEmbed} style={{ ...btn(false), width: '100%', textAlign: 'center' }}>{copied ? '✓ Copied' : 'Copy embed code'}</button>
+            : <button onClick={generateToken} disabled={genToken} style={{ ...btn(false), width: '100%', textAlign: 'center', opacity: genToken ? .6 : 1 }}>{genToken ? 'Generating…' : 'Generate embed code'}</button>}
+
+          {widgetMsg && <div style={{ ...msgStyle(widgetMsg), marginTop: 10 }}>{widgetMsg.text}</div>}
+          <button onClick={saveWidget} disabled={savingWidget} style={{ ...btn(true), width: '100%', padding: 11, marginTop: 10, opacity: savingWidget ? .6 : 1 }}>{savingWidget ? 'Saving…' : 'Save widget settings'}</button>
+        </Card>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <Card style={{ padding: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={{ fontWeight: 600, fontSize: '.875rem' }}>AI Chat Agent</div>
+              <Toggle on={agentOn} onChange={setAgentOn} />
+            </div>
+            <Field label="Agent mode">
+              <select style={inp} value={agentMode} onChange={e => setAgentMode(e.target.value)} disabled={!agentOn}>
+                <option value="always">Always on</option>
+                <option value="after_hours">After hours only</option>
+                <option value="first_reply">First reply only</option>
+              </select>
+            </Field>
+            <Field label="Agent name"><input style={inp} value={agentName} onChange={e => setAgentName(e.target.value)} placeholder="AI Assistant" /></Field>
+            {aiMsg && <div style={msgStyle(aiMsg)}>{aiMsg.text}</div>}
+            <button onClick={saveAI} disabled={savingAI} style={{ ...btn(true), width: '100%', padding: 11, marginTop: 4, opacity: savingAI ? .6 : 1 }}>{savingAI ? 'Saving…' : 'Save AI agent'}</button>
+          </Card>
+          <Card style={{ padding: 20 }}>
+            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Notifications</div>
+            <Field label="Alert email"><input style={inp} type="email" value={notifyEmail} onChange={e => setNotifyEmail(e.target.value)} placeholder="you@business.com" /></Field>
+            <Field label="Alert SMS"><input style={inp} type="tel" value={notifySms} onChange={e => setNotifySms(e.target.value)} placeholder="+1 555 000 1234" /></Field>
+            <div style={{ fontSize: '.72rem', color: '#7a7670' }}>Saved with “Save widget settings”.</div>
+          </Card>
         </div>
-        <button style={{ ...btn(false), width: '100%', textAlign: 'center' }}>Copy embed code</button>
-      </Card>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <Card style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem' }}>AI Chat Agent</div>
-            <Toggle on={agentOn} onChange={setAgentOn} />
-          </div>
-          <Field label="Agent mode">
-            <select style={{ ...inp }}>
-              <option>After hours only</option><option>First reply only</option><option selected>Always on</option><option>Off</option>
-            </select>
-          </Field>
-          <Field label="Agent name"><input style={inp} defaultValue="AI Assistant" /></Field>
-        </Card>
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Notifications</div>
-          <Field label="Alert email"><input style={inp} type="email" /></Field>
-          <Field label="Alert SMS"><input style={inp} type="tel" /></Field>
-          <button style={{ ...btn(true), width: '100%', padding: 11 }}>Save settings</button>
-        </Card>
       </div>
     </div>
   );
