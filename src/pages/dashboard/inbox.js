@@ -75,7 +75,7 @@ export default function Inbox() {
   async function resolveSession() {
     if (!active) return;
     try {
-      await axios.post(`${API}/webchat/sessions/${active.id}/resolve`, {}, { headers: authHeaders() });
+      await axios.post(`${API}/webchat/session/${active.id}/resolve`, {}, { headers: authHeaders() });
       setActive(prev => ({ ...prev, status: 'resolved' }));
       setSessions(prev => prev.map(s => s.id === active.id ? { ...s, status: 'resolved' } : s));
     } catch (e) { console.error(e); }

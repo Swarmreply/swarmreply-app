@@ -69,7 +69,7 @@ export default function Reviews() {
       const locs = await getLocations(customer.id);
       if (!locs.length) return;
       const data = await getReviews(locs[0].id, { limit: 50 });
-      const all  = data.reviews || [];
+      const all  = Array.isArray(data) ? data : (data?.reviews || []);
       setReviews(all);
       setAlerts(all.filter(r => r.star_rating <= 2));
     } catch (e) {
