@@ -27,13 +27,9 @@ export default function ResetPassword() {
   useEffect(() => {
     if (!token) return;
     // Quickly validate token exists without consuming it
-    axios.get(`${API}/team/invite/preview?token=${token}`)
-      .then(() => setTokenValid(true))
-      .catch(err => {
-        // If it's a different kind of error (not expired), still try
-        const msg = err.response?.data?.error || '';
-        setTokenValid(!msg.includes('expired') && !msg.includes('invalid'));
-      });
+    axios.get(`${API}/auth/reset-password/verify?token=${token}`)
+      .then(res => setTokenValid(!!res.data?.valid))
+      .catch(() => setTokenValid(false));
   }, [token]);
 
   const pwStrength = (() => {
