@@ -114,14 +114,6 @@ export async function getBillingPortalUrl(token) {
   return res.json();
 }
 
-export async function upgradePlan(token, planId) {
-  const res = await fetch(`${API_BASE}/billing/upgrade`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ planId })
-  });
-  return res.json();
-}
 
 export async function cancelSubscription(token, reason) {
   const res = await fetch(`${API_BASE}/billing/cancel`, {
