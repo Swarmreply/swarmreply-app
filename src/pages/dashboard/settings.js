@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
-import { getLocations, updateLocationSettings } from '../../utils/api';
+import { getLocations, updateLocationSettings, getAccount, updateAccount } from '../../utils/api';
 import Link from 'next/link';
 
 const TABS = [
@@ -679,27 +679,65 @@ function ReviewLinksTab() {
 }
 
 function AccountTab() {
-  const { customer } = useAuth();
+  const [name, setName]   = useState('');
+  const [email, setEmail] = useState('');
+  const [prefs, setPrefs] = useState({ negative: true, all_reviews: false, weekly_digest: true });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(false);
+  const [msg, setMsg]         = useState(null);
+
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+  async function load() {
+    try {
+      const a = await getAccount();
+      setName(a.name || '');
+      setEmail(a.email || '');
+      if (a.notificationPrefs) setPrefs({ negative: true, all_reviews: false, weekly_digest: true, ...a.notificationPrefs });
+    } catch (e) { /* leave blanks */ }
+    finally { setLoading(false); }
+  }
+  async function save() {
+    setSaving(true); setMsg(null);
+    try {
+      await updateAccount({ name, email, notificationPrefs: prefs });
+      setMsg({ ok: true, text: 'Saved ✓' });
+    } catch (e) {
+      setMsg({ ok: false, text: e.response?.data?.error || 'Could not save changes.' });
+    } finally { setSaving(false); }
+  }
+
+  const ALERTS = [
+    ['negative',      'Negative review alerts (1–2★)'],
+    ['all_reviews',   'All new review alerts'],
+    ['weekly_digest', 'Weekly digest email'],
+  ];
+
   return (
     <div style={{ maxWidth: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
       <Card style={{ padding: 20 }}>
         <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Business details</div>
-        <Field label="Business name"><input style={inp} defaultValue={customer?.name || ''} /></Field>
-        <Field label="Contact email"><input style={inp} type="email" defaultValue={customer?.email || ''} /></Field>
-        <button style={{ ...btn(true), width: '100%', padding: 12 }}>Save changes</button>
+        <Field label="Business name">
+          <input style={inp} value={name} onChange={e => setName(e.target.value)} disabled={loading} placeholder={loading ? 'Loading…' : ''} />
+        </Field>
+        <Field label="Contact email">
+          <input style={inp} type="email" value={email} onChange={e => setEmail(e.target.value)} disabled={loading} />
+        </Field>
       </Card>
       <Card style={{ padding: 20 }}>
         <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Alert preferences</div>
-        {[['Negative review alerts (1–2★)',true],['All new review alerts',false],['Weekly digest email',true]].map(([label, on]) => {
-          const [val, setVal] = useState(on);
-          return (
-            <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f0eeea' }}>
-              <span style={{ fontSize: '.875rem', fontWeight: 500 }}>{label}</span>
-              <Toggle on={val} onChange={setVal} />
-            </div>
-          );
-        })}
+        {ALERTS.map(([key, label]) => (
+          <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f0eeea' }}>
+            <span style={{ fontSize: '.875rem', fontWeight: 500 }}>{label}</span>
+            <Toggle on={!!prefs[key]} onChange={v => setPrefs(p => ({ ...p, [key]: v }))} />
+          </div>
+        ))}
       </Card>
+      {msg && (
+        <div style={{ fontSize: '.82rem', fontWeight: 600, color: msg.ok ? '#1a6b45' : '#c0392b' }}>{msg.text}</div>
+      )}
+      <button onClick={save} disabled={saving || loading} style={{ ...btn(true), width: '100%', padding: 12, opacity: (saving || loading) ? .6 : 1 }}>
+        {saving ? 'Saving…' : 'Save changes'}
+      </button>
     </div>
   );
 }
@@ -733,26 +771,23 @@ function BillingTab() {
 }
 
 function APITab() {
-  const [show, setShow] = useState(false);
   return (
     <div style={{ maxWidth: 580, display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 5 }}>Your API key</div>
-        <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 12 }}>Use this key to authenticate requests to the SwarmReply API and Zapier.</div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <input type={show ? 'text' : 'password'} defaultValue="sr_live_••••••••••••" style={{ ...inp, flex: 1, fontFamily: 'monospace' }} readOnly />
-          <button onClick={() => setShow(!show)} style={{ ...btn(false), padding: '9px 14px' }}>{show ? 'Hide' : 'Show'}</button>
-          <button style={{ ...btn(false), padding: '9px 14px' }}>Copy</button>
+      <Card style={{ padding: 28, textAlign: 'center' }}>
+        <div style={{ fontSize: '1.8rem', marginBottom: 10 }}>🔌</div>
+        <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.3rem', fontWeight: 900, marginBottom: 8 }}>API &amp; Zapier — coming soon</div>
+        <div style={{ fontSize: '.875rem', color: '#7a7670', lineHeight: 1.7, marginBottom: 18, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+          A public API and Zapier integration are on the way — connect SwarmReply to thousands of apps, trigger automations on new reviews, and sync contacts both ways. Want to be first in line?
         </div>
+        <a href="mailto:hello@swarmreply.com?subject=SwarmReply%20API%20early%20access" style={{ ...btn(true), textDecoration: 'none', display: 'inline-flex' }}>Request early access →</a>
       </Card>
       <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Zapier integration</div>
-        {[['Triggers','New review · New negative review'],['Actions','Send review request · Add contact'],['Searches','Find customer · Get stats']].map(([k,v]) => (
+        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>What you'll be able to do</div>
+        {[['Triggers', 'New review · New negative review'], ['Actions', 'Send review request · Add contact'], ['Searches', 'Find customer · Get stats']].map(([k, v]) => (
           <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f0eeea', fontSize: '.875rem' }}>
             <span style={{ color: '#7a7670' }}>{k}</span><span style={{ fontWeight: 600 }}>{v}</span>
           </div>
         ))}
-        <a href="https://zapier.com/apps/swarmreply" target="_blank" rel="noreferrer" style={{ display: 'inline-flex', marginTop: 14, ...btn(true), textDecoration: 'none' }}>Connect on Zapier →</a>
       </Card>
     </div>
   );
