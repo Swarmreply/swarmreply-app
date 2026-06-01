@@ -60,6 +60,17 @@ export async function getLocations(customerId) {
   return res.data.locations;
 }
 
+// Account (business details + notification preferences)
+export async function getAccount() {
+  const res = await api.get('/account');
+  return res.data;
+}
+
+export async function updateAccount(data) {
+  const res = await api.put('/account', data);
+  return res.data;
+}
+
 export async function createLocation(data) {
   const res = await api.post('/locations', data);
   return res.data.location;
