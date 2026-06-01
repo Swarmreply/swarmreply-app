@@ -32,6 +32,18 @@ export function useAuth() {
         }
       }
 
+      // Cross-domain login handoff: the marketing site (swarmreply.com) can't
+      // write to this app's localStorage (different origin), so after a successful
+      // login there it passes the token via a cookie scoped to ".swarmreply.com".
+      // Pick it up here, move it into localStorage, then clear the cookie.
+      if (typeof window !== 'undefined' && !localStorage.getItem('swarmreply_token')) {
+        const m = document.cookie.match(/(?:^|;\s*)sr_handoff=([^;]+)/);
+        if (m) {
+          localStorage.setItem('swarmreply_token', decodeURIComponent(m[1]));
+          document.cookie = 'sr_handoff=; domain=.swarmreply.com; path=/; max-age=0; Secure; SameSite=Lax';
+        }
+      }
+
       const token = localStorage.getItem('swarmreply_token');
       if (!token) { setLoading(false); return; }
 
