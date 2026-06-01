@@ -10,17 +10,26 @@ export default function ForgotPassword() {
   const [email, setEmail]       = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       await axios.post(`${API}/auth/forgot-password`, { email });
+      setSubmitted(true);
     } catch (err) {
-      // Intentional: always show success to prevent email enumeration
+      if (err.response && err.response.status >= 500) {
+        // Genuine server error (e.g. email provider or DB issue). A 500 is not an
+        // enumeration signal, so it's safe to tell the user it failed.
+        setError(err.response.data?.error || 'Something went wrong on our end. Please try again shortly.');
+      } else {
+        // Network/other error: still show success to prevent email enumeration.
+        setSubmitted(true);
+      }
     } finally {
       setLoading(false);
-      setSubmitted(true);
     }
   }
 
@@ -69,6 +78,12 @@ export default function ForgotPassword() {
                         fontSize: 16, fontFamily: 'inherit', outline: 'none' }}
                     />
                   </div>
+                  {error && (
+                    <div style={{ background: '#fee2e2', color: '#c0392b', border: '1px solid #f5c6c6',
+                      borderRadius: 10, padding: '10px 12px', fontSize: '.82rem', marginBottom: 12 }}>
+                      {error}
+                    </div>
+                  )}
                   <button type="submit" disabled={loading} style={{
                     width: '100%', padding: 13, borderRadius: 50,
                     background: '#0a0a0a', color: 'white', border: 'none',
