@@ -10,6 +10,10 @@ import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const authHeaders = () => {
+  const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+  return t ? { headers: { Authorization: `Bearer ${t}` } } : {};
+};
 const SURVEY_BASE = process.env.NEXT_PUBLIC_APP_URL || 'https://swarmreply.com';
 
 const HOURS = [0,1,2,3,4,6,8,12,24,48,72].map(h => ({
@@ -129,7 +133,7 @@ export default function SurveysPage() {
 
   async function loadLocations() {
     try {
-      const res = await axios.get(`${API_URL}/locations/${customer.id}`);
+      const res = await axios.get(`${API_URL}/locations?customerId=${customer.id}`, authHeaders());
       const locs = res.data.locations || [];
       setLocs(locs);
       if (locs.length > 0) {
@@ -143,9 +147,9 @@ export default function SurveysPage() {
   async function loadAll(locId) {
     try {
       const [cfgRes, analyticsRes, histRes] = await Promise.all([
-        axios.get(`${API_URL}/surveys/${locId}/config`),
-        axios.get(`${API_URL}/surveys/${locId}/analytics`),
-        axios.get(`${API_URL}/surveys/${locId}/history`)
+        axios.get(`${API_URL}/surveys/${locId}/config`, authHeaders()),
+        axios.get(`${API_URL}/surveys/${locId}/analytics`, authHeaders()),
+        axios.get(`${API_URL}/surveys/${locId}/history`, authHeaders())
       ]);
       setConfig(cfgRes.data.config);
       setAnalytics(analyticsRes.data);
@@ -161,7 +165,7 @@ export default function SurveysPage() {
   async function handleSave() {
     setSaving(true);
     try {
-      const res = await axios.put(`${API_URL}/surveys/${locationId}/config`, config);
+      const res = await axios.put(`${API_URL}/surveys/${locationId}/config`, config, authHeaders());
       setConfig(res.data.config);
       showToast('Settings saved');
     } catch (err) {
@@ -173,9 +177,9 @@ export default function SurveysPage() {
     if (!sendName || (!sendEmail && !sendPhone)) return;
     setSending(true);
     try {
-      await axios.post(`${API_URL}/surveys/${locationId}/send`, {
+      await axios.post(`${API_URL}/review-requests/send`, {
         name: sendName, email: sendEmail || undefined, phone: sendPhone || undefined
-      });
+      }, authHeaders());
       showToast(`Survey sent to ${sendName} ✓`);
       setSendName(''); setSendEmail(''); setSendPhone('');
       await loadAll(locationId);
@@ -245,7 +249,7 @@ export default function SurveysPage() {
               {config?.is_enabled ? 'Surveys ON' : 'Surveys OFF'}
             </span>
             <Toggle value={config?.is_enabled || false}
-              onChange={v => { updateConfig('is_enabled', v); axios.put(`${API_URL}/surveys/${locationId}/config`, { ...config, is_enabled: v }); }}
+              onChange={v => { updateConfig('is_enabled', v); axios.put(`${API_URL}/surveys/${locationId}/config`, { ...config, is_enabled: v }, authHeaders()); }}
             />
           </div>
         </div>
