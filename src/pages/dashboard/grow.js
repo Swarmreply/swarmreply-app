@@ -13,6 +13,7 @@ function authHeaders() {
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 import DashboardLayout from '../../components/DashboardLayout';
+import { Skeleton } from '../../components/Skeleton';
 import { useRouter } from 'next/router';
 
 const TABS = [
@@ -33,6 +34,35 @@ function StatCard({ label, value, sub }) {
       <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>{label}</div>
       <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>{value}</div>
       {sub && <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 4 }}>{sub}</div>}
+    </div>
+  );
+}
+
+// Loading placeholder matching a survey table row (5-column grid).
+function SurveyRowSkeleton() {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px', padding: '12px 20px', borderBottom: '1px solid #f8f7f4', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Skeleton width={30} height={30} radius={50} />
+        <Skeleton width={110} height={11} />
+      </div>
+      <Skeleton width={140} height={10} />
+      <Skeleton width={60} height={18} radius={50} />
+      <Skeleton width={50} height={10} />
+      <Skeleton width={48} height={10} />
+    </div>
+  );
+}
+
+// Loading placeholder matching a bulk-send contact row.
+function ContactRowSkeleton() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px', borderBottom: '1px solid #f8f7f4' }}>
+      <Skeleton width={18} height={18} radius={5} />
+      <div style={{ flex: 1 }}>
+        <Skeleton width="40%" height={11} style={{ marginBottom: 7 }} />
+        <Skeleton width="62%" height={9} />
+      </div>
     </div>
   );
 }
@@ -186,10 +216,15 @@ function RequestsTab() {
 
             {/* Rows */}
             {loadingSurveys ? (
-              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>Loading surveys…</div>
+              <>
+                {Array.from({ length: 5 }).map((_, i) => <SurveyRowSkeleton key={i} />)}
+              </>
             ) : filtered.length === 0 ? (
-              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>
-                {search ? 'No surveys match your search.' : 'No completed surveys yet.'}
+              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
+                <div style={{ fontSize: '1.6rem', marginBottom: 8, opacity: .5 }}>📋</div>
+                <div style={{ fontSize: '.84rem' }}>
+                  {search ? 'No surveys match your search.' : 'No completed surveys yet — send a request to get started.'}
+                </div>
               </div>
             ) : filtered.map(s => (
               <div key={s.id}
@@ -943,9 +978,14 @@ function BulkSendTab() {
           {/* Rows */}
           <div style={{ maxHeight: 440, overflowY: 'auto' }}>
             {loading ? (
-              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>Loading contacts…</div>
+              <>
+                {Array.from({ length: 6 }).map((_, i) => <ContactRowSkeleton key={i} />)}
+              </>
             ) : filtered.length === 0 ? (
-              <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>No contacts found. Import contacts first.</div>
+              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
+                <div style={{ fontSize: '1.6rem', marginBottom: 8, opacity: .5 }}>📇</div>
+                <div style={{ fontSize: '.84rem' }}>No contacts yet — import a CSV on the Import tab to get started.</div>
+              </div>
             ) : filtered.map(c => {
               const isSel = selected.includes(c.id);
               return (
@@ -1171,7 +1211,10 @@ function ImportTab() {
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Recent imports</div>
           {history.length === 0 ? (
-            <div style={{ fontSize: '.8rem', color: '#7a7670', textAlign: 'center', padding: '20px 0' }}>No imports yet.</div>
+            <div style={{ fontSize: '.8rem', color: '#7a7670', textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ fontSize: '1.4rem', marginBottom: 6, opacity: .5 }}>📥</div>
+              No imports yet.
+            </div>
           ) : history.map(imp => (
             <div key={imp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#f8f7f4', borderRadius: 10, marginBottom: 8 }}>
               <div>
