@@ -6,6 +6,8 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
+import BrandLogo from '../../components/BrandLogo';
+import { SkeletonCard } from '../../components/Skeleton';
 import axios from 'axios';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -151,16 +153,14 @@ function StatusBadge({ status }) {
   );
 }
 
-function IntegrationCard({ integration, connectedData, locations, selectedLocation, setSelectedLocation, onConnect, onDisconnect }) {
+function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }) {
   const [expanded, setExpanded]     = useState(false);
   const [fields, setFields]         = useState({});
   const [connecting, setConnecting]     = useState(false);
+  const [locations, setLocations]         = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [error, setError]           = useState('');
   const connected = connectedData?.status === 'connected';
-  // P1: location selector only matters for the two providers that send a
-  // locationId to the backend (Google + Jobber). The other providers derive
-  // the location from the auth token and ignore it.
-  const needsLocation = integration.id === 'google' || integration.id === 'jobber';
 
   async function handleConnect() {
     setConnecting(true); setError('');
@@ -213,15 +213,8 @@ function IntegrationCard({ integration, connectedData, locations, selectedLocati
       transition: 'all .15s',
     }}>
       <div style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
-        {/* Icon */}
-        <div style={{
-          width: 44, height: 44, borderRadius: 11,
-          background: `${integration.color}15`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '1.2rem', flexShrink: 0,
-        }}>
-          {integration.icon}
-        </div>
+        {/* Brand logo */}
+        <BrandLogo provider={integration.id} name={integration.name} size={44} fallbackColor={integration.color} />
 
         {/* Info */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -276,24 +269,6 @@ function IntegrationCard({ integration, connectedData, locations, selectedLocati
 
           {integration.authType === 'oauth' && (
             <>
-              {needsLocation && locations.length > 1 && (
-                <div style={{ marginTop: 12 }}>
-                  <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
-                    letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 5 }}>
-                    Location
-                  </label>
-                  <select
-                    value={selectedLocation || ''}
-                    onChange={e => setSelectedLocation(e.target.value)}
-                    style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e4e0d8',
-                      borderRadius: 9, fontSize: '16px', fontFamily: 'inherit', outline: 'none', background: 'white' }}
-                  >
-                    {locations.map(l => (
-                      <option key={l.id} value={l.id}>{l.business_name || l.id}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
               {integration.extraField && (
                 <div style={{ marginTop: 12 }}>
                   <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
@@ -360,11 +335,6 @@ export default function Integrations() {
   const [integrations, setIntegrations] = useState([]);
   const [category, setCategory]         = useState('All');
   const [loading, setLoading]           = useState(true);
-  // P1: these were referenced by load() but never declared here (the declarations
-  // lived inside IntegrationCard), so setLocations/setSelectedLocation threw a
-  // ReferenceError that the try/catch swallowed — locations were fetched then lost.
-  const [locations, setLocations]               = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => { if (customer) load(); }, [customer]);
 
@@ -431,14 +401,13 @@ export default function Integrations() {
 
         {/* Integration cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {filtered.map(integration => (
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+            : filtered.map(integration => (
             <IntegrationCard
               key={integration.id}
               integration={integration}
               connectedData={getConnected(integration.id)}
-              locations={locations}
-              selectedLocation={selectedLocation}
-              setSelectedLocation={setSelectedLocation}
               onConnect={load}
               onDisconnect={load}
             />
