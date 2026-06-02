@@ -93,7 +93,7 @@ export function useAuth() {
         id:     customerId,
         name:   payload.name,
         email:  payload.email,
-        plan:   String(billing?.plan || payload.plan || 'starter'),
+        plan:   (billing?.plan && billing.plan.id) || payload.plan || 'swarmreply',
         status: billing?.status || 'active',
         role:   payload.role,
         is_demo: payload.is_demo || false,
