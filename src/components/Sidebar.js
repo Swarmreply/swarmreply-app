@@ -16,7 +16,6 @@ const NAV = [
   { href: '/dashboard',                   label: 'Home',          icon: '⊞',  group: 'Overview' },
 
   { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 'Reviews & Replies', badge: 3 },
-  { href: '/dashboard/approvals',         label: 'Approvals',     icon: '✓',  group: 'Reviews & Replies' },
 
   { href: '/dashboard/inbox',             label: 'Messages',      icon: '💬', group: 'Engage' },
   { href: '/dashboard/grow',              label: 'Grow',          icon: '↑',  group: 'Engage' },
