@@ -8,6 +8,40 @@ import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { getStats, getReviews, getLocations } from '../../utils/api';
+import { Skeleton } from '../../components/Skeleton';
+
+// Time-aware greeting for the daily-habit header.
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+// Loading placeholder matching a stat card.
+function StatSkeleton() {
+  return (
+    <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '20px 24px' }}>
+      <Skeleton width={90} height={11} style={{ marginBottom: 14 }} />
+      <Skeleton width={70} height={26} radius={6} style={{ marginBottom: 10 }} />
+      <Skeleton width={60} height={10} />
+    </div>
+  );
+}
+
+// Loading placeholder shaped like a review row.
+function ReviewRowSkeleton() {
+  return (
+    <div style={{ padding: '16px 24px', borderBottom: '1px solid #f0ede7' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 9 }}>
+        <Skeleton width={120} height={12} />
+        <Skeleton width={64} height={12} />
+      </div>
+      <Skeleton width="100%" height={10} style={{ marginBottom: 6 }} />
+      <Skeleton width="75%" height={10} />
+    </div>
+  );
+}
 
 // Stat card component
 function StatCard({ label, value, sub, subColor = '#1a6b45', href, dest, accent }) {
@@ -208,7 +242,9 @@ export default function Dashboard() {
         position: 'sticky', top: 0, zIndex: 50
       }}>
         <div>
-          <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>Dashboard</h2>
+          <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>
+            {greeting()}{customer?.name ? `, ${customer.name.split(' ')[0]}` : ''}
+          </h2>
           <p style={{ fontSize: '0.78rem', color: '#7a7670', marginTop: 1 }}>
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
@@ -233,6 +269,12 @@ export default function Dashboard() {
 
         {/* Stats grid */}
         <div className="grid-responsive-4" style={{ marginBottom: 28 }}>
+          {loading ? (
+            <>
+              <StatSkeleton /><StatSkeleton /><StatSkeleton /><StatSkeleton />
+            </>
+          ) : (
+            <>
           <StatCard
             label="Avg Rating"
             value={`${stats?.avg_rating || '–'} ★`}
@@ -261,6 +303,8 @@ export default function Dashboard() {
             subColor="#1a6b45"
             dest="/dashboard/grow"
           />
+            </>
+          )}
         </div>
 
         {/* Location selector + Reviews */}
@@ -298,15 +342,20 @@ export default function Dashboard() {
             </div>
 
             {loading ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
-                Loading reviews...
-              </div>
+              <>
+                <ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton />
+              </>
             ) : reviews.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
                 <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
-                <div style={{ fontSize: '0.875rem' }}>
+                <div style={{ fontSize: '0.875rem', marginBottom: 16 }}>
                   No reviews yet — your swarm is ready and waiting.
                 </div>
+                <a href="/dashboard/grow" style={{
+                  display: 'inline-block', background: '#0a0a0a', color: 'white',
+                  padding: '9px 18px', borderRadius: 50,
+                  fontSize: '0.82rem', fontWeight: 700, textDecoration: 'none'
+                }}>Send a review request</a>
               </div>
             ) : (
               reviews.map(review => (
@@ -330,7 +379,19 @@ export default function Dashboard() {
               }}>+ Add</a>
             </div>
 
-            {locations.length === 0 ? (
+            {loading ? (
+              <>
+                {[0, 1].map(i => (
+                  <div key={i} style={{ padding: '14px 24px', borderBottom: '1px solid #f0ede7', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ flex: 1 }}>
+                      <Skeleton width={140} height={12} style={{ marginBottom: 7 }} />
+                      <Skeleton width={90} height={9} />
+                    </div>
+                    <Skeleton width={8} height={8} radius={50} />
+                  </div>
+                ))}
+              </>
+            ) : locations.length === 0 ? (
               <div style={{ padding: 24, textAlign: 'center' }}>
                 <div style={{ fontSize: '0.875rem', color: '#7a7670', marginBottom: 16 }}>
                   No locations connected yet
