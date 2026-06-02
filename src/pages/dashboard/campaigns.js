@@ -44,7 +44,7 @@ function UsageMeter({ used = 634, limit = 2000 }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Monthly SMS campaign limit</div>
-          <div style={{ fontSize: '.75rem', color: '#7a7670' }}>Growth plan · resets June 1</div>
+          <div style={{ fontSize: '.75rem', color: '#7a7670' }}>Resets June 1</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.4rem', fontWeight: 900 }}>{used.toLocaleString()}</div>
@@ -56,7 +56,6 @@ function UsageMeter({ used = 634, limit = 2000 }) {
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.75rem', color: '#7a7670' }}>
         <span style={{ color, fontWeight: 600 }}>{(limit - used).toLocaleString()} remaining</span>
-        <span>Starter: 500/mo · Growth: 2,000/mo · Agency: unlimited</span>
       </div>
     </Card>
   );

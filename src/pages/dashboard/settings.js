@@ -750,22 +750,22 @@ function BillingTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.5rem', fontWeight: 900, marginBottom: 4 }}>
-              {customer?.plan || 'Starter'} <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.72rem', fontWeight: 700, padding: '3px 10px', borderRadius: 50, fontFamily: 'inherit' }}>Active</span>
+              SwarmReply <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.72rem', fontWeight: 700, padding: '3px 10px', borderRadius: 50, fontFamily: 'inherit' }}>Active</span>
             </div>
             <div style={{ fontSize: '.875rem', color: '#7a7670' }}>Month-to-month · No contracts</div>
           </div>
           <Link href="/dashboard/billing" style={{ ...btn(false), textDecoration: 'none' }}>Manage billing →</Link>
         </div>
       </Card>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
-        {[['Starter','$99/mo','1 location','https://buy.stripe.com/dRm9AT3CD3e1cDgeHqbfO07'],['Growth','$199/mo','Up to 5 locations','https://buy.stripe.com/bJe9AT3CD6qd5aO7eYbfO08'],['Agency','Custom','Unlimited','mailto:hello@swarmreply.com']].map(([plan, price, desc, link]) => (
-          <div key={plan} onClick={() => window.open(link)} style={{ border: plan === (customer?.plan || 'starter') ? '2px solid #0a0a0a' : '1.5px solid #e4e0d8', borderRadius: 13, padding: '16px 18px', cursor: 'pointer', background: plan === (customer?.plan || 'starter') ? '#f8f7f4' : 'white' }}>
-            <div style={{ fontWeight: 700, fontSize: '.875rem', marginBottom: 5 }}>{plan}</div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.5rem', fontWeight: 900, marginBottom: 3 }}>{price}</div>
-            <div style={{ fontSize: '.74rem', color: '#7a7670' }}>{desc}</div>
-          </div>
-        ))}
-      </div>
+      <Card style={{ padding: 20 }}>
+        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>How pricing works</div>
+        <div style={{ fontSize: '.85rem', color: '#7a7670', lineHeight: 1.7 }}>
+          You're billed per active location — $99/mo for your first location, $79/mo each for
+          locations 2–5, and $69/mo each for 6–25. Your total updates automatically when you add
+          or remove a location. See your current total and full breakdown on the{' '}
+          <Link href="/dashboard/billing" style={{ color: '#0a0a0a', fontWeight: 600 }}>billing page</Link>.
+        </div>
+      </Card>
     </div>
   );
 }
@@ -909,25 +909,20 @@ function TeamTab() {
     } catch (e) { setError(e.response?.data?.error || 'Failed to remove member.'); }
   }
 
-  const planLimits = { starter: 3, growth: 10, agency: '∞' };
-  const planLimit  = planLimits[customer?.plan || 'starter'];
   const activeCount = members.filter(m => m.status !== 'suspended').length;
 
   return (
     <div style={{ maxWidth: 860 }}>
-      {/* Plan limit bar */}
+      {/* Team members bar */}
       <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '16px 20px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 3 }}>Team members</div>
           <div style={{ fontSize: '.78rem', color: '#7a7670' }}>
-            {activeCount} of {planLimit} used on {customer?.plan || 'Starter'} plan
-            {planLimit !== '∞' && activeCount >= planLimit && (
-              <span style={{ color: '#c0392b', fontWeight: 600 }}> — limit reached</span>
-            )}
+            {activeCount} active {activeCount === 1 ? 'member' : 'members'}
           </div>
         </div>
-        <button onClick={() => setShowInvite(true)} disabled={planLimit !== '∞' && activeCount >= planLimit}
-          style={{ padding: '9px 20px', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: planLimit !== '∞' && activeCount >= planLimit ? .4 : 1 }}>
+        <button onClick={() => setShowInvite(true)}
+          style={{ padding: '9px 20px', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' }}>
           + Invite member
         </button>
       </div>
