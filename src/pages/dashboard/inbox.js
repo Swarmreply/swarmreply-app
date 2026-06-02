@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
+import { Skeleton } from '../../components/Skeleton';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -19,6 +20,20 @@ function Avatar({ name, size = 32, bg = '#f0eeea', color = '#7a7670' }) {
   return (
     <div style={{ width: size, height: size, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.35, fontWeight: 700, color, flexShrink: 0 }}>
       {name?.charAt(0)?.toUpperCase() || '?'}
+    </div>
+  );
+}
+
+// Loading placeholder matching a session list row.
+function SessionRowSkeleton() {
+  return (
+    <div style={{ padding: '13px 15px', borderBottom: '1px solid #f8f7f4' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+        <Skeleton width={90} height={11} />
+        <Skeleton width={36} height={9} />
+      </div>
+      <Skeleton width="80%" height={9} style={{ marginBottom: 8 }} />
+      <Skeleton width={48} height={15} radius={50} />
     </div>
   );
 }
@@ -75,7 +90,7 @@ export default function Inbox() {
   async function resolveSession() {
     if (!active) return;
     try {
-      await axios.post(`${API}/webchat/session/${active.id}/resolve`, {}, { headers: authHeaders() });
+      await axios.post(`${API}/webchat/sessions/${active.id}/resolve`, {}, { headers: authHeaders() });
       setActive(prev => ({ ...prev, status: 'resolved' }));
       setSessions(prev => prev.map(s => s.id === active.id ? { ...s, status: 'resolved' } : s));
     } catch (e) { console.error(e); }
@@ -106,9 +121,18 @@ export default function Inbox() {
           </div>
           <div style={{ flex: 1, overflowY: 'auto' }}>
             {loading ? (
-              <div style={{ padding: 24, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>Loading…</div>
+              <>
+                {Array.from({ length: 6 }).map((_, i) => <SessionRowSkeleton key={i} />)}
+              </>
             ) : sessions.length === 0 ? (
-              <div style={{ padding: 24, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>No conversations</div>
+              <div style={{ padding: '40px 20px', textAlign: 'center', color: '#7a7670' }}>
+                <div style={{ fontSize: '1.6rem', marginBottom: 8, opacity: .5 }}>💬</div>
+                <div style={{ fontSize: '.84rem', lineHeight: 1.5 }}>
+                  {filter === 'all'
+                    ? 'No conversations yet — they appear here when visitors message your webchat.'
+                    : `No ${filter} conversations.`}
+                </div>
+              </div>
             ) : sessions.map(s => (
               <div key={s.id} onClick={() => openSession(s)} style={{
                 padding: '13px 15px', borderBottom: '1px solid #f8f7f4', cursor: 'pointer',
@@ -193,9 +217,10 @@ export default function Inbox() {
               </div>
             </>
           ) : (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', flexDirection: 'column', gap: 8 }}>
-              <div style={{ fontSize: '2rem' }}>💬</div>
-              <div style={{ fontSize: '.875rem' }}>Select a conversation</div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', flexDirection: 'column', gap: 6, padding: '0 24px', textAlign: 'center' }}>
+              <div style={{ fontSize: '2rem', opacity: .55 }}>💬</div>
+              <div style={{ fontSize: '.9rem', fontWeight: 600, color: '#0a0a0a' }}>Select a conversation</div>
+              <div style={{ fontSize: '.8rem' }}>Choose a conversation from the list to view the thread and reply.</div>
             </div>
           )}
         </div>
