@@ -37,7 +37,7 @@ const sbi = (active) => ({
 });
 
 export default function Sidebar({ customer }) {
-  const { logout } = useAuth();
+  const { logout, member } = useAuth();
   const router = useRouter();
 
   const isActive = (href) =>
@@ -101,17 +101,31 @@ export default function Sidebar({ customer }) {
 
       </nav>
 
-      {/* Plan badge */}
+      {/* Signed-in user + role */}
       <div style={{ padding: '14px 12px 16px', borderTop: '1px solid rgba(255,255,255,.07)' }}>
         <div style={{ background: 'linear-gradient(135deg,rgba(245,200,66,.22),rgba(245,200,66,.10))', border: '1px solid rgba(245,200,66,.35)', borderRadius: 10, padding: '10px 13px' }}>
-          <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#f5c842', letterSpacing: '.01em' }}>
-            {customer?.plan && typeof customer.plan === 'string' ? customer.plan.charAt(0).toUpperCase() + customer.plan.slice(1) + ' Plan' : 'SwarmReply'}
-          </div>
-          {customer?.email && (
-            <div style={{ fontSize: '0.71rem', color: 'rgba(255,255,255,.9)', fontWeight: 600, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {customer.email}
-            </div>
-          )}
+          {(() => {
+            const role = member?.role || customer?.role;
+            const roleLabel = role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Member';
+            const name = member?.name || customer?.name;
+            return (
+              <>
+                <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#f5c842', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                  {roleLabel}
+                </div>
+                {(name || customer?.email) && (
+                  <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,.92)', fontWeight: 600, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {name || customer?.email}
+                  </div>
+                )}
+                {name && customer?.email && (
+                  <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,.55)', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {customer.email}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
 
