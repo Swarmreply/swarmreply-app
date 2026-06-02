@@ -10,12 +10,6 @@ import axios from 'axios';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-const PLAN_COLORS = {
-  starter: '#1a6b45',
-  growth:  '#1a4baa',
-  agency:  '#92690a'
-};
-
 const STATUS_LABELS = {
   active:      { label: 'Active',          bg: '#e8f5ef', color: '#1a6b45' },
   cancelling:  { label: 'Cancels soon',    bg: '#fef3cd', color: '#92690a' },
@@ -135,7 +129,7 @@ export default function Billing() {
     </DashboardLayout>
   );
 
-  const { plan, account, stripe, locationCount, pricing, billingCycle } = billing || {};
+  const { plan, account, stripe, pricing, locationCount } = billing || {};
   const statusInfo = STATUS_LABELS[account?.status] || STATUS_LABELS.active;
   const cancelAtEnd = stripe?.cancelAtPeriodEnd;
   const hasPaymentIssue = account?.paymentFailed;
@@ -223,9 +217,9 @@ export default function Billing() {
                 </span>
               </div>
               <div style={{ fontSize: '1.1rem', color: '#7a7670', marginBottom: 16 }}>
-                {pricing
-                  ? `$${pricing.monthly}/${billingCycle === 'annual' ? 'mo billed annually' : 'month'} · ${locationCount === 1 ? '1 location' : `${locationCount} locations`}`
-                  : (plan?.price ? `$${plan.price}/month` : 'Custom pricing')}
+                ${plan?.price}/month
+                {` · ${locationCount === 1 ? '1 location' : `${locationCount} locations`}`}
+                {billing?.billingCycle === 'annual' && ' · billed annually (10% off)'}
               </div>
               {/* Features */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
@@ -269,54 +263,47 @@ export default function Billing() {
 
         {/* ── LOCATIONS & PRICING ── */}
         <div style={cardStyle}>
-          <div style={sectionLabel}>Locations &amp; pricing</div>
-          <div style={{ fontSize: '.82rem', color: '#7a7670', margin: '6px 0 16px', lineHeight: 1.6 }}>
-            Every feature is included at every location. Your bill is based on how many
-            locations you have — add or remove a location and billing updates automatically.
-          </div>
+          <div style={sectionLabel}>Your locations & pricing</div>
+          <p style={{ fontSize: '.82rem', color: '#7a7670', marginTop: 8, marginBottom: 16, lineHeight: 1.6 }}>
+            Your price is based on how many active locations you have. It updates
+            automatically when you add or remove a location — there is no plan to choose.
+          </p>
 
-          {pricing?.rows?.length ? (
-            <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden' }}>
-              {pricing.rows.map((r, i) => (
-                <div key={i} style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '12px 16px', borderBottom: '1px solid #f0eeea', fontSize: '.875rem'
-                }}>
-                  <span style={{ color: '#4a4a48' }}>
-                    {r.label}{r.qty > 1 ? ` (${r.qty} × $${r.rate})` : ''}
-                  </span>
-                  <span style={{ fontWeight: 600, color: '#0a0a0a' }}>${r.qty * r.rate}/mo</span>
-                </div>
-              ))}
-              <div style={{
+          {/* Per-location breakdown */}
+          <div style={{ border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
+            {pricing?.rows?.map((row, i) => (
+              <div key={i} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '14px 16px', background: '#f8f7f4', fontWeight: 700
+                padding: '11px 16px', fontSize: '.85rem',
+                borderBottom: i < pricing.rows.length - 1 ? '1px solid #f0ede7' : 'none'
               }}>
-                <span>Total {billingCycle === 'annual' ? '(billed annually)' : 'per month'}</span>
-                <span style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.15rem' }}>
-                  ${pricing.monthly}/mo
+                <span style={{ color: '#1a1a18' }}>
+                  {row.label}
+                  {row.qty > 1 && <span style={{ color: '#7a7670' }}>{` · ${row.qty} × $${row.rate}`}</span>}
                 </span>
+                <span style={{ fontWeight: 600 }}>${row.qty * row.rate}/mo</span>
               </div>
+            ))}
+            <div style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '12px 16px', background: '#f8f7f4', fontSize: '.9rem', fontWeight: 700
+            }}>
+              <span>Total{billing?.billingCycle === 'annual' ? ' (annual · 10% off)' : ''}</span>
+              <span>${pricing?.monthly}/mo</span>
             </div>
-          ) : (
-            <div style={{ fontSize: '.875rem', color: '#7a7670' }}>
-              Pricing details will appear once your subscription is active.
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 16, flexWrap: 'wrap' }}>
-            <a href="/dashboard/locations/add" style={{ ...btnStyle('outline'), textDecoration: 'none', display: 'inline-block' }}>
-              + Add a location
-            </a>
-            <span style={{ fontSize: '.78rem', color: '#7a7670' }}>
-              Managing 26+ locations?{' '}
-              <a href="mailto:hello@swarmreply.com?subject=Agency Plan Inquiry" style={{ color: '#1a4baa', fontWeight: 600 }}>
-                Talk to us about Agency pricing →
-              </a>
-            </span>
           </div>
-          <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 12, lineHeight: 1.6 }}>
-            Location changes are prorated by Stripe automatically. No contracts — cancel anytime.
+
+          <a href="/dashboard/locations/add" style={{
+            display: 'inline-block', background: '#0a0a0a', color: '#fff',
+            borderRadius: 50, padding: '9px 20px', fontSize: '.82rem', fontWeight: 700,
+            textDecoration: 'none'
+          }}>
+            Add a location →
+          </a>
+
+          <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 14, lineHeight: 1.6 }}>
+            $99/mo for your first location, $79/mo each for locations 2–5, and
+            $69/mo each for 6–25. No contracts — cancel anytime.
           </div>
         </div>
 
