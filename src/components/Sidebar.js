@@ -13,18 +13,23 @@ const Bee = () => (
 );
 
 const NAV = [
-  { href: '/dashboard',                   label: 'Home',          icon: '⊞',  group: 1 },
-  { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 1, badge: 3 },
-  { href: '/dashboard/inbox',             label: 'Inbox',         icon: '💬', group: 1 },
-  { href: '/dashboard/ai-visibility',     label: 'AI Visibility', icon: '✦',  group: 1, isNew: true },
-  { href: '/dashboard/grow',              label: 'Grow',          icon: '↑',  group: 1 },
-  { href: '/dashboard/campaigns',         label: 'Campaigns',     icon: '📣', group: 1 },
-  { href: '/dashboard/pulse',             label: 'Pulse',         icon: '◎',  group: 1 },
-  { href: '/dashboard/approvals',         label: 'Approvals',     icon: '✓',  group: 2 },
-  { href: '/dashboard/rank-tracking',     label: 'Rank Tracking', icon: '📍', group: 2 },
-  { href: '/dashboard/reputation-widget', label: 'Rep Widget',    icon: '★',  group: 2 },
-  { href: '/dashboard/settings',          label: 'Settings',      icon: '⚙',  group: 3 },
-  { href: '/dashboard/integrations',      label: 'Integrations',  icon: '⊕',  group: 3 },
+  { href: '/dashboard',                   label: 'Home',          icon: '⊞',  group: 'Overview' },
+
+  { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 'Reviews & Replies', badge: 3 },
+  { href: '/dashboard/approvals',         label: 'Approvals',     icon: '✓',  group: 'Reviews & Replies' },
+
+  { href: '/dashboard/inbox',             label: 'Messages',      icon: '💬', group: 'Engage' },
+  { href: '/dashboard/grow',              label: 'Grow',          icon: '↑',  group: 'Engage' },
+  { href: '/dashboard/campaigns',         label: 'Campaigns',     icon: '📣', group: 'Engage' },
+
+  { href: '/dashboard/ai-visibility',     label: 'AI Visibility', icon: '✦',  group: 'Get Found', isNew: true },
+  { href: '/dashboard/rank-tracking',     label: 'Rank Tracking', icon: '📍', group: 'Get Found' },
+
+  { href: '/dashboard/pulse',             label: 'Reports',       icon: '◎',  group: 'Insights' },
+
+  { href: '/dashboard/settings',          label: 'Settings',      icon: '⚙',  group: 'Account' },
+  { href: '/dashboard/integrations',      label: 'Integrations',  icon: '⊕',  group: 'Account' },
+  { href: '/dashboard/reputation-widget', label: 'Rep Widget',    icon: '★',  group: 'Account' },
 ];
 
 const sbi = (active) => ({
@@ -75,10 +80,14 @@ export default function Sidebar({ customer }) {
         {NAV.map((item, i) => {
           const active = isActive(item.href);
           const prevItem = NAV[i - 1];
-          const showDivider = i > 0 && item.group !== prevItem?.group;
+          const showHeader = i === 0 || item.group !== prevItem?.group;
           return (
             <React.Fragment key={item.href}>
-              {showDivider && <div style={{ height: 1, background: 'rgba(255,255,255,.07)', margin: '8px 14px' }} />}
+              {showHeader && (
+                <div style={{ padding: i === 0 ? '4px 20px 5px' : '15px 20px 5px', fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.09em', textTransform: 'uppercase', color: 'rgba(255,255,255,.3)' }}>
+                  {item.group}
+                </div>
+              )}
             <Link href={item.href} style={sbi(active)}
               onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,.07)'; e.currentTarget.style.color = 'rgba(255,255,255,.85)'; }}}
               onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,.45)'; }}}
