@@ -4,9 +4,12 @@
 // ============================================
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { getReviews, getLocations } from '../../utils/api';
+import EmptyState from '../../components/EmptyState';
+import { Skeleton } from '../../components/Skeleton';
 
 const TABS = [
   { id: 'all',    label: 'All reviews' },
@@ -14,6 +17,23 @@ const TABS = [
 ];
 
 const STARS = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+// Loading placeholder shaped like a review row.
+function ReviewSkeletonRow() {
+  return (
+    <div style={{ padding: '18px 24px', borderBottom: '1px solid #f0ede7' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+        <div style={{ flex: 1 }}>
+          <Skeleton width={130} height={12} style={{ marginBottom: 8 }} />
+          <Skeleton width={90} height={10} />
+        </div>
+        <Skeleton width={70} height={22} radius={50} />
+      </div>
+      <Skeleton width="100%" height={10} style={{ marginBottom: 6 }} />
+      <Skeleton width="80%" height={10} />
+    </div>
+  );
+}
 
 function ReviewCard({ review, onReply }) {
   return (
@@ -56,6 +76,7 @@ function ReviewCard({ review, onReply }) {
 
 export default function Reviews() {
   const { customer } = useAuth();
+  const router = useRouter();
   const [tab, setTab]         = useState('all');
   const [reviews, setReviews] = useState([]);
   const [alerts, setAlerts]   = useState([]);
@@ -122,17 +143,44 @@ export default function Reviews() {
             </div>
           )}
 
-          <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1px solid #e4e0d8', overflow: 'hidden' }}>
-            {loading ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>Loading reviews…</div>
-            ) : filtered.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
-                {tab === 'alerts' ? 'No negative reviews — great work! 🐝' : 'No reviews found.'}
-              </div>
-            ) : (
-              filtered.map(r => <ReviewCard key={r.id} review={r} />)
-            )}
-          </div>
+          {loading ? (
+            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1px solid #e4e0d8', overflow: 'hidden' }}>
+              {Array.from({ length: 4 }).map((_, i) => <ReviewSkeletonRow key={i} />)}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div style={{ margin: 24 }}>
+              {tab === 'alerts' ? (
+                <EmptyState
+                  icon="🎉"
+                  title="No reviews need attention"
+                  description="No negative reviews right now — nice work keeping customers happy."
+                />
+              ) : reviews.length === 0 ? (
+                <EmptyState
+                  icon="⭐"
+                  title="No reviews yet"
+                  description="Send your first review request and new reviews will appear here automatically."
+                  action={
+                    <button onClick={() => router.push('/dashboard/grow')} style={{
+                      padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                      background: '#0a0a0a', color: 'white', fontWeight: 600, fontSize: '.85rem', fontFamily: 'inherit',
+                    }}>Send a review request</button>
+                  }
+                />
+              ) : (
+                <EmptyState
+                  compact
+                  icon="🔍"
+                  title="No reviews match this filter"
+                  description="Try a different filter above to see more."
+                />
+              )}
+            </div>
+          ) : (
+            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1px solid #e4e0d8', overflow: 'hidden' }}>
+              {filtered.map(r => <ReviewCard key={r.id} review={r} />)}
+            </div>
+          )}
       </div>
     </DashboardLayout>
   );
