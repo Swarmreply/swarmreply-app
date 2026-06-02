@@ -105,7 +105,7 @@ export default function Inbox() {
   };
 
   return (
-    <DashboardLayout title="Inbox">
+    <DashboardLayout title="Messages">
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: 'calc(100vh - 117px)', overflow: 'hidden' }}>
 
         {/* Session list */}
