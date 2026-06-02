@@ -23,8 +23,8 @@ export default function Success() {
     return () => clearInterval(interval);
   }, [router]);
 
-  const planLabel = { starter: 'Starter — $79/mo', growth: 'Growth — $139/mo', agency: 'Agency — $289/mo' }[plan] || 'SwarmReply';
-  const planValue = { starter: 79, growth: 139, agency: 289 }[plan] || 79;
+  const planLabel = 'SwarmReply';
+  const planValue = 99;
 
   return (
     <>
