@@ -10,10 +10,12 @@ import { useAuth } from '../../hooks/useAuth';
 import { getReviews, getLocations } from '../../utils/api';
 import EmptyState from '../../components/EmptyState';
 import { Skeleton } from '../../components/Skeleton';
+import { ApprovalsPanel } from './approvals';
 
 const TABS = [
-  { id: 'all',    label: 'All reviews' },
-  { id: 'alerts', label: 'Alerts' },
+  { id: 'all',       label: 'All reviews' },
+  { id: 'alerts',    label: 'Alerts' },
+  { id: 'approvals', label: 'Approvals' },
 ];
 
 const STARS = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
@@ -128,6 +130,10 @@ export default function Reviews() {
       </div>
 
       <div>
+        {tab === 'approvals' ? (
+          <ApprovalsPanel />
+        ) : (
+          <>
           {/* Filter bar */}
           {tab === 'all' && (
             <div style={{ padding: '12px 24px', background: 'white', borderBottom: '1px solid #e4e0d8', display: 'flex', gap: 8 }}>
@@ -181,6 +187,8 @@ export default function Reviews() {
               {filtered.map(r => <ReviewCard key={r.id} review={r} />)}
             </div>
           )}
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

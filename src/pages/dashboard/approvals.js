@@ -142,7 +142,7 @@ function ApprovalCard({ item, onAction }) {
   );
 }
 
-export default function Approvals() {
+export function ApprovalsPanel() {
   const { customer } = useAuth();
   const [items, setItems]         = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -173,7 +173,6 @@ export default function Approvals() {
   }
 
   return (
-    <DashboardLayout title="Reply Approvals">
       <div className="page-padding" style={{ padding: 24, maxWidth: 760 }}>
 
         {/* Mode toggle */}
@@ -225,6 +224,13 @@ export default function Approvals() {
           </>
         )}
       </div>
+  );
+}
+
+export default function Approvals() {
+  return (
+    <DashboardLayout title="Reply Approvals">
+      <ApprovalsPanel />
     </DashboardLayout>
   );
 }
