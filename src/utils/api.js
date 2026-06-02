@@ -103,6 +103,12 @@ export async function getStats(customerId) {
   return res.data.stats;
 }
 
+// Real review-based analytics for the Pulse / Reports page.
+export async function getAnalytics(range = '90d') {
+  const res = await api.get('/reports/analytics', { params: { range } });
+  return res.data;
+}
+
 // ── BILLING ────────────────────────────────────────────────────────────────
 export async function getBillingStatus(token) {
   const res = await fetch(`${API_BASE}/billing/status`, {
