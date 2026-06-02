@@ -2,6 +2,7 @@
 // Review reply approval queue
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
+import { Skeleton } from '../../components/Skeleton';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -13,6 +14,31 @@ function authH() {
 }
 
 const STARS = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+// Loading placeholder matching an approval card.
+function ApprovalCardSkeleton() {
+  return (
+    <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, marginBottom: 12, overflow: 'hidden' }}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0eeea' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+          <Skeleton width={150} height={13} />
+          <Skeleton width={70} height={10} />
+        </div>
+        <Skeleton width="100%" height={10} style={{ marginBottom: 6 }} />
+        <Skeleton width="85%" height={10} />
+      </div>
+      <div style={{ padding: '14px 20px', background: '#f8f7f4', borderBottom: '1px solid #f0eeea' }}>
+        <Skeleton width={90} height={9} style={{ marginBottom: 12 }} />
+        <Skeleton width="100%" height={10} style={{ marginBottom: 6 }} />
+        <Skeleton width="70%" height={10} />
+      </div>
+      <div style={{ padding: '12px 20px', display: 'flex', gap: 10 }}>
+        <Skeleton width={130} height={34} radius={50} />
+        <Skeleton width={80} height={34} radius={50} />
+      </div>
+    </div>
+  );
+}
 
 function ApprovalCard({ item, onAction }) {
   const [editing, setEditing] = useState(false);
@@ -172,17 +198,20 @@ export default function Approvals() {
 
         {/* Queue */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#7a7670' }}>Loading...</div>
+          <>
+            <ApprovalCardSkeleton />
+            <ApprovalCardSkeleton />
+          </>
         ) : items.length === 0 ? (
           <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: 48, textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
+            <div style={{ fontSize: '2rem', marginBottom: 12 }}>{mode === 'auto' ? '🐝' : '🎉'}</div>
             <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.2rem', fontWeight: 900, marginBottom: 8 }}>
-              {mode === 'auto' ? 'Auto-reply is on' : 'No replies waiting'}
+              {mode === 'auto' ? 'Auto-reply is on' : "You're all caught up"}
             </div>
             <div style={{ fontSize: '.875rem', color: '#7a7670', lineHeight: 1.7 }}>
               {mode === 'auto'
                 ? 'Switch to "Approve before posting" above to review AI replies before they go live.'
-                : 'New reviews will appear here when AI generates a draft reply.'}
+                : 'No replies waiting — new AI drafts will appear here for you to review and post.'}
             </div>
           </div>
         ) : (
