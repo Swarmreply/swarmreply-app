@@ -317,68 +317,99 @@ function ResultsTab({ report }) {
 
 // ── COMPETITORS TAB ───────────────────────────────────────────────────────────
 function CompetitorsTab({ report }) {
-  if (!report?.topCompetitors?.length) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>No scan data yet — run your first scan to see who AI recommends alongside you.</div>;
+  if (!report?.topCompetitors?.length) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>No scan data yet — run your first scan to see who AI recommends alongside you and what to do about it.</div>;
   const competitors = report.topCompetitors;
-  const max = competitors[0]?.mentions || 1;
+  const max  = competitors[0]?.mentions || 1;
+  const gaps = report.queryGaps || [];
+  const recs = report.recommendations || [];
+  const llmLabel = { chatgpt: 'ChatGPT', gemini: 'Gemini', claude: 'Claude' };
+  const label = (n) => llmLabel[n] || n;
+  const prio = {
+    high:   { bg: '#fee2e2', color: '#c0392b', text: 'High impact' },
+    medium: { bg: '#fef3c7', color: '#92690a', text: 'Medium' },
+    low:    { bg: '#f0eeea', color: '#7a7670', text: 'Low' },
+  };
 
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
-        <Card style={{ overflow: 'hidden' }}>
+        {/* LEFT: leaderboard with "why they're favored" */}
+        <Card style={{ overflow: 'hidden', height: 'fit-content' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>AI competitor leaderboard</div>
           {competitors.map((c, i) => {
             const isYou = i === 0;
             return (
-              <div key={i} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4', display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: 12, alignItems: 'center', background: isYou ? 'rgba(245,200,66,.06)' : undefined }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: isYou ? '#f5c842' : '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', fontWeight: 800, color: isYou ? '#0a0a0a' : '#7a7670' }}>{i + 1}</div>
-                <div>
-                  <div style={{ fontWeight: isYou ? 700 : 500, fontSize: '.875rem' }}>{c.competitor}</div>
-                  <div style={{ height: 5, background: '#f0eeea', borderRadius: 3, overflow: 'hidden', marginTop: 5, width: '100%' }}>
-                    <div style={{ width: `${(c.mentions / max) * 100}%`, height: '100%', background: isYou ? '#f5c842' : '#e4e0d8', borderRadius: 3 }} />
+              <div key={i} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4', background: isYou ? 'rgba(245,200,66,.06)' : undefined }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: 12, alignItems: 'center' }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: isYou ? '#f5c842' : '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', fontWeight: 800, color: isYou ? '#0a0a0a' : '#7a7670' }}>{i + 1}</div>
+                  <div>
+                    <div style={{ fontWeight: isYou ? 700 : 500, fontSize: '.875rem' }}>{c.competitor}</div>
+                    <div style={{ height: 5, background: '#f0eeea', borderRadius: 3, overflow: 'hidden', marginTop: 5, width: '100%' }}>
+                      <div style={{ width: `${(c.mentions / max) * 100}%`, height: '100%', background: isYou ? '#f5c842' : '#e4e0d8', borderRadius: 3 }} />
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 700, fontSize: '.9rem' }}>{c.mentions}</div>
+                    <div style={{ fontSize: '.65rem', color: '#7a7670' }}>mentions</div>
                   </div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 700, fontSize: '.9rem' }}>{c.mentions}</div>
-                  <div style={{ fontSize: '.65rem', color: '#7a7670' }}>mentions</div>
-                </div>
+                {!isYou && c.reasons && c.reasons.length > 0 && (
+                  <div style={{ marginLeft: 40, marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {c.reasons.map((r, j) => (
+                      <span key={j} style={{ fontSize: '.72rem', color: '#4a4a48', background: '#f8f7f4', border: '1px solid #f0eeea', borderRadius: 50, padding: '3px 9px' }}>{r}</span>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}
+          <div style={{ padding: '11px 20px', fontSize: '.72rem', color: '#7a7670', lineHeight: 1.5 }}>
+            Chips show why each competitor was favored — pulled from what the AI models actually said.
+          </div>
         </Card>
+
+        {/* RIGHT: actionable insights */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 10 }}>What you're looking at</div>
-          <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: '0 0 10px' }}>
-            When someone asks ChatGPT, Gemini, or Claude a question such as "best business near me", AI models recommend a shortlist of businesses. The competitors above are the ones showing up in those results. Sometimes those competitors are showing up instead of you, sometimes they are alongside you.
-          </p>
-          <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: '0 0 10px' }}>
-            A business with more mentions, reviews and overall web presence gets recommended more often, which means more new customers discovering them through AI search.
-          </p>
-          <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: 0 }}>
-            Your goal is to move up this leaderboard by increasing your review volume, consistency across directories, and online presence.
-          </p>
-        </Card>
-        <Card style={{ padding: 20, height: 'fit-content' }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Competitor gap analysis</div>
-          {competitors.slice(1,4).map((c,i) => {
-            const yours=competitors[0]?.mentions||0, gap=c.mentions-yours, ahead=gap>0;
-            return (
-              <div key={i} style={{ marginBottom:12, paddingBottom:12, borderBottom:i<2?'1px solid #f0eeea':'none' }}>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-                  <span style={{ fontSize:'.82rem', fontWeight:600 }}>{c.competitor}</span>
-                  <span style={{ fontSize:'.7rem', fontWeight:700, color:ahead?'#c0392b':'#1a6b45', background:ahead?'#fee2e2':'#dcfce7', padding:'2px 7px', borderRadius:50 }}>{ahead?gap+' ahead':Math.abs(gap)+' behind'}</span>
+          {/* Your top moves (grounded recommendations) */}
+          <Card style={{ padding: 20 }}>
+            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Your top moves</div>
+            {recs.length === 0 ? (
+              <div style={{ fontSize: '.8rem', color: '#7a7670' }}>Run a scan to generate recommendations.</div>
+            ) : recs.map((r, i) => {
+              const p = prio[r.priority] || prio.medium;
+              return (
+                <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: i < recs.length - 1 ? '1px solid #f0eeea' : 'none' }}>
+                  <div style={{ marginBottom: 5 }}>
+                    <span style={{ fontSize: '.65rem', fontWeight: 700, color: p.color, background: p.bg, padding: '2px 8px', borderRadius: 50, textTransform: 'uppercase', letterSpacing: '.04em' }}>{p.text}</span>
+                  </div>
+                  <div style={{ fontSize: '.83rem', fontWeight: 600, color: '#0a0a0a', lineHeight: 1.45 }}>{r.action}</div>
+                  {r.rationale && <div style={{ fontSize: '.76rem', color: '#7a7670', lineHeight: 1.55, marginTop: 3 }}>{r.rationale}</div>}
                 </div>
-                <div style={{ fontSize:'.75rem', color:'#7a7670', lineHeight:1.55 }}>{ahead?'They have '+gap+' more AI mentions. Likely higher review volume or more directories.':'You lead by '+Math.abs(gap)+' mentions. Keep your review cadence to hold this lead.'}</div>
+              );
+            })}
+          </Card>
+
+          {/* Where you're missing (query gaps) */}
+          <Card style={{ padding: 20 }}>
+            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>Where you're missing</div>
+            <div style={{ fontSize: '.74rem', color: '#7a7670', marginBottom: 12, lineHeight: 1.5 }}>Searches where AI didn't mention you — your highest-value targets.</div>
+            {gaps.length === 0 ? (
+              <div style={{ fontSize: '.8rem', color: '#1a6b45' }}>You're mentioned across all tracked queries.</div>
+            ) : gaps.map((g, i) => (
+              <div key={i} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: i < gaps.length - 1 ? '1px solid #f0eeea' : 'none' }}>
+                <div style={{ fontSize: '.8rem', fontWeight: 500, color: '#0a0a0a', lineHeight: 1.4 }}>&ldquo;{g.query_text}&rdquo;</div>
+                <div style={{ fontSize: '.7rem', color: '#c0392b', marginTop: 3 }}>Missing on {(g.missedOn || []).map(label).join(', ')}</div>
               </div>
-            );
-          })}
-          <div style={{ borderTop:'1px solid #f0eeea', paddingTop:10, marginTop:4, fontWeight:700, fontSize:'.82rem', marginBottom:8 }}>What makes them rank higher</div>
-          {['More Google reviews — AI models treat review volume and recency as a primary trust signal when deciding who to recommend.', 'Listed on more directories — Yelp, TripAdvisor, Facebook, Apple Maps all feed AI training data. More listings = more AI citations.', 'Consistent NAP data — if your name, address, and phone differ across sites, AI models lose confidence and recommend competitors instead.', 'Faster reply rate — businesses that respond to reviews signal active engagement, which AI models factor into recommendations.'].map((tip, i) => (
-            <div key={i} style={{ background: '#f8f7f4', borderRadius: 10, padding: '10px 13px', marginBottom: 8 }}>
-              <div style={{ fontSize: '.78rem', color: '#7a7670', lineHeight: 1.55 }}>{tip}</div>
-            </div>
-          ))}
-        </Card>
+            ))}
+          </Card>
+
+          {/* Brief explainer */}
+          <Card style={{ padding: 20 }}>
+            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 8 }}>How this works</div>
+            <p style={{ fontSize: '.8rem', color: '#4a4a48', lineHeight: 1.65, margin: 0 }}>
+              When customers ask ChatGPT, Gemini, or Claude for the &ldquo;best business near me,&rdquo; the models recommend a shortlist. We track who appears, why they&rsquo;re favored, and where you&rsquo;re absent — so you can climb the list with more reviews, stronger web presence, and consistent listings.
+            </p>
+          </Card>
         </div>
       </div>
     </div>
