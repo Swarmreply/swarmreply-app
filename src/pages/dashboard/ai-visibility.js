@@ -3,7 +3,7 @@
 // AI Visibility — standalone page
 // Tabs: Overview / By Model / Query Results / Competitors / Queries
 // The Queries tab lets customers view and edit
-// the 32 weekly queries before each scan.
+// the 15 weekly queries before each scan.
 // ============================================
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -45,7 +45,6 @@ function ModelBadge({ name }) {
   const styles = {
     chatgpt:    { background: '#e8f5ef', color: '#1a6b45'  },
     gemini:     { background: '#fee2e2', color: '#c0392b'  },
-    perplexity: { background: '#ede8fe', color: '#7c3aed'  },
     claude:     { background: '#f0eeea', color: '#0a0a0a'  },
   };
   const s = styles[name?.toLowerCase()] || styles.claude;
@@ -104,21 +103,15 @@ function OverviewTab({ report }) {
         <ScoreGauge score={run.visibility_score || 73} delta={run.prev_visibility ? run.visibility_score - run.prev_visibility : 8} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
-            <StatCard label="Queries run"     value={run.total_queries || 32}                sub="across all AI models" />
+            <StatCard label="Queries run"     value={run.total_queries || 0}                sub="across all AI models" />
             <StatCard label="Times mentioned" value={run.total_mentions || 24}              sub={`<span style="color:#1a6b45;font-weight:600">${run.visibility_score || 73}%</span> mention rate`} />
             <StatCard label="Positive"        value={run.total_positive || 19}              accent="#1a6b45" sub="of all mentions" />
             <StatCard label="Missed queries"  value={run.total_not_found || 8}              accent="#f59e0b" sub="not mentioned" />
           </div>
           <Card style={{ padding: 16 }}>
             <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 10 }}>Visibility by AI model</div>
-            {(byLLM.length ? byLLM : [
-              { llm_name: 'chatgpt', visibility_pct: 88 },
-              { llm_name: 'gemini',  visibility_pct: 75 },
-              { llm_name: 'perplexity', visibility_pct: 63 },
-              { llm_name: 'claude',  visibility_pct: 75 },
-              { llm_name: 'grok',    visibility_pct: 58 },
-            ]).map(m => {
-              const colors = { chatgpt:'#74aa9c', gemini:'#e8453c', perplexity:'#7c3aed', claude:'#0a0a0a', grok:'#1a1a1a' };
+            {byLLM.map(m => {
+              const colors = { chatgpt:'#74aa9c', gemini:'#e8453c', claude:'#0a0a0a' };
               const color  = colors[m.llm_name?.toLowerCase()] || '#0a0a0a';
               const pct    = parseInt(m.visibility_pct) || 0;
               return (
@@ -138,11 +131,7 @@ function OverviewTab({ report }) {
             <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Where AI mentioned you ✓</div>
             <div style={{ fontSize: '.75rem', color: '#7a7670' }}>Queries where your business appeared</div>
           </div>
-          {(bestMentions.length ? bestMentions : [
-            { llm_name: 'chatgpt',    query_text: 'Best restaurant in Sacramento',    mention_context: 'Widely regarded as one of Sacramento\'s top Italian restaurants, known for handmade pasta...', sentiment: 'positive' },
-            { llm_name: 'gemini',     query_text: 'Tell me about Bella\'s Kitchen',   mention_context: 'A family-owned Italian restaurant with strong Google reviews — 4.8 stars, 247 reviews...', sentiment: 'positive' },
-            { llm_name: 'perplexity', query_text: 'Best Italian near Sacramento',     mention_context: 'Options include Bella\'s Kitchen and several others with high ratings...', sentiment: 'neutral'  },
-          ]).slice(0,3).map((m, i) => (
+          {bestMentions.slice(0,3).map((m, i) => (
             <div key={i} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
                 <ModelBadge name={m.llm_name} />
@@ -176,14 +165,9 @@ function OverviewTab({ report }) {
 // ── BY MODEL TAB ──────────────────────────────────────────────────────────────
 function ByModelTab({ report }) {
   const [expanded, setExpanded] = React.useState(null);
-  const models = report?.byLLM?.length ? report.byLLM : [
-    { llm_name:'chatgpt',    visibility_pct:88, total_queries:8, mentions:7, sentiment:'positive', snippets:[{query:'Best restaurant in Sacramento',text:'"For a top dining experience in Sacramento, Bella\'s Kitchen stands out with consistently excellent service." — ChatGPT'},{query:'Family dinner Sacramento',text:'"Bella\'s Kitchen is frequently recommended for family occasions, noting the warm atmosphere." — ChatGPT'}], citations:['Google Business Profile','Yelp','TripAdvisor'], recommendations:['Your Google Business description is pulling well — keep it updated monthly.','ChatGPT references your Yelp reviews. More reviews there would push your score above 90%.'] },
-    { llm_name:'gemini',     visibility_pct:75, total_queries:8, mentions:6, sentiment:'positive', snippets:[{query:"Tell me about Bella\'s Kitchen",text:'"Bella\'s Kitchen in Sacramento is a well-regarded Italian restaurant known for its house-made pasta." — Gemini'}], citations:['Google Business Profile','Google Maps Reviews','OpenTable'], recommendations:['Gemini pulls from Google Maps. Add more photos to your Google Business Profile.','Your hours and menu on Google appear outdated — update them.'] },
-    { llm_name:'perplexity', visibility_pct:63, total_queries:8, mentions:5, sentiment:'neutral',  snippets:[{query:'Recommend a restaurant near Sacramento',text:'"According to recent reviews, Bella\'s Kitchen offers a solid Italian dining experience." — Perplexity'}], citations:['Yelp','TripAdvisor','Facebook'], recommendations:['Perplexity uses live web sources. More reviews in the last 30 days will improve your ranking fastest.','Regular Facebook posts help Perplexity surface you more often.'] },
-    { llm_name:'claude',     visibility_pct:75, total_queries:8, mentions:6, sentiment:'positive', snippets:[{query:"Is Bella\'s Kitchen Sacramento good?",text:'"Based on available reviews, Bella\'s Kitchen appears to be a well-regarded restaurant with strong customer satisfaction." — Claude'}], citations:['Yelp','Google Reviews','Local Blogs'], recommendations:["Claude tends to hedge. More consistent 5-star reviews will lead to more confident recommendations."] },
-    { llm_name:'grok',       visibility_pct:58, total_queries:8, mentions:5, sentiment:'neutral',  snippets:[{query:'Best Italian near Sacramento',text:'"Bella\'s Kitchen is mentioned among Sacramento Italian dining options, with customers praising the pasta dishes." — Grok'}], citations:['X (Twitter)','Yelp','Google'], recommendations:['Grok pulls from X (Twitter). Encourage customers to share on X to boost your visibility.','2-3 social posts per week would significantly help your Grok score.'] },
-  ];
-  const meta = { chatgpt:{color:'#74aa9c',desc:'OpenAI · GPT-4o'}, gemini:{color:'#e8453c',desc:'Google · Gemini 1.5 Pro'}, perplexity:{color:'#7c3aed',desc:'Perplexity · Online search'}, claude:{color:'#0a0a0a',desc:'Anthropic · Claude Sonnet'}, grok:{color:'#1a1a1a',desc:'xAI · Grok'} };
+  if (!report?.byLLM?.length) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>No scan data yet — run your first scan to see per-model results.</div>;
+  const models = report.byLLM;
+  const meta = { chatgpt:{color:'#74aa9c',desc:'OpenAI · ChatGPT'}, gemini:{color:'#e8453c',desc:'Google · Gemini'}, claude:{color:'#0a0a0a',desc:'Anthropic · Claude'} };
   const sc = { positive:{bg:'#dcfce7',color:'#1a6b45',label:'Positive'}, neutral:{bg:'#fef9c3',color:'#92690a',label:'Neutral'}, negative:{bg:'#fee2e2',color:'#c0392b',label:'Negative'} };
   return (
     <div style={{ padding:24, display:'flex', flexDirection:'column', gap:12 }}>
@@ -256,16 +240,7 @@ function ResultsTab({ report }) {
   const [modelFilter, setModelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const rows = report?.results?.length ? report.results : (report ? [] : [
-    { llm_name:'chatgpt',    query_text:'Best restaurant in Sacramento',           mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:false },
-    { llm_name:'gemini',     query_text:'Tell me about Bella\'s Kitchen',          mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:true  },
-    { llm_name:'chatgpt',    query_text:'Best family dinner Sacramento',           mentioned:false, mention_position:null, sentiment:'not_mentioned', prev_mentioned:false },
-    { llm_name:'perplexity', query_text:'Recommend a restaurant near Sacramento',  mentioned:true,  mention_position:3, sentiment:'neutral',  prev_mentioned:true  },
-    { llm_name:'claude',     query_text:'What do customers say about Bella\'s?',   mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:false },
-    { llm_name:'gemini',     query_text:'Compare restaurants in Sacramento',       mentioned:false, mention_position:null, sentiment:'not_mentioned', prev_mentioned:true  },
-    { llm_name:'perplexity', query_text:'Best Italian near Sacramento',            mentioned:true,  mention_position:3, sentiment:'neutral',  prev_mentioned:true  },
-    { llm_name:'claude',     query_text:'Is Bella\'s Kitchen Sacramento good?',    mentioned:true,  mention_position:1, sentiment:'positive', prev_mentioned:true  },
-  ]);
+  const rows = report?.results || [];
 
   const wowTotal=rows.filter(r=>r.mentioned).length, wowPrev=rows.filter(r=>r.prev_mentioned).length;
   const wowNew=rows.filter(r=>r.mentioned&&!r.prev_mentioned).length, wowLost=rows.filter(r=>!r.mentioned&&r.prev_mentioned).length;
@@ -298,9 +273,7 @@ function ResultsTab({ report }) {
           <option value="all">All models</option>
           <option value="chatgpt">ChatGPT</option>
           <option value="gemini">Gemini</option>
-          <option value="perplexity">Perplexity</option>
           <option value="claude">Claude</option>
-          <option value="grok">Grok</option>
         </select>
         <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '7px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.8rem', fontFamily: 'inherit', outline: 'none' }}>
           <option value="all">All results</option>
@@ -344,13 +317,8 @@ function ResultsTab({ report }) {
 
 // ── COMPETITORS TAB ───────────────────────────────────────────────────────────
 function CompetitorsTab({ report }) {
-  const competitors = report?.topCompetitors?.length ? report.topCompetitors : [
-    { competitor: 'Bella\'s Kitchen (You)', mentions: 24 },
-    { competitor: 'Trattoria Roma',          mentions: 18 },
-    { competitor: 'Pizzeria Milano',         mentions: 14 },
-    { competitor: 'Café Verde',              mentions: 9  },
-    { competitor: 'Sacramento Grill',        mentions: 6  },
-  ];
+  if (!report?.topCompetitors?.length) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>No scan data yet — run your first scan to see who AI recommends alongside you.</div>;
+  const competitors = report.topCompetitors;
   const max = competitors[0]?.mentions || 1;
 
   return (
@@ -381,7 +349,7 @@ function CompetitorsTab({ report }) {
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 10 }}>What you're looking at</div>
           <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: '0 0 10px' }}>
-            When someone asks ChatGPT, Gemini, or Perplexity a question such as "best business near me", AI models recommend a shortlist of businesses. The competitors above are the ones showing up in those results. Sometimes those competitors are showing up instead of you, sometimes they are alongside you.
+            When someone asks ChatGPT, Gemini, or Claude a question such as "best business near me", AI models recommend a shortlist of businesses. The competitors above are the ones showing up in those results. Sometimes those competitors are showing up instead of you, sometimes they are alongside you.
           </p>
           <p style={{ fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.7, margin: '0 0 10px' }}>
             A business with more mentions, reviews and overall web presence gets recommended more often, which means more new customers discovering them through AI search.
@@ -427,7 +395,7 @@ function QueriesTab() {
   const [allQueries, setAllQueries] = useState([]);
   const [error, setError]         = useState('');
 
-  const MAX = 32;
+  const MAX = 15;
 
   useEffect(() => { loadQueries(); }, []);
 
@@ -443,39 +411,10 @@ function QueriesTab() {
       setAllQueries(combined);
     } catch (e) {
       console.error(e);
-      // Demo fallback
-      setData({
-        autoQueries: [
-          'What are the best restaurants in Sacramento?',
-          'Recommend a good restaurant near Sacramento',
-          'Who is the top-rated restaurant in Sacramento?',
-          "Tell me about Bella's Kitchen in Sacramento",
-          "What do customers say about Bella's Kitchen?",
-          "Is Bella's Kitchen in Sacramento good?",
-          'What is the best restaurant in Sacramento and why?',
-          'Compare restaurants in Sacramento',
-        ],
-        customQueries: [
-          'Best pasta restaurant in Sacramento',
-          'Italian catering Sacramento',
-          'Family restaurant midtown Sacramento',
-        ],
-        totalQueries: 11, maxQueries: 32, maxCustom: 24, remainingSlots: 21,
-        locked: false, nextScanAt: null, lastScanAt: null,
-      });
-      setAllQueries([
-        'What are the best restaurants in Sacramento?',
-        'Recommend a good restaurant near Sacramento',
-        'Who is the top-rated restaurant in Sacramento?',
-        "Tell me about Bella's Kitchen in Sacramento",
-        "What do customers say about Bella's Kitchen?",
-        "Is Bella's Kitchen in Sacramento good?",
-        'What is the best restaurant in Sacramento and why?',
-        'Compare restaurants in Sacramento',
-        'Best pasta restaurant in Sacramento',
-        'Italian catering Sacramento',
-        'Family restaurant midtown Sacramento',
-      ]);
+      // No fake data on failure — start from an empty list.
+      setData({ autoQueries: [], customQueries: [], maxQueries: 15, locked: false, nextScanAt: null, lastScanAt: null });
+      setAllQueries([]);
+      setError('Could not load your queries. Add your own below, or refresh to try again.');
     } finally {
       setLoading(false);
     }
@@ -600,7 +539,7 @@ function QueriesTab() {
                 <input
                   value={newQuery} onChange={e => setNewQuery(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addQuery()}
-                  placeholder={remaining > 0 ? 'Add a query… (press Enter)' : 'Maximum 32 queries reached'}
+                  placeholder={remaining > 0 ? 'Add a query… (press Enter)' : 'Maximum 15 queries reached'}
                   disabled={remaining <= 0}
                   maxLength={200}
                   style={{ flex: 1, padding: '8px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', opacity: remaining <= 0 ? .5 : 1 }}
@@ -667,6 +606,7 @@ export function AiVisibilityPanel() {
       }
     } catch (e) {
       console.error('Scan failed:', e.response?.data?.error || e.message);
+      await loadReport(); // refresh state (e.g. if blocked by the weekly cooldown)
     } finally {
       setScanning(false);
     }
@@ -690,19 +630,12 @@ export function AiVisibilityPanel() {
               <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
               <div style={{ fontSize: '.82rem', fontWeight: 600, color: '#0a0a0a', marginTop: 2 }}>
                 {new Date(report.nextScanAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                {' · '}
-                {new Date(report.nextScanAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
               </div>
             </div>
-          ) : !report?.lastScanAt ? (
-            <button onClick={triggerScan} disabled={scanning} style={{ background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.82rem' }}>
-              ↻ Run my first scan
-            </button>
           ) : (
-            <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 8, padding: '6px 14px' }}>
-              <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Scan frequency</div>
-              <div style={{ fontSize: '.82rem', color: '#0a0a0a', fontWeight: 600, marginTop: 2 }}>Weekly</div>
-            </div>
+            <button onClick={triggerScan} disabled={scanning} style={{ background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.82rem' }}>
+              ↻ {report?.lastScanAt ? 'Run scan' : 'Run my first scan'}
+            </button>
           )}
         </div>
       </div>
