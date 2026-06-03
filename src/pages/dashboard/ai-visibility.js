@@ -638,7 +638,7 @@ function QueriesTab() {
 }
 
 // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
-export default function AIVisibility() {
+export function AiVisibilityPanel() {
   const { customer }    = useAuth();
   const [tab, setTab]   = useState('overview');
   const [report, setReport] = useState(null);
@@ -673,7 +673,7 @@ export default function AIVisibility() {
   }
 
   return (
-    <DashboardLayout title="AI Visibility">
+    <>
       {/* Topbar */}
       <div style={{ background: 'white', borderBottom: '1px solid #e4e0d8', padding: '10px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: 2 }} className="tabs-scrollable">
@@ -712,6 +712,14 @@ export default function AIVisibility() {
       {tab === 'results'     && <ResultsTab     report={report} />}
       {tab === 'competitors' && <CompetitorsTab report={report} />}
       {tab === 'queries'     && <QueriesTab />}
+    </>
+  );
+}
+
+export default function AIVisibility() {
+  return (
+    <DashboardLayout title="AI Visibility">
+      <AiVisibilityPanel />
     </DashboardLayout>
   );
 }

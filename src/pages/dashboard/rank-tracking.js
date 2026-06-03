@@ -62,7 +62,7 @@ function MiniChart({ history }) {
   );
 }
 
-export default function RankTracking() {
+export function RankTrackingPanel() {
   const { customer } = useAuth();
   const [data, setData]           = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -120,7 +120,6 @@ export default function RankTracking() {
   const inPackCount = data.filter(k => k.inLocalPack).length;
 
   return (
-    <DashboardLayout title="Rank Tracking">
       <div className="page-padding" style={{ padding: 24 }}>
 
         {/* Stats */}
@@ -224,6 +223,13 @@ export default function RankTracking() {
           </div>
         </div>
       </div>
+  );
+}
+
+export default function RankTracking() {
+  return (
+    <DashboardLayout title="Rank Tracking">
+      <RankTrackingPanel />
     </DashboardLayout>
   );
 }
