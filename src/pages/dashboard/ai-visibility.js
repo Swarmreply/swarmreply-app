@@ -100,13 +100,13 @@ function OverviewTab({ report }) {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 16, marginBottom: 18 }}>
-        <ScoreGauge score={run.visibility_score || 73} delta={run.prev_visibility ? run.visibility_score - run.prev_visibility : 8} />
+        <ScoreGauge score={run.visibility_score ?? 0} delta={run.prev_visibility != null ? run.visibility_score - run.prev_visibility : 0} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
-            <StatCard label="Queries run"     value={run.total_queries || 0}                sub="across all AI models" />
-            <StatCard label="Times mentioned" value={run.total_mentions || 24}              sub={`<span style="color:#1a6b45;font-weight:600">${run.visibility_score || 73}%</span> mention rate`} />
-            <StatCard label="Positive"        value={run.total_positive || 19}              accent="#1a6b45" sub="of all mentions" />
-            <StatCard label="Missed queries"  value={run.total_not_found || 8}              accent="#f59e0b" sub="not mentioned" />
+            <StatCard label="Queries run"     value={run.total_queries ?? 0}                sub="across all AI models" />
+            <StatCard label="Times mentioned" value={run.total_mentions ?? 0}              sub={`<span style="color:#1a6b45;font-weight:600">${run.visibility_score ?? 0}%</span> mention rate`} />
+            <StatCard label="Positive"        value={run.total_positive ?? 0}              accent="#1a6b45" sub="of all mentions" />
+            <StatCard label="Missed queries"  value={run.total_not_found ?? 0}              accent="#f59e0b" sub="not mentioned" />
           </div>
           <Card style={{ padding: 16 }}>
             <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 10 }}>Visibility by AI model</div>
@@ -150,12 +150,18 @@ function OverviewTab({ report }) {
         </Card>
         <Card style={{ padding: 20, background: '#0a0a0a' }}>
           <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 12 }}>How to improve your score</div>
-          {['Keep Google reviews coming — AI models weight rating and review volume heavily.','Publish Google Posts weekly — fresh content signals an active business to AI crawlers.','Keep listings synced — AI models cross-reference Apple Maps, Bing, and other platforms.','Use your business name + city consistently across every platform.'].map((tip, i) => (
+          {(report.recommendations && report.recommendations.length
+            ? report.recommendations.slice(0, 4).map(r => r.action)
+            : ['Keep Google reviews coming — AI models weight rating and review volume heavily.', 'Publish fresh content regularly — an active business signals trust to AI crawlers.', 'Keep listings synced across Apple Maps, Bing, and other platforms.', 'Use your business name and city consistently across every platform.']
+          ).map((tip, i) => (
             <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
               <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#f5c842', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.65rem', fontWeight: 800, color: '#0a0a0a', flexShrink: 0 }}>{i+1}</span>
               <div style={{ fontSize: '.8rem', color: 'rgba(255,255,255,.7)', lineHeight: 1.55 }}>{tip}</div>
             </div>
           ))}
+          {report.recommendations && report.recommendations.length > 0 && (
+            <div style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.45)', marginTop: 4 }}>See the Competitors tab for the steps behind each.</div>
+          )}
         </Card>
       </div>
     </div>
