@@ -15,15 +15,12 @@ const Bee = () => (
 const NAV = [
   { href: '/dashboard',                   label: 'Home',          icon: '⊞',  group: 'Overview' },
 
-  { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 'Reviews & Replies', badge: 3 },
+  { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 'Workspace', badge: 3 },
+  { href: '/dashboard/inbox',             label: 'Messages',      icon: '💬', group: 'Workspace' },
+  { href: '/dashboard/grow',              label: 'Grow',          icon: '↑',  group: 'Workspace' },
+  { href: '/dashboard/campaigns',         label: 'Campaigns',     icon: '📣', group: 'Workspace' },
 
-  { href: '/dashboard/inbox',             label: 'Messages',      icon: '💬', group: 'Engage' },
-  { href: '/dashboard/grow',              label: 'Grow',          icon: '↑',  group: 'Engage' },
-  { href: '/dashboard/campaigns',         label: 'Campaigns',     icon: '📣', group: 'Engage' },
-
-  { href: '/dashboard/ai-visibility',     label: 'AI Visibility', icon: '✦',  group: 'Get Found', isNew: true },
-  { href: '/dashboard/rank-tracking',     label: 'Rank Tracking', icon: '📍', group: 'Get Found' },
-
+  { href: '/dashboard/get-found',         label: 'Get Found',     icon: '✦',  group: 'Insights', isNew: true },
   { href: '/dashboard/pulse',             label: 'Reports',       icon: '◎',  group: 'Insights' },
 
   { href: '/dashboard/settings',          label: 'Settings',      icon: '⚙',  group: 'Account' },
