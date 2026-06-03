@@ -6,7 +6,7 @@
 // the 15 weekly queries before each scan.
 // ============================================
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
@@ -384,6 +384,13 @@ function CompetitorsTab({ report }) {
                   </div>
                   <div style={{ fontSize: '.83rem', fontWeight: 600, color: '#0a0a0a', lineHeight: 1.45 }}>{r.action}</div>
                   {r.rationale && <div style={{ fontSize: '.76rem', color: '#7a7670', lineHeight: 1.55, marginTop: 3 }}>{r.rationale}</div>}
+                  {r.steps && r.steps.length > 0 && (
+                    <ul style={{ margin: '7px 0 0', paddingLeft: 16 }}>
+                      {r.steps.map((s, k) => (
+                        <li key={k} style={{ fontSize: '.76rem', color: '#4a4a48', lineHeight: 1.5, marginBottom: 3 }}>{s}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               );
             })}
@@ -614,34 +621,59 @@ export function AiVisibilityPanel() {
   const [report, setReport] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [lastScanned, setLastScanned] = useState(null);
+  const pollRef = useRef(null);
 
-  useEffect(() => { if (customer) loadReport(); }, [customer]);
+  useEffect(() => {
+    if (customer) loadReport({ maybeResume: true });
+    return () => { if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; } };
+  }, [customer]);
 
-  async function loadReport() {
+  async function loadReport({ maybeResume = false } = {}) {
     try {
       const res = await axios.get(`${API}/llm/report`, { headers: authHeaders() });
       if (res.data.report) { setReport(res.data.report); setLastScanned(res.data.report?.run?.completed_at); }
-    } catch (e) { console.error(e); }
+      if (res.data.scanning) {
+        setScanning(true);
+        if (maybeResume) startPolling();   // a scan is still running — pick the UI back up
+      } else {
+        setScanning(false);
+      }
+      return res.data;
+    } catch (e) { console.error(e); return null; }
+  }
+
+  function startPolling() {
+    if (pollRef.current) return;           // already polling
+    pollRef.current = setInterval(async () => {
+      const data = await loadReport();
+      if (!data || !data.scanning) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+        setScanning(false);
+      }
+    }, 8000);
   }
 
   async function triggerScan() {
     setScanning(true);
     try {
-      // Scan writes the report before responding, so use the response directly
-      const res = await axios.post(`${API}/llm/scan`, {}, { headers: authHeaders() });
-      if (res.data.report) {
-        setReport(res.data.report);
-        setLastScanned(res.data.report?.run?.completed_at);
+      // Async scan — the backend returns immediately and runs in the background;
+      // we poll the report until it lands, so this page (and tab) can be left.
+      await axios.post(`${API}/llm/scan`, {}, { headers: authHeaders() });
+      startPolling();
+    } catch (e) {
+      setScanning(false);
+      if (e.response?.status === 429) {
+        await loadReport();                // weekly cooldown — show the "next scan" state
       } else {
+        console.error('Scan failed:', e.response?.data?.error || e.message);
         await loadReport();
       }
-    } catch (e) {
-      console.error('Scan failed:', e.response?.data?.error || e.message);
-      await loadReport(); // refresh state (e.g. if blocked by the weekly cooldown)
-    } finally {
-      setScanning(false);
     }
   }
+
+  const LLM_LABEL = { chatgpt: 'ChatGPT', gemini: 'Gemini', claude: 'Claude' };
+  const skipped = (!scanning && report?.skippedProviders) ? report.skippedProviders : [];
 
   return (
     <>
@@ -655,7 +687,7 @@ export function AiVisibilityPanel() {
         <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
           {lastScanned && <span style={{ fontSize: '.75rem', color: '#7a7670' }}>Last scan: {new Date(lastScanned).toLocaleDateString()}</span>}
           {scanning ? (
-            <span style={{ fontSize: '.82rem', color: '#7a7670', fontWeight: 600 }}>↻ Scanning…</span>
+            <span style={{ fontSize: '.82rem', color: '#92690a', fontWeight: 700 }}>↻ Scanning…</span>
           ) : report?.nextScanAt && new Date(report.nextScanAt) > new Date() ? (
             <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 8, padding: '6px 14px', textAlign: 'right' }}>
               <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
@@ -670,6 +702,21 @@ export function AiVisibilityPanel() {
           )}
         </div>
       </div>
+
+      {/* In-progress banner — scan runs server-side, so leaving the page is fine */}
+      {scanning && (
+        <div style={{ background: '#fffbeb', borderBottom: '1px solid #f5e4b8', padding: '10px 24px', fontSize: '.82rem', color: '#92690a', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 700 }}>Scan in progress.</span>
+          <span>This usually takes a few minutes. You can leave this page or use the rest of the app — your results will appear here automatically when they're ready.</span>
+        </div>
+      )}
+
+      {/* Skipped-provider note — honest when a model was temporarily unavailable */}
+      {skipped.length > 0 && (
+        <div style={{ background: '#f8f7f4', borderBottom: '1px solid #e4e0d8', padding: '8px 24px', fontSize: '.78rem', color: '#7a7670' }}>
+          {skipped.map(s => LLM_LABEL[s.llm_name] || s.llm_name).join(', ')} {skipped.length > 1 ? 'were' : 'was'} unavailable in this scan and excluded — included again next scan.
+        </div>
+      )}
 
       {tab === 'overview'    && <OverviewTab    report={report} />}
       {tab === 'by-model'    && <ByModelTab     report={report} />}
