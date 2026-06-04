@@ -134,6 +134,23 @@ export default function Onboarding() {
     } catch (e) { /* leave as-is */ }
   }
 
+  // Called when a step's panel reports completion: refresh, then auto-advance
+  // the selection to the next incomplete, unlocked step in the track.
+  async function handleStepDone(doneId) {
+    try {
+      const res = await axios.get(`${API}/onboarding/status`, { headers: authHeaders() });
+      const next = res.data.onboarding;
+      setOb(next);
+      const advanceTo = next.nextStepId || next.steps.find(s => !s.completed && !s.locked)?.id;
+      if (advanceTo && advanceTo !== doneId) setSelectedId(advanceTo);
+      if (prevActivated.current === false && next.activated === true) {
+        setCelebrate(true);
+        setTimeout(() => setCelebrate(false), 4200);
+      }
+      prevActivated.current = next.activated;
+    } catch (e) { /* leave as-is */ }
+  }
+
   if (loading || !customer || !ob) {
     return <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', fontFamily: "'DM Sans', system-ui, sans-serif" }}>Loading your setup…</div>;
   }
@@ -278,7 +295,7 @@ export default function Onboarding() {
                     This step unlocks once you complete{lockedDep ? <> &ldquo;<strong style={{ color: '#0a0a0a' }}>{lockedDep}</strong>&rdquo;</> : ' the steps it depends on'}.
                   </div>
                 ) : Panel ? (
-                  <Panel customer={customer} onDone={() => load()} />
+                  <Panel customer={customer} onDone={() => handleStepDone(selected.id)} />
                 ) : (
                   <div>
                     <p style={{ fontSize: '.9rem', color: '#7a7670', margin: '0 0 16px', lineHeight: 1.55 }}>
