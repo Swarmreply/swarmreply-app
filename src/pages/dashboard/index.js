@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { getStats, getReviews, getLocations } from '../../utils/api';
+import SetupProgressCard from '../../components/SetupProgressCard';
 import { Skeleton } from '../../components/Skeleton';
 
 // Time-aware greeting for the daily-habit header.
@@ -264,6 +265,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Non-blocking onboarding nudge */}
+      <SetupProgressCard />
 
       <div style={{ padding: '28px 32px' }}>
 
