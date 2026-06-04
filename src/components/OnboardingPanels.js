@@ -29,6 +29,10 @@ const primaryBtn = {
   background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8,
   padding: '10px 18px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.85rem',
 };
+const suggestBtn = {
+  background: '#fdf6e3', color: '#92690a', border: '1px solid #f5e4b8', borderRadius: 50,
+  padding: '4px 11px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.74rem',
+};
 
 function HelpBox({ title = 'Where do I find this?', children }) {
   const [open, setOpen] = useState(false);
@@ -267,7 +271,18 @@ function KeywordsPanel({ onDone }) {
   const [list, setList] = useState([]);
   const [draft, setDraft] = useState('');
   const [busy, setBusy] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const [err, setErr] = useState(null);
+
+  async function suggest() {
+    setSuggesting(true);
+    try {
+      const res = await axios.get(`${API}/onboarding/suggestions`, { headers: authHeaders() });
+      const have = new Set(list.map(k => (k.keyword || k.term || '').toLowerCase()));
+      const fresh = (res.data.keywords || []).filter(k => !have.has(k.toLowerCase()));
+      setDraft(prev => [prev.trim(), ...fresh].filter(Boolean).join('\n'));
+    } catch (e) { /* leave draft as-is */ } finally { setSuggesting(false); }
+  }
 
   async function refresh() {
     try {
@@ -316,7 +331,10 @@ function KeywordsPanel({ onDone }) {
       )}
       {list.length < MAX_KEYWORDS && (
         <>
-          <label style={labelStyle}>Add keywords (one per line, or comma-separated)</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+            <label style={{ ...labelStyle, margin: 0 }}>Add keywords (one per line, or comma-separated)</label>
+            <button onClick={suggest} disabled={suggesting} style={suggestBtn}>✨ {suggesting ? 'Thinking…' : 'Suggest for me'}</button>
+          </div>
           <textarea value={draft} onChange={e => setDraft(e.target.value)} rows={3} style={{ ...fieldStyle, resize: 'vertical' }}
             placeholder={'emergency plumber Austin\nwater heater repair Austin'} />
           {err && <Note tone="error">{err}</Note>}
@@ -343,7 +361,19 @@ function KeywordsPanel({ onDone }) {
 function AiCriteriaPanel({ onDone }) {
   const [text, setText] = useState('');
   const [saving, setSaving] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const [err, setErr] = useState(null);
+
+  async function suggest() {
+    setSuggesting(true);
+    try {
+      const res = await axios.get(`${API}/onboarding/suggestions`, { headers: authHeaders() });
+      const existing = text.split('\n').map(s => s.trim()).filter(Boolean);
+      const have = new Set(existing.map(s => s.toLowerCase()));
+      const fresh = (res.data.aiQueries || []).filter(q => !have.has(q.toLowerCase()));
+      setText([...existing, ...fresh].join('\n'));
+    } catch (e) { /* leave as-is */ } finally { setSuggesting(false); }
+  }
 
   useEffect(() => { (async () => {
     try {
@@ -370,7 +400,10 @@ function AiCriteriaPanel({ onDone }) {
         These are the <strong>questions</strong> customers ask AI assistants like ChatGPT. We check whether
         your business gets recommended. Up to 15, one per line.
       </p>
-      <label style={labelStyle}>Your AI search questions</label>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+        <label style={{ ...labelStyle, margin: 0 }}>Your AI search questions</label>
+        <button onClick={suggest} disabled={suggesting} style={suggestBtn}>✨ {suggesting ? 'Thinking…' : 'Suggest for me'}</button>
+      </div>
       <textarea value={text} onChange={e => setText(e.target.value)} rows={5} style={{ ...fieldStyle, resize: 'vertical' }}
         placeholder={'best plumber near me\nwho fixes water heaters in Austin\nmost reliable emergency plumber Austin'} />
       {err && <Note tone="error">{err}</Note>}
