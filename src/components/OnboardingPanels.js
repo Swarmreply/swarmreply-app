@@ -93,7 +93,7 @@ function BusinessDetailsPanel({ customer, onDone }) {
       }, { headers: authHeaders() });
       onDone();
     } catch (e) {
-      setErr(e.response?.data?.error || 'Could not save. Please try again.');
+      setErr(e.response?.data?.details || e.response?.data?.error || 'Could not save. Please try again.');
     } finally { setSaving(false); }
   }
 
