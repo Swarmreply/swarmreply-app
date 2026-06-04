@@ -1,29 +1,25 @@
 // ============================================
 // src/pages/onboarding.js
-// Full-page, non-blocking onboarding wizard. Renders entirely off the
-// data-driven engine (/api/onboarding/status): progress ring, points,
-// milestone tiers, dependency locking, and next-best-step.
-//
-// CHUNK 2 = the shell + gamification. Each step's CTA deep-links to where the
-// task is done today; CHUNK 3 will replace those with inline step UIs + the
-// "where do I find this?" help content.
+// Full-page setup wizard. Styled to mirror the public /signup page
+// (off-white canvas + faint decorative layer, Playfair + DM Sans, circular
+// stepper, gold pill buttons, uppercase labels) and laid out like the Request
+// Template builder: a steps list on the left, the active step's panel on the
+// right. Progress is by steps completed — no points.
 // ============================================
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../hooks/useAuth';
+import Head from 'next/head';
 import axios from 'axios';
 import { STEP_PANELS } from '../components/OnboardingPanels';
+import { useAuth } from '../hooks/useAuth';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-
 function authHeaders() {
   const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : null;
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
-// Where each step is completed today (deep-link target). Chunk 3 swaps these for
-// inline step panels + help. Keyed by the engine's step id.
 const STEP_DEST = {
   business_details:    '/dashboard/settings',
   connect_google:      '/dashboard/integrations',
@@ -44,253 +40,273 @@ const MILESTONE_HEADINGS = {
   pro:      { title: 'Pro',      blurb: 'Automate and connect the rest of your stack.' },
 };
 
-// ── Big progress ring ──
-function ProgressRing({ pct, size = 132 }) {
-  const stroke = 11;
+// Compact count-based ring for the header.
+function HeaderRing({ pct, size = 92 }) {
+  const stroke = 8;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const off = c - (pct / 100) * c;
   return (
-    <svg width={size} height={size}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#f0eeea" strokeWidth={stroke} />
+    <svg width={size} height={size} style={{ flexShrink: 0 }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e4e0d8" strokeWidth={stroke} />
       <circle
         cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#f5c842" strokeWidth={stroke}
         strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         style={{ transition: 'stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1)' }}
       />
-      <text x="50%" y="46%" dominantBaseline="central" textAnchor="middle"
-        style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.9rem', fontWeight: 700, fill: '#0a0a0a' }}>
+      <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle"
+        style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.35rem', fontWeight: 900, fill: '#0a0a0a' }}>
         {pct}%
-      </text>
-      <text x="50%" y="64%" dominantBaseline="central" textAnchor="middle"
-        style={{ fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', fill: '#7a7670' }}>
-        COMPLETE
       </text>
     </svg>
   );
 }
 
-function StepCard({ step, onSetUp, onMarkDone, depTitle, hasPanel, expanded }) {
+// Left-rail step row with the signup-style circular indicator.
+function StepRow({ step, n, selected, onSelect }) {
   const { completed, locked } = step;
+  const clickable = !locked;
+  const circleBg = completed ? '#1a6b45' : selected ? '#0a0a0a' : '#fff';
+  const circleColor = completed || selected ? '#fff' : '#7a7670';
+  const circleBorder = completed ? '#1a6b45' : selected ? '#0a0a0a' : '#e4e0d8';
   return (
-    <div style={{
-      background: completed ? '#f6faf7' : 'white',
-      border: `1px solid ${completed ? '#cfe8da' : '#e4e0d8'}`,
-      borderRadius: 12, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14,
-      opacity: locked ? 0.6 : 1, transition: 'all .2s',
-    }}>
-      {/* status bubble */}
-      <div style={{
-        width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: completed ? '#1a6b45' : locked ? '#f0eeea' : '#fdf6e3',
-        border: completed ? 'none' : `1px solid ${locked ? '#e4e0d8' : '#f5e4b8'}`,
-        color: completed ? 'white' : '#92690a', fontWeight: 800, fontSize: '.8rem',
+    <button
+      onClick={() => clickable && onSelect(step.id)}
+      disabled={!clickable}
+      style={{
+        width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 12,
+        background: selected ? '#fff' : 'transparent',
+        border: selected ? '1.5px solid #0a0a0a' : '1.5px solid transparent',
+        borderRadius: 14, padding: '11px 13px', cursor: clickable ? 'pointer' : 'not-allowed',
+        opacity: locked ? 0.55 : 1, fontFamily: 'inherit', transition: 'all .15s',
+        boxShadow: selected ? '0 2px 14px rgba(0,0,0,.06)' : 'none',
       }}>
-        {completed ? '✓' : locked ? '🔒' : '•'}
-      </div>
-
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '.92rem', fontWeight: 600, color: '#0a0a0a' }}>{step.title}</div>
-        <div style={{ fontSize: '.74rem', color: '#7a7670', marginTop: 2, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <span style={{ color: '#92690a', fontWeight: 700 }}>+{step.points} pts</span>
-          {step.estMinutes ? <span>~{step.estMinutes} min</span> : null}
-          {locked && depTitle && <span>Complete “{depTitle}” first</span>}
-        </div>
-      </div>
-
-      {/* actions */}
-      {completed ? (
-        <span style={{ fontSize: '.8rem', fontWeight: 700, color: '#1a6b45', flexShrink: 0 }}>Done</span>
-      ) : locked ? (
-        <span style={{ fontSize: '.8rem', color: '#a8a39a', flexShrink: 0 }}>Locked</span>
-      ) : (
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-          {step.manual && !hasPanel && (
-            <button onClick={() => onMarkDone(step)} style={{
-              background: 'transparent', color: '#7a7670', border: '1px solid #e4e0d8',
-              borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontSize: '.78rem', fontFamily: 'inherit',
-            }}>Mark done</button>
-          )}
-          <button onClick={() => onSetUp(step)} style={{
-            background: '#0a0a0a', color: 'white', border: 'none', borderRadius: 8,
-            padding: '8px 16px', cursor: 'pointer', fontWeight: 700, fontSize: '.8rem', fontFamily: 'inherit',
-          }}>{hasPanel ? (expanded ? 'Close ▴' : 'Set up') : 'Set up →'}</button>
-        </div>
-      )}
-    </div>
+      <span style={{
+        width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: circleBg, color: circleColor, border: `1.5px solid ${circleBorder}`,
+        fontSize: '.74rem', fontWeight: 700,
+      }}>
+        {completed ? '✓' : locked ? '🔒' : n}
+      </span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', fontSize: '.86rem', fontWeight: 600, color: '#1a1a18' }}>{step.title}</span>
+        <span style={{ display: 'block', fontSize: '.72rem', color: '#7a7670', marginTop: 1 }}>
+          {completed ? 'Done' : locked ? 'Locked' : step.estMinutes ? `~${step.estMinutes} min` : 'Ready'}
+        </span>
+      </span>
+    </button>
   );
 }
 
 export default function Onboarding() {
-  const { customer, loading } = useAuth();
   const router = useRouter();
+  const { customer, loading } = useAuth();
   const [ob, setOb] = useState(null);
-  const [toast, setToast] = useState(null);
-  const [expandedStep, setExpandedStep] = useState(null);
-  const prevPoints = useRef(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [celebrate, setCelebrate] = useState(false);
   const prevActivated = useRef(null);
 
   useEffect(() => { if (!loading && !customer) router.push('/login'); }, [customer, loading, router]);
 
   useEffect(() => {
-    if (!customer) return;
-    load();
-    // Re-check when the user returns from a deep-linked task page.
-    const onFocus = () => load();
+    if (customer) load();
+    const onFocus = () => customer && load();
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer]);
 
   async function load() {
     try {
       const res = await axios.get(`${API}/onboarding/status`, { headers: authHeaders() });
       const next = res.data.onboarding;
-
-      // "+points" + "Activated" celebration moments
-      if (prevPoints.current != null && next.earnedPoints > prevPoints.current) {
-        setToast({ kind: 'points', amount: next.earnedPoints - prevPoints.current });
-        setTimeout(() => setToast(null), 2600);
-      }
+      setOb(next);
+      // Default selection: the next best step (first time only).
+      setSelectedId(prev => prev || next.nextStepId || next.steps.find(s => !s.completed && !s.locked)?.id || next.steps[0]?.id);
+      // "Activated" is a real, meaningful milestone — keep the moment.
       if (prevActivated.current === false && next.activated === true) {
-        setToast({ kind: 'activated' });
-        setTimeout(() => setToast(null), 3600);
+        setCelebrate(true);
+        setTimeout(() => setCelebrate(false), 4200);
       }
-      prevPoints.current = next.earnedPoints;
       prevActivated.current = next.activated;
-      setOb(next);
-    } catch (e) { console.warn('onboarding load failed:', e.message); }
+    } catch (e) { /* leave as-is */ }
   }
 
-  function setUp(step) {
-    if (STEP_PANELS[step.id]) {
-      setExpandedStep(prev => (prev === step.id ? null : step.id));
-    } else {
-      const dest = STEP_DEST[step.id] || '/dashboard';
-      router.push(dest);
-    }
+  if (loading || !customer || !ob) {
+    return <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', fontFamily: "'DM Sans', system-ui, sans-serif" }}>Loading your setup…</div>;
   }
 
-  async function markDone(step) {
-    try {
-      const res = await axios.post(`${API}/onboarding/step/${step.id}/complete`, {}, { headers: authHeaders() });
-      const next = res.data.onboarding;
-      if (next.earnedPoints > (prevPoints.current ?? 0)) {
-        setToast({ kind: 'points', amount: next.earnedPoints - (prevPoints.current ?? 0) });
-        setTimeout(() => setToast(null), 2600);
-      }
-      prevPoints.current = next.earnedPoints;
-      prevActivated.current = next.activated;
-      setOb(next);
-    } catch (e) { console.warn('mark done failed:', e.message); }
-  }
-
-  if (loading || !ob) {
-    return <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', fontFamily: 'system-ui, sans-serif' }}>Loading your setup…</div>;
-  }
-
-  const stepsByMilestone = (m) => ob.steps.filter(s => s.milestone === m);
+  // Sequential numbering across steps in display order.
+  const ordered = MILESTONE_ORDER.flatMap(m => ob.steps.filter(s => s.milestone === m));
+  const numberOf = {}; ordered.forEach((s, i) => { numberOf[s.id] = i + 1; });
   const titleById = (id) => ob.steps.find(s => s.id === id)?.title;
+  const selected = ob.steps.find(s => s.id === selectedId) || null;
+  const Panel = selected ? STEP_PANELS[selected.id] : null;
+  const lockedDep = selected && selected.locked
+    ? titleById(selected.dependsOn?.find(d => !ob.steps.find(x => x.id === d)?.completed))
+    : null;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f8f7f4', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      {/* Top bar (minimal chrome) */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e4e0d8', padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.2rem', fontWeight: 800, color: '#0a0a0a' }}>SwarmReply</span>
-        <button onClick={() => router.push('/dashboard')} style={{ background: 'transparent', border: 'none', color: '#7a7670', cursor: 'pointer', fontSize: '.85rem', fontFamily: 'inherit' }}>
-          Go to dashboard →
-        </button>
-      </div>
+    <div style={{ minHeight: '100vh', background: '#f8f7f4', color: '#1a1a18', fontFamily: "'DM Sans', system-ui, -apple-system, sans-serif" }}>
+      <Head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      </Head>
 
-      {/* Hero: ring + score + milestone */}
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '36px 24px 12px', display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap' }}>
-        <ProgressRing pct={ob.pct} />
-        <div style={{ flex: 1, minWidth: 240 }}>
-          <h1 style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.7rem', fontWeight: 800, color: '#0a0a0a', margin: 0 }}>
-            {ob.activated ? "You're live — let's optimize" : "Let's get you set up"}
-          </h1>
-          <p style={{ fontSize: '.9rem', color: '#7a7670', margin: '6px 0 14px', lineHeight: 1.5 }}>
-            {ob.activated
-              ? 'Your essentials are done. These next steps help customers find you in local search and AI.'
-              : `Finish the essentials to start collecting reviews${ob.minutesLeft > 0 ? ` — about ${ob.minutesLeft} minutes if you have your info handy.` : '.'}`}
-          </p>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '.82rem', fontWeight: 700, color: '#92690a', background: '#fdf6e3', border: '1px solid #f5e4b8', borderRadius: 50, padding: '5px 12px' }}>
-              {ob.earnedPoints} / {ob.totalPoints} pts
-            </span>
-            {/* Milestone tier pips */}
+      <style>{`
+        .ob-bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+          background:
+            radial-gradient(420px 420px at 12% 8%, rgba(245,200,66,.10), transparent 70%),
+            radial-gradient(520px 520px at 92% 0%, rgba(26,107,69,.06), transparent 70%),
+            radial-gradient(640px 640px at 78% 100%, rgba(245,200,66,.07), transparent 70%);}
+        .ob-wrap{position:relative;z-index:1}
+        .ob-grid{display:grid;grid-template-columns:330px 1fr;gap:22px;
+          max-width:1040px;margin:0 auto;padding:8px 24px 70px}
+        .ob-pane-input:focus{border-color:#0a0a0a}
+        @media (max-width:820px){.ob-grid{grid-template-columns:1fr}}
+      `}</style>
+
+      <div className="ob-bg" />
+
+      <div className="ob-wrap">
+        {/* Nav — mirrors signup */}
+        <nav style={{
+          background: '#fff', borderBottom: '1px solid #e4e0d8', height: 62, padding: '0 28px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          position: 'sticky', top: 0, zIndex: 100,
+        }}>
+          <span style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.55rem', fontWeight: 900, color: '#0a0a0a', lineHeight: 1, letterSpacing: '-.02em' }}>
+            SwarmReply
+          </span>
+          <button onClick={() => router.push('/dashboard')} style={{
+            background: 'transparent', border: 'none', color: '#7a7670', cursor: 'pointer',
+            fontSize: '.82rem', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            Go to dashboard →
+          </button>
+        </nav>
+
+        {/* Header */}
+        <header style={{ maxWidth: 1040, margin: '0 auto', padding: '40px 24px 8px', display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
+          <HeaderRing pct={ob.pct} />
+          <div style={{ flex: 1, minWidth: 260 }}>
+            <h1 style={{ fontFamily: '"Playfair Display", serif', fontSize: '2rem', fontWeight: 900, color: '#0a0a0a', margin: 0, lineHeight: 1.1 }}>
+              {ob.activated
+                ? <>You&rsquo;re live — <em style={{ fontStyle: 'italic', color: '#d4a515' }}>let&rsquo;s optimize.</em></>
+                : <>Let&rsquo;s set up <em style={{ fontStyle: 'italic', color: '#d4a515' }}>your swarm.</em></>}
+            </h1>
+            <p style={{ fontSize: '.92rem', color: '#7a7670', margin: '8px 0 14px', lineHeight: 1.55 }}>
+              {ob.activated
+                ? 'Your essentials are done. These next steps help customers find you in local search and AI.'
+                : `Finish the essentials to start collecting reviews${ob.minutesLeft > 0 ? ` — about ${ob.minutesLeft} minutes with your info handy.` : '.'}`}
+            </p>
+            <div style={{ display: 'flex', gap: 9, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '.8rem', fontWeight: 600, color: '#1a1a18' }}>
+                {ob.completedCount} of {ob.totalSteps} steps complete
+              </span>
+              <span style={{ color: '#d8d3ca' }}>·</span>
+              {MILESTONE_ORDER.map(m => {
+                const reached = MILESTONE_ORDER.indexOf(ob.milestoneTier) >= MILESTONE_ORDER.indexOf(m);
+                return (
+                  <span key={m} style={{
+                    fontSize: '.68rem', fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase',
+                    color: reached ? '#1a6b45' : '#a8a39a',
+                    background: reached ? '#e8f5ef' : '#f0eeea', borderRadius: 50, padding: '4px 11px',
+                  }}>
+                    {MILESTONE_HEADINGS[m].title}{reached ? ' ✓' : ''}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </header>
+
+        {/* Two-pane: steps list (left) + active step (right) */}
+        <div className="ob-grid">
+          {/* LEFT: steps list */}
+          <aside style={{
+            background: '#fff', border: '1px solid #e4e0d8', borderRadius: 22,
+            boxShadow: '0 4px 32px rgba(0,0,0,.06)', padding: '14px 12px', alignSelf: 'start',
+          }}>
             {MILESTONE_ORDER.map(m => {
-              const reached = MILESTONE_ORDER.indexOf(ob.milestoneTier) >= MILESTONE_ORDER.indexOf(m);
+              const steps = ob.steps.filter(s => s.milestone === m);
+              if (!steps.length) return null;
+              const done = steps.filter(s => s.completed).length;
               return (
-                <span key={m} style={{
-                  fontSize: '.7rem', fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase',
-                  color: reached ? '#1a6b45' : '#a8a39a',
-                  background: reached ? '#e8f5ef' : '#f0eeea', borderRadius: 50, padding: '4px 11px',
-                }}>
-                  {MILESTONE_HEADINGS[m].title}{reached ? ' ✓' : ''}
-                </span>
+                <div key={m} style={{ marginBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 13px 4px' }}>
+                    <span style={{ fontSize: '.66rem', fontWeight: 800, letterSpacing: '.09em', textTransform: 'uppercase', color: '#7a7670' }}>
+                      {MILESTONE_HEADINGS[m].title}
+                    </span>
+                    <span style={{ fontSize: '.7rem', color: '#a8a39a', fontWeight: 600 }}>{done}/{steps.length}</span>
+                  </div>
+                  {steps.map(s => (
+                    <StepRow key={s.id} step={s} n={numberOf[s.id]} selected={s.id === selectedId} onSelect={setSelectedId} />
+                  ))}
+                </div>
               );
             })}
-          </div>
+          </aside>
+
+          {/* RIGHT: active step panel */}
+          <section style={{
+            background: '#fff', border: '1px solid #e4e0d8', borderRadius: 22,
+            boxShadow: '0 4px 32px rgba(0,0,0,.06)', padding: '32px 34px', alignSelf: 'start', minHeight: 280,
+          }}>
+            {!selected ? (
+              <p style={{ color: '#7a7670' }}>Pick a step on the left to begin.</p>
+            ) : (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '.66rem', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670' }}>
+                    Step {numberOf[selected.id]} · {MILESTONE_HEADINGS[selected.milestone].title}
+                  </span>
+                  {selected.completed && (
+                    <span style={{ fontSize: '.68rem', fontWeight: 800, letterSpacing: '.05em', textTransform: 'uppercase', color: '#1a6b45', background: '#e8f5ef', borderRadius: 50, padding: '3px 10px' }}>
+                      ✓ Done
+                    </span>
+                  )}
+                </div>
+                <h2 style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.55rem', fontWeight: 900, color: '#0a0a0a', margin: '0 0 18px', lineHeight: 1.15 }}>
+                  {selected.title}
+                </h2>
+
+                {selected.locked ? (
+                  <div style={{ background: '#faf8f3', border: '1px solid #e4e0d8', borderRadius: 14, padding: '18px 20px', color: '#7a7670', fontSize: '.9rem', lineHeight: 1.6 }}>
+                    This step unlocks once you complete{lockedDep ? <> &ldquo;<strong style={{ color: '#0a0a0a' }}>{lockedDep}</strong>&rdquo;</> : ' the steps it depends on'}.
+                  </div>
+                ) : Panel ? (
+                  <Panel customer={customer} onDone={() => load()} />
+                ) : (
+                  <div>
+                    <p style={{ fontSize: '.9rem', color: '#7a7670', margin: '0 0 16px', lineHeight: 1.55 }}>
+                      This step is completed on its own page.
+                    </p>
+                    <button onClick={() => router.push(STEP_DEST[selected.id] || '/dashboard')} style={{
+                      background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 50,
+                      padding: '12px 24px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.9rem',
+                    }}>
+                      Open this step →
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </section>
         </div>
       </div>
 
-      {/* Milestone sections */}
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '12px 24px 60px' }}>
-        {MILESTONE_ORDER.map(m => {
-          const steps = stepsByMilestone(m);
-          if (!steps.length) return null;
-          const doneCount = steps.filter(s => s.completed).length;
-          const h = MILESTONE_HEADINGS[m];
-          return (
-            <div key={m} style={{ marginTop: 28 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 }}>
-                <h2 style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.15rem', fontWeight: 700, color: '#0a0a0a', margin: 0 }}>{h.title}</h2>
-                <span style={{ fontSize: '.78rem', color: '#7a7670', fontWeight: 600 }}>{doneCount}/{steps.length} done</span>
-              </div>
-              <p style={{ fontSize: '.82rem', color: '#7a7670', margin: '0 0 12px' }}>{h.blurb}</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {steps.map(s => {
-                  const Panel = STEP_PANELS[s.id];
-                  const isExpanded = expandedStep === s.id;
-                  return (
-                    <div key={s.id}>
-                      <StepCard step={s} onSetUp={setUp} onMarkDone={markDone}
-                        hasPanel={!!Panel} expanded={isExpanded}
-                        depTitle={s.locked ? titleById(s.dependsOn.find(d => !ob.steps.find(x => x.id === d)?.completed)) : null} />
-                      {Panel && isExpanded && !s.completed && (
-                        <div style={{ border: '1px solid #e4e0d8', borderTop: 'none', borderRadius: '0 0 12px 12px', background: 'white', padding: '18px 20px', margin: '-6px 0 0' }}>
-                          <Panel customer={customer} onDone={() => load()} />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Celebration toast */}
-      {toast && (
+      {/* Activation celebration (meaningful milestone, not points) */}
+      {celebrate && (
         <div style={{
           position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
-          background: '#0a0a0a', color: 'white', borderRadius: 12, padding: '14px 22px',
-          boxShadow: '0 10px 30px rgba(0,0,0,.25)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 100,
+          background: '#0a0a0a', color: '#fff', borderRadius: 50, padding: '14px 26px',
+          boxShadow: '0 10px 30px rgba(0,0,0,.25)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 200,
         }}>
-          {toast.kind === 'points' ? (
-            <>
-              <span style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.3rem', fontWeight: 800, color: '#f5c842' }}>+{toast.amount}</span>
-              <span style={{ fontSize: '.9rem' }}>points earned</span>
-            </>
-          ) : (
-            <>
-              <span style={{ fontSize: '1.2rem' }}>🎉</span>
-              <span style={{ fontSize: '.92rem', fontWeight: 700 }}>You're activated! Your account is live.</span>
-            </>
-          )}
+          <span style={{ fontSize: '1.2rem' }}>🎉</span>
+          <span style={{ fontSize: '.92rem', fontWeight: 700 }}>You&rsquo;re activated! Your account is live.</span>
         </div>
       )}
     </div>
