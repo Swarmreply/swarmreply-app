@@ -30,17 +30,18 @@ export function useAuth() {
           // Show impersonation banner
           sessionStorage.setItem('impersonating', params.get('customer_name') || 'Customer');
         }
-      }
 
-      // Cross-domain login handoff: the marketing site (swarmreply.com) can't
-      // write to this app's localStorage (different origin), so after a successful
-      // login there it passes the token via a cookie scoped to ".swarmreply.com".
-      // Pick it up here, move it into localStorage, then clear the cookie.
-      if (typeof window !== 'undefined' && !localStorage.getItem('swarmreply_token')) {
-        const m = document.cookie.match(/(?:^|;\s*)sr_handoff=([^;]+)/);
-        if (m) {
-          localStorage.setItem('swarmreply_token', decodeURIComponent(m[1]));
-          document.cookie = 'sr_handoff=; domain=.swarmreply.com; path=/; max-age=0; Secure; SameSite=Lax';
+        // Cross-origin login handoff from the marketing site (swarmreply.com).
+        // The token arrives in the URL hash so it is never sent to the server
+        // or written to access logs, then we strip it from the URL immediately.
+        if (window.location.hash && window.location.hash.indexOf('token=') !== -1) {
+          const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+          const handoff = hashParams.get('token');
+          if (handoff) {
+            localStorage.setItem('swarmreply_token', handoff);
+            const cleanUrl = window.location.pathname + window.location.search;
+            window.history.replaceState({}, '', cleanUrl);
+          }
         }
       }
 
@@ -93,7 +94,7 @@ export function useAuth() {
         id:     customerId,
         name:   payload.name,
         email:  payload.email,
-        plan:   (billing?.plan && billing.plan.id) || payload.plan || 'swarmreply',
+        plan:   String(billing?.plan || payload.plan || 'starter'),
         status: billing?.status || 'active',
         role:   payload.role,
         is_demo: payload.is_demo || false,
