@@ -1,0 +1,110 @@
+// ============================================
+// src/components/SetupProgressCard.js
+// Non-blocking "finish your setup" card for the dashboard home.
+// Reads the data-driven onboarding engine (/api/onboarding/status) and links
+// into the full-page wizard. Hides itself when setup is complete or dismissed.
+// ============================================
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
+
+const API = process.env.NEXT_PUBLIC_API_URL;
+
+function authHeaders() {
+  const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : null;
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
+// Compact progress ring
+function MiniRing({ pct, size = 58 }) {
+  const stroke = 6;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const off = c - (pct / 100) * c;
+  return (
+    <svg width={size} height={size} style={{ flexShrink: 0 }}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#f0eeea" strokeWidth={stroke} />
+      <circle
+        cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#f5c842" strokeWidth={stroke}
+        strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round"
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        style={{ transition: 'stroke-dashoffset .6s ease' }}
+      />
+      <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle"
+        style={{ fontFamily: '"Playfair Display", serif', fontSize: '.9rem', fontWeight: 700, fill: '#0a0a0a' }}>
+        {pct}%
+      </text>
+    </svg>
+  );
+}
+
+export default function SetupProgressCard() {
+  const router = useRouter();
+  const [ob, setOb] = useState(null);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => { load(); }, []);
+
+  async function load() {
+    try {
+      const res = await axios.get(`${API}/onboarding/status`, { headers: authHeaders() });
+      setOb(res.data.onboarding || null);
+    } catch (e) { /* never block the dashboard on this */ }
+  }
+
+  async function dismiss() {
+    setHidden(true);
+    try { await axios.post(`${API}/onboarding/dismiss`, { dismissed: true }, { headers: authHeaders() }); }
+    catch (e) { /* visual dismiss is enough */ }
+  }
+
+  if (!ob || hidden || ob.completed || ob.dismissed) return null;
+
+  const nextStep = ob.steps?.find(s => s.id === ob.nextStepId);
+  const headline = ob.activated ? 'Keep optimizing your setup' : 'Finish setting up SwarmReply';
+
+  return (
+    <div style={{
+      background: 'white', border: '1px solid #e4e0d8', borderTop: '2px solid #f5c842',
+      borderRadius: 14, padding: '18px 22px', margin: '20px 32px 0',
+      display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap',
+    }}>
+      <MiniRing pct={ob.pct} />
+
+      <div style={{ flex: 1, minWidth: 200 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.05rem', fontWeight: 700, color: '#0a0a0a' }}>
+            {headline}
+          </span>
+          {ob.milestoneLabel && (
+            <span style={{ fontSize: '.66rem', fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase',
+              color: '#92690a', background: '#fdf6e3', border: '1px solid #f5e4b8', borderRadius: 50, padding: '3px 9px' }}>
+              {ob.milestoneLabel}
+            </span>
+          )}
+        </div>
+        <div style={{ fontSize: '.82rem', color: '#7a7670', marginTop: 4 }}>
+          {ob.requiredDone}/{ob.requiredTotal} essentials done
+          {ob.minutesLeft > 0 && <> · about {ob.minutesLeft} min left</>}
+          {nextStep && <> · Next: <strong style={{ color: '#0a0a0a', fontWeight: 600 }}>{nextStep.title}</strong></>}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button onClick={() => router.push('/onboarding')} style={{
+          background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8,
+          padding: '9px 18px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.84rem',
+        }}>
+          Continue setup →
+        </button>
+        <button onClick={dismiss} title="Hide for now" style={{
+          background: 'transparent', color: '#7a7670', border: 'none', cursor: 'pointer',
+          fontSize: '1.1rem', lineHeight: 1, padding: '4px 6px', fontFamily: 'inherit',
+        }}>
+          ×
+        </button>
+      </div>
+    </div>
+  );
+}
