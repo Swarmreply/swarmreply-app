@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Sidebar from './Sidebar';
-import OnboardingWizard from './OnboardingWizard';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 import { useCallback } from 'react';
@@ -75,7 +74,6 @@ function MobileNav({ pathname, onMoreToggle, moreOpen }) {
 export default function DashboardLayout({ children, title }) {
   const { customer, loading, reload } = useAuth();
   const router = useRouter();
-  const [showWizard, setShowWizard]     = useState(false);
   const [wizardChecked, setWizardChecked] = useState(false);
   const [moreOpen, setMoreOpen]         = useState(false);
   const [billing, setBilling]           = useState(null);
@@ -108,7 +106,16 @@ export default function DashboardLayout({ children, title }) {
       const res = await axios.get(`${API}/onboarding/status`, {
         headers: t ? { Authorization: `Bearer ${t}` } : {}
       });
-      if (!res.data.onboarding?.completed) setShowWizard(true);
+      // Non-blocking: gently nudge brand-new users to the full-page wizard
+      // once per session. They can leave freely and won't be redirected again.
+      const ob = res.data.onboarding || {};
+      if (!ob.activated && !ob.dismissed
+          && router.pathname === '/dashboard'
+          && typeof window !== 'undefined'
+          && !sessionStorage.getItem('ob_nudged')) {
+        sessionStorage.setItem('ob_nudged', '1');
+        router.push('/onboarding');
+      }
     } catch (err) {
       console.warn('Onboarding check failed:', err.message);
     }
@@ -222,13 +229,6 @@ export default function DashboardLayout({ children, title }) {
             </button>
           </div>
         </div>
-      )}
-
-      {showWizard && (
-        <OnboardingWizard
-          customer={customer}
-          onComplete={() => { setShowWizard(false); reload(); }}
-        />
       )}
 
       <div className="dashboard-layout">
