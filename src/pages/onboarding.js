@@ -107,7 +107,7 @@ function StepCard({ step, onSetUp, onMarkDone, depTitle, hasPanel, expanded }) {
         <span style={{ fontSize: '.8rem', color: '#a8a39a', flexShrink: 0 }}>Locked</span>
       ) : (
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
-          {step.manual && (
+          {step.manual && !hasPanel && (
             <button onClick={() => onMarkDone(step)} style={{
               background: 'transparent', color: '#7a7670', border: '1px solid #e4e0d8',
               borderRadius: 8, padding: '7px 12px', cursor: 'pointer', fontSize: '.78rem', fontFamily: 'inherit',
