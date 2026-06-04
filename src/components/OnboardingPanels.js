@@ -21,13 +21,18 @@ function authHeaders() {
 
 // ── Shared bits ───────────────────────────────────────────────────────────────
 const fieldStyle = {
-  width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #e4e0d8',
-  fontSize: '.88rem', fontFamily: 'inherit', color: '#0a0a0a', background: 'white', boxSizing: 'border-box',
+  width: '100%', padding: '11px 14px', borderRadius: 11, border: '1.5px solid #e4e0d8',
+  fontSize: '.9rem', fontFamily: 'inherit', color: '#1a1a18', background: '#fff', boxSizing: 'border-box',
+  outline: 'none', transition: 'border-color .15s',
 };
-const labelStyle = { fontSize: '.78rem', fontWeight: 700, color: '#0a0a0a', display: 'block', marginBottom: 5 };
+const labelStyle = {
+  display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em',
+  textTransform: 'uppercase', color: '#7a7670', marginBottom: 5,
+};
 const primaryBtn = {
-  background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8,
-  padding: '10px 18px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.85rem',
+  background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 50,
+  padding: '12px 24px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.9rem',
+  transition: 'all .18s',
 };
 const suggestBtn = {
   background: '#fdf6e3', color: '#92690a', border: '1px solid #f5e4b8', borderRadius: 50,
