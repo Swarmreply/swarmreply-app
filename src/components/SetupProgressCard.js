@@ -59,10 +59,15 @@ export default function SetupProgressCard() {
     catch (e) { /* visual dismiss is enough */ }
   }
 
-  if (!ob || hidden || ob.completed || ob.dismissed) return null;
+  if (!ob || hidden) return null;
+  const showNew = !!ob.newStepsAvailable;
+  // Hide once finished/parked — unless a newly-launched feature added steps.
+  if ((ob.completed || ob.dismissed) && !showNew) return null;
 
   const nextStep = ob.steps?.find(s => s.id === ob.nextStepId);
-  const headline = ob.activated ? 'Keep optimizing your setup' : 'Finish setting up SwarmReply';
+  const headline = showNew
+    ? 'New setup steps are available'
+    : (ob.activated ? 'Keep optimizing your setup' : 'Finish setting up SwarmReply');
 
   return (
     <div style={{
@@ -77,6 +82,12 @@ export default function SetupProgressCard() {
           <span style={{ fontFamily: '"Playfair Display", serif', fontSize: '1.05rem', fontWeight: 700, color: '#0a0a0a' }}>
             {headline}
           </span>
+          {showNew && (
+            <span style={{ fontSize: '.66rem', fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase',
+              color: '#fff', background: '#1a6b45', borderRadius: 50, padding: '3px 9px' }}>
+              New
+            </span>
+          )}
           {ob.milestoneLabel && (
             <span style={{ fontSize: '.66rem', fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase',
               color: '#92690a', background: '#fdf6e3', border: '1px solid #f5e4b8', borderRadius: 50, padding: '3px 9px' }}>
