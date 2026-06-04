@@ -13,6 +13,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
+import { STEP_PANELS } from '../components/OnboardingPanels';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -70,7 +71,7 @@ function ProgressRing({ pct, size = 132 }) {
   );
 }
 
-function StepCard({ step, onSetUp, onMarkDone, depTitle }) {
+function StepCard({ step, onSetUp, onMarkDone, depTitle, hasPanel, expanded }) {
   const { completed, locked } = step;
   return (
     <div style={{
@@ -115,7 +116,7 @@ function StepCard({ step, onSetUp, onMarkDone, depTitle }) {
           <button onClick={() => onSetUp(step)} style={{
             background: '#0a0a0a', color: 'white', border: 'none', borderRadius: 8,
             padding: '8px 16px', cursor: 'pointer', fontWeight: 700, fontSize: '.8rem', fontFamily: 'inherit',
-          }}>Set up →</button>
+          }}>{hasPanel ? (expanded ? 'Close ▴' : 'Set up') : 'Set up →'}</button>
         </div>
       )}
     </div>
@@ -127,6 +128,7 @@ export default function Onboarding() {
   const router = useRouter();
   const [ob, setOb] = useState(null);
   const [toast, setToast] = useState(null);
+  const [expandedStep, setExpandedStep] = useState(null);
   const prevPoints = useRef(null);
   const prevActivated = useRef(null);
 
@@ -162,8 +164,12 @@ export default function Onboarding() {
   }
 
   function setUp(step) {
-    const dest = STEP_DEST[step.id] || '/dashboard';
-    router.push(dest);
+    if (STEP_PANELS[step.id]) {
+      setExpandedStep(prev => (prev === step.id ? null : step.id));
+    } else {
+      const dest = STEP_DEST[step.id] || '/dashboard';
+      router.push(dest);
+    }
   }
 
   async function markDone(step) {
@@ -245,10 +251,22 @@ export default function Onboarding() {
               </div>
               <p style={{ fontSize: '.82rem', color: '#7a7670', margin: '0 0 12px' }}>{h.blurb}</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {steps.map(s => (
-                  <StepCard key={s.id} step={s} onSetUp={setUp} onMarkDone={markDone}
-                    depTitle={s.locked ? titleById(s.dependsOn.find(d => !ob.steps.find(x => x.id === d)?.completed)) : null} />
-                ))}
+                {steps.map(s => {
+                  const Panel = STEP_PANELS[s.id];
+                  const isExpanded = expandedStep === s.id;
+                  return (
+                    <div key={s.id}>
+                      <StepCard step={s} onSetUp={setUp} onMarkDone={markDone}
+                        hasPanel={!!Panel} expanded={isExpanded}
+                        depTitle={s.locked ? titleById(s.dependsOn.find(d => !ob.steps.find(x => x.id === d)?.completed)) : null} />
+                      {Panel && isExpanded && !s.completed && (
+                        <div style={{ border: '1px solid #e4e0d8', borderTop: 'none', borderRadius: '0 0 12px 12px', background: 'white', padding: '18px 20px', margin: '-6px 0 0' }}>
+                          <Panel customer={customer} onDone={() => load()} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
