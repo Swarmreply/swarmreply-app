@@ -261,9 +261,298 @@ function TestRequestPanel({ customer, onDone }) {
   );
 }
 
+// ── STEP: Keywords (rank tracking) ───────────────────────────────────────────
+const MAX_KEYWORDS = 15;
+function KeywordsPanel({ onDone }) {
+  const [list, setList] = useState([]);
+  const [draft, setDraft] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(null);
+
+  async function refresh() {
+    try {
+      const res = await axios.get(`${API}/rank`, { headers: authHeaders() });
+      setList(res.data.keywords || res.data || []);
+    } catch (e) { /* none yet */ }
+  }
+  useEffect(() => { refresh(); }, []);
+
+  async function add() {
+    const items = draft.split(/[,\n]/).map(s => s.trim()).filter(Boolean);
+    if (!items.length) return;
+    setBusy(true); setErr(null);
+    try {
+      for (const kw of items) {
+        if (list.length >= MAX_KEYWORDS) break;
+        await axios.post(`${API}/rank/keywords`, { keyword: kw }, { headers: authHeaders() });
+      }
+      setDraft('');
+      await refresh();
+      onDone();
+    } catch (e) {
+      setErr(e.response?.data?.error || 'Could not add. Please try again.');
+    } finally { setBusy(false); }
+  }
+
+  async function remove(id) {
+    try { await axios.delete(`${API}/rank/keywords/${id}`, { headers: authHeaders() }); await refresh(); onDone(); }
+    catch (e) { /* ignore */ }
+  }
+
+  return (
+    <div>
+      <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 12px', lineHeight: 1.5 }}>
+        Track where you rank on Google for the searches your customers actually use. Add up to {MAX_KEYWORDS}.
+      </p>
+      {list.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 12 }}>
+          {list.map(k => (
+            <span key={k.id} style={{ background: '#f0eeea', borderRadius: 50, padding: '4px 10px', fontSize: '.78rem', color: '#0a0a0a', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {k.keyword || k.term}
+              <button onClick={() => remove(k.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a7670', fontSize: '.9rem', lineHeight: 1, padding: 0 }}>×</button>
+            </span>
+          ))}
+        </div>
+      )}
+      {list.length < MAX_KEYWORDS && (
+        <>
+          <label style={labelStyle}>Add keywords (one per line, or comma-separated)</label>
+          <textarea value={draft} onChange={e => setDraft(e.target.value)} rows={3} style={{ ...fieldStyle, resize: 'vertical' }}
+            placeholder={'emergency plumber Austin\nwater heater repair Austin'} />
+          {err && <Note tone="error">{err}</Note>}
+          <div style={{ marginTop: 12 }}>
+            <button onClick={add} disabled={busy} style={{ ...primaryBtn, opacity: busy ? .6 : 1 }}>
+              {busy ? 'Adding…' : 'Add keywords'}
+            </button>
+          </div>
+        </>
+      )}
+      <HelpBox title="What makes a good keyword?">
+        Use the exact phrases customers type into Google, and include your city. Examples:
+        <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+          <li><strong>Plumber:</strong> “emergency plumber [city]”, “water heater repair [city]”</li>
+          <li><strong>Dentist:</strong> “teeth whitening [city]”, “emergency dentist [city]”</li>
+          <li><strong>Restaurant:</strong> “best brunch [city]”, “patio dining [city]”</li>
+        </ul>
+      </HelpBox>
+    </div>
+  );
+}
+
+// ── STEP: AI search criteria (AI Visibility queries) ─────────────────────────
+function AiCriteriaPanel({ onDone }) {
+  const [text, setText] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => { (async () => {
+    try {
+      const res = await axios.get(`${API}/llm/queries`, { headers: authHeaders() });
+      setText((res.data.customQueries || []).join('\n'));
+    } catch (e) { /* blank */ }
+  })(); }, []);
+
+  async function save() {
+    const queries = text.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 15);
+    if (!queries.length) { setErr('Add at least one question.'); return; }
+    setSaving(true); setErr(null);
+    try {
+      await axios.put(`${API}/llm/queries`, { customQueries: queries }, { headers: authHeaders() });
+      onDone();
+    } catch (e) {
+      setErr(e.response?.data?.error || 'Could not save. Please try again.');
+    } finally { setSaving(false); }
+  }
+
+  return (
+    <div>
+      <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 12px', lineHeight: 1.5 }}>
+        These are the <strong>questions</strong> customers ask AI assistants like ChatGPT. We check whether
+        your business gets recommended. Up to 15, one per line.
+      </p>
+      <label style={labelStyle}>Your AI search questions</label>
+      <textarea value={text} onChange={e => setText(e.target.value)} rows={5} style={{ ...fieldStyle, resize: 'vertical' }}
+        placeholder={'best plumber near me\nwho fixes water heaters in Austin\nmost reliable emergency plumber Austin'} />
+      {err && <Note tone="error">{err}</Note>}
+      <div style={{ marginTop: 12 }}>
+        <button onClick={save} disabled={saving} style={{ ...primaryBtn, opacity: saving ? .6 : 1 }}>
+          {saving ? 'Saving…' : 'Save AI criteria'}
+        </button>
+      </div>
+      <HelpBox title="How is this different from keywords?">
+        Keywords are short search terms (“plumber Austin”). AI criteria are full <strong>questions</strong> a
+        person would ask an assistant (“who's the best emergency plumber in Austin?”). AI tools answer in
+        sentences, so we phrase these as natural questions.
+      </HelpBox>
+    </div>
+  );
+}
+
+// ── STEP: Review platforms (Yelp + Facebook) ─────────────────────────────────
+function ReviewPlatformsPanel({ onDone }) {
+  const [loc, setLoc] = useState(null);
+  const [yelp, setYelp] = useState('');
+  const [fb, setFb] = useState('');
+  const [google, setGoogle] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => { (async () => {
+    try {
+      const res = await axios.get(`${API}/locations/review-urls`, { headers: authHeaders() });
+      const rows = res.data.locations || res.data || [];
+      const first = Array.isArray(rows) ? rows[0] : null;
+      if (first) { setLoc(first); setYelp(first.yelp_review_url || ''); setFb(first.facebook_review_url || ''); setGoogle(first.google_review_url || null); }
+    } catch (e) { /* blank */ }
+  })(); }, []);
+
+  async function save() {
+    if (!yelp.trim() && !fb.trim()) { setErr('Add at least one platform link.'); return; }
+    if (!loc?.id) { setErr('Add your business details first.'); return; }
+    setSaving(true); setErr(null);
+    try {
+      await axios.put(`${API}/locations/${loc.id}/review-urls`, {
+        googleReviewUrl: google, facebookReviewUrl: fb.trim() || null, yelpReviewUrl: yelp.trim() || null,
+      }, { headers: authHeaders() });
+      onDone();
+    } catch (e) {
+      setErr(e.response?.data?.error || 'Could not save. Please try again.');
+    } finally { setSaving(false); }
+  }
+
+  return (
+    <div>
+      <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 12px', lineHeight: 1.5 }}>
+        Add the other places customers review you, so detractor feedback can be routed and your presence tracked.
+      </p>
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Yelp page URL</label>
+        <input value={yelp} onChange={e => setYelp(e.target.value)} style={fieldStyle} placeholder="https://www.yelp.com/biz/your-business" />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Facebook page URL</label>
+        <input value={fb} onChange={e => setFb(e.target.value)} style={fieldStyle} placeholder="https://www.facebook.com/yourbusiness" />
+      </div>
+      {err && <Note tone="error">{err}</Note>}
+      <div style={{ marginTop: 12 }}>
+        <button onClick={save} disabled={saving} style={{ ...primaryBtn, opacity: saving ? .6 : 1 }}>
+          {saving ? 'Saving…' : 'Save platforms'}
+        </button>
+      </div>
+      <HelpBox>
+        <strong>Yelp:</strong> open your business page on <a href="https://www.yelp.com" target="_blank" rel="noopener noreferrer" style={{ color: '#1a4baa' }}>yelp.com</a> and
+        copy the URL from the address bar — it looks like <code>yelp.com/biz/your-business</code>.<br /><br />
+        <strong>Facebook:</strong> go to your Facebook Page and copy its URL — the part after <code>facebook.com/</code> is your page.
+      </HelpBox>
+    </div>
+  );
+}
+
+// ── STEP: Auto-reply tone (manual) ───────────────────────────────────────────
+const TONES = [
+  { id: 'warm', label: 'Warm & friendly' },
+  { id: 'professional', label: 'Professional' },
+  { id: 'casual', label: 'Casual' },
+  { id: 'grateful', label: 'Grateful & humble' },
+];
+function AutoReplyTonePanel({ onDone }) {
+  const [loc, setLoc] = useState(null);
+  const [tone, setTone] = useState('warm');
+  const [always, setAlways] = useState('');
+  const [never, setNever] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+
+  useEffect(() => { (async () => {
+    try {
+      const res = await axios.get(`${API}/locations`, { headers: authHeaders() });
+      const first = (res.data.locations || [])[0];
+      if (first) { setLoc(first); setTone(first.tone || 'warm'); setAlways(first.always_include || ''); setNever(first.never_include || ''); }
+    } catch (e) { /* blank */ }
+  })(); }, []);
+
+  async function save() {
+    if (!loc?.id) { setErr('Add your business details first.'); return; }
+    setSaving(true); setErr(null);
+    try {
+      await axios.put(`${API}/locations/${loc.id}/settings`, {
+        tone, alwaysInclude: always, neverInclude: never,
+      }, { headers: authHeaders() });
+      // Manual step — record completion so the wizard reflects it.
+      await axios.post(`${API}/onboarding/step/auto_reply_config/complete`, {}, { headers: authHeaders() }).catch(() => {});
+      onDone();
+    } catch (e) {
+      setErr(e.response?.data?.error || 'Could not save. Please try again.');
+    } finally { setSaving(false); }
+  }
+
+  return (
+    <div>
+      <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 12px', lineHeight: 1.5 }}>
+        Set how your automatic review replies should sound. You can fine-tune this anytime in Settings.
+      </p>
+      <label style={labelStyle}>Reply tone</label>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+        {TONES.map(t => (
+          <button key={t.id} onClick={() => setTone(t.id)} style={{
+            border: `1px solid ${tone === t.id ? '#0a0a0a' : '#e4e0d8'}`,
+            background: tone === t.id ? '#0a0a0a' : 'white', color: tone === t.id ? 'white' : '#0a0a0a',
+            borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: '.82rem', fontWeight: 600, fontFamily: 'inherit',
+          }}>{t.label}</button>
+        ))}
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Always mention (optional)</label>
+        <input value={always} onChange={e => setAlways(e.target.value)} style={fieldStyle} placeholder="e.g. invite them back, mention our warranty" />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Never mention (optional)</label>
+        <input value={never} onChange={e => setNever(e.target.value)} style={fieldStyle} placeholder="e.g. discounts, competitor names" />
+      </div>
+      {err && <Note tone="error">{err}</Note>}
+      <div style={{ marginTop: 12 }}>
+        <button onClick={save} disabled={saving} style={{ ...primaryBtn, opacity: saving ? .6 : 1 }}>
+          {saving ? 'Saving…' : 'Save tone'}
+        </button>
+      </div>
+      <HelpBox title="How does tone work?">
+        Tone shapes how the AI writes replies to your reviews — same facts, different voice. “Warm” sounds
+        personal and appreciative; “Professional” is more formal. The mention rules are applied to every reply.
+      </HelpBox>
+    </div>
+  );
+}
+
+// ── STEP: Connect a CRM / scheduling tool (OAuth — deep-link) ────────────────
+function ConnectIntegrationPanel() {
+  const router = useRouter();
+  return (
+    <div>
+      <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 8px', lineHeight: 1.55 }}>
+        Connect the tool you already use to run jobs or appointments, and SwarmReply will automatically ask
+        for a review after each completed job — no manual sending.
+      </p>
+      <div style={{ marginTop: 12 }}>
+        <button onClick={() => router.push('/dashboard/integrations')} style={primaryBtn}>
+          Browse integrations →
+        </button>
+      </div>
+      <HelpBox title="What can I connect?">
+        SwarmReply supports Jobber, Square, HubSpot, Shopify, Calendly, Mindbody, and Acuity. On the
+        Integrations page, click your tool and sign in — you'll need admin access to that account.
+      </HelpBox>
+    </div>
+  );
+}
+
 export const STEP_PANELS = {
-  business_details: BusinessDetailsPanel,
-  connect_google:   ConnectGooglePanel,
-  review_link:      ReviewLinkPanel,
-  test_request:     TestRequestPanel,
+  business_details:    BusinessDetailsPanel,
+  connect_google:      ConnectGooglePanel,
+  review_link:         ReviewLinkPanel,
+  test_request:        TestRequestPanel,
+  keywords:            KeywordsPanel,
+  ai_criteria:         AiCriteriaPanel,
+  review_platforms:    ReviewPlatformsPanel,
+  auto_reply_config:   AutoReplyTonePanel,
+  connect_integration: ConnectIntegrationPanel,
 };
