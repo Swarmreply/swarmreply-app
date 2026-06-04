@@ -74,24 +74,40 @@ function Note({ children, tone = 'info' }) {
 
 // ── STEP 1: Confirm business details ────────────────────────────────────────
 const BUSINESS_TYPES = [
-  'Restaurant / Food', 'Home Services', 'Retail / Shop', 'Healthcare / Medical',
-  'Professional Services', 'Beauty / Salon / Spa', 'Automotive', 'Fitness / Wellness', 'Other',
+  'Restaurant / Food', 'Cafe / Coffee Shop', 'Bar / Brewery', 'Grocery / Convenience',
+  'Home Services (general)', 'HVAC / Plumbing / Electrical', 'Cleaning Services',
+  'Landscaping / Lawn Care', 'Roofing / Construction', 'Moving / Storage', 'Pest Control',
+  'Retail / Shop', 'E-commerce',
+  'Healthcare / Medical', 'Dental', 'Veterinary', 'Chiropractic', 'Mental Health / Therapy', 'Optometry',
+  'Professional Services', 'Legal', 'Accounting / Tax', 'Real Estate', 'Insurance',
+  'Financial Services', 'Marketing / Agency', 'IT / Tech Services',
+  'Beauty / Salon / Spa', 'Barber Shop', 'Nail Salon', 'Tattoo / Piercing',
+  'Automotive', 'Auto Repair', 'Car Dealership', 'Car Wash / Detailing',
+  'Fitness / Wellness', 'Gym / Personal Training', 'Yoga / Pilates Studio',
+  'Education / Tutoring', 'Childcare / Daycare',
+  'Hotel / Hospitality', 'Event Services', 'Photography', 'Pet Services / Grooming',
+  'Other',
 ];
 
 function BusinessDetailsPanel({ customer, onDone }) {
   const [name, setName] = useState(customer?.name || '');
   const [type, setType] = useState('Restaurant / Food');
+  const [customType, setCustomType] = useState('');
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
 
+  const isOther = type === 'Other';
+
   async function save() {
     if (!name.trim()) { setErr('Please enter your business name.'); return; }
+    if (isOther && !customType.trim()) { setErr('Please enter your business type.'); return; }
+    const businessType = isOther ? customType.trim() : type;
     setSaving(true); setErr(null);
     try {
       await axios.post(`${API}/locations`, {
         customerId: customer.id,
         businessName: name.trim(),
-        businessType: type,
+        businessType,
         platform: 'google',
         contactEmail: customer.email,
         tone: 'warm',
@@ -117,6 +133,12 @@ function BusinessDetailsPanel({ customer, onDone }) {
           {BUSINESS_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
+      {isOther && (
+        <div style={{ marginBottom: 12 }}>
+          <label style={labelStyle}>Tell us your business type</label>
+          <input value={customType} onChange={e => setCustomType(e.target.value)} style={fieldStyle} placeholder="e.g. Mobile bike repair" autoFocus />
+        </div>
+      )}
       {err && <Note tone="error">{err}</Note>}
       <div style={{ marginTop: 14 }}>
         <button onClick={save} disabled={saving} style={{ ...primaryBtn, opacity: saving ? .6 : 1 }}>
@@ -161,8 +183,9 @@ function ConnectGooglePanel() {
 // ── STEP 3: Set your review link ─────────────────────────────────────────────
 function ReviewLinkPanel({ onDone }) {
   const [loc, setLoc] = useState(null);
-  const [url, setUrl] = useState('');
-  const [existing, setExisting] = useState({});
+  const [google, setGoogle] = useState('');
+  const [yelp, setYelp] = useState('');
+  const [fb, setFb] = useState('');
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
 
@@ -173,21 +196,22 @@ function ReviewLinkPanel({ onDone }) {
       const first = Array.isArray(rows) ? rows[0] : null;
       if (first) {
         setLoc(first);
-        setUrl(first.google_review_url || '');
-        setExisting({ facebookReviewUrl: first.facebook_review_url || null, yelpReviewUrl: first.yelp_review_url || null });
+        setGoogle(first.google_review_url || '');
+        setYelp(first.yelp_review_url || '');
+        setFb(first.facebook_review_url || '');
       }
     } catch (e) { /* leave blank */ }
   })(); }, []);
 
   async function save() {
-    if (!url.trim()) { setErr('Please paste your Google review link.'); return; }
+    if (!google.trim()) { setErr('Please paste your Google review link — it’s the main one.'); return; }
     if (!loc?.id) { setErr('Add your business details first.'); return; }
     setSaving(true); setErr(null);
     try {
       await axios.put(`${API}/locations/${loc.id}/review-urls`, {
-        googleReviewUrl: url.trim(),
-        facebookReviewUrl: existing.facebookReviewUrl,
-        yelpReviewUrl: existing.yelpReviewUrl,
+        googleReviewUrl: google.trim(),
+        yelpReviewUrl: yelp.trim() || null,
+        facebookReviewUrl: fb.trim() || null,
       }, { headers: authHeaders() });
       onDone();
     } catch (e) {
@@ -198,24 +222,32 @@ function ReviewLinkPanel({ onDone }) {
   return (
     <div>
       <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 14px', lineHeight: 1.5 }}>
-        This is where happy customers go to leave you a 5-star Google review.
+        These are the links where happy customers leave you public reviews. Google is required;
+        Yelp and Facebook are optional — add any you use and we’ll route reviewers to them.
       </p>
-      <label style={labelStyle}>Google review link</label>
-      <input value={url} onChange={e => setUrl(e.target.value)} style={fieldStyle} placeholder="https://g.page/r/..." />
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Google review link <span style={{ color: '#c0392b' }}>*</span></label>
+        <input value={google} onChange={e => setGoogle(e.target.value)} style={fieldStyle} placeholder="https://g.page/r/..." />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Yelp page URL <span style={{ color: '#a8a39a' }}>(optional)</span></label>
+        <input value={yelp} onChange={e => setYelp(e.target.value)} style={fieldStyle} placeholder="https://www.yelp.com/biz/your-business" />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Facebook page URL <span style={{ color: '#a8a39a' }}>(optional)</span></label>
+        <input value={fb} onChange={e => setFb(e.target.value)} style={fieldStyle} placeholder="https://www.facebook.com/yourbusiness" />
+      </div>
       {err && <Note tone="error">{err}</Note>}
       <div style={{ marginTop: 14 }}>
         <button onClick={save} disabled={saving} style={{ ...primaryBtn, opacity: saving ? .6 : 1 }}>
-          {saving ? 'Saving…' : 'Save review link'}
+          {saving ? 'Saving…' : 'Save review links'}
         </button>
       </div>
       <HelpBox>
-        <strong>To find your Google review link:</strong>
-        <ol style={{ margin: '8px 0 0', paddingLeft: 18 }}>
-          <li>Sign in at <a href="https://business.google.com" target="_blank" rel="noopener noreferrer" style={{ color: '#1a4baa' }}>business.google.com</a>.</li>
-          <li>Open your business, then click <strong>“Ask for reviews”</strong> (or “Get more reviews”).</li>
-          <li>Copy the short link Google shows — it looks like <code>https://g.page/r/…</code>.</li>
-          <li>Paste it above.</li>
-        </ol>
+        <strong>Google (required):</strong> sign in at <a href="https://business.google.com" target="_blank" rel="noopener noreferrer" style={{ color: '#1a4baa' }}>business.google.com</a>,
+        open your business, click <strong>“Ask for reviews”</strong>, and copy the short <code>https://g.page/r/…</code> link.<br /><br />
+        <strong>Yelp:</strong> open your page on <a href="https://www.yelp.com" target="_blank" rel="noopener noreferrer" style={{ color: '#1a4baa' }}>yelp.com</a> and copy the address-bar URL (<code>yelp.com/biz/…</code>).<br /><br />
+        <strong>Facebook:</strong> go to your Facebook Page and copy its URL.
       </HelpBox>
     </div>
   );
@@ -225,14 +257,33 @@ function ReviewLinkPanel({ onDone }) {
 function TestRequestPanel({ customer, onDone }) {
   const [name, setName] = useState(customer?.name || '');
   const [email, setEmail] = useState(customer?.email || '');
+  const [brandColor, setBrandColor] = useState('#f5c842');
+  const [brandLogo, setBrandLogo] = useState('');
+  const [buttonText, setButtonText] = useState('Share Your Feedback →');
+  const [tpl, setTpl] = useState({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState(null);
+
+  useEffect(() => { (async () => {
+    try {
+      const res = await axios.get(`${API}/templates`, { headers: authHeaders() });
+      const t = res.data.template || {};
+      setTpl(t);
+      if (t.brandColor) setBrandColor(t.brandColor);
+      if (t.brandLogo) setBrandLogo(t.brandLogo);
+      if (t.buttonText) setButtonText(t.buttonText);
+    } catch (e) { /* defaults */ }
+  })(); }, []);
 
   async function send() {
     if (!email.trim()) { setErr('Please enter an email.'); return; }
     setSending(true); setErr(null);
     try {
+      // Save branding to the template first, so the test email reflects it.
+      await axios.put(`${API}/templates`, {
+        template: { ...tpl, brandColor, brandLogo: brandLogo.trim() || null, buttonText },
+      }, { headers: authHeaders() }).catch(() => {});
       await axios.post(`${API}/review-requests/send`, { name: name.trim(), email: email.trim() }, { headers: authHeaders() });
       setSent(true);
       onDone();
@@ -241,30 +292,62 @@ function TestRequestPanel({ customer, onDone }) {
     } finally { setSending(false); }
   }
 
-  if (sent) return <Note tone="success">Sent! Check <strong>{email}</strong> to see exactly what your customers receive.</Note>;
+  if (sent) return <Note tone="success">Sent! Check <strong>{email}</strong> to see exactly what your customers receive — with your branding.</Note>;
 
   return (
     <div>
       <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 14px', lineHeight: 1.5 }}>
-        Send a real request to <strong>yourself</strong> first, so you can see what customers get.
+        Add your branding, then send a real request to <strong>yourself</strong> so you see exactly what customers get.
       </p>
+
+      {/* Branding */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div style={{ flex: '0 0 auto' }}>
+          <label style={labelStyle}>Brand color</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)}
+              style={{ width: 42, height: 42, border: '1.5px solid #e4e0d8', borderRadius: 11, background: '#fff', cursor: 'pointer', padding: 2 }} />
+            <input value={brandColor} onChange={e => setBrandColor(e.target.value)} style={{ ...fieldStyle, width: 110 }} placeholder="#f5c842" />
+          </div>
+        </div>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <label style={labelStyle}>Logo URL <span style={{ color: '#a8a39a' }}>(optional)</span></label>
+          <input value={brandLogo} onChange={e => setBrandLogo(e.target.value)} style={fieldStyle} placeholder="https://yoursite.com/logo.png" />
+        </div>
+      </div>
+
+      {/* Live preview of the branded email header/button */}
+      <div style={{ marginBottom: 14 }}>
+        <label style={labelStyle}>Preview</label>
+        <div style={{ border: '1px solid #e4e0d8', borderRadius: 14, padding: '20px', textAlign: 'center', background: '#fff' }}>
+          {brandLogo.trim()
+            ? <img src={brandLogo.trim()} alt="" style={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain', marginBottom: 12 }} onError={e => { e.target.style.display = 'none'; }} />
+            : <div style={{ fontFamily: '"Playfair Display", serif', fontWeight: 900, fontSize: '1.1rem', color: '#0a0a0a', marginBottom: 12 }}>{customer?.name || 'Your Business'}</div>}
+          <div style={{ fontSize: '.84rem', color: '#1a1a18', marginBottom: 14 }}>How was your experience with us?</div>
+          <span style={{ display: 'inline-block', background: brandColor, color: '#0a0a0a', borderRadius: 50, padding: '10px 22px', fontWeight: 700, fontSize: '.85rem' }}>
+            {buttonText}
+          </span>
+        </div>
+      </div>
+
       <div style={{ marginBottom: 12 }}>
         <label style={labelStyle}>Your name</label>
         <input value={name} onChange={e => setName(e.target.value)} style={fieldStyle} placeholder="Your name" />
       </div>
       <div style={{ marginBottom: 12 }}>
-        <label style={labelStyle}>Your email</label>
+        <label style={labelStyle}>Send test to</label>
         <input value={email} onChange={e => setEmail(e.target.value)} style={fieldStyle} placeholder="you@business.com" />
       </div>
       {err && <Note tone="error">{err}</Note>}
       <div style={{ marginTop: 14 }}>
         <button onClick={send} disabled={sending} style={{ ...primaryBtn, opacity: sending ? .6 : 1 }}>
-          {sending ? 'Sending…' : 'Send test request'}
+          {sending ? 'Sending…' : 'Save branding & send test'}
         </button>
       </div>
       <HelpBox title="What happens when I click this?">
-        We email a real review request to the address above — the same message your customers
-        would get. Using your own email lets you preview the full experience before going live.
+        We save your color and logo to your review template, then email a real request to the address
+        above — the exact branded message your customers will get. No hosted logo yet? Leave it blank and
+        we’ll show your business name instead; you can add a logo later in Settings.
       </HelpBox>
     </div>
   );
@@ -427,65 +510,6 @@ function AiCriteriaPanel({ onDone }) {
 }
 
 // ── STEP: Review platforms (Yelp + Facebook) ─────────────────────────────────
-function ReviewPlatformsPanel({ onDone }) {
-  const [loc, setLoc] = useState(null);
-  const [yelp, setYelp] = useState('');
-  const [fb, setFb] = useState('');
-  const [google, setGoogle] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState(null);
-
-  useEffect(() => { (async () => {
-    try {
-      const res = await axios.get(`${API}/locations/review-urls`, { headers: authHeaders() });
-      const rows = res.data.locations || res.data || [];
-      const first = Array.isArray(rows) ? rows[0] : null;
-      if (first) { setLoc(first); setYelp(first.yelp_review_url || ''); setFb(first.facebook_review_url || ''); setGoogle(first.google_review_url || null); }
-    } catch (e) { /* blank */ }
-  })(); }, []);
-
-  async function save() {
-    if (!yelp.trim() && !fb.trim()) { setErr('Add at least one platform link.'); return; }
-    if (!loc?.id) { setErr('Add your business details first.'); return; }
-    setSaving(true); setErr(null);
-    try {
-      await axios.put(`${API}/locations/${loc.id}/review-urls`, {
-        googleReviewUrl: google, facebookReviewUrl: fb.trim() || null, yelpReviewUrl: yelp.trim() || null,
-      }, { headers: authHeaders() });
-      onDone();
-    } catch (e) {
-      setErr(e.response?.data?.error || 'Could not save. Please try again.');
-    } finally { setSaving(false); }
-  }
-
-  return (
-    <div>
-      <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 12px', lineHeight: 1.5 }}>
-        Add the other places customers review you, so detractor feedback can be routed and your presence tracked.
-      </p>
-      <div style={{ marginBottom: 12 }}>
-        <label style={labelStyle}>Yelp page URL</label>
-        <input value={yelp} onChange={e => setYelp(e.target.value)} style={fieldStyle} placeholder="https://www.yelp.com/biz/your-business" />
-      </div>
-      <div style={{ marginBottom: 12 }}>
-        <label style={labelStyle}>Facebook page URL</label>
-        <input value={fb} onChange={e => setFb(e.target.value)} style={fieldStyle} placeholder="https://www.facebook.com/yourbusiness" />
-      </div>
-      {err && <Note tone="error">{err}</Note>}
-      <div style={{ marginTop: 12 }}>
-        <button onClick={save} disabled={saving} style={{ ...primaryBtn, opacity: saving ? .6 : 1 }}>
-          {saving ? 'Saving…' : 'Save platforms'}
-        </button>
-      </div>
-      <HelpBox>
-        <strong>Yelp:</strong> open your business page on <a href="https://www.yelp.com" target="_blank" rel="noopener noreferrer" style={{ color: '#1a4baa' }}>yelp.com</a> and
-        copy the URL from the address bar — it looks like <code>yelp.com/biz/your-business</code>.<br /><br />
-        <strong>Facebook:</strong> go to your Facebook Page and copy its URL — the part after <code>facebook.com/</code> is your page.
-      </HelpBox>
-    </div>
-  );
-}
-
 // ── STEP: Auto-reply tone (manual) ───────────────────────────────────────────
 const TONES = [
   { id: 'warm', label: 'Warm & friendly' },
@@ -493,7 +517,7 @@ const TONES = [
   { id: 'casual', label: 'Casual' },
   { id: 'grateful', label: 'Grateful & humble' },
 ];
-function AutoReplyTonePanel({ onDone }) {
+function AutoReplyTonePanel({ customer, onDone }) {
   const [loc, setLoc] = useState(null);
   const [tone, setTone] = useState('warm');
   const [always, setAlways] = useState('');
@@ -503,11 +527,11 @@ function AutoReplyTonePanel({ onDone }) {
 
   useEffect(() => { (async () => {
     try {
-      const res = await axios.get(`${API}/locations`, { headers: authHeaders() });
+      const res = await axios.get(`${API}/locations?customerId=${customer?.id}`, { headers: authHeaders() });
       const first = (res.data.locations || [])[0];
       if (first) { setLoc(first); setTone(first.tone || 'warm'); setAlways(first.always_include || ''); setNever(first.never_include || ''); }
     } catch (e) { /* blank */ }
-  })(); }, []);
+  })(); }, [customer]);
 
   async function save() {
     if (!loc?.id) { setErr('Add your business details first.'); return; }
@@ -562,17 +586,39 @@ function AutoReplyTonePanel({ onDone }) {
 }
 
 // ── STEP: Connect a CRM / scheduling tool (OAuth — deep-link) ────────────────
-function ConnectIntegrationPanel() {
+function ConnectIntegrationPanel({ onDone }) {
   const router = useRouter();
+  const [skipping, setSkipping] = useState(false);
+  const [err, setErr] = useState(null);
+
+  async function skip() {
+    setSkipping(true); setErr(null);
+    try {
+      await axios.post(`${API}/onboarding/step/connect_integration/complete`, {}, { headers: authHeaders() });
+      onDone && onDone();
+    } catch (e) {
+      setErr('Could not save. Please try again.');
+      setSkipping(false);
+    }
+  }
+
   return (
     <div>
       <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 8px', lineHeight: 1.55 }}>
-        Connect the tool you already use to run jobs or appointments, and SwarmReply will automatically ask
-        for a review after each completed job — no manual sending.
+        Connect a CRM or scheduling tool you already use, and SwarmReply will automatically ask for a
+        review after each completed job — no manual sending. Don’t use one? You can skip this.
       </p>
-      <div style={{ marginTop: 12 }}>
+      {err && <Note tone="error">{err}</Note>}
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 12 }}>
         <button onClick={() => router.push('/dashboard/integrations')} style={primaryBtn}>
           Browse integrations →
+        </button>
+        <button onClick={skip} disabled={skipping} style={{
+          background: 'transparent', color: '#7a7670', border: '1.5px solid #e4e0d8', borderRadius: 50,
+          padding: '12px 22px', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: '.88rem',
+          opacity: skipping ? .6 : 1,
+        }}>
+          {skipping ? 'Saving…' : "I'll integrate another day"}
         </button>
       </div>
       <HelpBox title="What can I connect?">
@@ -590,7 +636,6 @@ export const STEP_PANELS = {
   test_request:        TestRequestPanel,
   keywords:            KeywordsPanel,
   ai_criteria:         AiCriteriaPanel,
-  review_platforms:    ReviewPlatformsPanel,
   auto_reply_config:   AutoReplyTonePanel,
   connect_integration: ConnectIntegrationPanel,
 };
