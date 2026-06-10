@@ -4,6 +4,7 @@
 // ============================================
 
 import { useState, useEffect } from 'react';
+import { FEATURES } from '../../utils/featureFlags';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
@@ -13,12 +14,12 @@ import Link from 'next/link';
 const TABS = [
   { id: 'ai',           label: 'AI Replies'       },
   { id: 'webchat',      label: 'Webchat & AI Agent'},
-  { id: 'integrations', label: 'Social Media Connections' },
+  { id: 'integrations', label: 'Social Posting Accounts', flag: 'socialPosting' },
   { id: 'reviewlinks',  label: 'Review Links'     },
   { id: 'account',      label: 'Account'          },
   { id: 'team',         label: 'Team'             },
   { id: 'billing',      label: 'Billing'          },
-];
+].filter(t => !t.flag || FEATURES[t.flag]);
 
 const TONES = [
   { id: 'warm',         label: 'Warm & Friendly', desc: 'Personal, caring, uses customer\'s name' },
@@ -135,6 +136,7 @@ function AITab() {
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Reply preferences</div>
           <Field label="Always include"><input style={inp} value={alwaysInclude} onChange={e => setAlways(e.target.value)} placeholder="e.g. family-owned, since 2012" /></Field>
           <Field label="Never include"><input style={inp} value={neverInclude} onChange={e => setNever(e.target.value)} placeholder="e.g. competitor names, discounts" /></Field>
+          {FEATURES.autoReply && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid #f0eeea' }}>
             <div>
               <div style={{ fontSize: '.875rem', fontWeight: 500 }}>Auto-reply enabled</div>
@@ -142,6 +144,7 @@ function AITab() {
             </div>
             <Toggle on={autoReply} onChange={setAutoReply} />
           </div>
+          )}
           {saved && <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#1a6b45', marginBottom: 10 }}>✓ Saved</div>}
           {saveError && <div style={{ background: '#fdecea', border: '1px solid #f5c6cb', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#a4282a', marginBottom: 10 }}>{saveError}</div>}
           <button onClick={save} disabled={saving} style={{ ...btn(true), width: '100%', padding: 12, marginTop: 8, opacity: saving ? .6 : 1 }}>{saving ? 'Saving…' : 'Save AI settings'}</button>

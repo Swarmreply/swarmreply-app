@@ -4,6 +4,7 @@
 // ============================================
 
 import React, { useState, useEffect } from 'react';
+import { FEATURES } from '../../utils/featureFlags';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
@@ -11,11 +12,11 @@ import axios from 'axios';
 const API = process.env.NEXT_PUBLIC_API_URL;
 const TABS = [
   { id: 'list',       label: 'Campaigns'    },
-  { id: 'social',     label: 'Social Posts' },
+  { id: 'social',     label: 'Social Posts', flag: 'socialPosting' },
   { id: 'contacts',   label: 'Contacts'    },
   { id: 'segments',   label: 'Segments'    },
   { id: 'compliance', label: 'Compliance'  },
-];
+].filter(t => !t.flag || FEATURES[t.flag]);
 
 function authHeaders() {
   const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';

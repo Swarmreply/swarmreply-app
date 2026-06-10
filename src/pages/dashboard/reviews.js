@@ -4,6 +4,7 @@
 // ============================================
 
 import { useState, useEffect } from 'react';
+import { FEATURES } from '../../utils/featureFlags';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
@@ -15,8 +16,8 @@ import { ApprovalsPanel } from './approvals';
 const TABS = [
   { id: 'all',       label: 'All reviews' },
   { id: 'alerts',    label: 'Alerts' },
-  { id: 'approvals', label: 'Approvals' },
-];
+  { id: 'approvals', label: 'Approvals', flag: 'autoReply' },
+].filter(t => !t.flag || FEATURES[t.flag]);
 
 const STARS = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
 
