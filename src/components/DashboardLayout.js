@@ -18,14 +18,14 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 const BOTTOM_NAV = [
   { href: '/dashboard',               icon: '⊞', label: 'Home'       },
   { href: '/dashboard/reviews',       icon: '★', label: 'Reviews'    },
-  { href: '/dashboard/ai-visibility', icon: '✦', label: 'AI'         },
+  { href: '/dashboard/get-found',     icon: '✦', label: 'Get Found'  },
   { href: '/dashboard/grow',          icon: '↑', label: 'Grow'       },
   { href: '/dashboard/inbox',         icon: '💬', label: 'Inbox'     },
 ];
 
 const MORE_NAV = [
   { href: '/dashboard/campaigns',  icon: '📣', label: 'Campaigns'  },
-  { href: '/dashboard/pulse',      icon: '◎', label: 'Pulse'       },
+  { href: '/dashboard/pulse',      icon: '◎', label: 'Reports'     },
   { href: '/dashboard/integrations', icon: '⊕', label: 'Integrations' },
   { href: '/dashboard/settings',   icon: '⚙', label: 'Settings'   },
 ];
