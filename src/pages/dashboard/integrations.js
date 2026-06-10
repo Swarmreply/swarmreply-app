@@ -201,8 +201,12 @@ function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }
 
   async function handleDisconnect() {
     if (!confirm(`Disconnect ${integration.name}? Review request triggers from this source will stop.`)) return;
-    await axios.delete(`${API}/integrations/${integration.id}`, { headers: authH() }).catch(() => {});
-    onDisconnect();
+    try {
+      await axios.delete(`${API}/integrations/${integration.id}`, { headers: authH() });
+      onDisconnect();
+    } catch (err) {
+      alert(`Could not disconnect ${integration.name} — please try again. (${err.response?.data?.error || err.message})`);
+    }
   }
 
   return (
