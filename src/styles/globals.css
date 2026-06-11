@@ -240,6 +240,14 @@ input, select, textarea { font-size: 16px !important; }
   .m-grid-1 { grid-template-columns: 1fr !important; }
   .m-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
   .m-survey-row { grid-template-columns: minmax(0, 1fr) 90px !important; }
+
+  /* Inbox: master-detail becomes stacked rows (list on top, thread below) */
+  .m-inbox {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 38% 62%;
+    height: calc(100dvh - 117px - var(--mobile-nav-height)) !important;
+  }
+  .m-inbox > div:first-child { border-right: none !important; border-bottom: 1px solid #e4e0d8; }
 }
 
 /* ── SMALL MOBILE (≤ 420px) ── */
