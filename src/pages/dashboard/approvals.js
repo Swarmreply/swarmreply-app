@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Skeleton } from '../../components/Skeleton';
 import { useAuth } from '../../hooks/useAuth';
+import { useRouter } from 'next/router';
+import { FEATURES } from '../../utils/featureFlags';
 import axios from 'axios';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -228,6 +230,10 @@ export function ApprovalsPanel() {
 }
 
 export default function Approvals() {
+  // AI Replies ships in Q3 — until then this page redirects home.
+  const router = useRouter();
+  useEffect(() => { if (!FEATURES.autoReply) router.replace('/dashboard/reviews'); }, [router]);
+  if (!FEATURES.autoReply) return null;
   return (
     <DashboardLayout title="Reply Approvals">
       <ApprovalsPanel />

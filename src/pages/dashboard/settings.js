@@ -14,7 +14,7 @@ import { useRouter } from 'next/router';
 import { RepWidgetPanel } from './reputation-widget';
 
 const TABS = [
-  { id: 'ai',           label: 'AI Replies'       },
+  { id: 'ai',           label: 'AI Replies',      flag: 'autoReply' }, // hidden until Q3 launch
   { id: 'webchat',      label: 'Webchat & AI Agent'},
   { id: 'integrations', label: 'Social Posting Accounts', flag: 'socialPosting' },
   { id: 'reviewlinks',  label: 'Review Links'     },
@@ -167,7 +167,7 @@ function AITab() {
       <Card style={{ padding: 20 }}>
         <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Setup wizard</div>
         <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14 }}>
-          Walk through connecting your first location, AI reply settings, and review generation.
+          Walk through connecting your first location and generating your first reviews.
         </div>
         <button
           onClick={() => {
@@ -1072,7 +1072,7 @@ function TeamTab() {
 }
 
 export default function Settings() {
-  const [tab, setTab] = useState('ai');
+  const [tab, setTab] = useState(TABS[0]?.id || 'account');
 
   const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, widget: <RepWidgetPanel />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
 

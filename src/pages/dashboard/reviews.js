@@ -4,7 +4,6 @@
 // ============================================
 
 import { useState, useEffect } from 'react';
-import { FEATURES } from '../../utils/featureFlags';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
@@ -12,11 +11,12 @@ import { getReviews, getLocations } from '../../utils/api';
 import EmptyState from '../../components/EmptyState';
 import { Skeleton } from '../../components/Skeleton';
 import { ApprovalsPanel } from './approvals';
+import { FEATURES } from '../../utils/featureFlags';
 
 const TABS = [
   { id: 'all',       label: 'All reviews' },
   { id: 'alerts',    label: 'Alerts' },
-  { id: 'approvals', label: 'Approvals', flag: 'autoReply' },
+  { id: 'approvals', label: 'Approvals', flag: 'autoReply' }, // AI reply approvals — hidden until Q3 launch
 ].filter(t => !t.flag || FEATURES[t.flag]);
 
 const STARS = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
@@ -68,7 +68,7 @@ function ReviewCard({ review, onReply }) {
       )}
       {review.reply_text && (
         <div style={{ background: '#f8f7f4', borderRadius: 10, padding: '12px 14px', marginTop: 10, borderLeft: '3px solid #f5c842' }}>
-          <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 5 }}>AI Reply</div>
+          <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 5 }}>{FEATURES.autoReply ? 'AI Reply' : 'Reply'}</div>
           <p style={{ fontSize: '.84rem', color: '#3a3a38', lineHeight: 1.65 }}>{review.reply_text}</p>
         </div>
       )}

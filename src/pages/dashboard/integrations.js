@@ -24,7 +24,7 @@ const INTEGRATIONS = [
     icon:        '🔍',
     color:       '#4285F4',
     category:    'Reviews',
-    description: 'Sync reviews, AI replies, listings, and Google Posts.',
+    description: 'Sync reviews, listings, and Google Posts.',
     trigger:     'Monitors reviews automatically',
     authType:    'oauth',
   },
