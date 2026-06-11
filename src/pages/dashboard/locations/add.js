@@ -228,7 +228,7 @@ export default function AddLocation() {
 
               <div style={{ marginBottom: 20 }}>
                 <label style={labelStyle}>Reply Tone</label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {[
                     { value: 'warm', label: 'Warm & Friendly', desc: 'Personal and approachable' },
                     { value: 'professional', label: 'Professional', desc: 'Formal and polished' },
