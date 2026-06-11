@@ -365,94 +365,314 @@ export default function Integrations() {
 
   const connectedCount = integrations.filter(i => i.status === 'connected').length;
 
-  const filtered = INTEGRATIONS.filter(i =>
-    category === 'All' || i.category === category
-  );
+  // ── Page tab + filters ──────────────────────────────────────────────────────
+  const [pageTab, setPageTab]   = useState('integrations');
+  const [search, setSearch]     = useState('');
+  const [byName, setByName]     = useState('');
+
+  const isConnected = (id) => {
+    const c = getConnected(id);
+    return c && c.status === 'connected';
+  };
+
+  const filtered = INTEGRATIONS.filter(i => {
+    // Jump-to-integration dropdown overrides the other filters
+    if (byName) return i.id === byName;
+    if (category === 'Connected' && !isConnected(i.id)) return false;
+    if (category !== 'All' && category !== 'Connected' && i.category !== category) return false;
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      const hay = `${i.name} ${i.subtitle || ''} ${i.category || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const selectStyle = {
+    padding: '10px 14px', borderRadius: 10, border: '1.5px solid #e4e0d8',
+    background: 'white', fontSize: '.84rem', fontFamily: 'inherit',
+    color: '#1a1a18', cursor: 'pointer', outline: 'none', minWidth: 170,
+  };
 
   return (
     <DashboardLayout title="Integrations">
       <div className="page-padding" style={{ padding: 24 }}>
 
-        {/* Header stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 24 }}>
-          <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '16px 20px' }}>
-            <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 }}>Connected</div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>{connectedCount}</div>
-          </div>
-          <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '16px 20px' }}>
-            <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 }}>Available</div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>{INTEGRATIONS.length}</div>
-          </div>
-          <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '16px 20px' }}>
-            <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 }}>Also via Zapier</div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>7,000+</div>
-          </div>
-        </div>
-
-        {/* Category filter */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
-          {CATEGORIES.map(cat => (
-            <button key={cat} onClick={() => setCategory(cat)} style={{
-              padding: '6px 14px', borderRadius: 50,
-              border: '1.5px solid', borderColor: category === cat ? '#0a0a0a' : '#e4e0d8',
-              background: category === cat ? '#0a0a0a' : 'white',
-              color: category === cat ? 'white' : '#7a7670',
-              fontSize: '.8rem', fontWeight: category === cat ? 700 : 500,
-              cursor: 'pointer', fontFamily: 'inherit', transition: 'all .15s',
-            }}>{cat}</button>
+        {/* Page tabs */}
+        <div style={{ display: 'flex', gap: 2, borderBottom: '1px solid #e4e0d8', marginBottom: 20 }}>
+          {[{ id: 'integrations', label: 'Integrations' }, { id: 'zapier', label: 'Zapier' }].map(t => (
+            <button key={t.id} onClick={() => setPageTab(t.id)} style={{
+              padding: '12px 18px', border: 'none', background: 'transparent', cursor: 'pointer',
+              fontSize: '.875rem', fontWeight: pageTab === t.id ? 700 : 500, fontFamily: 'inherit',
+              color: pageTab === t.id ? '#0a0a0a' : '#7a7670',
+              borderBottom: pageTab === t.id ? '2px solid #0a0a0a' : '2px solid transparent',
+            }}>{t.label}</button>
           ))}
         </div>
 
-        {/* Integration cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-            : filtered.map(integration => (
-            <IntegrationCard
-              key={integration.id}
-              integration={integration}
-              connectedData={getConnected(integration.id)}
-              onConnect={load}
-              onDisconnect={load}
-            />
-          ))}
-        </div>
-
-        {/* Zapier banner */}
-        <div style={{ background: '#0a0a0a', borderRadius: 16, padding: '24px 28px', marginTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20 }}>
-          <div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.1rem', fontWeight: 900, color: 'white', marginBottom: 5 }}>Need a different integration?</div>
-            <div style={{ fontSize: '.84rem', color: 'rgba(255,255,255,.5)', lineHeight: 1.6 }}>
-              Connect SwarmReply to 7,000+ apps via Zapier — Mailchimp, ActiveCampaign, Slack, QuickBooks, and more.
+        {pageTab === 'integrations' && (
+          <>
+            {/* Search + filter dropdowns */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
+              <input
+                type="search"
+                placeholder="Search integrations…"
+                value={search}
+                onChange={e => { setSearch(e.target.value); setByName(''); }}
+                style={{
+                  flex: '1 1 220px', padding: '10px 16px', borderRadius: 10,
+                  border: '1.5px solid #e4e0d8', fontSize: '.84rem',
+                  fontFamily: 'inherit', outline: 'none', background: 'white',
+                }}
+              />
+              <select
+                value={category}
+                onChange={e => { setCategory(e.target.value); setByName(''); }}
+                style={selectStyle}
+              >
+                <option value="All">All categories</option>
+                <option value="Connected">Connected ({connectedCount})</option>
+                {CATEGORIES.filter(c => c !== 'All').map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <select
+                value={byName}
+                onChange={e => { setByName(e.target.value); setSearch(''); setCategory('All'); }}
+                style={selectStyle}
+              >
+                <option value="">Jump to integration…</option>
+                {[...INTEGRATIONS].sort((a, b) => a.name.localeCompare(b.name)).map(i => (
+                  <option key={i.id} value={i.id}>{i.name}</option>
+                ))}
+              </select>
+              {(search || byName || category !== 'All') && (
+                <button
+                  onClick={() => { setSearch(''); setByName(''); setCategory('All'); }}
+                  style={{ padding: '10px 14px', borderRadius: 50, border: '1.5px solid #e4e0d8',
+                    background: 'white', fontSize: '.78rem', fontWeight: 600,
+                    cursor: 'pointer', fontFamily: 'inherit', color: '#7a7670' }}
+                >Clear</button>
+              )}
             </div>
-          </div>
-          <a href="https://zapier.com/apps/swarmreply" target="_blank" rel="noreferrer"
-            style={{ padding: '10px 22px', borderRadius: 50, background: '#f5c842', color: '#0a0a0a',
-              fontWeight: 700, fontSize: '.875rem', textDecoration: 'none', flexShrink: 0 }}>
-            Browse Zapier →
-          </a>
-        </div>
-      </div>
 
-      {/* API Key & Zapier — merged from Settings */}
-      <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 16, padding: 24, marginTop: 20 }}>
-        <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 16 }}>API Key & Zapier</div>
-        <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 12, padding: '14px 16px', marginBottom: 14 }}>
-          <div style={{ fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>Your API Key</div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <code style={{ flex: 1, fontFamily: 'monospace', fontSize: '.78rem', background: 'white', border: '1px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18' }}>sr_live_••••••••••••••••••••</code>
-            <button style={{ padding: '6px 14px', borderRadius: 50, border: '1.5px solid #e4e0d8', background: 'white', fontSize: '.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Copy</button>
-          </div>
-          <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 8 }}>Use this key to authenticate requests to the SwarmReply API and Zapier.</div>
-        </div>
-        <div style={{ background: '#0a0a0a', borderRadius: 12, padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-          <div>
-            <div style={{ fontSize: '.84rem', fontWeight: 700, color: 'white', marginBottom: 4 }}>Connect Zapier</div>
-            <div style={{ fontSize: '.75rem', color: 'rgba(255,255,255,.5)' }}>Access 7,000+ apps — trigger review requests from any tool</div>
-          </div>
-          <a href="https://zapier.com" target="_blank" rel="noopener noreferrer" style={{ padding: '8px 18px', borderRadius: 50, background: '#f5c842', color: '#0a0a0a', fontWeight: 700, fontSize: '.82rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>Browse Zapier →</a>
-        </div>
+            {/* Integration cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {loading
+                ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+                : filtered.length === 0
+                ? (
+                  <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14,
+                    padding: 40, textAlign: 'center', color: '#7a7670', fontSize: '.875rem' }}>
+                    No integrations match — try a different search or category.
+                  </div>
+                )
+                : filtered.map(integration => (
+                <IntegrationCard
+                  key={integration.id}
+                  integration={integration}
+                  connectedData={getConnected(integration.id)}
+                  onConnect={load}
+                  onDisconnect={load}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {pageTab === 'zapier' && <ZapierTab />}
       </div>
     </DashboardLayout>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ZAPIER TAB — triggers/actions docs, setup steps, API key management
+// ════════════════════════════════════════════════════════════════════════════
+
+const ZAP_TRIGGERS = [
+  { name: 'New Review', desc: 'Fires the moment a new review arrives on any of your connected platforms (Google, Facebook). Use it to post reviews to Slack, log them in a spreadsheet, or thank customers automatically.' },
+  { name: 'New Negative Review (1–2 Stars)', desc: 'Fires immediately when a 1 or 2 star review arrives. Use it to alert your team, create urgent tasks, or trigger escalation workflows.' },
+];
+
+const ZAP_ACTIONS = [
+  { name: 'Send Review Request', desc: 'Send a personalised email review request to a customer or patient. Works with any appointment, booking, or CRM system.' },
+  { name: 'Create Contact', desc: "Register a customer or patient in SwarmReply. Tracked contacts won't receive duplicate review requests in future imports." },
+  { name: 'Get Location Stats', desc: 'Pull the current reputation stats for a location: total reviews, average rating, response rate, and more. Pair with Schedule by Zapier to post weekly digests to Slack.' },
+  { name: 'Find Location', desc: 'Find a SwarmReply location by name — use it to get the Location ID for other steps.' },
+  { name: 'Find Contact', desc: 'Check whether a customer has already received a review request, so you never send duplicates.' },
+];
+
+function ZapierTab() {
+  const [keyStatus, setKeyStatus] = useState(null); // { exists, hint, createdAt }
+  const [newKey, setNewKey]       = useState('');
+  const [busy, setBusy]           = useState(false);
+  const [error, setError]         = useState('');
+  const [copied, setCopied]       = useState(false);
+
+  useEffect(() => { loadKey(); }, []);
+
+  async function loadKey() {
+    try {
+      const res = await axios.get(`${API}/zapier/key`, { headers: authH() });
+      setKeyStatus(res.data);
+    } catch {
+      setKeyStatus({ exists: false });
+    }
+  }
+
+  async function generateKey(rotating) {
+    if (rotating && !confirm('Rotate your API key? Your existing Zaps will stop working until you paste the new key into Zapier.')) return;
+    setBusy(true); setError(''); setCopied(false);
+    try {
+      const res = await axios.post(`${API}/zapier/key`, {}, { headers: authH() });
+      setNewKey(res.data.key);
+      await loadKey();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Could not generate a key. Please try again.');
+    } finally { setBusy(false); }
+  }
+
+  async function disconnect() {
+    if (!confirm('Disconnect Zapier? Your API key will be revoked and all active Zap triggers will stop immediately.')) return;
+    setBusy(true); setError('');
+    try {
+      await axios.delete(`${API}/zapier/key`, { headers: authH() });
+      setNewKey('');
+      await loadKey();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Could not disconnect. Please try again.');
+    } finally { setBusy(false); }
+  }
+
+  function copyKey() {
+    navigator.clipboard?.writeText(newKey).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  }
+
+  const sectionTitle = { fontWeight: 700, fontSize: '.9rem', marginBottom: 12 };
+  const card = { background: 'white', border: '1px solid #e4e0d8', borderRadius: 16, padding: 24, marginBottom: 16 };
+
+  return (
+    <div>
+      {/* Intro */}
+      <div style={{ ...card, background: '#0a0a0a', border: 'none' }}>
+        <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.15rem', fontWeight: 900, color: 'white', marginBottom: 6 }}>
+          Connect SwarmReply to 7,000+ apps
+        </div>
+        <div style={{ fontSize: '.84rem', color: 'rgba(255,255,255,.55)', lineHeight: 1.7 }}>
+          Zapier links SwarmReply with the tools you already use — Slack, Google Sheets, Mailchimp,
+          QuickBooks, your CRM, and thousands more. Reviews flow out the moment they arrive, and
+          review requests can be triggered from any app, no code required.
+        </div>
+      </div>
+
+      {/* API key */}
+      <div style={card}>
+        <div style={sectionTitle}>Your API key</div>
+        {error && (
+          <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 10,
+            padding: '10px 14px', fontSize: '.82rem', color: '#c0392b', marginBottom: 12 }}>{error}</div>
+        )}
+
+        {newKey ? (
+          <div style={{ background: '#fef9e7', border: '1.5px solid #f5c842', borderRadius: 12, padding: '14px 16px', marginBottom: 4 }}>
+            <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: '#92690a', marginBottom: 8 }}>
+              Copy this key now — it won't be shown again
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <code style={{ flex: 1, fontFamily: 'monospace', fontSize: '.78rem', background: 'white',
+                border: '1px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18',
+                overflowX: 'auto', whiteSpace: 'nowrap' }}>{newKey}</code>
+              <button onClick={copyKey} style={{ padding: '8px 16px', borderRadius: 50,
+                border: 'none', background: '#0a0a0a', color: 'white', fontSize: '.78rem',
+                fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+                {copied ? 'Copied ✓' : 'Copy'}
+              </button>
+            </div>
+            <div style={{ fontSize: '.74rem', color: '#92690a', marginTop: 8 }}>
+              Paste it into Zapier when the SwarmReply app asks for your API key.
+            </div>
+          </div>
+        ) : keyStatus === null ? (
+          <div style={{ color: '#7a7670', fontSize: '.84rem' }}>Loading…</div>
+        ) : keyStatus.exists ? (
+          <>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+              <code style={{ flex: 1, fontFamily: 'monospace', fontSize: '.78rem', background: '#f8f7f4',
+                border: '1px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18' }}>
+                sr_live_••••••••••••{keyStatus.hint}
+              </code>
+            </div>
+            <div style={{ fontSize: '.75rem', color: '#7a7670', marginBottom: 14 }}>
+              {keyStatus.createdAt ? `Created ${new Date(keyStatus.createdAt).toLocaleDateString()}. ` : ''}
+              For security we only store a fingerprint — if you've lost the key, rotate it to get a new one.
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button onClick={() => generateKey(true)} disabled={busy} style={{ padding: '9px 18px',
+                borderRadius: 50, border: '1.5px solid #e4e0d8', background: 'white', fontSize: '.8rem',
+                fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Rotate key</button>
+              <button onClick={disconnect} disabled={busy} style={{ padding: '9px 18px',
+                borderRadius: 50, border: '1.5px solid #fca5a5', background: 'white', fontSize: '.8rem',
+                fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', color: '#c0392b' }}>Disconnect Zapier</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: '.84rem', color: '#7a7670', lineHeight: 1.7, marginBottom: 14 }}>
+              Generate an API key to connect Zapier. The key authenticates the SwarmReply Zapier app
+              with your account — you'll paste it in once during Zap setup.
+            </div>
+            <button onClick={() => generateKey(false)} disabled={busy} style={{ padding: '11px 24px',
+              borderRadius: 50, border: 'none', background: '#0a0a0a', color: 'white',
+              fontSize: '.84rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {busy ? 'Generating…' : 'Generate API key'}
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Setup steps */}
+      <div style={card}>
+        <div style={sectionTitle}>How to connect</div>
+        {[
+          ['1', 'Generate your API key above and copy it.'],
+          ['2', 'In Zapier, create a new Zap and search for "SwarmReply" when choosing a trigger or action.'],
+          ['3', 'When Zapier asks you to sign in to SwarmReply, paste your API key.'],
+          ['4', "Build your Zap — pick a trigger or action below, map the fields, and turn it on."],
+        ].map(([n, text]) => (
+          <div key={n} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 10 }}>
+            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#f5c842', color: '#0a0a0a',
+              fontSize: '.72rem', fontWeight: 800, display: 'flex', alignItems: 'center',
+              justifyContent: 'center', flexShrink: 0 }}>{n}</div>
+            <div style={{ fontSize: '.84rem', color: '#3a3a38', lineHeight: 1.6 }}>{text}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Triggers */}
+      <div style={card}>
+        <div style={sectionTitle}>Triggers — when something happens in SwarmReply</div>
+        {ZAP_TRIGGERS.map(t => (
+          <div key={t.name} style={{ padding: '12px 0', borderBottom: '1px solid #f0eeea' }}>
+            <div style={{ fontSize: '.84rem', fontWeight: 700, marginBottom: 4 }}>⚡ {t.name}</div>
+            <div style={{ fontSize: '.8rem', color: '#7a7670', lineHeight: 1.6 }}>{t.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Actions */}
+      <div style={card}>
+        <div style={sectionTitle}>Actions — make SwarmReply do something from another app</div>
+        {ZAP_ACTIONS.map(a => (
+          <div key={a.name} style={{ padding: '12px 0', borderBottom: '1px solid #f0eeea' }}>
+            <div style={{ fontSize: '.84rem', fontWeight: 700, marginBottom: 4 }}>▸ {a.name}</div>
+            <div style={{ fontSize: '.8rem', color: '#7a7670', lineHeight: 1.6 }}>{a.desc}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
