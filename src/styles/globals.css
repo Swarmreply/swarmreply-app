@@ -57,10 +57,11 @@ body {
 
 /* ── MOBILE NAV BAR ── */
 .mobile-nav-bar {
-  display: none !important;
+  display: none;
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: var(--mobile-nav-height);
+  height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: #0a0a0a;
   border-top: 1px solid rgba(255,255,255,.08);
   z-index: 200;
@@ -198,7 +199,7 @@ input, select, textarea { font-size: 16px !important; }
   .dashboard-sidebar.mobile-open { transform: translateX(0); z-index: 250; }
   .dashboard-main {
     margin-left: 0;
-    padding-bottom: var(--mobile-nav-height);
+    padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
   }
 
   /* Bottom nav visible */
@@ -245,7 +246,7 @@ input, select, textarea { font-size: 16px !important; }
   .m-inbox {
     grid-template-columns: 1fr !important;
     grid-template-rows: 38% 62%;
-    height: calc(100dvh - 117px - var(--mobile-nav-height)) !important;
+    height: calc(100dvh - 117px - var(--mobile-nav-height) - env(safe-area-inset-bottom, 0px)) !important;
   }
   .m-inbox > div:first-child { border-right: none !important; border-bottom: 1px solid #e4e0d8; }
 }
