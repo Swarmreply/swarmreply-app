@@ -6,6 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { FEATURES } from '../../utils/featureFlags';
 import DashboardLayout from '../../components/DashboardLayout';
+import { StatCard, Button as KitButton } from '../../components/ui';
+import EmptyState from '../../components/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -27,15 +29,6 @@ function Card({ children, style = {} }) {
   return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
 }
 
-function StatCard({ label, value, sub }) {
-  return (
-    <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '16px 18px' }}>
-      <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>{value}</div>
-      {sub && <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 4 }}>{sub}</div>}
-    </div>
-  );
-}
 
 function UsageMeter({ used = 634, limit = 2000 }) {
   const pct = Math.round((used / limit) * 100);
@@ -248,7 +241,10 @@ function SocialPostsTab() {
       {view === 'history' && (
         <div>
           {posts.length === 0 ? (
-            <div style={{ padding:40, textAlign:'center', color:'#7a7670' }}>No posts yet.</div>
+            <div style={{ padding: 16 }}>
+              <EmptyState compact title="No posts yet"
+                description="Create your first post and it will publish to every connected platform at once." />
+            </div>
           ) : posts.map(post => {
             const platforms = SOCIAL_PLATFORMS.filter(p => post.platforms.includes(p.id));
             return (
@@ -322,10 +318,9 @@ function SocialPostsTab() {
                   </div>
                 ))}
               </div>
-              <button disabled={!contentType} onClick={() => setStep('platforms')}
-                style={{ marginTop:20, padding:'11px 28px', borderRadius:50, background: contentType ? '#0a0a0a' : '#f0eeea', color: contentType ? 'white' : '#c8c4bc', border:'none', cursor: contentType ? 'pointer' : 'not-allowed', fontWeight:700, fontSize:'.875rem', fontFamily:'inherit' }}>
+              <KitButton disabled={!contentType} onClick={() => setStep('platforms')} variant="dark" style={{ marginTop:20 }}>
                 Next: Choose platforms →
-              </button>
+              </KitButton>
             </div>
           )}
 
@@ -374,10 +369,9 @@ function SocialPostsTab() {
               </div>
               <div style={{ display:'flex', gap:8, marginTop:20 }}>
                 <button onClick={() => setStep('type')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'#4a4a48' }}>← Back</button>
-                <button disabled={selectedPlatforms.length === 0} onClick={() => setStep('compose')}
-                  style={{ padding:'11px 28px', borderRadius:50, background: selectedPlatforms.length ? '#0a0a0a' : '#f0eeea', color: selectedPlatforms.length ? 'white' : '#c8c4bc', border:'none', cursor: selectedPlatforms.length ? 'pointer' : 'not-allowed', fontWeight:700, fontSize:'.875rem', fontFamily:'inherit' }}>
+                <KitButton disabled={selectedPlatforms.length === 0} onClick={() => setStep('compose')} variant="dark">
                   Next: Write your post →
-                </button>
+                </KitButton>
               </div>
             </div>
           )}
@@ -488,10 +482,9 @@ function SocialPostsTab() {
 
               <div style={{ display:'flex', gap:8 }}>
                 <button onClick={() => setStep('platforms')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'#4a4a48' }}>← Back</button>
-                <button disabled={!postText.trim()} onClick={() => setStep('confirm')}
-                  style={{ padding:'11px 28px', borderRadius:50, background: postText.trim() ? '#0a0a0a' : '#f0eeea', color: postText.trim() ? 'white' : '#c8c4bc', border:'none', cursor: postText.trim() ? 'pointer' : 'not-allowed', fontWeight:700, fontSize:'.875rem', fontFamily:'inherit' }}>
+                <KitButton disabled={!postText.trim()} onClick={() => setStep('confirm')} variant="dark">
                   Next: Review →
-                </button>
+                </KitButton>
               </div>
             </div>
           )}
@@ -539,10 +532,9 @@ function SocialPostsTab() {
 
               <div style={{ display:'flex', gap:8 }}>
                 <button onClick={() => setStep('compose')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid #e4e0d8', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'#4a4a48' }}>← Edit</button>
-                <button onClick={publish} disabled={publishing}
-                  style={{ flex:1, padding:'12px 28px', borderRadius:50, background: publishing ? '#f0eeea' : '#0a0a0a', color: publishing ? '#c8c4bc' : 'white', border:'none', cursor: publishing ? 'not-allowed' : 'pointer', fontWeight:700, fontSize:'.95rem', fontFamily:'inherit' }}>
+                <KitButton onClick={publish} disabled={publishing} style={{ flex:1, fontSize:'.95rem' }}>
                   {publishing ? 'Publishing…' : scheduleDate ? '🕐 Schedule post' : '🚀 Publish now'}
-                </button>
+                </KitButton>
               </div>
             </div>
           )}

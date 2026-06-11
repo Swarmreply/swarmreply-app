@@ -5,6 +5,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
+import { Button as KitButton } from '../../components/ui';
+import EmptyState from '../../components/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -108,7 +110,10 @@ export default function Inbox() {
             {loading ? (
               <div style={{ padding: 24, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>Loading…</div>
             ) : sessions.length === 0 ? (
-              <div style={{ padding: 24, textAlign: 'center', color: '#7a7670', fontSize: '.84rem' }}>No conversations</div>
+              <div style={{ padding: '24px 12px' }}>
+                <EmptyState compact title="No conversations"
+                  description="When website visitors chat with your AI agent, conversations land here." />
+              </div>
             ) : sessions.map(s => (
               <div key={s.id} onClick={() => openSession(s)} style={{
                 padding: '13px 15px', borderBottom: '1px solid #f8f7f4', cursor: 'pointer',
@@ -185,17 +190,14 @@ export default function Inbox() {
                     background: active.status === 'resolved' ? '#f8f7f4' : 'white',
                   }}
                 />
-                <button onClick={sendReply} disabled={!reply.trim() || sending || active.status === 'resolved'} style={{
-                  padding: '9px 18px', borderRadius: 50, background: '#0a0a0a', color: 'white',
-                  border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit',
-                  opacity: !reply.trim() || sending || active.status === 'resolved' ? .4 : 1,
-                }}>Send →</button>
+                <KitButton onClick={sendReply} disabled={!reply.trim() || sending || active.status === 'resolved'} variant="dark" size="sm">Send →</KitButton>
               </div>
             </>
           ) : (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', flexDirection: 'column', gap: 8 }}>
-              <div style={{ fontSize: '2rem' }}>💬</div>
-              <div style={{ fontSize: '.875rem' }}>Select a conversation</div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', flexDirection: 'column', gap: 10 }}>
+              <img src="/bee-logo.png" alt="" style={{ width: 52, height: 52, objectFit: 'contain', opacity: .85 }} />
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.05rem', fontWeight: 700, color: '#1a1a18' }}>Select a conversation</div>
+              <div style={{ fontSize: '.8rem' }}>Pick a chat from the list to read and reply</div>
             </div>
           )}
         </div>
