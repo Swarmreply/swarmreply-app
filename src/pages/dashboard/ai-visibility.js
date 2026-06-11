@@ -8,6 +8,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
+import { StatCard, Button as KitButton } from '../../components/ui';
+import EmptyState from '../../components/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -31,15 +33,6 @@ function Card({ children, style = {} }) {
   return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
 }
 
-function StatCard({ label, value, sub, accent }) {
-  return (
-    <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '16px 18px', borderTop: accent ? `3px solid ${accent}` : undefined }}>
-      <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900, color: accent || '#0a0a0a' }}>{value}</div>
-      {sub && <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 4 }} dangerouslySetInnerHTML={{ __html: sub }} />}
-    </div>
-  );
-}
 
 function ModelBadge({ name }) {
   const styles = {
@@ -104,9 +97,9 @@ function OverviewTab({ report }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
             <StatCard label="Queries run"     value={run.total_queries ?? 0}                sub="across all AI models" />
-            <StatCard label="Times mentioned" value={run.total_mentions ?? 0}              sub={`<span style="color:#1a6b45;font-weight:600">${run.visibility_score ?? 0}%</span> mention rate`} />
-            <StatCard label="Positive"        value={run.total_positive ?? 0}              accent="#1a6b45" sub="of all mentions" />
-            <StatCard label="Missed queries"  value={run.total_not_found ?? 0}              accent="#f59e0b" sub="not mentioned" />
+            <StatCard label="Times mentioned" value={run.total_mentions ?? 0}              sub={<span><span style={{ color: '#1a6b45', fontWeight: 600 }}>{run.visibility_score ?? 0}%</span> mention rate</span>} />
+            <StatCard label="Positive"        value={run.total_positive ?? 0}              accent="#1a6b45" valueColor="#1a6b45" sub="of all mentions" />
+            <StatCard label="Missed queries"  value={run.total_not_found ?? 0}              accent="#f59e0b" valueColor="#b45309" sub="not mentioned" />
           </div>
           <Card style={{ padding: 16 }}>
             <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 10 }}>Visibility by AI model</div>
@@ -380,7 +373,8 @@ function CompetitorsTab({ report }) {
           <Card style={{ padding: 20 }}>
             <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Your top moves</div>
             {recs.length === 0 ? (
-              <div style={{ fontSize: '.8rem', color: '#7a7670' }}>Run a scan to generate recommendations.</div>
+              <EmptyState compact title="No recommendations yet"
+                description="Run a scan and Wallabee will tell you exactly what to improve so AI assistants recommend your business." />
             ) : recs.map((r, i) => {
               const p = prio[r.priority] || prio.medium;
               return (
@@ -702,9 +696,9 @@ export function AiVisibilityPanel() {
               </div>
             </div>
           ) : (
-            <button onClick={triggerScan} disabled={scanning} style={{ background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8, padding: '7px 16px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.82rem' }}>
+            <KitButton onClick={triggerScan} disabled={scanning} size="sm">
               ↻ {report?.lastScanAt ? 'Run scan' : 'Run my first scan'}
-            </button>
+            </KitButton>
           )}
         </div>
       </div>

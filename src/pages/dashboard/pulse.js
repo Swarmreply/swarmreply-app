@@ -11,6 +11,7 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { getAnalytics } from '../../utils/api';
 import { Skeleton } from '../../components/Skeleton';
 import EmptyState from '../../components/EmptyState';
+import { StatCard } from '../../components/ui';
 
 const TABS = [
   { id: 'analytics',   label: 'Analytics'    },
@@ -30,15 +31,6 @@ function Card({ children, style = {} }) {
   return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: 20, ...style }}>{children}</div>;
 }
 
-function StatCard({ label, value, sub }) {
-  return (
-    <Card style={{ padding: '16px 18px' }}>
-      <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>{value}</div>
-      {sub && <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 4 }}>{sub}</div>}
-    </Card>
-  );
-}
 
 const monthLabel = (ym) => {
   const d = new Date(ym + '-01T00:00:00');

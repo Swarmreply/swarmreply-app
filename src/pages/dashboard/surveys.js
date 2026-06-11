@@ -6,6 +6,8 @@
 
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
+import { StatCard } from '../../components/ui';
+import EmptyState from '../../components/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -71,15 +73,6 @@ function NpsGauge({ score }) {
   );
 }
 
-function StatCard({ label, value, sub, subColor }) {
-  return (
-    <div style={{ background:'white', border:'1px solid #e4e0d8', borderRadius:12, padding:'16px 18px' }}>
-      <div style={{ fontSize:'0.68rem', fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase', color:'#7a7670', marginBottom:8 }}>{label}</div>
-      <div style={{ fontFamily:'Playfair Display,serif', fontSize:'2rem', fontWeight:900, lineHeight:1 }}>{value ?? '—'}</div>
-      {sub && <div style={{ fontSize:'0.75rem', color: subColor || '#7a7670', marginTop:5 }}>{sub}</div>}
-    </div>
-  );
-}
 
 function ResponseRow({ r }) {
   const sc = r.score_label === 'promoter' ? { bg:'#e8f5ef', color:'#1a6b45' }
@@ -463,8 +456,9 @@ export default function SurveysPage() {
           <>
             {/* NPS + stats row */}
             <div className="m-grid-2" style={{ display:'grid', gridTemplateColumns:'auto 1fr 1fr 1fr 1fr', gap:14, marginBottom:18, alignItems:'stretch' }}>
-              <div style={{ background:'white', border:'1.5px solid #e4e0d8', borderRadius:16, padding:'20px 28px', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', minWidth:130 }}>
-                <div style={{ fontSize:'0.68rem', fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase', color:'#7a7670', marginBottom:10 }}>NPS Score</div>
+              <div style={{ background:'white', border:'1.5px solid #e4e0d8', borderRadius:16, padding:'20px 28px', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', minWidth:130, position:'relative', overflow:'hidden' }}>
+                <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg,#f5c842,transparent)' }} />
+                <div style={{ fontSize:'0.68rem', fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase', color:'#a39e93', marginBottom:10 }}>NPS Score</div>
                 <NpsGauge score={summary.npsScore} />
                 <div style={{ fontSize:'0.68rem', color:'#b0aca6', marginTop:8, textAlign:'center' }}>-100 to +100 scale</div>
               </div>
