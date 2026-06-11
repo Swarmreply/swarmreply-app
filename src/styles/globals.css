@@ -227,6 +227,14 @@ input, select, textarea { font-size: 16px !important; }
   /* Tab rows */
   .tabs-scrollable { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .tabs-scrollable::-webkit-scrollbar { display: none; }
+
+  /* Wallabee sits above the bottom nav on phones */
+  .wallabee-launcher { bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 14px) !important; }
+  .wallabee-panel    { bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 78px) !important;
+                       height: min(480px, calc(100dvh - var(--mobile-nav-height) - 150px)) !important; }
+
+  /* iOS zooms the page when focusing inputs under 16px — prevent it app-wide */
+  input, select, textarea { font-size: 16px !important; }
 }
 
 /* ── SMALL MOBILE (≤ 420px) ── */
