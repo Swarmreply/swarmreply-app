@@ -13,6 +13,8 @@ function authHeaders() {
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 import DashboardLayout from '../../components/DashboardLayout';
+import { StatCard, Button as KitButton } from '../../components/ui';
+import EmptyState from '../../components/EmptyState';
 import { Skeleton } from '../../components/Skeleton';
 import { useRouter } from 'next/router';
 
@@ -28,15 +30,6 @@ function Card({ children, style = {} }) {
   return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
 }
 
-function StatCard({ label, value, sub }) {
-  return (
-    <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '16px 18px' }}>
-      <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>{value}</div>
-      {sub && <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 4 }}>{sub}</div>}
-    </div>
-  );
-}
 
 // ── Real Grow stats (replaces the old hardcoded numbers) ─────────────────────
 function useGrowStats() {
@@ -257,11 +250,10 @@ function RequestsTab() {
                 {Array.from({ length: 5 }).map((_, i) => <SurveyRowSkeleton key={i} />)}
               </>
             ) : filtered.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
-                <div style={{ fontSize: '1.6rem', marginBottom: 8, opacity: .5 }}>📋</div>
-                <div style={{ fontSize: '.84rem' }}>
-                  {search ? 'No surveys match your search.' : 'No completed surveys yet — send a request to get started.'}
-                </div>
+              <div style={{ padding: 16 }}>
+                <EmptyState compact
+                  title={search ? 'No matches' : 'No completed surveys yet'}
+                  description={search ? 'No surveys match your search — try different terms.' : 'Send your first request and completed surveys will land here.'} />
               </div>
             ) : filtered.map(s => (
               <div key={s.id}
@@ -317,10 +309,9 @@ function RequestsTab() {
                 style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none' }} />
             </div>
           ))}
-          <button onClick={send} disabled={sending}
-            style={{ width: '100%', padding: 11, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', marginTop: 4, opacity: sending ? .6 : 1 }}>
+          <KitButton onClick={send} disabled={sending} variant="dark" style={{ width: '100%', marginTop: 4 }}>
             {sending ? 'Sending…' : 'Send request →'}
-          </button>
+          </KitButton>
         </Card>
       </div>
 
@@ -1019,9 +1010,10 @@ function BulkSendTab() {
                 {Array.from({ length: 6 }).map((_, i) => <ContactRowSkeleton key={i} />)}
               </>
             ) : filtered.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
-                <div style={{ fontSize: '1.6rem', marginBottom: 8, opacity: .5 }}>📇</div>
-                <div style={{ fontSize: '.84rem' }}>No contacts yet — import a CSV on the Import tab to get started.</div>
+              <div style={{ padding: 16 }}>
+                <EmptyState compact
+                  title="No contacts yet"
+                  description="Import a CSV on the Import tab and your contacts will appear here, ready for bulk sending." />
               </div>
             ) : filtered.map(c => {
               const isSel = selected.includes(c.id);
@@ -1053,10 +1045,9 @@ function BulkSendTab() {
           <div style={{ fontSize: '.78rem', color: '#7a7670', lineHeight: 1.6, marginBottom: 16 }}>
             Each contact will receive your branded review request email with a link to the NPS survey. Contacts without an email are skipped.
           </div>
-          <button onClick={sendBulk} disabled={sending || selected.length === 0}
-            style={{ width: '100%', padding: 12, borderRadius: 50, background: (sending || selected.length === 0) ? '#f0eeea' : '#0a0a0a', color: (sending || selected.length === 0) ? '#c8c4bc' : 'white', border: 'none', cursor: (sending || selected.length === 0) ? 'not-allowed' : 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' }}>
+          <KitButton onClick={sendBulk} disabled={sending || selected.length === 0} variant="dark" style={{ width: '100%' }}>
             {sending ? 'Sending…' : `Send ${selected.length || ''} request${selected.length !== 1 ? 's' : ''} →`}
-          </button>
+          </KitButton>
         </Card>
       </div>
     </div>

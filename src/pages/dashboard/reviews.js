@@ -9,6 +9,7 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { getReviews, getLocations } from '../../utils/api';
 import EmptyState from '../../components/EmptyState';
+import { Button } from '../../components/ui';
 import { Skeleton } from '../../components/Skeleton';
 import { ApprovalsPanel } from './approvals';
 import { FEATURES } from '../../utils/featureFlags';
@@ -167,12 +168,7 @@ export default function Reviews() {
                   icon="⭐"
                   title="No reviews yet"
                   description="Send your first review request and new reviews will appear here automatically."
-                  action={
-                    <button onClick={() => router.push('/dashboard/grow')} style={{
-                      padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                      background: '#0a0a0a', color: 'white', fontWeight: 600, fontSize: '.85rem', fontFamily: 'inherit',
-                    }}>Send a review request</button>
-                  }
+                  action={<Button href="/dashboard/grow" size="sm">Send a review request</Button>}
                 />
               ) : (
                 <EmptyState
