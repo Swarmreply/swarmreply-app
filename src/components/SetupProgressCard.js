@@ -71,8 +71,8 @@ export default function SetupProgressCard() {
 
   return (
     <div style={{
-      background: 'white', border: '1px solid #e4e0d8', borderTop: '2px solid #f5c842',
-      borderRadius: 14, padding: '18px 22px', margin: '20px 32px 0',
+      background: 'white', border: '1.5px solid #e4e0d8', borderTop: '3px solid #f5c842',
+      borderRadius: 16, padding: '18px 22px', margin: '20px 32px 0',
       display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap',
     }}>
       <MiniRing pct={ob.pct} />
