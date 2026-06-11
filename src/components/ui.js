@@ -102,7 +102,7 @@ export function Button({ children, variant = 'gold', size = 'md', href, onClick,
 
 // ── StatCard ─────────────────────────────────
 // Big serif number with eyebrow label. Optional sub line + accent bar + link.
-export function StatCard({ label, value, sub, subColor = '#7a7670', accent, dest, loading = false }) {
+export function StatCard({ label, value, sub, subColor = '#7a7670', accent, valueColor = '#1a1a18', dest, loading = false }) {
   const inner = (
     <>
       {accent && (
@@ -120,7 +120,7 @@ export function StatCard({ label, value, sub, subColor = '#7a7670', accent, dest
       </div>
       <div style={{
         fontFamily: SERIF, fontSize: '1.9rem', fontWeight: 700,
-        color: '#1a1a18', lineHeight: 1.05, letterSpacing: '-.01em'
+        color: valueColor, lineHeight: 1.05, letterSpacing: '-.01em'
       }}>
         {loading ? '·' : value}
       </div>
