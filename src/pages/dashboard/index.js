@@ -7,7 +7,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
-import { getStats, getReviews, getLocations } from '../../utils/api';
+import { getStats, getReviews, getLocations, getOpenChatSessions, getSurveyHistory } from '../../utils/api';
+import { StatCard, QueueItem, SectionLabel } from '../../components/ui';
 import SetupProgressCard from '../../components/SetupProgressCard';
 import { Skeleton } from '../../components/Skeleton';
 
@@ -45,51 +46,6 @@ function ReviewRowSkeleton() {
 }
 
 // Stat card component
-function StatCard({ label, value, sub, subColor = '#1a6b45', href, dest, accent }) {
-  const router = useRouter();
-  const clickable = !!(href || dest);
-
-  function handleClick() {
-    if (href)  router.push(href);
-    if (dest)  router.push(dest);
-  }
-
-  return (
-    <div
-      onClick={clickable ? handleClick : undefined}
-      style={{
-        background: 'white', border: '1px solid #e4e0d8',
-        borderRadius: 14, padding: '20px 24px',
-        borderTop: accent ? `2px solid ${accent}` : undefined,
-        cursor: clickable ? 'pointer' : 'default',
-        transition: 'all .15s',
-      }}
-      onMouseEnter={e => { if (clickable) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = accent ? '0 6px 20px rgba(245,200,66,.18)' : '0 6px 20px rgba(0,0,0,.08)'; }}}
-      onMouseLeave={e => { if (clickable) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}}
-    >
-      <div style={{
-        fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em',
-        textTransform: 'uppercase', color: '#7a7670', marginBottom: 10
-      }}>{label}</div>
-      <div style={{
-        fontFamily: 'Playfair Display, serif',
-        fontSize: '2rem', fontWeight: 700, lineHeight: 1
-      }}>{value}</div>
-      {sub && (
-        <div style={{ fontSize: '0.75rem', color: '#7a7670', marginTop: 6 }}>
-          <span style={{ color: subColor, fontWeight: 600 }}>{sub}</span>
-        </div>
-      )}
-      {clickable && dest && (
-        <div style={{ fontSize: '0.65rem', color: '#7a7670', marginTop: 8, display: 'flex', alignItems: 'center', opacity: .7 }}>
-          <span style={{ flex: 1 }}>{dest.replace('/dashboard/','').replace('-',' ').replace(/\w/g, c => c.toUpperCase())}</span>
-          <span>→</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 // Review item component
 function ReviewItem({ review }) {
   const stars = '★'.repeat(review.star_rating) + '☆'.repeat(5 - review.star_rating);
@@ -193,6 +149,7 @@ export default function Dashboard() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [queue, setQueue] = useState({ sessions: [], detractors: [] });
 
   useEffect(() => {
     if (customer) loadData();
@@ -207,6 +164,18 @@ export default function Dashboard() {
 
       setStats(statsData);
       setLocations(locsData);
+
+      // Action queue — both helpers fail soft (return [])
+      const [sessions, history] = await Promise.all([
+        getOpenChatSessions(),
+        locsData.length > 0 ? getSurveyHistory(locsData[0].id) : Promise.resolve([])
+      ]);
+      const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+      const detractors = (history || []).filter(h =>
+        h.score != null && h.score <= 6 &&
+        h.sent_at && new Date(h.sent_at).getTime() > cutoff
+      );
+      setQueue({ sessions, detractors });
 
       // Load reviews for first location
       if (locsData.length > 0) {
@@ -243,10 +212,10 @@ export default function Dashboard() {
         position: 'sticky', top: 0, zIndex: 50
       }}>
         <div>
-          <h2 style={{ fontSize: '1rem', fontWeight: 600 }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, color: '#1a1a18', letterSpacing: '-.01em' }}>
             {greeting()}{customer?.name ? `, ${customer.name.split(' ')[0]}` : ''}
           </h2>
-          <p style={{ fontSize: '0.78rem', color: '#7a7670', marginTop: 1 }}>
+          <p style={{ fontSize: '0.8rem', color: '#7a7670', marginTop: 2 }}>
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
@@ -270,6 +239,45 @@ export default function Dashboard() {
       <SetupProgressCard />
 
       <div style={{ padding: '28px 32px' }}>
+
+        {/* ── Needs your attention ── */}
+        {(() => {
+          const pending = (reviews || []).filter(r => r.status === 'pending' || r.status === 'processing');
+          const items = [];
+          if (pending.length > 0) {
+            const latest = pending[0];
+            items.push(
+              <QueueItem key="reviews" icon="★" tone="amber"
+                title={`${pending.length} review${pending.length > 1 ? 's' : ''} waiting for a reply`}
+                detail={latest ? `${latest.reviewer_name || 'A customer'} · ${'★'.repeat(latest.star_rating || 0)}${latest.review_text ? ` · “${latest.review_text.slice(0, 60)}${latest.review_text.length > 60 ? '…' : ''}”` : ''}` : null}
+                actionLabel="Reply now" href="/dashboard/reviews" />
+            );
+          }
+          if (queue.sessions.length > 0) {
+            items.push(
+              <QueueItem key="chats" icon="💬" tone="blue"
+                title={`${queue.sessions.length} webchat conversation${queue.sessions.length > 1 ? 's' : ''} waiting`}
+                detail="A visitor asked to speak with you"
+                actionLabel="Open inbox" href="/dashboard/inbox" />
+            );
+          }
+          if (queue.detractors.length > 0) {
+            const d = queue.detractors[0];
+            items.push(
+              <QueueItem key="nps" icon="☹" tone="red"
+                title={`${queue.detractors.length} unhappy survey response${queue.detractors.length > 1 ? 's' : ''} this week`}
+                detail={`${d.contact_name || 'A customer'} scored ${d.score}/10 — follow up before it becomes a public review`}
+                actionLabel="View" href="/dashboard/surveys" />
+            );
+          }
+          if (loading || items.length === 0) return null;
+          return (
+            <div className="sr-fade-in" style={{ marginBottom: 28 }}>
+              <SectionLabel>Needs your attention · {items.length}</SectionLabel>
+              {items}
+            </div>
+          );
+        })()}
 
         {/* Stats grid */}
         <div className="grid-responsive-4" style={{ marginBottom: 28 }}>
