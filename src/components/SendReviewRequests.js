@@ -161,7 +161,7 @@ export default function SendReviewRequests({ location, templates }) {
 
   const inputStyle = {
     width: '100%', padding: '10px 14px',
-    border: '1px solid #e4e0d8', borderRadius: 8,
+    border: '1.5px solid #e4e0d8', borderRadius: 8,
     fontSize: '0.875rem', outline: 'none',
     fontFamily: 'DM Sans, sans-serif', background: 'white'
   };
@@ -171,7 +171,7 @@ export default function SendReviewRequests({ location, templates }) {
       {/* Daily limit banner */}
       {dailyStats && (
         <div style={{
-          background: '#f8f7f4', border: '1px solid #e4e0d8',
+          background: '#f8f7f4', border: '1.5px solid #e4e0d8',
           borderRadius: 12, padding: '12px 20px', marginBottom: 24,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: 8
@@ -201,7 +201,7 @@ export default function SendReviewRequests({ location, templates }) {
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
             padding: '8px 18px', fontSize: '0.8rem', fontWeight: 500,
-            border: '1px solid #e4e0d8',
+            border: '1.5px solid #e4e0d8',
             borderBottom: activeTab === tab.id ? '1px solid white' : '1px solid #e4e0d8',
             borderRadius: '8px 8px 0 0',
             background: activeTab === tab.id ? 'white' : '#f8f7f4',
@@ -216,7 +216,7 @@ export default function SendReviewRequests({ location, templates }) {
       {/* CONTACTS TAB */}
       {activeTab === 'contacts' && (
         <div style={{
-          background: 'white', border: '1px solid #e4e0d8',
+          background: 'white', border: '1.5px solid #e4e0d8',
           borderRadius: '0 8px 8px 8px', padding: 28
         }}>
           <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
@@ -251,7 +251,7 @@ export default function SendReviewRequests({ location, templates }) {
                   }}>Add from paste</button>
                   <label style={{
                     flex: 1, padding: '9px', borderRadius: 8,
-                    border: '1px solid #e4e0d8', background: '#f8f7f4',
+                    border: '1.5px solid #e4e0d8', background: '#f8f7f4',
                     fontSize: '0.825rem', fontWeight: 500, cursor: 'pointer',
                     textAlign: 'center', color: '#7a7670'
                   }}>
@@ -278,7 +278,7 @@ export default function SendReviewRequests({ location, templates }) {
                 </div>
                 <button onClick={addManualContact} style={{
                   width: '100%', padding: '8px', borderRadius: 8,
-                  border: '1px solid #e4e0d8', background: 'white',
+                  border: '1.5px solid #e4e0d8', background: 'white',
                   fontSize: '0.825rem', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
                 }}>+ Add contact</button>
               </div>
@@ -342,7 +342,7 @@ export default function SendReviewRequests({ location, templates }) {
               ) : (
                 <div style={{
                   maxHeight: 300, overflowY: 'auto',
-                  border: '1px solid #e4e0d8', borderRadius: 10,
+                  border: '1.5px solid #e4e0d8', borderRadius: 10,
                   marginBottom: 16
                 }}>
                   {contacts.map((c, i) => (
@@ -409,7 +409,7 @@ export default function SendReviewRequests({ location, templates }) {
       {/* HISTORY TAB */}
       {activeTab === 'history' && (
         <div style={{
-          background: 'white', border: '1px solid #e4e0d8',
+          background: 'white', border: '1.5px solid #e4e0d8',
           borderRadius: '0 8px 8px 8px', overflow: 'hidden'
         }}>
           {history.length === 0 ? (

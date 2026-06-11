@@ -104,7 +104,7 @@ export default function SetupProgressCard() {
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <button onClick={() => router.push('/onboarding')} style={{
-          background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 8,
+          background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408', border: 'none', borderRadius: 50,
           padding: '9px 18px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.84rem',
         }}>
           Continue setup →

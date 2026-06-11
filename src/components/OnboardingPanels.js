@@ -50,7 +50,7 @@ function HelpBox({ title = 'Where do I find this?', children }) {
         {open ? '▾' : '▸'} {title}
       </button>
       {open && (
-        <div style={{ marginTop: 8, background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 10, padding: '12px 14px', fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.6 }}>
+        <div style={{ marginTop: 8, background: '#f8f7f4', border: '1.5px solid #e4e0d8', borderRadius: 10, padding: '12px 14px', fontSize: '.82rem', color: '#4a4a48', lineHeight: 1.6 }}>
           {children}
         </div>
       )}
@@ -319,7 +319,7 @@ function TestRequestPanel({ customer, onDone }) {
       {/* Live preview of the branded email header/button */}
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Preview</label>
-        <div style={{ border: '1px solid #e4e0d8', borderRadius: 14, padding: '20px', textAlign: 'center', background: '#fff' }}>
+        <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '20px', textAlign: 'center', background: '#fff' }}>
           {brandLogo.trim()
             ? <img src={brandLogo.trim()} alt="" style={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain', marginBottom: 12 }} onError={e => { e.target.style.display = 'none'; }} />
             : <div style={{ fontFamily: '"Playfair Display", serif', fontWeight: 900, fontSize: '1.1rem', color: '#0a0a0a', marginBottom: 12 }}>{customer?.name || 'Your Business'}</div>}

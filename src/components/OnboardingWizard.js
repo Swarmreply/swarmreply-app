@@ -363,7 +363,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               <div style={{ marginBottom: 28 }}>
                 <div style={{
                   width: 52, height: 52, borderRadius: 14,
-                  background: '#f8f7f4', border: '1px solid #e4e0d8',
+                  background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '1.4rem', marginBottom: 16
                 }}>
@@ -419,7 +419,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               {step.n === 2 && (
                 <div>
                   <div style={{
-                    background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                     borderRadius: 14, padding: '20px 22px', marginBottom: 16
                   }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -481,7 +481,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               {step.n === 4 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{
-                    background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                     borderRadius: 12, padding: '14px 16px', marginBottom: 4,
                     fontSize: '.82rem', color: '#7a7670', lineHeight: 1.65
                   }}>

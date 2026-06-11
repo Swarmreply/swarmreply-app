@@ -167,7 +167,7 @@ export default function DashboardLayout({ children, title }) {
   if (billing?.locked) {
     return (
       <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
-        <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 20, padding: '48px 40px', maxWidth: 520, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,.08)' }}>
+        <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 20, padding: '48px 40px', maxWidth: 520, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,.08)' }}>
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '1.8rem' }}>💳</div>
           <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', fontWeight: 900, color: '#0a0a0a', marginBottom: 10 }}>Payment required</div>
           <p style={{ fontSize: '.9rem', color: '#7a7670', lineHeight: 1.75, marginBottom: 28 }}>
