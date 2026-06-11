@@ -10,12 +10,15 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { getLocations, updateLocationSettings, getAccount, updateAccount } from '../../utils/api';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { RepWidgetPanel } from './reputation-widget';
 
 const TABS = [
   { id: 'ai',           label: 'AI Replies'       },
   { id: 'webchat',      label: 'Webchat & AI Agent'},
   { id: 'integrations', label: 'Social Posting Accounts', flag: 'socialPosting' },
   { id: 'reviewlinks',  label: 'Review Links'     },
+  { id: 'widget',       label: 'Rep Widget'       },
   { id: 'account',      label: 'Account'          },
   { id: 'team',         label: 'Team'             },
   { id: 'billing',      label: 'Billing'          },
@@ -1071,7 +1074,14 @@ function TeamTab() {
 export default function Settings() {
   const [tab, setTab] = useState('ai');
 
-  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
+  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, widget: <RepWidgetPanel />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
+
+  // Allow deep-linking to a tab, e.g. /dashboard/settings?tab=widget
+  const router = useRouter();
+  useEffect(() => {
+    const qt = router.query.tab;
+    if (qt && TABS.some(t => t.id === qt)) setTab(qt);
+  }, [router.query.tab]);
 
   return (
     <DashboardLayout title="Settings">

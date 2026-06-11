@@ -1,6 +1,6 @@
 // pages/dashboard/reputation-widget.js — Item 14
 import { useState, useEffect } from 'react';
-import DashboardLayout from '../../components/DashboardLayout';
+import { useRouter } from 'next/router';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -14,7 +14,8 @@ const STYLES    = ['floating','bar','badge'];
 const POSITIONS = ['bottom-right','bottom-left','top-right','top-left'];
 const COLORS    = ['#f5c842','#0a0a0a','#1a6b45','#4285F4','#c0392b','#7c3aed','#FF7A59'];
 
-export default function ReputationWidget() {
+// Rendered as the "Rep Widget" tab inside Settings.
+export function RepWidgetPanel() {
   const { customer } = useAuth();
   const [config, setConfig]       = useState(null);
   const [embedCode, setEmbed]     = useState('');
@@ -81,7 +82,6 @@ export default function ReputationWidget() {
   const previewStars  = '★'.repeat(Math.round(previewRating)) + '☆'.repeat(5 - Math.round(previewRating));
 
   return (
-    <DashboardLayout title="Reputation Widget">
       <div className="page-padding" style={{ padding: 24 }}>
 
         {/* Stats */}
@@ -205,6 +205,12 @@ export default function ReputationWidget() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
   );
+}
+
+// The widget moved to Settings → Rep Widget; keep the old URL working.
+export default function ReputationWidgetRedirect() {
+  const router = useRouter();
+  useEffect(() => { router.replace('/dashboard/settings?tab=widget'); }, [router]);
+  return null;
 }
