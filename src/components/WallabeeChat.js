@@ -388,32 +388,30 @@ export default function WallabeeChat({ customer }) {
         </div>
       )}
 
-      {/* ── Floating bubble ── */}
-      {!open && (
-        <button onClick={() => setOpen(true)}
-          style={{
-            position: 'fixed', bottom: 38, right: 90, zIndex: 9000,
-            padding: '8px 15px', borderRadius: 50, border: '1px solid #e4e0d8',
-            background: 'white', boxShadow: '0 4px 16px rgba(0,0,0,.1)',
-            cursor: 'pointer', fontFamily: 'inherit', fontSize: '.78rem',
-            fontWeight: 700, color: '#0a0a0a', whiteSpace: 'nowrap',
-          }}>
-          Support
-        </button>
-      )}
+      {/* ── Floating launcher: one pill, bee + label ── */}
       <button onClick={() => setOpen(o => !o)} aria-label={open ? 'Close support chat' : 'Chat with Wallabee, our support bee'}
         style={{
           position: 'fixed', bottom: 24, right: 20, zIndex: 9000,
-          width: 60, height: 60, borderRadius: '50%', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 9,
+          padding: '9px 18px 9px 11px', borderRadius: 50, border: 'none', cursor: 'pointer',
           background: GOLD, boxShadow: '0 6px 24px rgba(212,165,21,.45)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'transform .15s ease',
+          fontFamily: 'inherit', transition: 'transform .15s ease',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.07)'; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; }}
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>
-        {open
-          ? <span style={{ fontSize: '1.3rem', fontWeight: 700, color: '#0a0a0a' }}>✕</span>
-          : <img src="/bee-logo.png" alt="" style={{ width: 38, height: 38, objectFit: 'contain' }} />}
+        {open ? (
+          <>
+            <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(10,10,10,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 700, color: '#0a0a0a' }}>✕</span>
+            <span style={{ fontSize: '.85rem', fontWeight: 700, color: '#0a0a0a' }}>Close</span>
+          </>
+        ) : (
+          <>
+            <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="/bee-logo.png" alt="" style={{ width: 26, height: 26, objectFit: 'contain' }} />
+            </span>
+            <span style={{ fontSize: '.85rem', fontWeight: 700, color: '#0a0a0a' }}>Support</span>
+          </>
+        )}
       </button>
     </div>
   );
