@@ -89,6 +89,18 @@ export default function Sidebar({ customer }) {
 
       <div style={{ height: 14 }} />
 
+      {/* Persistent primary action — the one thing customers should do daily */}
+      <div style={{ padding: '0 14px 14px' }}>
+        <Link href="/dashboard/grow" className="sr-btn sr-btn-gold" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408',
+          borderRadius: 50, padding: '10px 14px', fontSize: '.82rem', fontWeight: 700,
+          textDecoration: 'none'
+        }}>
+          ⚡ Send requests
+        </Link>
+      </div>
+
       {/* Primary nav */}
       <nav style={{ flex: 1 }}>
         {NAV.map((item, i) => {
