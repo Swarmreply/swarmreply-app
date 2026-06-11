@@ -277,7 +277,7 @@ export default function SurveysPage() {
 
         {/* ── SETUP TAB ── */}
         {activeTab === 'setup' && config && (
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:22 }}>
+          <div className="m-grid-1" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:22 }}>
 
             {/* Left — survey content */}
             <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
@@ -289,7 +289,7 @@ export default function SurveysPage() {
                   <label style={fl}>Survey question</label>
                   <input style={fi} value={config.question_text || ''} onChange={e => updateConfig('question_text', e.target.value)} />
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
+                <div className="m-grid-1" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
                   <div><label style={fl}>Low score label</label><input style={fi} value={config.low_label || ''} onChange={e => updateConfig('low_label', e.target.value)} placeholder="Not likely" /></div>
                   <div><label style={fl}>High score label</label><input style={fi} value={config.high_label || ''} onChange={e => updateConfig('high_label', e.target.value)} placeholder="Very likely" /></div>
                 </div>
@@ -421,7 +421,7 @@ export default function SurveysPage() {
                     ))}
                   </div>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
+                <div className="m-grid-1" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
                   <div><label style={fl}>Thank you title</label><input style={fi} value={config.thank_you_title || ''} onChange={e => updateConfig('thank_you_title', e.target.value)} /></div>
                   <div><label style={fl}>Button text</label><input style={fi} value={config.button_text || ''} onChange={e => updateConfig('button_text', e.target.value)} /></div>
                 </div>
@@ -462,7 +462,7 @@ export default function SurveysPage() {
         {activeTab === 'analytics' && (
           <>
             {/* NPS + stats row */}
-            <div style={{ display:'grid', gridTemplateColumns:'auto 1fr 1fr 1fr 1fr', gap:14, marginBottom:18, alignItems:'stretch' }}>
+            <div className="m-grid-2" style={{ display:'grid', gridTemplateColumns:'auto 1fr 1fr 1fr 1fr', gap:14, marginBottom:18, alignItems:'stretch' }}>
               <div style={{ background:'white', border:'1.5px solid #e4e0d8', borderRadius:16, padding:'20px 28px', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', minWidth:130 }}>
                 <div style={{ fontSize:'0.68rem', fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase', color:'#7a7670', marginBottom:10 }}>NPS Score</div>
                 <NpsGauge score={summary.npsScore} />
@@ -475,7 +475,7 @@ export default function SurveysPage() {
             </div>
 
             {/* Score distribution + private feedback */}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+            <div className="m-grid-1" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
               <div style={{ background:'white', border:'1px solid #e4e0d8', borderRadius:16, padding:'20px 22px' }}>
                 <div style={{ fontWeight:600, fontSize:'0.875rem', marginBottom:14 }}>Score distribution</div>
                 <div style={{ display:'flex', alignItems:'flex-end', gap:6, height:80 }}>
@@ -597,7 +597,7 @@ export default function SurveysPage() {
                 <label style={fl}>Full name</label>
                 <input style={fi} value={sendName} onChange={e => setSendName(e.target.value)} placeholder="Jane Smith" />
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
+              <div className="m-grid-1" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
                 <div>
                   <label style={fl}>Email address</label>
                   <input style={fi} type="email" value={sendEmail} onChange={e => setSendEmail(e.target.value)} placeholder="jane@example.com" />

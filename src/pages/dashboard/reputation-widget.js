@@ -132,7 +132,7 @@ export function RepWidgetPanel() {
                 <input type="color" value={color} onChange={e => setColor(e.target.value)} style={{ width: 30, height: 30, borderRadius: '50%', border: '2px solid #e4e0d8', cursor: 'pointer', padding: 0 }} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 5 }}>CTA button text</label>
                   <input value={ctaText} onChange={e => setCtaText(e.target.value)} maxLength={40} style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: 16, fontFamily: 'inherit', outline: 'none' }} />

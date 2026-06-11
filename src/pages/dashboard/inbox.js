@@ -91,7 +91,7 @@ export default function Inbox() {
 
   return (
     <DashboardLayout title="Inbox">
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: 'calc(100vh - 117px)', overflow: 'hidden' }}>
+      <div className="m-inbox" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: 'calc(100vh - 117px)', overflow: 'hidden' }}>
 
         {/* Session list */}
         <div style={{ borderRight: '1px solid #e4e0d8', display: 'flex', flexDirection: 'column', background: 'white', overflow: 'hidden' }}>

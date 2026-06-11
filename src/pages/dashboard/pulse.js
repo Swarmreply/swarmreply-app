@@ -122,7 +122,7 @@ function AnalyticsTab({ data, loading }) {
         )}
       </Card>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         {/* Rating distribution */}
         <Card>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 16 }}>Rating distribution</div>

@@ -604,7 +604,7 @@ export default function Campaigns() {
           <>
             <UsageMeter used={usage.used || usage.campaign_sms_sent || 634}
       limit={usage.limit || usage.sms_limit || 2000} />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+            <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
               <StatCard label="Total sent" value={(usage.total_sent ?? 0).toLocaleString()} sub="Across all campaigns" />
               <StatCard label="Campaigns sent" value={(usage.total_campaigns ?? 0).toLocaleString()} sub="Completed campaigns" />
               <StatCard label="SMS remaining" value={Math.max(0, (usage.limit || 2000) - (usage.used || 0)).toLocaleString()} sub={"of " + (usage.limit || 2000).toLocaleString() + " this month"} />

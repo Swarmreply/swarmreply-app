@@ -99,10 +99,10 @@ function OverviewTab({ report }) {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 16, marginBottom: 18 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 16, marginBottom: 18 }}>
         <ScoreGauge score={run.visibility_score ?? 0} delta={run.prev_visibility != null ? run.visibility_score - run.prev_visibility : 0} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+          <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
             <StatCard label="Queries run"     value={run.total_queries ?? 0}                sub="across all AI models" />
             <StatCard label="Times mentioned" value={run.total_mentions ?? 0}              sub={`<span style="color:#1a6b45;font-weight:600">${run.visibility_score ?? 0}%</span> mention rate`} />
             <StatCard label="Positive"        value={run.total_positive ?? 0}              accent="#1a6b45" sub="of all mentions" />
@@ -125,7 +125,7 @@ function OverviewTab({ report }) {
           </Card>
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         <Card style={{ overflow: 'hidden' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8' }}>
             <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Where AI mentioned you ✓</div>
@@ -204,7 +204,7 @@ function ByModelTab({ report }) {
               </div>
             </div>
             {open && (
-              <div style={{ borderTop:'1px solid #e4e0d8', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' }}>
+              <div className="m-grid-1" style={{ borderTop:'1px solid #e4e0d8', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' }}>
                 <div style={{ padding:'14px 16px', borderRight:'1px solid #e4e0d8' }}>
                   <div style={{ fontSize:'.69rem', fontWeight:700, color:'#7a7670', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Mention snippets</div>
                   {(m.snippets||[]).length===0 ? <div style={{ fontSize:'.78rem', color:'#c8c4bc' }}>No mentions yet</div> : (m.snippets||[]).map((s,i)=>(
@@ -260,7 +260,7 @@ function ResultsTab({ report }) {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:18 }}>
+      <div className="m-grid-2" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:18 }}>
         {[
           {label:'Mentions this scan',value:wowTotal,sub:'of '+rows.length+' queries',c:'#0a0a0a'},
           {label:'vs last scan',value:(wowDelta>=0?'+':'')+wowDelta,sub:wowDelta>0?'improvement':wowDelta<0?'decline':'no change',c:wowDelta>0?'#1a6b45':wowDelta<0?'#c0392b':'#7a7670'},
@@ -338,7 +338,7 @@ function CompetitorsTab({ report }) {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
         {/* LEFT: leaderboard with "why they're favored" */}
         <Card style={{ overflow: 'hidden', height: 'fit-content' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>AI competitor leaderboard</div>
@@ -508,7 +508,7 @@ function QueriesTab() {
   return (
     <div style={{ padding: 24 }}>
       {/* Header info */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16, marginBottom: 20 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16, marginBottom: 20 }}>
         <Card style={{ padding: 18 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <div>
@@ -547,7 +547,7 @@ function QueriesTab() {
         </Card>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
 
         {/* Unified query list — all editable */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
