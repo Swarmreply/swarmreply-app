@@ -25,7 +25,6 @@ const NAV = [
 
   { href: '/dashboard/settings',          label: 'Settings',      icon: '⚙',  group: 'Account' },
   { href: '/dashboard/integrations',      label: 'Integrations',  icon: '⊕',  group: 'Account' },
-  { href: '/dashboard/reputation-widget', label: 'Rep Widget',    icon: '★',  group: 'Account' },
 ];
 
 const sbi = (active) => ({
@@ -41,7 +40,7 @@ export default function Sidebar({ customer }) {
   const { logout, member } = useAuth();
   const router = useRouter();
 
-  // Live stats for the nav badge + Swarm Active pill (replaces hardcoded numbers)
+  // Live stats for the Reviews nav badge (replaces the old hardcoded count)
   const [liveStats, setLiveStats] = useState(null);
   useEffect(() => {
     const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : null;
@@ -84,16 +83,6 @@ export default function Sidebar({ customer }) {
           <span style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.16rem', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-.02em', position: 'relative', top: -2 }}>
             SwarmReply
           </span>
-        </div>
-      </div>
-
-      {/* Swarm active pill */}
-      <div style={{ margin: '12px 10px 0', background: 'linear-gradient(135deg,rgba(245,200,66,.22),rgba(245,200,66,.10))', border: '1px solid rgba(245,200,66,.35)', borderRadius: 10, padding: '10px 13px' }}>
-        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'rgba(245,200,66,.9)', letterSpacing: '.07em', textTransform: 'uppercase', marginBottom: 3 }}>✦ Swarm Active</div>
-        <div style={{ fontSize: '0.71rem', color: 'rgba(255,255,255,.38)', lineHeight: 1.5 }}>
-          {liveStats
-            ? `AI replied to ${parseInt(liveStats.replied_this_week) || 0} review${(parseInt(liveStats.replied_this_week) || 0) === 1 ? '' : 's'} this week · ${parseInt(liveStats.flagged_reviews) || 0} issue${(parseInt(liveStats.flagged_reviews) || 0) === 1 ? '' : 's'}`
-            : 'Monitoring your reviews'}
         </div>
       </div>
 
