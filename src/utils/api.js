@@ -73,6 +73,12 @@ export async function updateAccount(data) {
   return res.data;
 }
 
+// Support — in-app support form (dashboard → Support)
+export async function sendSupportRequest({ subject, message }) {
+  const res = await api.post('/support', { subject, message });
+  return res.data;
+}
+
 export async function createLocation(data) {
   const res = await api.post('/locations', data);
   return res.data.location;
