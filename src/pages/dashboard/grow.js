@@ -38,6 +38,48 @@ function StatCard({ label, value, sub }) {
   );
 }
 
+// ── Real Grow stats (replaces the old hardcoded numbers) ─────────────────────
+function useGrowStats() {
+  const [growStats, setGrowStats] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    axios.get(`${API}/grow/stats`, { headers: authHeaders() })
+      .then(res => { if (!cancelled) setGrowStats(res.data); })
+      .catch(() => { if (!cancelled) setGrowStats(null); });
+    return () => { cancelled = true; };
+  }, []);
+  return growStats;
+}
+
+const deltaSub = (d, unit = '') =>
+  d == null ? null : d > 0 ? `↑ +${d}${unit} vs last month` : d < 0 ? `↓ ${d}${unit} vs last month` : 'Same as last month';
+
+function RequestStatsRow() {
+  const g = useGrowStats();
+  const r = g?.requests;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+      <StatCard label="Sent this month" value={r ? r.sent : '—'} sub={r ? deltaSub(r.sentDelta) : 'Last 30 days'} />
+      <StatCard label="Reviews generated" value={r ? r.completed : '—'} sub={r ? deltaSub(r.completedDelta) : 'Last 30 days'} />
+      <StatCard label="Conversion rate" value={r && r.conversionRate != null ? `${r.conversionRate}%` : '—'} sub="Requests → reviews" />
+      <StatCard label="Pending requests" value={r ? Math.max(0, r.sent - r.completed) : '—'} sub="Awaiting a review" />
+    </div>
+  );
+}
+
+function SurveyStatsRow() {
+  const g = useGrowStats();
+  const s = g?.surveys;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+      <StatCard label="Surveys sent" value={s ? s.sent : '—'} sub="Last 30 days" />
+      <StatCard label="Response rate" value={s && s.responseRate != null ? `${s.responseRate}%` : '—'} sub={s && s.responseRate != null ? 'Industry avg ~45%' : 'No surveys sent yet'} />
+      <StatCard label="Avg NPS score" value={s && s.avgNps != null ? s.avgNps : '—'} sub={s ? deltaSub(s.avgNpsDelta) || 'Last 30 days' : 'Last 30 days'} />
+      <StatCard label="Promoters routed" value={s ? s.promotersRouted : '—'} sub="To Google review page" />
+    </div>
+  );
+}
+
 // Loading placeholder matching a survey table row (5-column grid).
 function SurveyRowSkeleton() {
   return (
@@ -161,12 +203,7 @@ function RequestsTab() {
   return (
     <div style={{ padding: 24 }}>
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
-        <StatCard label="Sent this month" value="47" sub="↑ +12 vs last month" />
-        <StatCard label="Open rate"        value="68%" sub="↑ +4% vs last month" />
-        <StatCard label="Reviews generated" value="11" sub="↑ +3 vs last month" />
-        <StatCard label="Conversion rate"   value="23%" sub="Industry avg 12%" />
-      </div>
+      <RequestStatsRow />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
 
@@ -1029,12 +1066,7 @@ function BulkSendTab() {
 function SurveysTab() {
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
-        <StatCard label="Surveys sent" value="128" sub="Last 30 days" />
-        <StatCard label="Response rate" value="71%" sub="↑ Industry avg 45%" />
-        <StatCard label="Avg NPS score" value="8.4" sub="↑ +0.3 vs last month" />
-        <StatCard label="Promoters routed" value="43" sub="To Google review page" />
-      </div>
+      <SurveyStatsRow />
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>NPS breakdown</div>

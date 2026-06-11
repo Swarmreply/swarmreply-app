@@ -281,30 +281,42 @@ export default function Dashboard() {
             <>
           <StatCard
             label="Avg Rating"
-            value={`${stats?.avg_rating || '–'} ★`}
-            sub="↑ All platforms"
+            value={stats?.avg_rating != null ? `${stats.avg_rating} ★` : '—'}
+            sub="All platforms"
             dest="/dashboard/reviews"
           />
           <StatCard
             label="Total Reviews"
-            value={stats?.reviews_this_month || 0}
-            sub="↑ This month"
+            value={stats?.reviews_this_month ?? 0}
+            sub={(() => {
+              const cur = parseInt(stats?.reviews_this_month) || 0;
+              const prev = parseInt(stats?.reviews_last_month) || 0;
+              const d = cur - prev;
+              if (!stats) return 'This month';
+              if (d > 0) return `↑ +${d} vs last month`;
+              if (d < 0) return `↓ ${d} vs last month`;
+              return 'Same as last month';
+            })()}
+            subColor={(parseInt(stats?.reviews_this_month) || 0) >= (parseInt(stats?.reviews_last_month) || 0) ? '#1a6b45' : '#c0392b'}
             dest="/dashboard/reviews"
           />
           <StatCard
             label="✦ AI Visibility Score"
-            value={stats?.ai_visibility_score ? `${stats.ai_visibility_score}/100` : '73/100'}
-            sub="↑ vs last week"
+            value={stats?.ai_visibility_score != null ? `${stats.ai_visibility_score}/100` : '—'}
+            sub={stats?.ai_visibility_score != null ? 'Latest scan' : 'Run your first scan →'}
             subColor="#0a0a0a"
             accent="#f5c842"
             dest="/dashboard/ai-visibility"
           />
           <StatCard
-            dest="/dashboard/surveys"
             label="NPS Score"
-            value={stats?.nps_score ? `+${stats.nps_score}` : '+62'}
-            sub="↑ Excellent"
-            subColor="#1a6b45"
+            value={stats?.nps_score != null ? (stats.nps_score > 0 ? `+${stats.nps_score}` : `${stats.nps_score}`) : '—'}
+            sub={(() => {
+              if (stats?.nps_score == null) return 'No survey responses yet';
+              const s = stats.nps_score;
+              return s >= 50 ? 'Excellent' : s >= 30 ? 'Great' : s >= 0 ? 'Good' : 'Needs attention';
+            })()}
+            subColor={stats?.nps_score == null ? '#7a7670' : stats.nps_score >= 0 ? '#1a6b45' : '#c0392b'}
             dest="/dashboard/grow"
           />
             </>
