@@ -462,7 +462,7 @@ export default function Integrations() {
                 ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
                 : filtered.length === 0
                 ? (
-                  <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14,
+                  <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14,
                     padding: 40, textAlign: 'center', color: '#7a7670', fontSize: '.875rem' }}>
                     No integrations match — try a different search or category.
                   </div>
@@ -553,7 +553,7 @@ function ZapierTab() {
   }
 
   const sectionTitle = { fontWeight: 700, fontSize: '.9rem', marginBottom: 12 };
-  const card = { background: 'white', border: '1px solid #e4e0d8', borderRadius: 16, padding: 24, marginBottom: 16 };
+  const card = { background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 16, padding: 24, marginBottom: 16 };
 
   return (
     <div>
@@ -584,7 +584,7 @@ function ZapierTab() {
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <code style={{ flex: 1, fontFamily: 'monospace', fontSize: '.78rem', background: 'white',
-                border: '1px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18',
+                border: '1.5px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18',
                 overflowX: 'auto', whiteSpace: 'nowrap' }}>{newKey}</code>
               <button onClick={copyKey} style={{ padding: '8px 16px', borderRadius: 50,
                 border: 'none', background: '#0a0a0a', color: 'white', fontSize: '.78rem',
@@ -602,7 +602,7 @@ function ZapierTab() {
           <>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
               <code style={{ flex: 1, fontFamily: 'monospace', fontSize: '.78rem', background: '#f8f7f4',
-                border: '1px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18' }}>
+                border: '1.5px solid #e4e0d8', borderRadius: 8, padding: '8px 12px', color: '#1a1a18' }}>
                 sr_live_••••••••••••{keyStatus.hint}
               </code>
             </div>

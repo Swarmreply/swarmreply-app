@@ -32,7 +32,7 @@ const TONES = [
 ];
 
 function Card({ children, style = {} }) {
-  return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
+  return <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
 }
 
 function Toggle({ on, onChange }) {
@@ -567,7 +567,7 @@ function IntegrationsTab() {
 
                   {/* Tooltip */}
                   {tooltip === p.id && (
-                    <div style={{ marginTop: 12, background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    <div style={{ marginTop: 12, background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                       borderRadius: 10, padding: '12px 14px', fontSize: '.8rem', color: '#4a4a48', lineHeight: 1.65 }}>
                       <div style={{ fontWeight: 700, marginBottom: 6 }}>ℹ What you need</div>
                       {p.tooltip}
@@ -920,7 +920,7 @@ function TeamTab() {
   return (
     <div style={{ maxWidth: 860 }}>
       {/* Team members bar */}
-      <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '16px 20px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '16px 20px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 3 }}>Team members</div>
           <div style={{ fontSize: '.78rem', color: '#7a7670' }}>
@@ -936,7 +936,7 @@ function TeamTab() {
       {error && <div style={{ background: '#fee2e2', border: '1px solid #fecaca', borderRadius: 10, padding: '10px 14px', fontSize: '.82rem', color: '#c0392b', marginBottom: 12 }}>{error}</div>}
 
       {/* Members table */}
-      <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, overflow: 'hidden', marginBottom: 20 }}>
+      <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, overflow: 'hidden', marginBottom: 20 }}>
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>Loading team…</div>
         ) : (
@@ -1008,7 +1008,7 @@ function TeamTab() {
       {/* Role breakdown */}
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
         {Object.entries(ROLES).map(([key, role]) => (
-          <div key={key} style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '18px 20px', borderTop: `3px solid ${role.color}` }}>
+          <div key={key} style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '18px 20px', borderTop: `3px solid ${role.color}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <RoleBadge role={key} />
               <span style={{ fontSize: '.75rem', color: '#7a7670' }}>{role.description}</span>

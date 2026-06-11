@@ -27,7 +27,7 @@ const TABS = [
 ];
 
 function Card({ children, style = {} }) {
-  return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
+  return <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
 }
 
 
@@ -616,7 +616,7 @@ function TemplatesTab() {
         {/* Live email preview */}
         <div style={{ marginTop: 8 }}>
           <span style={lbl}>Email preview</span>
-          <div style={{ border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', fontFamily: 'sans-serif' }}>
+          <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', fontFamily: 'sans-serif' }}>
             {/* Banner */}
             <div style={{ background: tmpl.brandColor, padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               {tmpl.brandLogo
@@ -853,7 +853,7 @@ function TemplatesTab() {
     <div style={{ padding: 24 }}>
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20 }}>
         <div>
-          <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden' }}>
             {NAV.map(n => (
               <button key={n.id} onClick={() => setSection(n.id)}
                 style={{ width: '100%', padding: '11px 14px', border: 'none', textAlign: 'left', background: section === n.id ? '#0a0a0a' : 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.78rem', fontWeight: section === n.id ? 700 : 500, color: section === n.id ? 'white' : '#4a4a48', borderBottom: '1px solid #f0eeea', transition: 'all .12s' }}>
@@ -874,10 +874,10 @@ function TemplatesTab() {
               </div>
             </div>
             {showTest && (
-              <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 8 }}>
+              <div style={{ background: '#f8f7f4', border: '1.5px solid #e4e0d8', borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 8 }}>
                 <input placeholder="Your email or phone number..." value={testEmail} onChange={e => setTestEmail(e.target.value)}
                   style={{ flex: 1, padding: '8px 12px', border: '1.5px solid #e4e0d8', borderRadius: 8, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none' }} />
-                <button onClick={sendTest} disabled={sending} style={{ padding: '8px 16px', borderRadius: 50, background: '#f5c842', color: '#0a0a0a', border: 'none', cursor: sending ? 'not-allowed' : 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit', opacity: sending ? .7 : 1 }}>{sending ? 'Sending…' : 'Send'}</button>
+                <button onClick={sendTest} disabled={sending} style={{ padding: '8px 16px', borderRadius: 50, background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408', border: 'none', cursor: sending ? 'not-allowed' : 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit', opacity: sending ? .7 : 1 }}>{sending ? 'Sending…' : 'Send'}</button>
                 <button onClick={() => setShowTest(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7a7670', fontSize: '1rem' }}>✕</button>
               </div>
             )}

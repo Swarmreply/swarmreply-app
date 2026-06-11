@@ -26,7 +26,7 @@ function authHeaders() {
 }
 
 function Card({ children, style = {} }) {
-  return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
+  return <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
 }
 
 

@@ -226,7 +226,7 @@ export default function Billing() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
                 {plan?.features?.map(f => (
                   <span key={f} style={{
-                    background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                     padding: '3px 10px', borderRadius: 50, fontSize: '.75rem', color: '#4a4a48'
                   }}>✓ {f}</span>
                 ))}
@@ -271,7 +271,7 @@ export default function Billing() {
           </p>
 
           {/* Per-location breakdown */}
-          <div style={{ border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
+          <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
             {pricing?.rows?.map((row, i) => (
               <div key={i} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -442,7 +442,7 @@ export default function Billing() {
 // ── STYLE HELPERS ─────────────────────────────────────────────────────────────
 
 const cardStyle = {
-  background: '#fff', border: '1px solid #e4e0d8', borderRadius: 16,
+  background: '#fff', border: '1.5px solid #e4e0d8', borderRadius: 16,
   padding: '22px 24px', marginBottom: 16
 };
 

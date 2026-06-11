@@ -30,7 +30,7 @@ function authHeaders() {
 
 // ── Shared components ─────────────────────────────────────────────────────────
 function Card({ children, style = {} }) {
-  return <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
+  return <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, ...style }}>{children}</div>;
 }
 
 
@@ -86,7 +86,7 @@ function ScoreGauge({ score = 73, delta = 8 }) {
 
 // ── OVERVIEW TAB ──────────────────────────────────────────────────────────────
 function OverviewTab({ report }) {
-  if (!report) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>No scan data yet — run your first scan to see results.</div>;
+  if (!report) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" description="Run your first scan to see how often AI assistants like ChatGPT recommend your business." /></div>;
 
   const { run, byLLM = [], bestMentions = [], missedQueries = [] } = report;
 
@@ -164,7 +164,7 @@ function OverviewTab({ report }) {
 // ── BY MODEL TAB ──────────────────────────────────────────────────────────────
 function ByModelTab({ report }) {
   const [expanded, setExpanded] = React.useState(null);
-  if (!report?.byLLM?.length) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>No scan data yet — run your first scan to see per-model results.</div>;
+  if (!report?.byLLM?.length) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" description="Run your first scan to see results broken down by AI model." /></div>;
   const models = report.byLLM;
   const meta = { chatgpt:{color:'#74aa9c',desc:'OpenAI · ChatGPT'}, gemini:{color:'#e8453c',desc:'Google · Gemini'}, claude:{color:'#0a0a0a',desc:'Anthropic · Claude'} };
   const sc = { positive:{bg:'#dcfce7',color:'#1a6b45',label:'Positive'}, neutral:{bg:'#fef9c3',color:'#92690a',label:'Neutral'}, negative:{bg:'#fee2e2',color:'#c0392b',label:'Negative'} };
@@ -316,7 +316,7 @@ function ResultsTab({ report }) {
 
 // ── COMPETITORS TAB ───────────────────────────────────────────────────────────
 function CompetitorsTab({ report }) {
-  if (!report?.topCompetitors?.length) return <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>No scan data yet — run your first scan to see who AI recommends alongside you and what to do about it.</div>;
+  if (!report?.topCompetitors?.length) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" description="Run your first scan to see who AI recommends alongside you — and what to do about it." /></div>;
   const competitors = report.topCompetitors;
   const max  = competitors[0]?.mentions || 1;
   const gaps = report.queryGaps || [];
@@ -689,7 +689,7 @@ export function AiVisibilityPanel() {
           {scanning ? (
             <span style={{ fontSize: '.82rem', color: '#92690a', fontWeight: 700 }}>↻ Scanning…</span>
           ) : report?.nextScanAt && new Date(report.nextScanAt) > new Date() ? (
-            <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 8, padding: '6px 14px', textAlign: 'right' }}>
+            <div style={{ background: '#f8f7f4', border: '1.5px solid #e4e0d8', borderRadius: 8, padding: '6px 14px', textAlign: 'right' }}>
               <div style={{ fontSize: '.7rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
               <div style={{ fontSize: '.82rem', fontWeight: 600, color: '#0a0a0a', marginTop: 2 }}>
                 {new Date(report.nextScanAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}

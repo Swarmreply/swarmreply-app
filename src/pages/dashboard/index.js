@@ -23,7 +23,7 @@ function greeting() {
 // Loading placeholder matching a stat card.
 function StatSkeleton() {
   return (
-    <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '20px 24px' }}>
+    <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '20px 24px' }}>
       <Skeleton width={90} height={11} style={{ marginBottom: 14 }} />
       <Skeleton width={70} height={26} radius={6} style={{ marginBottom: 10 }} />
       <Skeleton width={60} height={10} />
@@ -335,7 +335,7 @@ export default function Dashboard() {
         <div className="grid-responsive-2" style={{ marginBottom: 28 }}>
           {/* Reviews feed */}
           <div style={{
-            background: 'white', border: '1px solid #e4e0d8',
+            background: 'white', border: '1.5px solid #e4e0d8',
             borderRadius: 14, overflow: 'hidden'
           }}>
             <div style={{
@@ -354,7 +354,7 @@ export default function Dashboard() {
                   }}
                   style={{
                     fontSize: '0.78rem', padding: '4px 10px',
-                    border: '1px solid #e4e0d8', borderRadius: 8,
+                    border: '1.5px solid #e4e0d8', borderRadius: 8,
                     background: 'white', cursor: 'pointer'
                   }}
                 >
@@ -390,7 +390,7 @@ export default function Dashboard() {
 
           {/* Locations panel */}
           <div style={{
-            background: 'white', border: '1px solid #e4e0d8',
+            background: 'white', border: '1.5px solid #e4e0d8',
             borderRadius: 14, overflow: 'hidden'
           }}>
             <div style={{

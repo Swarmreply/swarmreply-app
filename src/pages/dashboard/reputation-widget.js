@@ -87,7 +87,7 @@ export function RepWidgetPanel() {
         {/* Stats */}
         <div className="grid-responsive-3" style={{ marginBottom: 20 }}>
           {[['Widget views',stats.views.toLocaleString(),'all time'],['Review link clicks',stats.clicks.toLocaleString(),'from widget'],['Click rate', stats.views ? ((stats.clicks/stats.views)*100).toFixed(1)+'%' : '—','views to clicks']].map(([l,v,s]) => (
-            <div key={l} style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '16px 18px' }}>
+            <div key={l} style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 12, padding: '16px 18px' }}>
               <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 }}>{l}</div>
               <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.8rem', fontWeight: 900 }}>{v}</div>
               <div style={{ fontSize: '.72rem', color: '#7a7670', marginTop: 4 }}>{s}</div>
@@ -101,7 +101,7 @@ export function RepWidgetPanel() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
             {/* Style */}
-            <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: 20 }}>
+            <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: 20 }}>
               <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Widget style</div>
               <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
                 {STYLES.map(s => (
@@ -154,18 +154,18 @@ export function RepWidgetPanel() {
             </div>
 
             {/* Embed codes */}
-            <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: 20 }}>
+            <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: 20 }}>
               <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Embed on your website</div>
 
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 }}>Floating / bar widget</div>
-                <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 9, padding: '10px 14px', fontFamily: 'monospace', fontSize: '.75rem', lineHeight: 1.6, color: '#3a3a38', wordBreak: 'break-all', marginBottom: 8 }}>{embedCode}</div>
+                <div style={{ background: '#f8f7f4', border: '1.5px solid #e4e0d8', borderRadius: 9, padding: '10px 14px', fontFamily: 'monospace', fontSize: '.75rem', lineHeight: 1.6, color: '#3a3a38', wordBreak: 'break-all', marginBottom: 8 }}>{embedCode}</div>
                 <button onClick={() => copy(embedCode)} style={{ padding: '6px 14px', borderRadius: 50, background: 'transparent', border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit', color: '#0a0a0a' }}>Copy code</button>
               </div>
 
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 }}>SVG badge (for emails, email signatures)</div>
-                <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 9, padding: '10px 14px', fontFamily: 'monospace', fontSize: '.75rem', lineHeight: 1.6, color: '#3a3a38', wordBreak: 'break-all', marginBottom: 8 }}>{badgeCode}</div>
+                <div style={{ background: '#f8f7f4', border: '1.5px solid #e4e0d8', borderRadius: 9, padding: '10px 14px', fontFamily: 'monospace', fontSize: '.75rem', lineHeight: 1.6, color: '#3a3a38', wordBreak: 'break-all', marginBottom: 8 }}>{badgeCode}</div>
                 <button onClick={() => copy(badgeCode)} style={{ padding: '6px 14px', borderRadius: 50, background: 'transparent', border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit', color: '#0a0a0a' }}>Copy badge code</button>
               </div>
 
@@ -180,10 +180,10 @@ export function RepWidgetPanel() {
 
           {/* Right — live preview */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, position: 'sticky', top: 80 }}>
-            <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: 20 }}>
+            <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: 20 }}>
               <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Live preview</div>
               <div style={{ background: '#f8f7f4', borderRadius: 10, padding: 20, minHeight: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '14px 18px', minWidth: 180, borderTop: `3px solid ${color}`, boxShadow: '0 4px 20px rgba(0,0,0,.1)' }}>
+                <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '14px 18px', minWidth: 180, borderTop: `3px solid ${color}`, boxShadow: '0 4px 20px rgba(0,0,0,.1)' }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#7a7670', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 6 }}>Google Reviews</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <span style={{ fontSize: 22, fontWeight: 900, color: '#0a0a0a', lineHeight: 1 }}>{previewRating}</span>
@@ -194,7 +194,7 @@ export function RepWidgetPanel() {
                 </div>
               </div>
             </div>
-            <div style={{ background: '#f8f7f4', border: '1px solid #e4e0d8', borderRadius: 12, padding: 16 }}>
+            <div style={{ background: '#f8f7f4', border: '1.5px solid #e4e0d8', borderRadius: 12, padding: 16 }}>
               <div style={{ fontWeight: 600, fontSize: '.78rem', marginBottom: 10 }}>Installation</div>
               {['Paste the embed code just before </body> on every page of your website.','On Squarespace, Wix, or Shopify — add a Custom Code block with the script.','On WordPress — use a plugin like "Insert Headers and Footers".','Rating updates automatically from your Google reviews — nothing to maintain.'].map((tip, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8, fontSize: '.78rem', color: '#7a7670', lineHeight: 1.55 }}>

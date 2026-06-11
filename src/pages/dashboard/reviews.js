@@ -152,7 +152,7 @@ export default function Reviews() {
           )}
 
           {loading ? (
-            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1px solid #e4e0d8', overflow: 'hidden' }}>
+            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1.5px solid #e4e0d8', overflow: 'hidden' }}>
               {Array.from({ length: 4 }).map((_, i) => <ReviewSkeletonRow key={i} />)}
             </div>
           ) : filtered.length === 0 ? (
@@ -180,7 +180,7 @@ export default function Reviews() {
               )}
             </div>
           ) : (
-            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1px solid #e4e0d8', overflow: 'hidden' }}>
+            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1.5px solid #e4e0d8', overflow: 'hidden' }}>
               {filtered.map(r => <ReviewCard key={r.id} review={r} />)}
             </div>
           )}
