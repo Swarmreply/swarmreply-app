@@ -3,7 +3,7 @@
 // 6-item nav matching final prototype design
 // ============================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../hooks/useAuth';
@@ -15,7 +15,7 @@ const Bee = () => (
 const NAV = [
   { href: '/dashboard',                   label: 'Home',          icon: '⊞',  group: 'Overview' },
 
-  { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 'Workspace', badge: 3 },
+  { href: '/dashboard/reviews',           label: 'Reviews',       icon: '★',  group: 'Workspace', liveBadge: 'pending_reviews' },
   { href: '/dashboard/inbox',             label: 'Messages',      icon: '💬', group: 'Workspace' },
   { href: '/dashboard/grow',              label: 'Grow',          icon: '↑',  group: 'Workspace' },
   { href: '/dashboard/campaigns',         label: 'Campaigns',     icon: '📣', group: 'Workspace' },
@@ -40,6 +40,19 @@ const sbi = (active) => ({
 export default function Sidebar({ customer }) {
   const { logout, member } = useAuth();
   const router = useRouter();
+
+  // Live stats for the nav badge + Swarm Active pill (replaces hardcoded numbers)
+  const [liveStats, setLiveStats] = useState(null);
+  useEffect(() => {
+    const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : null;
+    if (!t) return;
+    let cancelled = false;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/stats`, { headers: { Authorization: `Bearer ${t}` } })
+      .then(r => r.json())
+      .then(d => { if (!cancelled) setLiveStats(d?.stats || null); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   // Collapsible nav sections — all expanded by default
   const [collapsedGroups, setCollapsedGroups] = useState({});
@@ -77,7 +90,11 @@ export default function Sidebar({ customer }) {
       {/* Swarm active pill */}
       <div style={{ margin: '12px 10px 0', background: 'linear-gradient(135deg,rgba(245,200,66,.22),rgba(245,200,66,.10))', border: '1px solid rgba(245,200,66,.35)', borderRadius: 10, padding: '10px 13px' }}>
         <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'rgba(245,200,66,.9)', letterSpacing: '.07em', textTransform: 'uppercase', marginBottom: 3 }}>✦ Swarm Active</div>
-        <div style={{ fontSize: '0.71rem', color: 'rgba(255,255,255,.38)', lineHeight: 1.5 }}>AI replied to 3 reviews · 0 issues</div>
+        <div style={{ fontSize: '0.71rem', color: 'rgba(255,255,255,.38)', lineHeight: 1.5 }}>
+          {liveStats
+            ? `AI replied to ${parseInt(liveStats.replied_this_week) || 0} review${(parseInt(liveStats.replied_this_week) || 0) === 1 ? '' : 's'} this week · ${parseInt(liveStats.flagged_reviews) || 0} issue${(parseInt(liveStats.flagged_reviews) || 0) === 1 ? '' : 's'}`
+            : 'Monitoring your reviews'}
+        </div>
       </div>
 
       <div style={{ height: 14 }} />
@@ -108,15 +125,19 @@ export default function Sidebar({ customer }) {
             >
               <span style={{ width: 20, height: 20, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', flexShrink: 0 }}>{item.icon}</span>
               <span style={{ flex: 1 }}>{item.label}</span>
-              {item.badge ? (
+              {(() => {
+                const liveCount = item.liveBadge ? (parseInt(liveStats?.[item.liveBadge]) || 0) : null;
+                const badge = item.liveBadge ? liveCount : item.badge;
+                return badge ? (
                 <span style={{ background: '#c0392b', color: 'white', fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 50, minWidth: 18, textAlign: 'center' }}>
-                  {item.badge}
+                  {badge}
                 </span>
-              ) : item.isNew ? (
+                ) : null;
+              })() || (item.isNew ? (
                 <span style={{ background: '#f5c842', color: '#0a0a0a', fontSize: '0.55rem', fontWeight: 800, padding: '2px 6px', borderRadius: 50, letterSpacing: '0.03em' }}>
                   NEW
                 </span>
-              ) : null}
+              ) : null)}
             </Link>
             )}
             </React.Fragment>
