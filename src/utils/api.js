@@ -7,6 +7,8 @@
 import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+// Some helpers below were written against API_BASE — alias it so they work.
+const API_BASE = API_URL;
 
 // Create axios instance with defaults
 const api = axios.create({
