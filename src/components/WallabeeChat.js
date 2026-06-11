@@ -273,7 +273,7 @@ export default function WallabeeChat({ customer }) {
     <div style={{ fontFamily: 'DM Sans, sans-serif' }}>
       {/* ── Panel ── */}
       {open && (
-        <div style={{
+        <div className="wallabee-panel" style={{
           position: 'fixed', bottom: 96, right: 20, zIndex: 9000,
           width: 'min(360px, calc(100vw - 32px))', height: 'min(540px, calc(100vh - 140px))',
           background: '#f8f7f4', borderRadius: 18, border: '1px solid #e4e0d8',
@@ -389,7 +389,7 @@ export default function WallabeeChat({ customer }) {
       )}
 
       {/* ── Floating launcher: one pill, bee + label ── */}
-      <button onClick={() => setOpen(o => !o)} aria-label={open ? 'Close support chat' : 'Chat with Wallabee, our support bee'}
+      <button className="wallabee-launcher" onClick={() => setOpen(o => !o)} aria-label={open ? 'Close support chat' : 'Chat with Wallabee, our support bee'}
         style={{
           position: 'fixed', bottom: 24, right: 20, zIndex: 9000,
           display: 'flex', alignItems: 'center', gap: 9,

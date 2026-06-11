@@ -29,6 +29,7 @@ const MORE_NAV = [
   { href: '/dashboard/pulse',      icon: '◎', label: 'Reports'     },
   { href: '/dashboard/integrations', icon: '⊕', label: 'Integrations' },
   { href: '/dashboard/settings',   icon: '⚙', label: 'Settings'   },
+  { href: '/onboarding',           icon: '🧭', label: 'Setup Guide' },
 ];
 
 function MobileNav({ pathname, onMoreToggle, moreOpen }) {
@@ -254,8 +255,8 @@ export default function DashboardLayout({ children, title }) {
         </main>
       </div>
 
-      {/* Mobile bottom nav */}
-      {/* Mobile nav hidden — sidebar handles all navigation */}
+      {/* Mobile bottom nav — primary navigation on phones (sidebar is desktop-only) */}
+      <MobileNav pathname={router.pathname} moreOpen={moreOpen} onMoreToggle={() => setMoreOpen(o => !o)} />
 
       {/* Wallabee — floating support bee, bottom-right on every screen */}
       <WallabeeChat customer={customer} />
