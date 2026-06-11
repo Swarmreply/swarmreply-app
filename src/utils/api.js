@@ -81,6 +81,18 @@ export async function updateLocationSettings(locationId, settings) {
   return res.data;
 }
 
+// What adding one more location would cost (shown before creating it)
+export async function getLocationBillingPreview() {
+  const res = await api.get('/billing/location-preview');
+  return res.data;
+}
+
+// Activate / deactivate a location — billing adjusts automatically
+export async function setLocationActive(locationId, active) {
+  const res = await api.put(`/locations/${locationId}/active`, { active });
+  return res.data;
+}
+
 export async function getGoogleAuthUrl(locationId) {
   return `${API_URL}/auth/google?locationId=${locationId}`;
 }
