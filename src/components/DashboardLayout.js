@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Sidebar from './Sidebar';
+import WallabeeChat from './WallabeeChat';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 import { useCallback } from 'react';
@@ -255,6 +256,9 @@ export default function DashboardLayout({ children, title }) {
 
       {/* Mobile bottom nav */}
       {/* Mobile nav hidden — sidebar handles all navigation */}
+
+      {/* Wallabee — floating support bee, bottom-right on every screen */}
+      <WallabeeChat customer={customer} />
     </div>
   );
 }
