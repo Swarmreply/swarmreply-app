@@ -244,11 +244,13 @@ export default function DashboardLayout({ children, title }) {
           {title && (
             <div style={{
               background: '#fff', borderBottom: '1px solid #e4e0d8',
-              padding: '14px 20px', fontSize: '.875rem', fontWeight: 600,
-              color: '#0a0a0a', position: 'sticky', top: 0, zIndex: 50,
+              padding: '15px 24px', position: 'sticky', top: 0, zIndex: 50,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
-              <span className="topbar-title">{title}</span>
+              <span className="topbar-title" style={{
+                fontFamily: "'Playfair Display', serif", fontSize: '1.3rem',
+                fontWeight: 700, color: '#1a1a18', letterSpacing: '-.01em', lineHeight: 1.2
+              }}>{title}</span>
             </div>
           )}
           {children}
