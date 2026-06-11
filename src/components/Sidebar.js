@@ -25,6 +25,7 @@ const NAV = [
 
   { href: '/dashboard/settings',          label: 'Settings',      icon: '⚙',  group: 'Account' },
   { href: '/dashboard/integrations',      label: 'Integrations',  icon: '⊕',  group: 'Account' },
+  { href: '/onboarding',                  label: 'Setup Guide',   icon: '🧭', group: 'Account' },
 ];
 
 const sbi = (active) => ({
