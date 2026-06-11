@@ -113,10 +113,10 @@ export default function Locations() {
         {/* Empty state */}
         {locations && locations.length === 0 && !error && (
           <div style={{
-            background: 'white', border: '1px solid #e4e0d8',
+            background: 'white', border: '1.5px solid #e4e0d8',
             borderRadius: 16, padding: 48, textAlign: 'center'
           }}>
-            <div style={{ fontSize: '2.4rem', marginBottom: 12 }}>📍</div>
+            <img src="/bee-logo.png" alt="" style={{ width: 56, height: 56, objectFit: 'contain', marginBottom: 12, opacity: .92 }} />
             <h3 style={{
               fontFamily: 'Playfair Display, serif',
               fontSize: '1.3rem', fontWeight: 700, marginBottom: 8
@@ -135,7 +135,7 @@ export default function Locations() {
         {/* Location cards */}
         {locations && locations.map(loc => (
           <div key={loc.id} style={{
-            background: 'white', border: '1px solid #e4e0d8',
+            background: 'white', border: '1.5px solid #e4e0d8',
             borderRadius: 14, padding: '20px 24px', marginBottom: 14,
             opacity: loc.is_active ? 1 : 0.65
           }}>
@@ -177,7 +177,7 @@ export default function Locations() {
                   disabled={busyId === loc.id}
                   style={{
                     background: 'transparent', color: '#7a7670',
-                    border: '1px solid #e4e0d8', borderRadius: 50,
+                    border: '1.5px solid #e4e0d8', borderRadius: 50,
                     padding: '9px 18px', fontSize: '0.82rem', fontWeight: 600,
                     cursor: busyId === loc.id ? 'wait' : 'pointer',
                     fontFamily: 'DM Sans, sans-serif'

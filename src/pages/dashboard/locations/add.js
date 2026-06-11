@@ -115,7 +115,7 @@ export default function AddLocation() {
 
   const inputStyle = {
     width: '100%', padding: '12px 16px',
-    border: '1px solid #e4e0d8', borderRadius: 10,
+    border: '1.5px solid #e4e0d8', borderRadius: 10,
     fontSize: '0.9rem', outline: 'none',
     fontFamily: 'DM Sans, sans-serif',
     background: 'white', color: '#0d0d0d'
@@ -138,7 +138,7 @@ export default function AddLocation() {
   const ghostBtn = {
     width: '100%', padding: 14, borderRadius: 50,
     background: 'transparent', color: '#7a7670',
-    border: '1px solid #e4e0d8', fontSize: '0.9rem',
+    border: '1.5px solid #e4e0d8', fontSize: '0.9rem',
     cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
   };
 
@@ -193,7 +193,7 @@ export default function AddLocation() {
         {step === 1 && (
           <form onSubmit={handleDetailsContinue}>
             <div style={{
-              background: 'white', border: '1px solid #e4e0d8',
+              background: 'white', border: '1.5px solid #e4e0d8',
               borderRadius: 16, padding: 32
             }}>
               <div style={{ marginBottom: 20 }}>
@@ -303,7 +303,7 @@ export default function AddLocation() {
         {/* Step 2 — Billing confirmation (location is created only on confirm) */}
         {step === 2 && (
           <div style={{
-            background: 'white', border: '1px solid #e4e0d8',
+            background: 'white', border: '1.5px solid #e4e0d8',
             borderRadius: 16, padding: 32
           }}>
             {previewLoading && (
@@ -317,7 +317,7 @@ export default function AddLocation() {
                 {/* At the self-serve cap */}
                 {cap && (
                   <div style={{
-                    background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                     borderRadius: 10, padding: '16px 18px', marginBottom: 20
                   }}>
                     <div style={{ fontWeight: 600, marginBottom: 6 }}>You've reached {preview.maxSelfServe} locations</div>
@@ -332,7 +332,7 @@ export default function AddLocation() {
                 {/* No subscription / no card — route through the billing portal first */}
                 {!cap && noSub && (
                   <div style={{
-                    background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                     borderRadius: 10, padding: '16px 18px', marginBottom: 20
                   }}>
                     <div style={{ fontWeight: 600, marginBottom: 6 }}>No active subscription found</div>
@@ -348,7 +348,7 @@ export default function AddLocation() {
 
                 {!cap && !noSub && noCard && (
                   <div style={{
-                    background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                     borderRadius: 10, padding: '16px 18px', marginBottom: 20
                   }}>
                     <div style={{ fontWeight: 600, marginBottom: 6 }}>No payment card on file</div>
@@ -370,7 +370,7 @@ export default function AddLocation() {
                         Adding location #{preview.newLocationNumber} — {form.businessName}
                       </div>
                       <div style={{
-                        border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden'
+                        border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden'
                       }}>
                         {preview.next.rows.map((row, i) => (
                           <div key={i} style={{
@@ -394,7 +394,7 @@ export default function AddLocation() {
                     </div>
 
                     <div style={{
-                      background: '#f8f7f4', border: '1px solid #e4e0d8',
+                      background: '#f8f7f4', border: '1.5px solid #e4e0d8',
                       borderRadius: 10, padding: '14px 16px', marginBottom: 20,
                       fontSize: '0.85rem', color: '#7a7670', lineHeight: 1.7
                     }}>
@@ -460,7 +460,7 @@ export default function AddLocation() {
         {/* Step 3 — Connect Google (location exists and billing is settled) */}
         {step === 3 && location && (
           <div style={{
-            background: 'white', border: '1px solid #e4e0d8',
+            background: 'white', border: '1.5px solid #e4e0d8',
             borderRadius: 16, padding: 32, textAlign: 'center'
           }}>
             <div style={{ fontSize: '3rem', marginBottom: 16 }}>🔍</div>
@@ -478,7 +478,7 @@ export default function AddLocation() {
 
             {/* Security note */}
             <div style={{
-              background: '#f8f7f4', border: '1px solid #e4e0d8',
+              background: '#f8f7f4', border: '1.5px solid #e4e0d8',
               borderRadius: 10, padding: '14px 16px',
               marginBottom: 24, textAlign: 'left'
             }}>
