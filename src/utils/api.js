@@ -73,6 +73,21 @@ export async function updateAccount(data) {
   return res.data;
 }
 
+// Action queue (dashboard home) — both fail soft so the home never breaks
+export async function getOpenChatSessions() {
+  try {
+    const res = await api.get('/webchat/inbox', { params: { status: 'open' } });
+    return res.data.sessions || [];
+  } catch (e) { return []; }
+}
+
+export async function getSurveyHistory(locationId) {
+  try {
+    const res = await api.get(`/surveys/${locationId}/history`);
+    return res.data.history || [];
+  } catch (e) { return []; }
+}
+
 // Support — in-app support form (dashboard → Support)
 export async function sendSupportRequest({ subject, message }) {
   const res = await api.post('/support', { subject, message });
