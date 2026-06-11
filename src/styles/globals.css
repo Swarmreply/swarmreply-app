@@ -235,6 +235,11 @@ input, select, textarea { font-size: 16px !important; }
 
   /* iOS zooms the page when focusing inputs under 16px — prevent it app-wide */
   input, select, textarea { font-size: 16px !important; }
+
+  /* Inline-style grid overrides (inline styles win without !important) */
+  .m-grid-1 { grid-template-columns: 1fr !important; }
+  .m-grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
+  .m-survey-row { grid-template-columns: minmax(0, 1fr) 90px !important; }
 }
 
 /* ── SMALL MOBILE (≤ 420px) ── */
