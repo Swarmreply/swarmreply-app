@@ -18,6 +18,10 @@ const GOLD = 'linear-gradient(135deg,#f5c842,#d4a515)';
 // Help Center catalog — mirrors files/help.html on the website repo.
 // If you add articles there, add them here too so Wallabee can find them.
 const ARTICLES = [
+  { id: 'vs-birdeye', t: 'SwarmReply vs Birdeye — honest comparison', c: 'Compare', u: '/compare/birdeye-alternative.html', k: 'birdeye alternative compare versus price cheaper switch' },
+  { id: 'vs-podium', t: 'SwarmReply vs Podium — honest comparison', c: 'Compare', u: '/compare/podium-alternative.html', k: 'podium alternative compare versus price cheaper switch contract' },
+  { id: 'vs-nicejob', t: 'SwarmReply vs NiceJob — honest comparison', c: 'Compare', u: '/compare/nicejob-alternative.html', k: 'nicejob alternative compare versus reviews only' },
+  { id: 'ai-visibility-explained', t: 'AI search visibility — show up in ChatGPT answers', c: 'Get Found', u: '/ai-search-visibility.html', k: 'chatgpt gemini claude ai visibility recommendations search appear' },
   { id: 'welcome', t: 'Welcome to SwarmReply', c: 'Getting started' },
   { id: 'connect-google', t: 'How to connect Google Business Profile', c: 'Getting started' },
   { id: 'first-review-request', t: 'Sending your first review request', c: 'Getting started' },
@@ -249,7 +253,7 @@ export default function WallabeeChat({ customer }) {
   // ── styles ──
   const beeAvatar = (size) => (
     <span style={{ width: size, height: size, borderRadius: '50%', background: 'white',
-      border: '1px solid #e4e0d8', display: 'inline-flex', alignItems: 'center',
+      border: '1.5px solid #e4e0d8', display: 'inline-flex', alignItems: 'center',
       justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
       <img src="/bee-logo.png" alt="Wallabee" style={{ width: size - 8, height: size - 8, objectFit: 'contain' }} />
     </span>
@@ -259,7 +263,7 @@ export default function WallabeeChat({ customer }) {
     maxWidth: '82%', padding: '10px 14px', borderRadius: 14, fontSize: '.875rem',
     lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
     ...(who === 'bee'
-      ? { background: 'white', border: '1px solid #e4e0d8', color: '#0a0a0a', borderTopLeftRadius: 4 }
+      ? { background: 'white', border: '1.5px solid #e4e0d8', color: '#0a0a0a', borderTopLeftRadius: 4 }
       : { background: '#0a0a0a', color: 'white', borderTopRightRadius: 4, marginLeft: 'auto' }),
   });
 
@@ -276,7 +280,7 @@ export default function WallabeeChat({ customer }) {
         <div className="wallabee-panel" style={{
           position: 'fixed', bottom: 96, right: 20, zIndex: 9000,
           width: 'min(360px, calc(100vw - 32px))', height: 'min(540px, calc(100vh - 140px))',
-          background: '#f8f7f4', borderRadius: 18, border: '1px solid #e4e0d8',
+          background: '#f8f7f4', borderRadius: 18, border: '1.5px solid #e4e0d8',
           boxShadow: '0 12px 48px rgba(0,0,0,.18)', display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
         }}>
@@ -300,8 +304,8 @@ export default function WallabeeChat({ customer }) {
                 return (
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: '88%' }}>
                     {m.articles.map(a => (
-                      <a key={a.id} href={`${HELP_BASE}#${a.id}`} target="_blank" rel="noreferrer"
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, padding: '10px 13px', textDecoration: 'none' }}>
+                      <a key={a.id} href={a.u ? `https://swarmreply.com${a.u}` : `${HELP_BASE}#${a.id}`} target="_blank" rel="noreferrer"
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 12, padding: '10px 13px', textDecoration: 'none' }}>
                         <span style={{ flex: 1 }}>
                           <span style={{ display: 'block', fontSize: '.83rem', fontWeight: 600, color: '#0a0a0a' }}>{a.t}</span>
                           <span style={{ display: 'block', fontSize: '.7rem', color: '#7a7670', marginTop: 1 }}>{a.c}</span>
@@ -348,7 +352,7 @@ export default function WallabeeChat({ customer }) {
             )}
 
             {showForm && (
-              <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: 14 }}>
+              <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: 14 }}>
                 <div style={{ fontSize: '.72rem', color: '#7a7670', marginBottom: 10 }}>
                   Sending as <strong style={{ color: '#0a0a0a' }}>{customer?.email}</strong> — the team will reply there.
                 </div>
