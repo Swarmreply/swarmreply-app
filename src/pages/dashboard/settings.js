@@ -53,7 +53,7 @@ function Field({ label, children }) {
 }
 
 const inp = { width: '100%', padding: '9px 12px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none' };
-const btn = (primary) => ({ padding: '10px 22px', borderRadius: 50, border: primary ? 'none' : '1.5px solid #e4e0d8', background: primary ? '#0a0a0a' : 'transparent', color: primary ? 'white' : '#7a7670', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' });
+const btn = (primary) => ({ padding: '10px 22px', borderRadius: 50, border: primary ? 'none' : '1.5px solid #e4e0d8', background: primary ? '#0a0a0a' : 'transparent', color: primary ? 'white' : '#4a4a48', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' });
 
 function AITab() {
   const { customer } = useAuth();

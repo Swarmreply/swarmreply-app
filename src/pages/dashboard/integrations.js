@@ -210,7 +210,7 @@ function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }
   }
 
   return (
-    <div style={{
+    <div className="sr-card" style={{
       background: 'white', border: `1px solid ${connected ? '#e4e0d8' : '#e4e0d8'}`,
       borderRadius: 14, overflow: 'hidden',
       borderTop: connected ? `3px solid ${integration.color}` : '3px solid transparent',

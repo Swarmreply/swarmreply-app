@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
+import EmptyState from '../../components/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 
@@ -311,7 +312,10 @@ export default function Billing() {
         <div style={cardStyle}>
           <div style={{ ...sectionLabel, marginBottom: 14 }}>Invoice history</div>
           {invoices.length === 0 ? (
-            <div style={{ fontSize: '.875rem', color: '#7a7670', padding: '16px 0' }}>No invoices yet.</div>
+            <div style={{ padding: '8px 0' }}>
+              <EmptyState compact title="No invoices yet"
+                description="Your invoices will appear here after your first billing cycle." />
+            </div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -488,7 +492,7 @@ function btnStyle(variant) {
   };
   const variants = {
     primary: { background: '#0a0a0a', color: '#fff' },
-    gold:    { background: '#f5c842', color: '#0a0a0a' },
+    gold:    { background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408' },
     outline: { background: 'transparent', border: '1.5px solid #e4e0d8', color: '#1a1a18' },
     red:     { background: '#fee2e2', color: '#c0392b', border: '1px solid #fecaca' },
     amber:   { background: '#fef3cd', color: '#92690a', border: '1px solid #fde68a' }
