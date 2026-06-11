@@ -28,6 +28,22 @@ body {
 
 .font-serif { font-family: 'Playfair Display', serif; }
 
+/* ════ SwarmReply design kit — motion & interaction (Chunk 1) ════ */
+.sr-card { transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
+.sr-card-link { cursor: pointer; }
+.sr-card-link:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26,26,24,.08); border-color: #d8d3c8; }
+.sr-btn { transition: transform .13s ease, box-shadow .16s ease, opacity .16s ease, background .16s ease; }
+.sr-btn:hover { transform: translateY(-1px); }
+.sr-btn:active { transform: scale(.97); }
+.sr-btn-gold:hover { box-shadow: 0 8px 22px rgba(212,165,21,.38); }
+.sr-queue-item { transition: background .15s ease, border-color .15s ease; }
+.sr-queue-item:hover { background: #fdfcf9; border-color: #d8d3c8; }
+.sr-fade-in { animation: srFadeIn .35s ease both; }
+@keyframes srFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .sr-card, .sr-btn, .sr-queue-item, .sr-fade-in { transition: none; animation: none; }
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
