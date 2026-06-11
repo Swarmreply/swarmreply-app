@@ -88,7 +88,7 @@ const ARTICLES = [
 const STOP = new Set(['the','a','an','to','of','in','on','for','my','i','do',
   'how','can','is','it','me','with','and','or','what','where','when','why',
   'does','am','are','your','our','this','that','about','help','need','want',
-  'get','set','up','have','please','you','swarmreply']);
+  'get','set','up','have','please','you','swarmreply','work','works','working','use','using','make','new','still','really','just']);
 
 const SYNONYMS = {
   gbp: 'google', gmb: 'google', text: 'sms', texts: 'sms', texting: 'sms',
@@ -380,6 +380,18 @@ export default function WallabeeChat({ customer }) {
       )}
 
       {/* ── Floating bubble ── */}
+      {!open && (
+        <button onClick={() => setOpen(true)}
+          style={{
+            position: 'fixed', bottom: 38, right: 90, zIndex: 9000,
+            padding: '8px 15px', borderRadius: 50, border: '1px solid #e4e0d8',
+            background: 'white', boxShadow: '0 4px 16px rgba(0,0,0,.1)',
+            cursor: 'pointer', fontFamily: 'inherit', fontSize: '.78rem',
+            fontWeight: 700, color: '#0a0a0a', whiteSpace: 'nowrap',
+          }}>
+          Support
+        </button>
+      )}
       <button onClick={() => setOpen(o => !o)} aria-label={open ? 'Close support chat' : 'Chat with Wallabee, our support bee'}
         style={{
           position: 'fixed', bottom: 24, right: 20, zIndex: 9000,
