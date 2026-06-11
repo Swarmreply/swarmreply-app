@@ -302,7 +302,7 @@ export default function Onboarding() {
                       This step is completed on its own page.
                     </p>
                     <button onClick={() => router.push(STEP_DEST[selected.id] || '/dashboard')} style={{
-                      background: '#f5c842', color: '#0a0a0a', border: 'none', borderRadius: 50,
+                      background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408', border: 'none', borderRadius: 50,
                       padding: '12px 24px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.9rem',
                     }}>
                       Open this step →
