@@ -95,7 +95,7 @@ export function RepWidgetPanel() {
           ))}
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, alignItems: 'start' }}>
+        <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, alignItems: 'start' }}>
 
           {/* Left — config */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

@@ -102,7 +102,7 @@ function AITab() {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
+    <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16 }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {locations.length > 1 && (
           <Card style={{ padding: 20 }}>
@@ -341,7 +341,7 @@ function WebchatTab() {
         </Card>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Webchat widget</div>
           <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14, lineHeight: 1.6 }}>Embed a chat bubble on your website. Visitors start a conversation — their number is captured and moves to SMS.</div>
@@ -1006,7 +1006,7 @@ function TeamTab() {
       </div>
 
       {/* Role breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
         {Object.entries(ROLES).map(([key, role]) => (
           <div key={key} style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 14, padding: '18px 20px', borderTop: `3px solid ${role.color}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>

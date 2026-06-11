@@ -58,7 +58,7 @@ function RequestStatsRow() {
   const g = useGrowStats();
   const r = g?.requests;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+    <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
       <StatCard label="Sent this month" value={r ? r.sent : '—'} sub={r ? deltaSub(r.sentDelta) : 'Last 30 days'} />
       <StatCard label="Reviews generated" value={r ? r.completed : '—'} sub={r ? deltaSub(r.completedDelta) : 'Last 30 days'} />
       <StatCard label="Conversion rate" value={r && r.conversionRate != null ? `${r.conversionRate}%` : '—'} sub="Requests → reviews" />
@@ -71,7 +71,7 @@ function SurveyStatsRow() {
   const g = useGrowStats();
   const s = g?.surveys;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+    <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
       <StatCard label="Surveys sent" value={s ? s.sent : '—'} sub="Last 30 days" />
       <StatCard label="Response rate" value={s && s.responseRate != null ? `${s.responseRate}%` : '—'} sub={s && s.responseRate != null ? 'Industry avg ~45%' : 'No surveys sent yet'} />
       <StatCard label="Avg NPS score" value={s && s.avgNps != null ? s.avgNps : '—'} sub={s ? deltaSub(s.avgNpsDelta) || 'Last 30 days' : 'Last 30 days'} />
@@ -83,15 +83,15 @@ function SurveyStatsRow() {
 // Loading placeholder matching a survey table row (5-column grid).
 function SurveyRowSkeleton() {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px', padding: '12px 20px', borderBottom: '1px solid #f8f7f4', alignItems: 'center' }}>
+    <div className="m-survey-row" style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px', padding: '12px 20px', borderBottom: '1px solid #f8f7f4', alignItems: 'center' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Skeleton width={30} height={30} radius={50} />
         <Skeleton width={110} height={11} />
       </div>
-      <Skeleton width={140} height={10} />
+      <Skeleton className="hide-mobile" width={140} height={10} />
       <Skeleton width={60} height={18} radius={50} />
-      <Skeleton width={50} height={10} />
-      <Skeleton width={48} height={10} />
+      <Skeleton className="hide-mobile" width={50} height={10} />
+      <Skeleton className="hide-mobile" width={48} height={10} />
     </div>
   );
 }
@@ -205,7 +205,7 @@ function RequestsTab() {
       {/* Stats */}
       <RequestStatsRow />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 16 }}>
 
         {/* Survey results table */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -241,14 +241,14 @@ function RequestsTab() {
             </div>
 
             {/* Table header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
+            <div className="m-survey-row" style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
               padding: '8px 20px', background: '#f8f7f4',
               fontSize: '.67rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em' }}>
               <span>Customer</span>
-              <span>Email</span>
+              <span className="hide-mobile">Email</span>
               <span>Result</span>
-              <span>Review</span>
-              <span>Date</span>
+              <span className="hide-mobile">Review</span>
+              <span className="hide-mobile">Date</span>
             </div>
 
             {/* Rows */}
@@ -266,7 +266,7 @@ function RequestsTab() {
             ) : filtered.map(s => (
               <div key={s.id}
                 onClick={() => setSelected(s)}
-                style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
+                className="m-survey-row" style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
                   padding: '12px 20px', borderBottom: '1px solid #f8f7f4', cursor: 'pointer',
                   transition: 'background .1s', alignItems: 'center' }}
                 onMouseEnter={e => e.currentTarget.style.background='#fafaf9'}
@@ -284,17 +284,17 @@ function RequestsTab() {
                   </span>
                 </div>
                 {/* Email */}
-                <span style={{ fontSize: '.78rem', color: '#7a7670', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span className="hide-mobile" style={{ fontSize: '.78rem', color: '#7a7670', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {s.customer_email}
                 </span>
                 {/* Path badge */}
                 <span>{pathBadge(s.path, s.nps_score)}</span>
                 {/* Left review */}
-                <span style={{ fontSize: '.78rem', color: s.left_review ? '#1a6b45' : '#c8c4bc', fontWeight: 600 }}>
+                <span className="hide-mobile" style={{ fontSize: '.78rem', color: s.left_review ? '#1a6b45' : '#c8c4bc', fontWeight: 600 }}>
                   {s.left_review ? '✓ Yes' : '— No'}
                 </span>
                 {/* Date */}
-                <span style={{ fontSize: '.75rem', color: '#7a7670' }}>{fmtDate(s.completed_at)}</span>
+                <span className="hide-mobile" style={{ fontSize: '.75rem', color: '#7a7670' }}>{fmtDate(s.completed_at)}</span>
               </div>
             ))}
 
@@ -330,7 +330,7 @@ function RequestsTab() {
           {/* Backdrop */}
           <div style={{ flex: 1, background: 'rgba(0,0,0,.35)' }} onClick={() => setSelected(null)} />
           {/* Panel */}
-          <div style={{ width: 480, background: 'white', height: '100%', overflowY: 'auto',
+          <div style={{ width: 480, maxWidth: '100vw', background: 'white', height: '100%', overflowY: 'auto',
             boxShadow: '-4px 0 32px rgba(0,0,0,.12)', display: 'flex', flexDirection: 'column' }}>
             {/* Panel header */}
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #e4e0d8', display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -666,7 +666,7 @@ function TemplatesTab() {
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#7a7670', marginBottom: 20, padding: '0 2px' }}>
           {[0,1,2,3,4,5,6,7,8,9,10].map(n => <span key={n} style={{ fontWeight: 600 }}>{n}</span>)}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <TField label="Neutral starts at" hint="Scores below this are Detractors (min 1, max 7)">
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
               {[1,2,3,4,5,6,7].map(n => (
@@ -690,7 +690,7 @@ function TemplatesTab() {
             </div>
           </TField>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginTop: 8 }}>
+        <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginTop: 8 }}>
           {[
             { label: 'Detractor', range: `0–${detractorMax}`, bg: '#fee2e2', border: '#fca5a5', tc: '#c0392b', desc: 'Taken to a feedback form to share their experience.' },
             { label: 'Neutral', range: `${neutralMin}–${neutralMax}`, bg: '#fef9c3', border: '#fde68a', tc: '#92690a', desc: 'Asked if they would return. Yes → Promoter. No → Detractor.' },
@@ -744,7 +744,7 @@ function TemplatesTab() {
     ),
 
     request: (
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
         <TField label="SMS message" hint="Max 160 chars. Variables: {name} {business} {link}">
           <textarea rows={3} style={inp} maxLength={160} value={tmpl.smsRequest} onChange={e => updateTmpl('smsRequest', e.target.value)} />
           <div style={{ fontSize: '.7rem', color: tmpl.smsRequest.length > 150 ? '#c0392b' : '#7a7670', textAlign: 'right', marginTop: 4 }}>{tmpl.smsRequest.length}/160</div>
@@ -860,7 +860,7 @@ function TemplatesTab() {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20 }}>
         <div>
           <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 12, overflow: 'hidden' }}>
             {NAV.map(n => (
@@ -986,7 +986,7 @@ function BulkSendTab() {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16 }}>
         {/* Contact list */}
         <Card>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e4e0d8' }}>
@@ -1067,7 +1067,7 @@ function SurveysTab() {
   return (
     <div style={{ padding: 24 }}>
       <SurveyStatsRow />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>NPS breakdown</div>
           {[['Promoters','54%','#1a6b45'],['Passives','31%','#f59e0b'],['Detractors','15%','#c0392b']].map(([l,p,c]) => (
@@ -1190,7 +1190,7 @@ function ImportTab() {
 
   return (
     <div style={{ padding: 24 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         {/* Import card */}
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Import contacts</div>
