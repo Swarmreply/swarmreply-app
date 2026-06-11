@@ -95,6 +95,12 @@ export async function setLocationActive(locationId, active) {
   return res.data;
 }
 
+// Real Grow page stats (review requests + surveys, last 30 days)
+export async function getGrowStats() {
+  const res = await api.get('/grow/stats');
+  return res.data;
+}
+
 export async function getGoogleAuthUrl(locationId) {
   return `${API_URL}/auth/google?locationId=${locationId}`;
 }
