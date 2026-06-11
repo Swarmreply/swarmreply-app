@@ -92,13 +92,18 @@ export default function AddLocation() {
   }
 
   async function handleOpenPortal() {
+    setError('');
     try {
       const token = localStorage.getItem('swarmreply_token');
       const r = await getBillingPortalUrl(token);
-      if (r?.url) window.location.href = r.url;
-      else setError('Could not open the billing portal. Please try again.');
-    } catch {
-      setError('Could not open the billing portal. Please try again.');
+      if (r?.url) {
+        window.location.href = r.url;
+      } else {
+        // Show the backend's actual reason (e.g. "No billing account found…")
+        setError(r?.error || 'Could not open the billing portal. Please try again.');
+      }
+    } catch (err) {
+      setError(err?.message || 'Could not open the billing portal. Please try again.');
     }
   }
 
@@ -325,18 +330,31 @@ export default function AddLocation() {
                 )}
 
                 {/* No subscription / no card — route through the billing portal first */}
-                {!cap && (noSub || noCard) && (
+                {!cap && noSub && (
                   <div style={{
                     background: '#f8f7f4', border: '1px solid #e4e0d8',
                     borderRadius: 10, padding: '16px 18px', marginBottom: 20
                   }}>
-                    <div style={{ fontWeight: 600, marginBottom: 6 }}>
-                      {noSub ? 'No active subscription found' : 'No payment card on file'}
-                    </div>
+                    <div style={{ fontWeight: 600, marginBottom: 6 }}>No active subscription found</div>
+                    <p style={{ fontSize: '0.85rem', color: '#7a7670', lineHeight: 1.6 }}>
+                      Additional locations are billed to your SwarmReply subscription, and this
+                      account doesn't have one yet. If you've just signed up, your subscription
+                      may still be activating — try again in a minute. Otherwise email{' '}
+                      <a href="mailto:hello@swarmreply.com" style={{ color: '#0d0d0d' }}>hello@swarmreply.com</a>{' '}
+                      and we'll get you set up.
+                    </p>
+                  </div>
+                )}
+
+                {!cap && !noSub && noCard && (
+                  <div style={{
+                    background: '#f8f7f4', border: '1px solid #e4e0d8',
+                    borderRadius: 10, padding: '16px 18px', marginBottom: 20
+                  }}>
+                    <div style={{ fontWeight: 600, marginBottom: 6 }}>No payment card on file</div>
                     <p style={{ fontSize: '0.85rem', color: '#7a7670', lineHeight: 1.6, marginBottom: 14 }}>
-                      {noSub
-                        ? 'Additional locations are billed to your SwarmReply subscription. Open the billing portal to get your subscription set up, then come back here.'
-                        : 'Adding a location adjusts your subscription, so we need a card on file first. Add one in the secure Stripe billing portal, then come back here.'}
+                      Adding a location adjusts your subscription, so we need a card on file first.
+                      Add one in the secure Stripe billing portal, then come back here.
                     </p>
                     <button onClick={handleOpenPortal} style={primaryBtn(false)}>
                       Open billing portal →
