@@ -219,7 +219,7 @@ export default function SendReviewRequests({ location, templates }) {
           background: 'white', border: '1px solid #e4e0d8',
           borderRadius: '0 8px 8px 8px', padding: 28
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+          <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
 
             {/* Left — add contacts */}
             <div>

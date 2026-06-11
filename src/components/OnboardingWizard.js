@@ -492,7 +492,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
                     <input value={reqName} onChange={e => setReqName(e.target.value)}
                       style={fieldInput} placeholder="Sarah M." />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <div>
                       <label style={fieldLabel}>Email</label>
                       <input value={reqEmail} onChange={e => setReqEmail(e.target.value)}
