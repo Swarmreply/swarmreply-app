@@ -4,6 +4,7 @@
 // ============================================
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import BrandLogo from '../../components/BrandLogo';
@@ -470,6 +471,21 @@ export default function Integrations() {
     return c && c.status === 'connected';
   };
 
+  const router = useRouter();
+  const CHANNEL_IDS = ['google', 'facebook'];
+  const [highlightId, setHighlightId] = useState(null);
+
+  // Deep link from the setup wizard: /dashboard/integrations?connect=google
+  useEffect(() => {
+    const target = router.query?.connect;
+    if (!target || loading) return;
+    setHighlightId(String(target));
+    const el = typeof document !== 'undefined' && document.getElementById(`int-${target}`);
+    if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const t = setTimeout(() => setHighlightId(null), 4000);
+    return () => clearTimeout(t);
+  }, [router.query?.connect, loading]);
+
   const filtered = INTEGRATIONS.filter(i => {
     // Jump-to-integration dropdown overrides the other filters
     if (byName) return i.id === byName;
@@ -562,15 +578,39 @@ export default function Integrations() {
                     No integrations match — try a different search or category.
                   </div>
                 )
-                : filtered.map(integration => (
-                <IntegrationCard
-                  key={integration.id}
-                  integration={integration}
-                  connectedData={getConnected(integration.id)}
-                  onConnect={load}
-                  onDisconnect={load}
-                />
-              ))}
+                : (() => {
+                  const channels = filtered.filter(i => CHANNEL_IDS.includes(i.id));
+                  const triggers = filtered.filter(i => !CHANNEL_IDS.includes(i.id));
+                  const header = (label, sub) => (
+                    <div key={label} style={{ margin: '6px 0 2px' }}>
+                      <div style={{ fontSize: '.7rem', fontWeight: 700, letterSpacing: '.09em',
+                        textTransform: 'uppercase', color: '#a39e93' }}>{label}</div>
+                      {sub && <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2 }}>{sub}</div>}
+                    </div>
+                  );
+                  const card = (integration) => (
+                    <div key={integration.id} id={`int-${integration.id}`}
+                      style={highlightId === integration.id
+                        ? { borderRadius: 14, boxShadow: '0 0 0 3px #f5c842', transition: 'box-shadow .3s' } : undefined}>
+                      <IntegrationCard
+                        integration={integration}
+                        connectedData={getConnected(integration.id)}
+                        onConnect={load}
+                        onDisconnect={load}
+                      />
+                    </div>
+                  );
+                  return (
+                    <>
+                      {channels.length > 0 && header('Review channels',
+                        'Where your reviews live. Powers review monitoring and AI replies — connect Google first.')}
+                      {channels.map(card)}
+                      {triggers.length > 0 && header('Trigger integrations',
+                        'When to ask for reviews. Connect the tools you already use; each has its own send timing.')}
+                      {triggers.map(card)}
+                    </>
+                  );
+                })()}
             </div>
           </>
         )}

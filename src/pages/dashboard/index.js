@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
-import { getStats, getReviews, getLocations, getOpenChatSessions, getSurveyHistory } from '../../utils/api';
+import { getStats, getReviews, getLocations, getOpenChatSessions, getSurveyHistory, getIntegrationErrors } from '../../utils/api';
 import { StatCard, QueueItem, SectionLabel } from '../../components/ui';
 import SetupProgressCard from '../../components/SetupProgressCard';
 import { Skeleton } from '../../components/Skeleton';
@@ -149,7 +149,7 @@ export default function Dashboard() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [queue, setQueue] = useState({ sessions: [], detractors: [] });
+  const [queue, setQueue] = useState({ sessions: [], detractors: [], integrationErrors: [] });
 
   useEffect(() => {
     if (customer) loadData();
@@ -166,16 +166,17 @@ export default function Dashboard() {
       setLocations(locsData);
 
       // Action queue — both helpers fail soft (return [])
-      const [sessions, history] = await Promise.all([
+      const [sessions, history, integrationErrors] = await Promise.all([
         getOpenChatSessions(),
-        locsData.length > 0 ? getSurveyHistory(locsData[0].id) : Promise.resolve([])
+        locsData.length > 0 ? getSurveyHistory(locsData[0].id) : Promise.resolve([]),
+        getIntegrationErrors()
       ]);
       const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
       const detractors = (history || []).filter(h =>
         h.score != null && h.score <= 6 &&
         h.sent_at && new Date(h.sent_at).getTime() > cutoff
       );
-      setQueue({ sessions, detractors });
+      setQueue({ sessions, detractors, integrationErrors });
 
       // Load reviews for first location
       if (locsData.length > 0) {
@@ -259,6 +260,17 @@ export default function Dashboard() {
                 title={`${queue.sessions.length} webchat conversation${queue.sessions.length > 1 ? 's' : ''} waiting`}
                 detail="A visitor asked to speak with you"
                 actionLabel="Open inbox" href="/dashboard/inbox" />
+            );
+          }
+          if (queue.integrationErrors.length > 0) {
+            const ie = queue.integrationErrors[0];
+            const pretty = { stripe_trigger: 'Stripe' }[ie.provider]
+              || ie.provider.charAt(0).toUpperCase() + ie.provider.slice(1);
+            items.push(
+              <QueueItem key="integration-error" icon="⚠" tone="red"
+                title={`${pretty} integration hit an error`}
+                detail={`${ie.last_error ? ie.last_error.slice(0, 80) : 'Connection problem'} — review requests from it may be paused`}
+                actionLabel="Fix" href="/dashboard/integrations" />
             );
           }
           if (queue.detractors.length > 0) {

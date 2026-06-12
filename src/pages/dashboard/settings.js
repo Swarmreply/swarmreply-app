@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { FEATURES } from '../../utils/featureFlags';
+import SetupProgressCard from '../../components/SetupProgressCard';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
@@ -19,6 +20,7 @@ const TABS = [
   { id: 'integrations', label: 'Social Posting Accounts', flag: 'socialPosting' },
   { id: 'reviewlinks',  label: 'Review Links'     },
   { id: 'widget',       label: 'Rep Widget'       },
+  { id: 'setup',        label: 'Setup Wizard'     },
   { id: 'account',      label: 'Account'          },
   { id: 'team',         label: 'Team'             },
   { id: 'billing',      label: 'Billing'          },
@@ -684,6 +686,35 @@ function ReviewLinksTab() {
   );
 }
 
+function SetupTab() {
+  return (
+    <div style={{ maxWidth: 640 }}>
+      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.15rem', fontWeight: 700, color: '#1a1a18', marginBottom: 6 }}>
+        Setup wizard
+      </h3>
+      <p style={{ fontSize: '.85rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.6 }}>
+        The guided walkthrough that gets SwarmReply fully working — connect Google, set your review
+        links, send a test request, and switch on AI replies. You can re-open it any time; your
+        progress is saved.
+      </p>
+      <div style={{ margin: '0 -32px' }}>
+        <SetupProgressCard />
+      </div>
+      <Link href="/onboarding" className="sr-btn sr-btn-gold" style={{
+        display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 16,
+        background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408',
+        borderRadius: 50, padding: '11px 24px', fontSize: '.875rem', fontWeight: 700,
+        textDecoration: 'none',
+      }}>
+        Open the setup wizard →
+      </Link>
+      <p style={{ fontSize: '.75rem', color: '#a39e93', marginTop: 12 }}>
+        All set already? The wizard shows everything as complete — nothing will be changed by opening it.
+      </p>
+    </div>
+  );
+}
+
 function AccountTab() {
   const [name, setName]   = useState('');
   const [email, setEmail] = useState('');
@@ -1074,7 +1105,7 @@ function TeamTab() {
 export default function Settings() {
   const [tab, setTab] = useState(TABS[0]?.id || 'account');
 
-  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, widget: <RepWidgetPanel />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
+  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, widget: <RepWidgetPanel />, setup: <SetupTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
 
   // Allow deep-linking to a tab, e.g. /dashboard/settings?tab=widget
   const router = useRouter();
