@@ -125,6 +125,11 @@ export async function pushListings(locationId, platform = null) {
   return res.data;
 }
 
+export async function scanListings(locationId) {
+  const res = await api.post(`/listings/${locationId}/scan`, {});
+  return res.data;
+}
+
 export async function setListingDirectory(locationId, directory, status, note = null) {
   const res = await api.put(`/listings/${locationId}/directories/${directory}`, { status, note });
   return res.data;
