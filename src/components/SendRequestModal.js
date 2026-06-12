@@ -149,9 +149,6 @@ export default function SendRequestModal({ open, onClose }) {
             }}>
               {sending ? 'Sending…' : '⚡ Send request'}
             </button>
-            <p style={{ fontSize: '.72rem', color: '#a39e93', textAlign: 'center', margin: '12px 0 0' }}>
-              Happy customers go to Google. Unhappy ones come to you privately.
-            </p>
           </div>
         )}
       </div>
