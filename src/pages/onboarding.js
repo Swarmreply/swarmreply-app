@@ -22,7 +22,7 @@ function authHeaders() {
 
 const STEP_DEST = {
   business_details:    '/dashboard/settings',
-  connect_google:      '/dashboard/integrations',
+  connect_google:      '/dashboard/integrations?connect=google',
   review_link:         '/dashboard/settings',
   test_request:        '/dashboard/grow',
   review_platforms:    '/dashboard/settings',
