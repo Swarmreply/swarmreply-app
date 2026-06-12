@@ -81,6 +81,13 @@ export async function getOpenChatSessions() {
   } catch (e) { return []; }
 }
 
+export async function getIntegrationErrors() {
+  try {
+    const res = await api.get('/integrations');
+    return (res.data.integrations || []).filter(i => i.status === 'error');
+  } catch (e) { return []; }
+}
+
 export async function getSurveyHistory(locationId) {
   try {
     const res = await api.get(`/surveys/${locationId}/history`);
