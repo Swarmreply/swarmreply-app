@@ -138,6 +138,9 @@ export function useAuth() {
     localStorage.removeItem('swarmreply_token');
     setCustomer(null);
     setMember(null);
+    // Hard navigation to the canonical login — wipes all in-memory state
+    // and doesn't depend on any auth-guard effect re-firing.
+    window.location.href = 'https://swarmreply.com/login';
   }
 
   return { customer, member, loading, error, login, logout, reload: loadAuth };
