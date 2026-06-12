@@ -120,6 +120,7 @@ button:active:not(:disabled) { transform: scale(.97); }
 .mobile-more-overlay.open { display: block; }
 
 .mobile-more-drawer {
+  display: none;  /* mobile-only: without this, the slide-down hide leaves a 60px strip visible on desktop */
   position: fixed;
   bottom: var(--mobile-nav-height);
   left: 0; right: 0;
@@ -246,6 +247,8 @@ input, select, textarea { font-size: 16px !important; }
   /* Tab rows */
   .tabs-scrollable { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .tabs-scrollable::-webkit-scrollbar { display: none; }
+
+  .mobile-more-drawer { display: block; }
 
   /* Wallabee sits above the bottom nav on phones */
   .wallabee-launcher { bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 14px) !important; }
