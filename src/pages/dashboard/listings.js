@@ -10,7 +10,7 @@ import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Card, PageHeader, Button, StatCard, EmptyState } from '../../components/ui';
 import { Skeleton } from '../../components/Skeleton';
-import { getLocations, getListings, saveListings, pushListings, setListingDirectory } from '../../utils/api';
+import { getLocations, getListings, saveListings, pushListings, setListingDirectory, scanListings } from '../../utils/api';
 
 const SERIF = "'Playfair Display', serif";
 
@@ -271,13 +271,54 @@ function SyncPlatformsCard({ platforms, locationId, reload }) {
 
 // ── Guided directories ───────────────────────
 
+const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
+
+function dirSubline(d) {
+  if (d.status === 'attention') return [d.note || 'Needs an update', '#b3261e', 700];
+  if (d.status === 'verified') {
+    const stale = d.verified_at && (Date.now() - new Date(d.verified_at).getTime() > NINETY_DAYS) && !d.last_checked_at;
+    if (stale) return [`Verified ${new Date(d.verified_at).toLocaleDateString()} — worth a 2-minute re-check`, '#9a6a08', 700];
+    return [
+      d.last_checked_at
+        ? `Verified · auto-checked ${new Date(d.last_checked_at).toLocaleDateString()} ✓`
+        : `Verified ${d.verified_at ? new Date(d.verified_at).toLocaleDateString() : ''}`,
+      '#1a6b45', 700,
+    ];
+  }
+  if (d.found_name) return [`We found your listing — looks consistent. Verify to track it.`, '#27508f', 600];
+  return ['Not set up yet', '#7a7670', 400];
+}
+
 function GuidedDirectoriesCard({ directories, location, locationId, reload }) {
   const [openDir, setOpenDir] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanMsg, setScanMsg] = useState('');
   const byKey = Object.fromEntries(directories.map(d => [d.directory, d]));
+
+  async function scan() {
+    setScanning(true); setScanMsg('');
+    try {
+      const res = await scanListings(locationId);
+      const checked = Object.values(res.results || {}).filter(r => r.checked).length;
+      const flagged = Object.values(res.results || {}).filter(r => r.diverged).length;
+      setScanMsg(checked === 0
+        ? 'No directories could be checked yet — connect Facebook or add Yelp/Foursquare API keys.'
+        : `Checked ${checked} director${checked === 1 ? 'y' : 'ies'} — ${flagged ? `${flagged} need${flagged === 1 ? 's' : ''} attention` : 'all consistent ✓'}`);
+      reload();
+    } catch (e) {
+      setScanMsg(e.response?.data?.error || 'Scan failed — please try again.');
+    } finally { setScanning(false); }
+  }
 
   return (
     <Card>
-      <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem', marginBottom: 4 }}>Guided directories</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4, flexWrap: 'wrap' }}>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Guided directories</div>
+        <Button size="sm" variant="ghost" onClick={scan} disabled={scanning}>
+          {scanning ? 'Scanning…' : 'Scan directories now'}
+        </Button>
+      </div>
+      {scanMsg && <div style={{ fontSize: '.76rem', fontWeight: 600, color: '#27508f', marginBottom: 8 }}>{scanMsg}</div>}
       <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 16 }}>
         These sites don\u2019t allow automatic updates — but a consistent listing on them still boosts your visibility
         (Apple Maps, for one, cross-references Yelp). Each takes about 5 minutes with your info pre-formatted.
@@ -290,10 +331,9 @@ function GuidedDirectoriesCard({ directories, location, locationId, reload }) {
               display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: '.85rem' }}>{g.name}</div>
-                <div style={{ fontSize: '.72rem', color: d.status === 'verified' ? '#1a6b45' : d.status === 'attention' ? '#b3261e' : '#7a7670', fontWeight: d.status === 'not_setup' ? 400 : 700 }}>
-                  {d.status === 'verified' ? `Verified ${d.verified_at ? new Date(d.verified_at).toLocaleDateString() : ''}` :
-                   d.status === 'attention' ? (d.note || 'Needs an update') : 'Not set up yet'}
-                </div>
+                {(() => { const [text, color, weight] = dirSubline(d); return (
+                  <div style={{ fontSize: '.72rem', color, fontWeight: weight }}>{text}</div>
+                ); })()}
               </div>
               <Button size="sm" variant={d.status === 'verified' ? 'ghost' : 'dark'} onClick={() => setOpenDir(g)}>
                 {d.status === 'verified' ? 'Review' : 'Set up'}
