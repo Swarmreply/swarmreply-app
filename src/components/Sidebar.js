@@ -22,6 +22,7 @@ const NAV = [
   { href: '/dashboard/campaigns',         label: 'Campaigns',     icon: '📣', group: 'Workspace' },
 
   { href: '/dashboard/get-found',         label: 'Get Found',     icon: '✦',  group: 'Insights', isNew: true },
+  { href: '/dashboard/listings',          label: 'Listings',      icon: '◈',  group: 'Insights', isNew: true },
   { href: '/dashboard/pulse',             label: 'Reports',       icon: '◎',  group: 'Insights' },
 
   { href: '/dashboard/settings',          label: 'Settings',      icon: '⚙',  group: 'Account' },

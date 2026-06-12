@@ -20,6 +20,7 @@ const BOTTOM_NAV = [
   { href: '/dashboard',               icon: '⊞', label: 'Home'       },
   { href: '/dashboard/reviews',       icon: '★', label: 'Reviews'    },
   { href: '/dashboard/get-found',     icon: '✦', label: 'Get Found'  },
+  { href: '/dashboard/listings',      icon: '◈', label: 'Listings'   },
   { href: '/dashboard/grow',          icon: '↑', label: 'Grow'       },
   { href: '/dashboard/inbox',         icon: '💬', label: 'Inbox'     },
 ];
