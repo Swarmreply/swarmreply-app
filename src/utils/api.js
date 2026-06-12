@@ -30,6 +30,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Any 401 means the session is dead (expired, revoked, or cleared) —
+// stop showing cryptic errors and send the person to log in fresh.
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('swarmreply_token');
+      window.location.href = 'https://swarmreply.com/login';
+      return new Promise(() => {}); // navigation is happening; don't surface the error
+    }
+    return Promise.reject(err);
+  }
+);
+
 // Global error handler
 api.interceptors.response.use(
   (response) => response,
