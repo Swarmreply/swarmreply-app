@@ -6,5 +6,5 @@
 
 export const FEATURES = {
   socialPosting: false, // Social posting & social account connections — planned Q3 2026
-  autoReply: false,     // Automatic AI review replies — planned Q3–Q4 2026
+  autoReply: true,      // LIVE — AI review replies with optional approval queue
 };
