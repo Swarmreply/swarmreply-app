@@ -110,6 +110,26 @@ export async function getSurveyHistory(locationId) {
 }
 
 // Support — in-app support form (dashboard → Support)
+export async function getListings(locationId) {
+  const res = await api.get(`/listings/${locationId}`);
+  return res.data;
+}
+
+export async function saveListings(locationId, data) {
+  const res = await api.put(`/listings/${locationId}`, data);
+  return res.data;
+}
+
+export async function pushListings(locationId, platform = null) {
+  const res = await api.post(`/listings/${locationId}/push`, platform ? { platform } : {});
+  return res.data;
+}
+
+export async function setListingDirectory(locationId, directory, status, note = null) {
+  const res = await api.put(`/listings/${locationId}/directories/${directory}`, { status, note });
+  return res.data;
+}
+
 export async function sendQuickReviewRequest({ name, email, phone }) {
   const res = await api.post('/review-requests/send', { name, email, phone });
   return res.data;
