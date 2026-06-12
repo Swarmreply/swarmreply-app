@@ -153,6 +153,92 @@ function StatusBadge({ status }) {
   );
 }
 
+// ── Send timing control ──
+// The customer decides how long after the trigger the review request goes out.
+// Scheduling tools (Calendly / Acuity) anchor to the appointment END, so the
+// delay there counts from when the visit finishes — not when it was booked.
+const TIMING_ANCHORS = {
+  jobber:   'after the job is completed',
+  square:   'after the sale',
+  shopify:  'after the order',
+  stripe_trigger: 'after the payment',
+  hubspot:  'after the deal closes',
+  mindbody: 'after the visit',
+  calendly: 'after the appointment ends',
+  acuity:   'after the appointment ends',
+};
+
+function toValueUnit(minutes) {
+  const m = Number(minutes) || 0;
+  if (m > 0 && m % 1440 === 0) return { value: m / 1440, unit: 'days' };
+  if (m > 0 && m % 60 === 0)   return { value: m / 60,   unit: 'hours' };
+  return { value: m, unit: 'minutes' };
+}
+function toMinutes(value, unit) {
+  const v = Math.max(0, Number(value) || 0);
+  return unit === 'days' ? v * 1440 : unit === 'hours' ? v * 60 : v;
+}
+
+function SendTiming({ provider, currentMinutes, onSaved }) {
+  const init = toValueUnit(currentMinutes ?? 60);
+  const [value, setValue] = useState(init.value);
+  const [unit, setUnit]   = useState(init.unit);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved]   = useState(false);
+  const anchor = TIMING_ANCHORS[provider] || 'after the trigger';
+  const minutes = toMinutes(value, unit);
+
+  async function save() {
+    setSaving(true); setSaved(false);
+    try {
+      await axios.put(`${API}/integrations/${provider}/settings`,
+        { delayMinutes: minutes }, { headers: authH() });
+      setSaved(true);
+      onSaved && onSaved(minutes);
+      setTimeout(() => setSaved(false), 2500);
+    } catch (e) {
+      alert(`Could not save timing — please try again. (${e.response?.data?.error || e.message})`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const inputStyle = {
+    border: '1.5px solid #e4e0d8', borderRadius: 9, padding: '7px 10px',
+    fontSize: '.82rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18',
+  };
+
+  return (
+    <div style={{
+      borderTop: '1px solid #f0eeea', padding: '12px 20px 14px',
+      display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+      background: '#fcfbf8',
+    }}>
+      <span style={{ fontSize: '.78rem', fontWeight: 700, color: '#1a1a18' }}>Send timing:</span>
+      <input type="number" min="0" max="999" value={value}
+        onChange={e => setValue(e.target.value)}
+        style={{ ...inputStyle, width: 64 }} aria-label="Delay amount" />
+      <select value={unit} onChange={e => setUnit(e.target.value)}
+        style={inputStyle} aria-label="Delay unit">
+        <option value="minutes">minutes</option>
+        <option value="hours">hours</option>
+        <option value="days">days</option>
+      </select>
+      <span style={{ fontSize: '.78rem', color: '#7a7670' }}>
+        {minutes === 0 ? `immediately ${anchor}` : `${anchor}`}
+      </span>
+      <button onClick={save} disabled={saving} style={{
+        marginLeft: 'auto', padding: '7px 16px', borderRadius: 50, border: 'none',
+        background: saved ? '#1a6b45' : '#0a0a0a', color: 'white', cursor: 'pointer',
+        fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit',
+        opacity: saving ? .6 : 1, transition: 'background .2s',
+      }}>
+        {saved ? 'Saved ✓' : saving ? 'Saving…' : 'Save'}
+      </button>
+    </div>
+  );
+}
+
 function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }) {
   const [expanded, setExpanded]     = useState(false);
   const [fields, setFields]         = useState({});
@@ -260,6 +346,15 @@ function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }
           )}
         </div>
       </div>
+
+      {/* Send timing — connected trigger integrations only */}
+      {connected && TIMING_ANCHORS[integration.id] && (
+        <SendTiming
+          provider={integration.id}
+          currentMinutes={connectedData?.delay_minutes ?? integration.delay}
+          onSaved={onConnect}
+        />
+      )}
 
       {/* Expanded connect form */}
       {expanded && !connected && (
