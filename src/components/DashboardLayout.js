@@ -29,7 +29,6 @@ const MORE_NAV = [
   { href: '/dashboard/pulse',      icon: '◎', label: 'Reports'     },
   { href: '/dashboard/integrations', icon: '⊕', label: 'Integrations' },
   { href: '/dashboard/settings',   icon: '⚙', label: 'Settings'   },
-  { href: '/onboarding',           icon: '🧭', label: 'Setup Guide' },
 ];
 
 function MobileNav({ pathname, onMoreToggle, moreOpen }) {
