@@ -110,6 +110,11 @@ export async function getSurveyHistory(locationId) {
 }
 
 // Support — in-app support form (dashboard → Support)
+export async function sendQuickReviewRequest({ name, email, phone }) {
+  const res = await api.post('/review-requests/send', { name, email, phone });
+  return res.data;
+}
+
 export async function sendSupportRequest({ subject, message }) {
   const res = await api.post('/support', { subject, message });
   return res.data;
