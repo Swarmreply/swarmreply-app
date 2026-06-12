@@ -166,21 +166,6 @@ function AITab() {
         ))}
       </Card>
 
-      <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Setup wizard</div>
-        <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14 }}>
-          Walk through connecting your first location and generating your first reviews.
-        </div>
-        <button
-          onClick={() => {
-            localStorage.removeItem('onboarding_skipped');
-            window.location.reload();
-          }}
-          style={{ ...btn(false), padding: '10px 18px', fontSize: '.84rem' }}
-        >
-          Open setup wizard
-        </button>
-      </Card>
     </div>
   );
 }

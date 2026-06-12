@@ -1055,43 +1055,41 @@ function BulkSendTab() {
 }
 
 function SurveysTab() {
+  const g = useGrowStats();
+  const b = g?.surveys?.breakdown;
+  const total = b?.total || 0;
+  const pct = (n) => total ? Math.round((n / total) * 100) : 0;
+  const rows = b ? [
+    ['Promoters', b.promoters, '#1a6b45'],
+    ['Passives', b.passives, '#f59e0b'],
+    ['Detractors', b.detractors, '#c0392b'],
+  ] : [];
+
   return (
     <div style={{ padding: 24 }}>
       <SurveyStatsRow />
-      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>NPS breakdown</div>
-          {[['Promoters','54%','#1a6b45'],['Passives','31%','#f59e0b'],['Detractors','15%','#c0392b']].map(([l,p,c]) => (
-            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9 }}>
-              <span style={{ width: 80, fontSize: '.8rem', fontWeight: 500 }}>{l}</span>
-              <div style={{ flex: 1, height: 8, background: '#f0eeea', borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{ width: p, height: '100%', background: c, borderRadius: 4 }} />
-              </div>
-              <span style={{ fontSize: '.8rem', fontWeight: 600, color: c, width: 36 }}>{p}</span>
-            </div>
-          ))}
-        </Card>
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Survey settings</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f0eeea' }}>
-            <div>
-              <div style={{ fontSize: '.875rem', fontWeight: 500 }}>Surveys enabled</div>
-              <div style={{ fontSize: '.73rem', color: '#7a7670' }}>Sends automatically post-visit</div>
-            </div>
-            <div style={{ width: 40, height: 22, background: '#0a0a0a', borderRadius: 50, position: 'relative', cursor: 'pointer' }}>
-              <div style={{ position: 'absolute', right: 2, top: 2, width: 18, height: 18, background: 'white', borderRadius: '50%' }} />
-            </div>
+      <Card style={{ padding: 20, maxWidth: 560 }}>
+        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>NPS breakdown</div>
+        <div style={{ fontSize: '.73rem', color: '#7a7670', marginBottom: 14 }}>
+          {total > 0 ? `From ${total} response${total === 1 ? '' : 's'} in the last 30 days` : 'Last 30 days'}
+        </div>
+        {!g ? (
+          <div style={{ padding: '6px 0' }}>
+            {[0,1,2].map(i => <Skeleton key={i} width="100%" height={8} style={{ marginBottom: 14 }} />)}
           </div>
-          <div style={{ padding: '10px 0' }}>
-            <div style={{ fontSize: '.875rem', fontWeight: 500, marginBottom: 6 }}>Promoter destination</div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {['Google','Facebook','Yelp'].map((p, i) => (
-                <button key={p} style={{ padding: '5px 12px', borderRadius: 50, border: i === 0 ? '2px solid #0a0a0a' : '1.5px solid #e4e0d8', background: i === 0 ? '#f8f7f4' : 'transparent', fontSize: '.8rem', fontWeight: i === 0 ? 600 : 400, cursor: 'pointer', fontFamily: 'inherit' }}>{p}</button>
-              ))}
+        ) : total === 0 ? (
+          <EmptyState compact title="No responses yet"
+            description="When customers answer your NPS surveys, their promoter / passive / detractor split shows up here." />
+        ) : rows.map(([l, n, c]) => (
+          <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9 }}>
+            <span style={{ width: 80, fontSize: '.8rem', fontWeight: 500 }}>{l}</span>
+            <div style={{ flex: 1, height: 8, background: '#f0eeea', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ width: `${pct(n)}%`, height: '100%', background: c, borderRadius: 4, transition: 'width .4s ease' }} />
             </div>
+            <span style={{ fontSize: '.8rem', fontWeight: 600, color: c, width: 64, textAlign: 'right' }}>{n} · {pct(n)}%</span>
           </div>
-        </Card>
-      </div>
+        ))}
+      </Card>
     </div>
   );
 }
