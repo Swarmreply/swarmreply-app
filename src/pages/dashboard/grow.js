@@ -115,6 +115,33 @@ function RequestsTab() {
   const [search, setSearch]         = useState('');
   const [dateFilter, setDateFilter] = useState('all');
   const [selected, setSelected]     = useState(null);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function resendRequest() {
+    if (!selected || resending || resent) return;
+    setResending(true);
+    try {
+      await axios.post(`${API}/review-requests/send`,
+        { name: selected.customer_name, email: selected.customer_email, phone: selected.customer_phone || null },
+        { headers: authH() });
+      setResent(true);
+    } catch (e) {
+      alert(e.response?.data?.error || 'Could not send \u2014 please try again.');
+    } finally {
+      setResending(false);
+    }
+  }
+
+  function copyEmail() {
+    if (navigator.clipboard && selected) {
+      navigator.clipboard.writeText(selected.customer_email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
 
   const API = process.env.NEXT_PUBLIC_API_URL;
   function authH() {
@@ -257,7 +284,7 @@ function RequestsTab() {
               </div>
             ) : filtered.map(s => (
               <div key={s.id}
-                onClick={() => setSelected(s)}
+                onClick={() => { setSelected(s); setResent(false); setCopied(false); }}
                 className="m-survey-row" style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
                   padding: '12px 20px', borderBottom: '1px solid #f8f7f4', cursor: 'pointer',
                   transition: 'background .1s', alignItems: 'center' }}
@@ -411,10 +438,19 @@ function RequestsTab() {
               {/* Actions */}
               <div style={{ marginTop: 24, display: 'flex', gap: 8 }}>
                 <button
-                  onClick={() => { window.location.href = 'mailto:' + selected.customer_email; }}
-                  style={{ flex: 1, padding: '10px 0', borderRadius: 50, background: '#0a0a0a', color: 'white',
-                    border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit' }}>
-                  ✉ Email customer
+                  onClick={resendRequest} disabled={resending || resent}
+                  style={{ flex: 1, padding: '10px 0', borderRadius: 50,
+                    background: resent ? '#1a6b45' : 'linear-gradient(135deg,#f5c842,#d4a515)',
+                    color: resent ? 'white' : '#1a1408',
+                    border: 'none', cursor: resent ? 'default' : 'pointer', fontSize: '.82rem', fontWeight: 700,
+                    fontFamily: 'inherit', opacity: resending ? .6 : 1 }}>
+                  {resent ? 'Request sent ✓' : resending ? 'Sending…' : '⚡ Send another request'}
+                </button>
+                <button
+                  onClick={copyEmail}
+                  style={{ padding: '10px 16px', borderRadius: 50, background: 'white', color: '#1a1a18',
+                    border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.82rem', fontWeight: 600, fontFamily: 'inherit' }}>
+                  {copied ? 'Copied ✓' : 'Copy email'}
                 </button>
                 <button onClick={() => setSelected(null)}
                   style={{ padding: '10px 18px', borderRadius: 50, background: 'white', color: '#4a4a48',
