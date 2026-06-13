@@ -18,6 +18,9 @@ const GOLD = 'linear-gradient(135deg,#f5c842,#d4a515)';
 // Help Center catalog — mirrors files/help.html on the website repo.
 // If you add articles there, add them here too so Wallabee can find them.
 const ARTICLES = [
+  { id: 'vs-yext', t: 'SwarmReply vs Yext — own your listings, don\u2019t rent them', c: 'Compare', u: '/compare/yext-alternative.html', k: 'yext alternative listings compare versus rent own sync' },
+  { id: 'vs-broadly', t: 'SwarmReply vs Broadly — honest comparison', c: 'Compare', u: '/compare/broadly-alternative.html', k: 'broadly alternative compare versus price cheaper onboarding' },
+  { id: 'vs-reviewtrackers', t: 'SwarmReply vs ReviewTrackers — honest comparison', c: 'Compare', u: '/compare/reviewtrackers-alternative.html', k: 'reviewtrackers alternative compare versus monitoring' },
   { id: 'vs-birdeye', t: 'SwarmReply vs Birdeye — honest comparison', c: 'Compare', u: '/compare/birdeye-alternative.html', k: 'birdeye alternative compare versus price cheaper switch' },
   { id: 'vs-podium', t: 'SwarmReply vs Podium — honest comparison', c: 'Compare', u: '/compare/podium-alternative.html', k: 'podium alternative compare versus price cheaper switch contract' },
   { id: 'vs-nicejob', t: 'SwarmReply vs NiceJob — honest comparison', c: 'Compare', u: '/compare/nicejob-alternative.html', k: 'nicejob alternative compare versus reviews only' },
