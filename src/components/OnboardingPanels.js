@@ -75,45 +75,55 @@ function Note({ children, tone = 'info' }) {
 }
 
 // ── STEP 1: Confirm business details ────────────────────────────────────────
-const BUSINESS_TYPES = [
-  'Restaurant / Food', 'Cafe / Coffee Shop', 'Bar / Brewery', 'Grocery / Convenience',
-  'Home Services (general)', 'HVAC / Plumbing / Electrical', 'Cleaning Services',
-  'Landscaping / Lawn Care', 'Roofing / Construction', 'Moving / Storage', 'Pest Control',
-  'Retail / Shop', 'E-commerce',
-  'Healthcare / Medical', 'Dental', 'Veterinary', 'Chiropractic', 'Mental Health / Therapy', 'Optometry',
-  'Professional Services', 'Legal', 'Accounting / Tax', 'Real Estate', 'Insurance',
-  'Financial Services', 'Marketing / Agency', 'IT / Tech Services',
-  'Beauty / Salon / Spa', 'Barber Shop', 'Nail Salon', 'Tattoo / Piercing',
-  'Automotive', 'Auto Repair', 'Car Dealership', 'Car Wash / Detailing',
-  'Fitness / Wellness', 'Gym / Personal Training', 'Yoga / Pilates Studio',
-  'Education / Tutoring', 'Childcare / Daycare',
-  'Hotel / Hospitality', 'Event Services', 'Photography', 'Pet Services / Grooming',
-  'Other',
-];
 
 function BusinessDetailsPanel({ customer, onDone }) {
-  const [name, setName] = useState(customer?.name || '');
-  const [type, setType] = useState('Restaurant / Food');
-  const [customType, setCustomType] = useState('');
+  const [name, setName] = useState('');
+  const [locationId, setLocationId] = useState(null);
+  const [businessType, setBusinessType] = useState('');
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(null);
 
-  const isOther = type === 'Other';
+  // Load the location created at signup so we confirm (not duplicate) it.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await axios.get(`${API}/locations?customerId=${customer.id}`, { headers: authHeaders() });
+        const locs = Array.isArray(res.data) ? res.data : (res.data?.locations || []);
+        const primary = locs[0];
+        if (alive && primary) {
+          setLocationId(primary.id);
+          setName(primary.business_name || customer?.name || '');
+          setBusinessType(primary.business_type || '');
+        } else if (alive) {
+          setName(customer?.name || '');
+        }
+      } catch (e) { if (alive) setName(customer?.name || ''); }
+      finally { if (alive) setLoading(false); }
+    })();
+    return () => { alive = false; };
+  }, [customer]);
 
   async function save() {
     if (!name.trim()) { setErr('Please enter your business name.'); return; }
-    if (isOther && !customType.trim()) { setErr('Please enter your business type.'); return; }
-    const businessType = isOther ? customType.trim() : type;
     setSaving(true); setErr(null);
     try {
-      await axios.post(`${API}/locations`, {
-        customerId: customer.id,
-        businessName: name.trim(),
-        businessType,
-        platform: 'google',
-        contactEmail: customer.email,
-        tone: 'warm',
-      }, { headers: authHeaders() });
+      if (locationId) {
+        // Confirm/update the location created at signup — no duplicate.
+        await axios.put(`${API}/locations/${locationId}/profile`,
+          { businessName: name.trim() }, { headers: authHeaders() });
+      } else {
+        // Fallback: no location yet (legacy/admin-created account) — create one.
+        await axios.post(`${API}/locations`, {
+          customerId: customer.id,
+          businessName: name.trim(),
+          businessType: businessType || 'Other',
+          platform: 'google',
+          contactEmail: customer.email,
+          tone: 'warm',
+        }, { headers: authHeaders() });
+      }
       onDone();
     } catch (e) {
       setErr(e.response?.data?.details || e.response?.data?.error || 'Could not save. Please try again.');
@@ -123,32 +133,27 @@ function BusinessDetailsPanel({ customer, onDone }) {
   return (
     <div>
       <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 14px', lineHeight: 1.5 }}>
-        We pre-filled what we know from your signup — just confirm it's right.
+        We pre-filled what we know from your signup — just confirm your business name is right.
       </p>
       <div style={{ marginBottom: 12 }}>
         <label style={labelStyle}>Business name</label>
-        <input value={name} onChange={e => setName(e.target.value)} style={fieldStyle} placeholder="e.g. Bella's Kitchen" />
+        <input value={name} onChange={e => setName(e.target.value)} style={fieldStyle}
+               disabled={loading} placeholder={loading ? 'Loading…' : "e.g. Bella's Kitchen"} />
       </div>
-      <div style={{ marginBottom: 12 }}>
-        <label style={labelStyle}>Business type</label>
-        <select value={type} onChange={e => setType(e.target.value)} style={fieldStyle}>
-          {BUSINESS_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </div>
-      {isOther && (
-        <div style={{ marginBottom: 12 }}>
-          <label style={labelStyle}>Tell us your business type</label>
-          <input value={customType} onChange={e => setCustomType(e.target.value)} style={fieldStyle} placeholder="e.g. Mobile bike repair" autoFocus />
-        </div>
+      {businessType && (
+        <p style={{ fontSize: '.8rem', color: '#7a7670', margin: '0 0 12px' }}>
+          Business type: <strong style={{ color: '#0a0a0a' }}>{businessType}</strong>
+          {' '}— you can change this anytime in Settings → Account.
+        </p>
       )}
       {err && <Note tone="error">{err}</Note>}
       <div style={{ marginTop: 14 }}>
-        <button onClick={save} disabled={saving} style={{ ...primaryBtn, opacity: saving ? .6 : 1 }}>
+        <button onClick={save} disabled={saving || loading} style={{ ...primaryBtn, opacity: (saving || loading) ? .6 : 1 }}>
           {saving ? 'Saving…' : 'Save & continue'}
         </button>
       </div>
       <HelpBox title="Why do we need this?">
-        Your business name and type let us personalize review replies and generate the right
+        Your business name lets us personalize review replies and generate the right
         local keywords and AI search queries for you later in setup.
       </HelpBox>
     </div>
