@@ -761,8 +761,12 @@ function AccountTab() {
   const [initialType, setInitialType]   = useState('');
   const [primaryLocId, setPrimaryLocId] = useState(null);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+  // Re-run once auth resolves (useAuth populates `customer` asynchronously, so
+  // it is null on the first render). Depending on customer.id ensures we load
+  // the business type after the customer is known.
+  useEffect(() => { if (customer?.id) load(); /* eslint-disable-next-line */ }, [customer?.id]);
   async function load() {
+    setLoading(true);
     try {
       const a = await getAccount();
       setName(a.name || '');
@@ -771,7 +775,11 @@ function AccountTab() {
     } catch (e) { /* leave blanks */ }
     try {
       const locs = await getLocations(customer.id).catch(() => []);
-      const primary = locs[0];
+      // The account's business type lives on the location created at signup —
+      // i.e. the OLDEST location. The backend returns newest-first, so sort
+      // ascending by created_at and take the first.
+      const primary = (locs || []).slice()
+        .sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0))[0];
       if (primary) {
         setPrimaryLocId(primary.id);
         setBusinessType(primary.business_type || '');
