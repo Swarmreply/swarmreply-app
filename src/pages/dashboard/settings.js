@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { FEATURES } from '../../utils/featureFlags';
 import SetupProgressCard from '../../components/SetupProgressCard';
+import LogoUploader from '../../components/LogoUploader';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
@@ -707,6 +708,7 @@ function AccountTab() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [msg, setMsg]         = useState(null);
+  const [loc, setLoc]         = useState(null);
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
   async function load() {
@@ -716,6 +718,10 @@ function AccountTab() {
       setEmail(a.email || '');
       if (a.notificationPrefs) setPrefs({ negative: true, all_reviews: false, weekly_digest: true, ...a.notificationPrefs });
     } catch (e) { /* leave blanks */ }
+    try {
+      const locs = await getLocations();
+      if (locs.length) setLoc(locs[0]);
+    } catch (e) { /* no location yet */ }
     finally { setLoading(false); }
   }
   async function save() {
@@ -745,6 +751,16 @@ function AccountTab() {
           <input style={inp} type="email" value={email} onChange={e => setEmail(e.target.value)} disabled={loading} />
         </Field>
       </Card>
+      {loc && (
+        <Card style={{ padding: 20 }}>
+          <LogoUploader
+            locationId={loc.id}
+            initialUrl={loc.logo_url}
+            initialPosition={loc.logo_position || 'left'}
+            onChange={(v) => setLoc({ ...loc, logo_url: v.logoUrl, logo_position: v.logoPosition })}
+          />
+        </Card>
+      )}
       <Card style={{ padding: 20 }}>
         <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Alert preferences</div>
         {ALERTS.map(([key, label]) => (
