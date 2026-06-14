@@ -77,7 +77,7 @@ export default function ReviewPage({ preview }) {
               <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0a0a0a', marginBottom: 8, textAlign: 'center', lineHeight: 1.4 }}>{data.npsQuestion.replace(/{business}/g, data.businessName)}</h2>
               <p style={{ fontSize: '.82rem', color: '#7a7670', textAlign: 'center', marginBottom: 24 }}>Tap a number below</p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10 }}>
-                {[0,1,2,3,4,5,6,7,8,9,10].map(n => (
+                {[1,2,3,4,5,6,7,8,9,10].map(n => (
                   <button key={n} onClick={() => selectScore(n)} style={{ width: 44, height: 44, borderRadius: 10, border: '1.5px solid', borderColor: score === n ? c : '#e4e0d8', background: score === n ? c : 'white', fontWeight: 700, fontSize: '.9rem', cursor: 'pointer', color: score === n ? '#0a0a0a' : '#4a4a48', transition: 'all .12s' }}>{n}</button>
                 ))}
               </div>
