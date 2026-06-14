@@ -1287,7 +1287,16 @@ function ImportTab() {
 }
 
 export default function Grow() {
+  const router = useRouter();
   const [tab, setTab] = useState('requests');
+
+  // Deep link: /dashboard/grow?tab=surveys lands on the right tab
+  useEffect(() => {
+    const t = router.query?.tab;
+    if (t && ['requests', 'templates', 'bulk', 'surveys', 'import'].includes(String(t))) {
+      setTab(String(t));
+    }
+  }, [router.query?.tab]);
 
   return (
     <DashboardLayout title="Grow">

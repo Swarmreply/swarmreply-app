@@ -279,7 +279,7 @@ export default function Dashboard() {
               <QueueItem key="nps" icon="☹" tone="red"
                 title={`${queue.detractors.length} unhappy survey response${queue.detractors.length > 1 ? 's' : ''} this week`}
                 detail={`${d.contact_name || 'A customer'} scored ${d.score}/10 — follow up before it becomes a public review`}
-                actionLabel="View" href="/dashboard/surveys" />
+                actionLabel="View" href="/dashboard/grow?tab=surveys" />
             );
           }
           if (loading || items.length === 0) return null;
