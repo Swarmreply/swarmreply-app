@@ -9,6 +9,8 @@ import { Button as KitButton } from '../../components/ui';
 import EmptyState from '../../components/EmptyState';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
+import SmsGateBanner from '../../components/SmsGateBanner';
+import { useSmsGate } from '../../hooks/useSmsGate';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -26,6 +28,7 @@ function Avatar({ name, size = 32, bg = '#f0eeea', color = '#7a7670' }) {
 }
 
 export default function Inbox() {
+  const smsGate = useSmsGate();
   const { customer } = useAuth();
   const [sessions, setSessions]   = useState([]);
   const [active, setActive]       = useState(null);
@@ -93,6 +96,7 @@ export default function Inbox() {
 
   return (
     <DashboardLayout title="Inbox">
+      <SmsGateBanner feature="Webchat text-back to visitors" enabled={smsGate.enabled} loading={smsGate.loading} liveDate={smsGate.liveDate} />
       <div className="m-inbox" style={{ display: 'grid', gridTemplateColumns: '300px 1fr', height: 'calc(100vh - 117px)', overflow: 'hidden' }}>
 
         {/* Session list */}

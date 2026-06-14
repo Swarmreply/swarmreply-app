@@ -4,6 +4,8 @@
 // ============================================
 
 import React, { useState, useEffect } from 'react';
+import SmsGateBanner from '../../components/SmsGateBanner';
+import { useSmsGate } from '../../hooks/useSmsGate';
 import { FEATURES } from '../../utils/featureFlags';
 import DashboardLayout from '../../components/DashboardLayout';
 import { StatCard, Button as KitButton } from '../../components/ui';
@@ -550,6 +552,7 @@ function SocialPostsTab() {
 
 export default function Campaigns() {
   const { customer } = useAuth();
+  const smsGate = useSmsGate();
   const [tab, setTab]       = useState('list');
   const [campaigns, setCampaigns] = useState([]);
   const [usage, setUsage]   = useState({ used: 0, limit: 1000 });
@@ -586,6 +589,7 @@ export default function Campaigns() {
 
   return (
     <DashboardLayout title="SMS Campaigns">
+      <div style={{ padding: '16px 24px 0' }}><SmsGateBanner feature="SMS campaigns" enabled={smsGate.enabled} loading={smsGate.loading} liveDate={smsGate.liveDate} style={{ marginBottom: 0 }} /></div>
       <div style={{ background: 'white', borderBottom: '1px solid #e4e0d8', padding: '0 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: 2 }} className="tabs-scrollable">
           {TABS.map(t => (
@@ -691,8 +695,8 @@ export default function Campaigns() {
             </div>
             <div style={{ padding: '16px 28px 22px', display: 'flex', gap: 10, borderTop: '1px solid #e4e0d8' }}>
               <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 11, borderRadius: 50, background: 'transparent', color: '#7a7670', border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.875rem', fontWeight: 600, fontFamily: 'inherit' }}>Save draft</button>
-              <button onClick={launch} disabled={sending || !name.trim() || !message.trim()} style={{ flex: 1, padding: 11, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: !name.trim() || !message.trim() ? .5 : 1 }}>
-                {sending ? 'Sending…' : 'Send campaign →'}
+              <button onClick={launch} disabled={sending || !name.trim() || !message.trim() || (!smsGate.enabled && !smsGate.loading)} style={{ flex: 1, padding: 11, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: !name.trim() || !message.trim() ? .5 : 1 }}>
+                {(!smsGate.enabled && !smsGate.loading) ? 'SMS goes live soon' : sending ? 'Sending…' : 'Send campaign →'}
               </button>
             </div>
           </div>

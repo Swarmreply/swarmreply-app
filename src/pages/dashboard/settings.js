@@ -13,6 +13,8 @@ import { getLocations, updateLocationSettings, getAccount, updateAccount, update
 import { BUSINESS_TYPES } from '../../constants/businessTypes';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import SmsGateBanner from '../../components/SmsGateBanner';
+import { useSmsGate } from '../../hooks/useSmsGate';
 import { RepWidgetPanel } from './reputation-widget';
 
 const TABS = [
@@ -172,6 +174,7 @@ function AITab() {
 }
 
 function WebchatTab() {
+  const smsGate = useSmsGate();
   const { customer } = useAuth();
   const API = process.env.NEXT_PUBLIC_API_URL;
   function authHeaders() {
@@ -329,6 +332,7 @@ function WebchatTab() {
         </Card>
       )}
 
+      <SmsGateBanner feature="Webchat text-back &amp; SMS notifications" enabled={smsGate.enabled} loading={smsGate.loading} liveDate={smsGate.liveDate} />
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         <Card style={{ padding: 20 }}>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Webchat widget</div>
