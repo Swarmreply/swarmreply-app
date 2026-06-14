@@ -33,20 +33,21 @@ function Card({ children, style = {} }) {
 
 
 // ── Real Grow stats (replaces the old hardcoded numbers) ─────────────────────
-function useGrowStats() {
+function useGrowStats(days = 30) {
   const [growStats, setGrowStats] = useState(null);
   useEffect(() => {
     let cancelled = false;
-    axios.get(`${API}/grow/stats`, { headers: authHeaders() })
+    setGrowStats(null);
+    axios.get(`${API}/grow/stats?days=${days}`, { headers: authHeaders() })
       .then(res => { if (!cancelled) setGrowStats(res.data); })
       .catch(() => { if (!cancelled) setGrowStats(null); });
     return () => { cancelled = true; };
-  }, []);
+  }, [days]);
   return growStats;
 }
 
 const deltaSub = (d, unit = '') =>
-  d == null ? null : d > 0 ? `↑ +${d}${unit} vs last month` : d < 0 ? `↓ ${d}${unit} vs last month` : 'Same as last month';
+  d == null ? null : d > 0 ? `↑ +${d}${unit} vs previous period` : d < 0 ? `↓ ${d}${unit} vs previous period` : 'Same as previous period';
 
 function RequestStatsRow() {
   const g = useGrowStats();
@@ -61,14 +62,13 @@ function RequestStatsRow() {
   );
 }
 
-function SurveyStatsRow() {
-  const g = useGrowStats();
+function SurveyStatsRow({ g, label = 'Last 30 days' }) {
   const s = g?.surveys;
   return (
     <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
-      <StatCard label="Surveys sent" value={s ? s.sent : '—'} sub="Last 30 days" />
+      <StatCard label="Surveys sent" value={s ? s.sent : '—'} sub={label} />
       <StatCard label="Response rate" value={s && s.responseRate != null ? `${s.responseRate}%` : '—'} sub={s && s.responseRate != null ? 'Industry avg ~45%' : 'No surveys sent yet'} />
-      <StatCard label="Avg NPS score" value={s && s.avgNps != null ? s.avgNps : '—'} sub={s ? deltaSub(s.avgNpsDelta) || 'Last 30 days' : 'Last 30 days'} />
+      <StatCard label="Avg NPS score" value={s && s.avgNps != null ? s.avgNps : '—'} sub={s ? deltaSub(s.avgNpsDelta) || label : label} />
       <StatCard label="Promoters routed" value={s ? s.promotersRouted : '—'} sub="To Google review page" />
     </div>
   );
@@ -943,6 +943,8 @@ function BulkSendTab() {
   const [segName, setSegName]     = useState('');   // assign-to-segment input
   const [assigning, setAssigning] = useState(false);
   const [assignMsg, setAssignMsg] = useState('');
+  const [menuFor, setMenuFor]     = useState(null);  // contact id with opt-out menu open
+  const [optingId, setOptingId]   = useState(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL;
   function authH() {
@@ -976,25 +978,41 @@ function BulkSendTab() {
   });
 
   function toggle(id) {
+    const c = contacts.find(x => x.id === id);
+    if (c?.opted_out) return;                       // opted-out contacts can't be selected
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
   function toggleAll() {
-    const ids = filtered.map(c => c.id);
-    const allSelected = ids.every(id => selected.includes(id));
+    const ids = filtered.filter(c => !c.opted_out).map(c => c.id);
+    const allSelected = ids.length > 0 && ids.every(id => selected.includes(id));
     if (allSelected) setSelected(prev => prev.filter(id => !ids.includes(id)));
     else setSelected(prev => [...new Set([...prev, ...ids])]);
+  }
+
+  async function optOut(contact, value) {
+    setOptingId(contact.id); setError('');
+    try {
+      await axios.post(`${API}/contacts/${contact.id}/opt-out`, { opted_out: value }, { headers: authH() });
+      setMenuFor(null);
+      setSelected(prev => prev.filter(id => id !== contact.id));   // can't send to an opted-out contact
+      await loadContacts();
+    } catch (e) {
+      setError(e.response?.data?.error || 'Could not update opt-out.');
+    } finally {
+      setOptingId(null);
+    }
   }
 
   async function sendBulk() {
     if (selected.length === 0) { setError('Select at least one contact.'); return; }
     setSending(true);
     setError('');
-    const targets = contacts.filter(c => selected.includes(c.id));
+    const targets = contacts.filter(c => selected.includes(c.id) && !c.opted_out);
     try {
       const res = await axios.post(`${API}/review-requests/bulk-send`,
         { contacts: targets.map(c => ({ name: c.name, email: c.email, phone: c.phone })) },
         { headers: authH() });
-      setResult({ sent: res.data.sent ?? targets.length, failed: res.data.failed ?? 0 });
+      setResult({ sent: res.data.sent ?? targets.length, failed: res.data.failed ?? 0, skipped: res.data.skipped ?? 0 });
       setSelected([]);
     } catch (e) {
       setError(e.response?.data?.error || 'Bulk send failed. Please try again.');
@@ -1003,7 +1021,8 @@ function BulkSendTab() {
     }
   }
 
-  const allFilteredSelected = filtered.length > 0 && filtered.every(c => selected.includes(c.id));
+  const selectable = filtered.filter(c => !c.opted_out);
+  const allFilteredSelected = selectable.length > 0 && selectable.every(c => selected.includes(c.id));
 
   async function assignSegment() {
     const seg = segName.trim();
@@ -1029,7 +1048,7 @@ function BulkSendTab() {
       <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>📨</div>
       <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: 8 }}>Review requests sent!</div>
       <div style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 24 }}>
-        {result.sent} request{result.sent !== 1 ? 's' : ''} sent successfully{result.failed > 0 ? `, ${result.failed} failed` : ''}.
+        {result.sent} request{result.sent !== 1 ? 's' : ''} sent successfully{result.failed > 0 ? `, ${result.failed} failed` : ''}{result.skipped > 0 ? `, ${result.skipped} skipped (opted out)` : ''}.
       </div>
       <button onClick={() => setResult(null)} style={{ padding: '10px 24px', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>Send more</button>
     </div>
@@ -1060,7 +1079,7 @@ function BulkSendTab() {
             <div style={{ width: 18, height: 18, borderRadius: 5, border: '2px solid', borderColor: allFilteredSelected ? '#0a0a0a' : '#c8c4bc', background: allFilteredSelected ? '#0a0a0a' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {allFilteredSelected && <span style={{ color: 'white', fontSize: '.6rem', fontWeight: 900 }}>✓</span>}
             </div>
-            <span style={{ fontSize: '.8rem', fontWeight: 600, color: '#4a4a48' }}>Select all ({filtered.length})</span>
+            <span style={{ fontSize: '.8rem', fontWeight: 600, color: '#4a4a48' }}>Select all ({selectable.length})</span>
           </div>
 
           {/* Rows */}
@@ -1077,23 +1096,49 @@ function BulkSendTab() {
               </div>
             ) : filtered.map(c => {
               const isSel = selected.includes(c.id);
+              const isOut = !!c.opted_out;
               return (
-                <div key={c.id} onClick={() => toggle(c.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px', borderBottom: '1px solid #f8f7f4', cursor: 'pointer', background: isSel ? '#fafaf9' : 'white' }}>
-                  <div style={{ width: 18, height: 18, borderRadius: 5, border: '2px solid', borderColor: isSel ? '#0a0a0a' : '#c8c4bc', background: isSel ? '#0a0a0a' : 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {isSel && <span style={{ color: 'white', fontSize: '.6rem', fontWeight: 900 }}>✓</span>}
+                <div key={c.id} onClick={() => { if (menuFor === c.id) setMenuFor(null); else if (!isOut) toggle(c.id); }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px', borderBottom: '1px solid #f8f7f4', cursor: isOut ? 'default' : 'pointer', background: isSel ? '#fafaf9' : 'white', opacity: isOut ? .6 : 1, position: 'relative' }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 5, border: '2px solid', borderColor: isOut ? '#e4e0d8' : (isSel ? '#0a0a0a' : '#c8c4bc'), background: (isSel && !isOut) ? '#0a0a0a' : 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isSel && !isOut && <span style={{ color: 'white', fontSize: '.6rem', fontWeight: 900 }}>✓</span>}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: '.84rem', color: '#0a0a0a' }}>{c.name || '(no name)'}</div>
+                    <span onClick={e => { e.stopPropagation(); setMenuFor(menuFor === c.id ? null : c.id); }}
+                      title="Click to opt out / re-enable"
+                      style={{ fontWeight: 600, fontSize: '.84rem', color: '#0a0a0a', cursor: 'pointer', borderBottom: '1px dotted #c8c4bc' }}>
+                      {c.name || '(no name)'}
+                    </span>
                     <div style={{ fontSize: '.75rem', color: '#7a7670' }}>{c.email}{c.phone ? ' · ' + c.phone : ''}</div>
+                    {menuFor === c.id && (
+                      <div onClick={e => e.stopPropagation()} style={{ position: 'absolute', zIndex: 5, marginTop: 4, background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 10, boxShadow: '0 8px 28px rgba(0,0,0,.12)', padding: 6, minWidth: 210 }}>
+                        {isOut ? (
+                          <button onClick={() => optOut(c, false)} disabled={optingId === c.id}
+                            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 7, cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit', color: '#1a6b45', fontWeight: 600 }}>
+                            {optingId === c.id ? 'Saving…' : '↺ Re-enable review requests'}
+                          </button>
+                        ) : (
+                          <button onClick={() => optOut(c, true)} disabled={optingId === c.id}
+                            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 7, cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit', color: '#c0392b', fontWeight: 600 }}>
+                            {optingId === c.id ? 'Saving…' : '🚫 Opt out of review requests'}
+                          </button>
+                        )}
+                        <button onClick={() => setMenuFor(null)}
+                          style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 7, cursor: 'pointer', fontSize: '.78rem', fontFamily: 'inherit', color: '#7a7670' }}>
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                    {isOut && <span style={{ fontSize: '.66rem', color: '#c0392b', background: '#fee2e2', padding: '2px 7px', borderRadius: 50, fontWeight: 700 }}>Opted out</span>}
                     {c.segment && c.segment !== 'all' && (
                       <span style={{ fontSize: '.66rem', color: '#4a4a48', background: '#f0eeea', padding: '2px 7px', borderRadius: 50, textTransform: 'capitalize' }}>{c.segment}</span>
                     )}
-                    {c.last_request && (
-                      <span style={{ fontSize: '.68rem', color: '#92690a', background: '#fef9c3', padding: '2px 7px', borderRadius: 50, whiteSpace: 'nowrap' }}>
-                        Requested {new Date(c.last_request).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                    {c.request_count > 0 && (
+                      <span style={{ fontSize: '.68rem', color: '#92690a', background: '#fef9c3', padding: '2px 7px', borderRadius: 50, whiteSpace: 'nowrap' }}
+                        title={`${c.request_count} review request${c.request_count === 1 ? '' : 's'} sent`}>
+                        {c.request_count}× · last {new Date(c.last_request).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
                       </span>
                     )}
                   </div>
@@ -1143,8 +1188,17 @@ function BulkSendTab() {
   );
 }
 
+const SURVEY_TIMEFRAMES = [
+  { days: 7,   short: 'Last week', label: 'Last 7 days' },
+  { days: 30,  short: 'Month',     label: 'Last 30 days' },
+  { days: 90,  short: 'Quarter',   label: 'Last 90 days' },
+  { days: 365, short: 'Year',      label: 'Last 365 days' },
+];
+
 function SurveysTab() {
-  const g = useGrowStats();
+  const [days, setDays] = useState(30);
+  const g = useGrowStats(days);
+  const tf = SURVEY_TIMEFRAMES.find(t => t.days === days) || SURVEY_TIMEFRAMES[1];
   const b = g?.surveys?.breakdown;
   const total = b?.total || 0;
   const pct = (n) => total ? Math.round((n / total) * 100) : 0;
@@ -1156,11 +1210,24 @@ function SurveysTab() {
 
   return (
     <div style={{ padding: 24 }}>
-      <SurveyStatsRow />
+      {/* Timeframe filter — drives every report on this tab */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+        {SURVEY_TIMEFRAMES.map(t => (
+          <button key={t.days} onClick={() => setDays(t.days)}
+            style={{ padding: '7px 14px', borderRadius: 50, border: '1.5px solid',
+              borderColor: days === t.days ? '#0a0a0a' : '#e4e0d8',
+              background: days === t.days ? '#0a0a0a' : 'white',
+              color: days === t.days ? 'white' : '#4a4a48',
+              fontSize: '.8rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            {t.short} ({t.days} days)
+          </button>
+        ))}
+      </div>
+      <SurveyStatsRow g={g} label={tf.label} />
       <Card style={{ padding: 20, maxWidth: 560 }}>
         <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>NPS breakdown</div>
         <div style={{ fontSize: '.73rem', color: '#7a7670', marginBottom: 14 }}>
-          {total > 0 ? `From ${total} response${total === 1 ? '' : 's'} in the last 30 days` : 'Last 30 days'}
+          {total > 0 ? `From ${total} response${total === 1 ? '' : 's'} in the ${tf.label.toLowerCase()}` : tf.label}
         </div>
         {!g ? (
           <div style={{ padding: '6px 0' }}>
