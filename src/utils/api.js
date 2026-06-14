@@ -115,6 +115,16 @@ export async function uploadBrandingLogo(dataUri) {
   return res.data;
 }
 
+export async function disconnectGoogleListing(locationId) {
+  const res = await api.post(`/locations/${locationId}/google/disconnect`);
+  return res.data;
+}
+
+export async function disconnectMonitored(locationId, platform) {
+  const res = await api.post(`/locations/${locationId}/${platform}/disconnect`);
+  return res.data;
+}
+
 export async function getListings(locationId) {
   const res = await api.get(`/listings/${locationId}`);
   return res.data;
@@ -157,6 +167,11 @@ export async function createLocation(data) {
 
 export async function updateLocationSettings(locationId, settings) {
   const res = await api.put(`/locations/${locationId}/settings`, settings);
+  return res.data;
+}
+
+export async function updateLocationProfile(locationId, { businessName, businessType } = {}) {
+  const res = await api.put(`/locations/${locationId}/profile`, { businessName, businessType });
   return res.data;
 }
 
