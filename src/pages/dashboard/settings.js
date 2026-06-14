@@ -3,13 +3,14 @@
 // Settings hub — AI Replies / Webchat / Integrations / Account / Billing / API
 // ============================================
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FEATURES } from '../../utils/featureFlags';
 import SetupProgressCard from '../../components/SetupProgressCard';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
-import { getLocations, updateLocationSettings, getAccount, updateAccount } from '../../utils/api';
+import { getLocations, updateLocationSettings, getAccount, updateAccount, updateLocationProfile } from '../../utils/api';
+import { BUSINESS_TYPES } from '../../constants/businessTypes';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { RepWidgetPanel } from './reputation-widget';
@@ -700,13 +701,65 @@ function SetupTab() {
   );
 }
 
+// Lightweight searchable single-select (combobox) — filter-as-you-type.
+function SearchableSelect({ value, options, onChange, disabled, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const wrapRef = useRef(null);
+  useEffect(() => {
+    function onDoc(e) { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+  const shown = q.trim()
+    ? options.filter(o => o.toLowerCase().includes(q.trim().toLowerCase()))
+    : options;
+  return (
+    <div ref={wrapRef} style={{ position: 'relative' }}>
+      <div
+        onClick={() => { if (!disabled) { setOpen(o => !o); setQ(''); } }}
+        style={{ ...inp, cursor: disabled ? 'default' : 'pointer', display: 'flex', alignItems: 'center',
+                 opacity: disabled ? .6 : 1 }}>
+        <span style={{ color: value ? '#0a0a0a' : '#a8a39a' }}>{value || placeholder || 'Select…'}</span>
+        <span style={{ marginLeft: 'auto', color: '#a8a39a', fontSize: '.7rem' }}>{open ? '\u25b4' : '\u25be'}</span>
+      </div>
+      {open && (
+        <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff',
+                      border: '1px solid #e4e0d8', borderRadius: 11, boxShadow: '0 12px 32px rgba(0,0,0,.13)',
+                      maxHeight: 240, overflowY: 'auto', zIndex: 60 }}>
+          <input
+            autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Type to search…"
+            style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: '1px solid #f0eeea',
+                     outline: 'none', fontSize: '.875rem', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+          {shown.length === 0 && <div style={{ padding: '10px 14px', fontSize: '.85rem', color: '#7a7670' }}>No matches</div>}
+          {shown.map(o => (
+            <div key={o} onClick={() => { onChange(o); setOpen(false); }}
+                 style={{ padding: '9px 14px', fontSize: '.86rem', cursor: 'pointer',
+                          background: o === value ? '#f6f4f0' : '#fff', color: '#0a0a0a' }}
+                 onMouseEnter={e => e.currentTarget.style.background = '#f6f4f0'}
+                 onMouseLeave={e => e.currentTarget.style.background = o === value ? '#f6f4f0' : '#fff'}>
+              {o}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AccountTab() {
+  const { customer } = useAuth();
+  const isAdmin = ['admin', 'owner'].includes(customer?.role);
   const [name, setName]   = useState('');
   const [email, setEmail] = useState('');
   const [prefs, setPrefs] = useState({ negative: true, all_reviews: false, weekly_digest: true });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [msg, setMsg]         = useState(null);
+  // Business type lives on the location (set at signup). Editable here by admins.
+  const [businessType, setBusinessType] = useState('');
+  const [initialType, setInitialType]   = useState('');
+  const [primaryLocId, setPrimaryLocId] = useState(null);
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
   async function load() {
@@ -716,12 +769,26 @@ function AccountTab() {
       setEmail(a.email || '');
       if (a.notificationPrefs) setPrefs({ negative: true, all_reviews: false, weekly_digest: true, ...a.notificationPrefs });
     } catch (e) { /* leave blanks */ }
+    try {
+      const locs = await getLocations(customer.id).catch(() => []);
+      const primary = locs[0];
+      if (primary) {
+        setPrimaryLocId(primary.id);
+        setBusinessType(primary.business_type || '');
+        setInitialType(primary.business_type || '');
+      }
+    } catch (e) { /* leave blank */ }
     finally { setLoading(false); }
   }
   async function save() {
     setSaving(true); setMsg(null);
     try {
       await updateAccount({ name, email, notificationPrefs: prefs });
+      // Persist a business-type change (admins only) to the primary location.
+      if (isAdmin && primaryLocId && businessType && businessType !== initialType) {
+        await updateLocationProfile(primaryLocId, { businessType });
+        setInitialType(businessType);
+      }
       setMsg({ ok: true, text: 'Saved ✓' });
     } catch (e) {
       setMsg({ ok: false, text: e.response?.data?.error || 'Could not save changes.' });
@@ -743,6 +810,22 @@ function AccountTab() {
         </Field>
         <Field label="Contact email">
           <input style={inp} type="email" value={email} onChange={e => setEmail(e.target.value)} disabled={loading} />
+        </Field>
+        <Field label="Business type">
+          {isAdmin ? (
+            <SearchableSelect
+              value={businessType}
+              options={BUSINESS_TYPES}
+              onChange={setBusinessType}
+              disabled={loading}
+              placeholder={loading ? 'Loading…' : 'Search your industry…'}
+            />
+          ) : (
+            <div style={{ ...inp, color: '#7a7670', background: '#faf9f6', display: 'flex', alignItems: 'center' }}>
+              {businessType || '—'}
+              <span style={{ marginLeft: 'auto', fontSize: '.72rem', color: '#a8a39a' }}>Admins only</span>
+            </div>
+          )}
         </Field>
       </Card>
       <Card style={{ padding: 20 }}>
