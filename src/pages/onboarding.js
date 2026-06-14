@@ -142,7 +142,15 @@ export default function Onboarding() {
       const res = await axios.get(`${API}/onboarding/status`, { headers: authHeaders() });
       const next = res.data.onboarding;
       setOb(next);
-      const advanceTo = next.nextStepId || next.steps.find(s => !s.completed && !s.locked)?.id;
+      const steps = Array.isArray(next.steps) ? next.steps : [];
+      // Prefer the next incomplete, unlocked step. If there is none (e.g. the user
+      // skipped the last optional step), fall back to the next unlocked step after
+      // this one so the wizard moves forward instead of stalling on the same panel.
+      let advanceTo = next.nextStepId || steps.find(s => !s.completed && !s.locked)?.id;
+      if (!advanceTo || advanceTo === doneId) {
+        const idx = steps.findIndex(s => s.id === doneId);
+        advanceTo = idx >= 0 ? steps.slice(idx + 1).find(s => !s.locked)?.id : null;
+      }
       if (advanceTo && advanceTo !== doneId) setSelectedId(advanceTo);
       if (prevActivated.current === false && next.activated === true) {
         setCelebrate(true);
