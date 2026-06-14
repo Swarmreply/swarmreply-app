@@ -151,7 +151,14 @@ export default function Onboarding() {
         const idx = steps.findIndex(s => s.id === doneId);
         advanceTo = idx >= 0 ? steps.slice(idx + 1).find(s => !s.locked)?.id : null;
       }
-      if (advanceTo && advanceTo !== doneId) setSelectedId(advanceTo);
+      if (advanceTo && advanceTo !== doneId) {
+        setSelectedId(advanceTo);
+      } else {
+        // Nothing left to advance to — the final onboarding step is done.
+        // Send the customer to their Home dashboard.
+        router.push('/dashboard');
+        return;
+      }
       if (prevActivated.current === false && next.activated === true) {
         setCelebrate(true);
         setTimeout(() => setCelebrate(false), 4200);
