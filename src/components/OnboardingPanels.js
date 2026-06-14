@@ -10,6 +10,7 @@
 // ============================================
 
 import { useState, useEffect } from 'react';
+import LogoUploader from './LogoUploader';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
@@ -259,6 +260,7 @@ function TestRequestPanel({ customer, onDone }) {
   const [email, setEmail] = useState(customer?.email || '');
   const [brandColor, setBrandColor] = useState('#f5c842');
   const [brandLogo, setBrandLogo] = useState('');
+  const [brandLogoPosition, setBrandLogoPosition] = useState('left');
   const [buttonText, setButtonText] = useState('Share Your Feedback →');
   const [tpl, setTpl] = useState({});
   const [sending, setSending] = useState(false);
@@ -272,6 +274,7 @@ function TestRequestPanel({ customer, onDone }) {
       setTpl(t);
       if (t.brandColor) setBrandColor(t.brandColor);
       if (t.brandLogo) setBrandLogo(t.brandLogo);
+      if (t.brandLogoPosition) setBrandLogoPosition(t.brandLogoPosition);
       if (t.buttonText) setButtonText(t.buttonText);
     } catch (e) { /* defaults */ }
   })(); }, []);
@@ -282,7 +285,7 @@ function TestRequestPanel({ customer, onDone }) {
     try {
       // Save branding to the template first, so the test email reflects it.
       await axios.put(`${API}/templates`, {
-        template: { ...tpl, brandColor, brandLogo: brandLogo.trim() || null, buttonText },
+        template: { ...tpl, brandColor, brandLogo: brandLogo.trim() || null, brandLogoPosition, buttonText },
       }, { headers: authHeaders() }).catch(() => {});
       await axios.post(`${API}/review-requests/send`, { name: name.trim(), email: email.trim() }, { headers: authHeaders() });
       setSent(true);
@@ -310,19 +313,26 @@ function TestRequestPanel({ customer, onDone }) {
             <input value={brandColor} onChange={e => setBrandColor(e.target.value)} style={{ ...fieldStyle, width: 110 }} placeholder="#f5c842" />
           </div>
         </div>
-        <div style={{ flex: 1, minWidth: 200 }}>
-          <label style={labelStyle}>Logo URL <span style={{ color: '#a8a39a' }}>(optional)</span></label>
-          <input value={brandLogo} onChange={e => setBrandLogo(e.target.value)} style={fieldStyle} placeholder="https://yoursite.com/logo.png" />
+        <div style={{ flex: 1, minWidth: 220 }}>
+          <label style={labelStyle}>Business logo <span style={{ color: '#a8a39a' }}>(optional)</span></label>
+          <LogoUploader
+            value={brandLogo.trim() || null}
+            position={brandLogoPosition}
+            brandColor={brandColor}
+            onChange={({ url, position }) => { setBrandLogo(url || ''); setBrandLogoPosition(position); }}
+          />
         </div>
       </div>
 
       {/* Live preview of the branded email header/button */}
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Preview</label>
-        <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '20px', textAlign: 'center', background: '#fff' }}>
+        <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '20px', background: '#fff' }}>
+          <div style={{ display: 'flex', justifyContent: ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[brandLogoPosition] || 'center', marginBottom: 12 }}>
           {brandLogo.trim()
-            ? <img src={brandLogo.trim()} alt="" style={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain', marginBottom: 12 }} onError={e => { e.target.style.display = 'none'; }} />
-            : <div style={{ fontFamily: '"Playfair Display", serif', fontWeight: 900, fontSize: '1.1rem', color: '#0a0a0a', marginBottom: 12 }}>{customer?.name || 'Your Business'}</div>}
+            ? <img src={brandLogo.trim()} alt="" style={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+            : <div style={{ fontFamily: '"Playfair Display", serif', fontWeight: 900, fontSize: '1.1rem', color: '#0a0a0a' }}>{customer?.name || 'Your Business'}</div>}
+          </div>
           <div style={{ fontSize: '.84rem', color: '#1a1a18', marginBottom: 14 }}>How was your experience with us?</div>
           <span style={{ display: 'inline-block', background: brandColor, color: '#0a0a0a', borderRadius: 50, padding: '10px 22px', fontWeight: 700, fontSize: '.85rem' }}>
             {buttonText}
@@ -347,7 +357,7 @@ function TestRequestPanel({ customer, onDone }) {
       <HelpBox title="What happens when I click this?">
         We save your color and logo to your review template, then email a real request to the address
         above — the exact branded message your customers will get. No hosted logo yet? Leave it blank and
-        we’ll show your business name instead; you can add a logo later in Settings.
+        we’ll show your business name instead. You can change this anytime in Grow › Request Template.
       </HelpBox>
     </div>
   );
