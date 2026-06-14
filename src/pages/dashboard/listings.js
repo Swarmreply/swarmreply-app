@@ -1,34 +1,33 @@
 // ============================================
 // pages/dashboard/listings.js
-// Listings Health — one source of truth for business
-// info, synced to the platforms we can write to
-// (Google; Apple/Bing when API keys are configured)
-// and guided everywhere else.
+// Listings Health — one canonical business profile,
+// pushed live to Google (true write-API) and monitored
+// for drift on Yelp, Facebook, and Foursquare.
+// No copy-paste portals: every row here connects via API.
 // ============================================
 
 import { useState, useEffect, useCallback } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Card, PageHeader, Button, StatCard, EmptyState } from '../../components/ui';
 import { Skeleton } from '../../components/Skeleton';
-import { getLocations, getListings, saveListings, pushListings, setListingDirectory, scanListings } from '../../utils/api';
+import { getLocations, getListings, saveListings, pushListings, scanListings } from '../../utils/api';
 
 const SERIF = "'Playfair Display', serif";
 
+// SYNCED tier — true write-API: we push your info live.
 const PLATFORM_META = {
-  google: { name: 'Google Business Profile', note: 'Synced through your Google connection' },
-  apple:  { name: 'Apple Maps', note: 'Needs Apple Maps API keys — use guided setup below meanwhile' },
-  bing:   { name: 'Bing Places', note: 'Needs a Bing Places API key — Bing can also import from Google' },
+  google: { name: 'Google Business Profile', note: 'Connect Google to push your hours, phone, website and more — live.' },
+  bing:   { name: 'Bing Places', note: 'Bing mirrors your Google profile automatically — keep Google synced and Bing follows.' },
+  apple:  { name: 'Apple Maps', note: 'Apple’s listings API is partner-gated — manage Apple Business directly for now.' },
 };
 
-const GUIDED = [
-  { id: 'yelp',        name: 'Yelp',          url: 'https://biz.yelp.com' },
-  { id: 'facebook',    name: 'Facebook page info', url: 'https://www.facebook.com/settings' },
-  { id: 'nextdoor',    name: 'Nextdoor',      url: 'https://business.nextdoor.com' },
-  { id: 'bbb',         name: 'BBB',           url: 'https://www.bbb.org/get-listed' },
-  { id: 'yellowpages', name: 'Yellow Pages',  url: 'https://accounts.yellowpages.com' },
-  { id: 'tripadvisor', name: 'TripAdvisor',   url: 'https://www.tripadvisor.com/Owners' },
-  { id: 'foursquare',  name: 'Foursquare',    url: 'https://business.foursquare.com' },
-  { id: 'angi',        name: 'Angi',          url: 'https://office.angi.com' },
+// MONITORED tier — read-only API: we watch for drift and flag mismatches.
+// 'facebook' works with the page connection you already have; 'yelp' and
+// 'foursquare' activate once their API keys are configured server-side.
+const MONITORED = [
+  { id: 'facebook',   name: 'Facebook',   needsKey: false, blurb: 'Watches your Facebook page info for changes.' },
+  { id: 'yelp',       name: 'Yelp',       needsKey: true,  blurb: 'Flags when your Yelp listing drifts from your info.' },
+  { id: 'foursquare', name: 'Foursquare', needsKey: true,  blurb: 'Powers Apple Maps and others that cross-reference it.' },
 ];
 
 const STATUS_CHIP = {
@@ -116,24 +115,27 @@ export default function Listings() {
 
 function ListingsBoard({ data, locationId, reload }) {
   const { location, platforms, directories, summary, history } = data;
-  const verified = directories.filter(d => d.status === 'verified').length;
-  const attention = directories.filter(d => d.status === 'attention').length
+  const monitored = (directories || []).filter(d => ['facebook', 'yelp', 'foursquare'].includes(d.directory));
+  const drift = monitored.filter(d => d.status === 'attention').length
     + platforms.filter(p => p.status === 'diverged' || p.status === 'error').length;
+  const googleLive = platforms.some(p => p.platform === 'google' && (p.status === 'synced' || p.status === 'connected'));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
+      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
         <StatCard label="Listings health" value={`${summary.score || 0}%`}
-          sub="Consistency across platforms" valueColor={summary.score >= 80 ? '#1a6b45' : summary.score >= 50 ? '#9a6a08' : '#b3261e'} />
-        <StatCard label="Synced platforms" value={`${summary.synced}/${summary.total}`} sub="Google, Apple, Bing" />
-        <StatCard label="Guided directories" value={`${verified}/${directories.length}`} sub="Verified by you" />
-        <StatCard label="Needs attention" value={attention} sub={attention ? 'Review below' : 'All clear'}
-          valueColor={attention ? '#b3261e' : '#1a6b45'} />
+          sub={googleLive ? 'Your info is live on Google' : 'Connect Google to start'}
+          valueColor={summary.score >= 80 ? '#1a6b45' : summary.score >= 50 ? '#9a6a08' : '#b3261e'} />
+        <StatCard label="Synced to Google" value={googleLive ? 'Live' : 'Off'}
+          sub={googleLive ? 'Hours, phone, website' : 'Not connected yet'}
+          valueColor={googleLive ? '#1a6b45' : '#7a7670'} />
+        <StatCard label="Needs attention" value={drift} sub={drift ? 'Drift detected below' : 'All consistent'}
+          valueColor={drift ? '#b3261e' : '#1a6b45'} />
       </div>
 
       <BusinessInfoCard location={location} locationId={locationId} reload={reload} />
       <SyncPlatformsCard platforms={platforms} locationId={locationId} reload={reload} />
-      <GuidedDirectoriesCard directories={directories} location={location} locationId={locationId} reload={reload} />
+      <MonitoredCard monitored={monitored} locationId={locationId} reload={reload} />
       {history?.length > 0 && <HistoryCard history={history} />}
     </div>
   );
@@ -219,15 +221,16 @@ function SyncPlatformsCard({ platforms, locationId, reload }) {
   return (
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4, flexWrap: 'wrap' }}>
-        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Synced platforms</div>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Synced to Google</div>
         {anyConnected && (
           <Button size="sm" onClick={() => push(null)} disabled={!!pushing}>
-            {pushing === 'all' ? 'Pushing…' : 'Push everywhere'}
+            {pushing === 'all' ? 'Pushing…' : 'Push my info live'}
           </Button>
         )}
       </div>
       <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14 }}>
-        SwarmReply checks these daily and flags anything that drifts from your business info.
+        This is the listing customers actually see first. Connect Google once and SwarmReply pushes your
+        business info live — then keeps it in sync every day. Bing mirrors Google automatically.
       </div>
       {platforms.map(p => {
         const meta = PLATFORM_META[p.platform] || { name: p.platform };
@@ -269,31 +272,12 @@ function SyncPlatformsCard({ platforms, locationId, reload }) {
   );
 }
 
-// ── Guided directories ───────────────────────
+// ── Monitored directories (read-only API) ────
 
-const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
-
-function dirSubline(d) {
-  if (d.status === 'attention') return [d.note || 'Needs an update', '#b3261e', 700];
-  if (d.status === 'verified') {
-    const stale = d.verified_at && (Date.now() - new Date(d.verified_at).getTime() > NINETY_DAYS) && !d.last_checked_at;
-    if (stale) return [`Verified ${new Date(d.verified_at).toLocaleDateString()} — worth a 2-minute re-check`, '#9a6a08', 700];
-    return [
-      d.last_checked_at
-        ? `Verified · auto-checked ${new Date(d.last_checked_at).toLocaleDateString()} ✓`
-        : `Verified ${d.verified_at ? new Date(d.verified_at).toLocaleDateString() : ''}`,
-      '#1a6b45', 700,
-    ];
-  }
-  if (d.found_name) return [`We found your listing — looks consistent. Verify to track it.`, '#27508f', 600];
-  return ['Not set up yet', '#7a7670', 400];
-}
-
-function GuidedDirectoriesCard({ directories, location, locationId, reload }) {
-  const [openDir, setOpenDir] = useState(null);
+function MonitoredCard({ monitored, locationId, reload }) {
   const [scanning, setScanning] = useState(false);
   const [scanMsg, setScanMsg] = useState('');
-  const byKey = Object.fromEntries(directories.map(d => [d.directory, d]));
+  const byKey = Object.fromEntries((monitored || []).map(d => [d.directory, d]));
 
   async function scan() {
     setScanning(true); setScanMsg('');
@@ -302,7 +286,7 @@ function GuidedDirectoriesCard({ directories, location, locationId, reload }) {
       const checked = Object.values(res.results || {}).filter(r => r.checked).length;
       const flagged = Object.values(res.results || {}).filter(r => r.diverged).length;
       setScanMsg(checked === 0
-        ? 'No directories could be checked yet — connect Facebook or add Yelp/Foursquare API keys.'
+        ? 'No directories are connected to scan yet — Facebook needs your page connected; Yelp and Foursquare activate once we enable them.'
         : `Checked ${checked} director${checked === 1 ? 'y' : 'ies'} — ${flagged ? `${flagged} need${flagged === 1 ? 's' : ''} attention` : 'all consistent ✓'}`);
       reload();
     } catch (e) {
@@ -313,113 +297,49 @@ function GuidedDirectoriesCard({ directories, location, locationId, reload }) {
   return (
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4, flexWrap: 'wrap' }}>
-        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Guided directories</div>
-        <Button size="sm" variant="ghost" onClick={scan} disabled={scanning}>
-          {scanning ? 'Scanning…' : 'Scan directories now'}
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Monitored directories</div>
+        <Button size="sm" onClick={scan} disabled={scanning}>
+          {scanning ? 'Scanning…' : 'Scan for inconsistencies'}
         </Button>
       </div>
-      {scanMsg && <div style={{ fontSize: '.76rem', fontWeight: 600, color: '#27508f', marginBottom: 8 }}>{scanMsg}</div>}
-      <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 16 }}>
-        These sites don\u2019t allow automatic updates — but a consistent listing on them still boosts your visibility
-        (Apple Maps, for one, cross-references Yelp). Each takes about 5 minutes with your info pre-formatted.
+      <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14 }}>
+        These can’t be written to by API, but we watch them for you and flag the moment your name,
+        phone, or address drifts from your business info — so you can fix it before customers see it.
       </div>
-      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
-        {GUIDED.map(g => {
-          const d = byKey[g.id] || { status: 'not_setup' };
-          return (
-            <div key={g.id} style={{ border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '12px 16px',
-              display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '.85rem' }}>{g.name}</div>
-                {(() => { const [text, color, weight] = dirSubline(d); return (
-                  <div style={{ fontSize: '.72rem', color, fontWeight: weight }}>{text}</div>
-                ); })()}
-              </div>
-              <Button size="sm" variant={d.status === 'verified' ? 'ghost' : 'dark'} onClick={() => setOpenDir(g)}>
-                {d.status === 'verified' ? 'Review' : 'Set up'}
-              </Button>
+      {scanMsg && <div style={{ fontSize: '.76rem', fontWeight: 600, color: '#27508f', marginBottom: 10 }}>{scanMsg}</div>}
+
+      {MONITORED.map(m => {
+        const d = byKey[m.id] || {};
+        const checked = !!d.last_checked_at;
+        const diverged = d.status === 'attention';
+        // Status + sub copy
+        let chipBg, chipColor, chipLabel, sub, subColor;
+        if (diverged) {
+          chipBg = '#fdf3e0'; chipColor = '#9a6a08'; chipLabel = 'Mismatch';
+          sub = d.note || 'Differs from your business info'; subColor = '#b3261e';
+        } else if (checked) {
+          chipBg = '#e8f5ef'; chipColor = '#1a6b45'; chipLabel = 'Consistent ✓';
+          sub = `Auto-checked ${new Date(d.last_checked_at).toLocaleDateString()}`; subColor = '#7a7670';
+        } else if (m.needsKey) {
+          chipBg = '#f3f1ec'; chipColor = '#7a7670'; chipLabel = 'Coming soon';
+          sub = m.blurb; subColor = '#a39e93';
+        } else {
+          chipBg = '#eef2fb'; chipColor = '#27508f'; chipLabel = 'Connect to monitor';
+          sub = m.blurb; subColor = '#7a7670';
+        }
+        return (
+          <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12,
+            padding: '13px 0', borderTop: '1px solid #f0eeea', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <div style={{ fontWeight: 600, fontSize: '.875rem' }}>{m.name}</div>
+              <div style={{ fontSize: '.74rem', color: subColor }}>{sub}</div>
             </div>
-          );
-        })}
-      </div>
-      {openDir && (
-        <GuidedModal dir={openDir} state={byKey[openDir.id]} location={location}
-          locationId={locationId} onClose={() => setOpenDir(null)} reload={reload} />
-      )}
+            <span style={{ background: chipBg, color: chipColor, fontSize: '.72rem', fontWeight: 700,
+              padding: '4px 11px', borderRadius: 50, whiteSpace: 'nowrap' }}>{chipLabel}</span>
+          </div>
+        );
+      })}
     </Card>
-  );
-}
-
-function GuidedModal({ dir, state, location, locationId, onClose, reload }) {
-  const [busy, setBusy] = useState(false);
-  const infoLines = [
-    ['Name', location.businessName],
-    ['Phone', location.phone],
-    ['Website', location.website],
-    ['Address', [location.addressLine1, location.addressLine2, location.city, location.state, location.zip].filter(Boolean).join(', ')],
-    ['Description', location.description],
-  ].filter(([, v]) => v);
-
-  async function mark(status) {
-    setBusy(true);
-    try {
-      await setListingDirectory(locationId, dir.id, status);
-      reload(); onClose();
-    } catch (e) {
-      alert(e.response?.data?.error || 'Could not update');
-    } finally { setBusy(false); }
-  }
-
-  function copyAll() {
-    const text = infoLines.map(([k, v]) => `${k}: ${v}`).join('\n');
-    if (navigator.clipboard) navigator.clipboard.writeText(text);
-  }
-
-  return (
-    <div onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-      style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'rgba(10,10,8,.55)',
-        backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-      role="dialog" aria-modal="true" aria-label={`Set up ${dir.name}`}>
-      <div className="sr-fade-in" style={{ background: '#faf9f6', borderRadius: 20, width: 'min(460px,100%)',
-        boxShadow: '0 30px 80px rgba(0,0,0,.3)', overflow: 'hidden' }}>
-        <div style={{ background: 'linear-gradient(135deg,#f5c842,#d4a515)', padding: '16px 22px',
-          display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ flex: 1, fontFamily: SERIF, fontWeight: 700, fontSize: '1.1rem', color: '#1a1408' }}>
-            Set up {dir.name} — 5 minutes
-          </div>
-          <button onClick={onClose} aria-label="Close" style={{ background: 'rgba(10,10,8,.12)', border: 'none',
-            borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', color: '#1a1408', lineHeight: 1 }}>✕</button>
-        </div>
-        <div style={{ padding: '20px 22px 24px' }}>
-          <ol style={{ fontSize: '.83rem', color: '#1a1a18', paddingLeft: 18, margin: '0 0 14px', lineHeight: 1.7 }}>
-            <li>Open {dir.name} and sign in (or claim your business)</li>
-            <li>Paste your info below — exactly as written, consistency is the whole game</li>
-            <li>Come back and mark it verified</li>
-          </ol>
-          <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 12, padding: '12px 14px', marginBottom: 14 }}>
-            {infoLines.length === 0 ? (
-              <div style={{ fontSize: '.8rem', color: '#7a7670' }}>Fill in your Business info card first — then your details appear here ready to paste.</div>
-            ) : infoLines.map(([k, v]) => (
-              <div key={k} style={{ fontSize: '.78rem', padding: '3px 0' }}>
-                <span style={{ color: '#a39e93', fontWeight: 700 }}>{k}: </span>{v}
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {infoLines.length > 0 && <Button size="sm" variant="ghost" onClick={copyAll}>Copy all</Button>}
-            <Button size="sm" variant="ghost" href={dir.url} target="_blank" rel="noreferrer">Open {dir.name} ↗</Button>
-            <div style={{ flex: 1 }} />
-            <Button size="sm" onClick={() => mark('verified')} disabled={busy}>Mark verified ✓</Button>
-          </div>
-          {state?.status === 'verified' && (
-            <button onClick={() => mark('attention')} disabled={busy} style={{ background: 'none', border: 'none',
-              color: '#7a7670', fontSize: '.72rem', cursor: 'pointer', marginTop: 12, padding: 0, fontFamily: 'inherit', textDecoration: 'underline' }}>
-              Something changed — flag this listing for an update
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
   );
 }
 
