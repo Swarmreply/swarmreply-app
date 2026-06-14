@@ -640,7 +640,7 @@ function ConnectIntegrationPanel({ onDone }) {
   );
 }
 
-// ── STEP: Get your business info live on Google ───────────────────────
+// ── STEP: Make your business info consistent everywhere ───────────────
 function ListingsPanel({ onDone }) {
   const router = useRouter();
   const [data, setData] = useState(null);
@@ -681,7 +681,7 @@ function ListingsPanel({ onDone }) {
   if (done) return (
     <Note tone="success">
       Your business info is now live on Google. SwarmReply will keep it in sync and flag any drift on
-      Yelp, Facebook, and Foursquare — so your listing stays consistent everywhere customers look.
+      Facebook and Foursquare — so your listing stays consistent everywhere customers look.
     </Note>
   );
 
@@ -689,8 +689,8 @@ function ListingsPanel({ onDone }) {
     <div>
       <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 14px', lineHeight: 1.55 }}>
         One source of truth, live everywhere customers search. SwarmReply pushes your business info
-        straight to Google — the listing that matters most — then watches Yelp, Facebook, and
-        Foursquare for inconsistencies. No copy-paste, no portals.
+        straight to Google — the listing that matters most — then watches Facebook and Foursquare
+        for inconsistencies (Foursquare feeds Apple Maps, Uber & more). No copy-paste, no portals.
       </p>
 
       {data?.location && (
@@ -734,9 +734,9 @@ function ListingsPanel({ onDone }) {
 
       <HelpBox title="Why just Google?">
         Google is where the overwhelming majority of local customers look — and the only major platform
-        with a true write API, so we can push your info live and keep it synced. Yelp, Facebook, and
-        Foursquare don’t allow writes, so SwarmReply monitors them and flags drift instead. You’ll see all
-        of this on the Listings page.
+        with a true write API, so we can push your info live and keep it synced. Facebook and Foursquare
+        don’t allow writes, so SwarmReply monitors them and flags drift instead. You’ll see all of this
+        on the Listings page.
       </HelpBox>
     </div>
   );
