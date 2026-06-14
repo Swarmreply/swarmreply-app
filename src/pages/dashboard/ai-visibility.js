@@ -332,7 +332,8 @@ function CompetitorsTab({ report }) {
   return (
     <div style={{ padding: 24 }}>
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
-        {/* LEFT: leaderboard with "why they're favored" */}
+        {/* LEFT: scan results, with the suggestions box stacked directly below */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
         <Card style={{ overflow: 'hidden', height: 'fit-content' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>AI competitor leaderboard</div>
           {competitors.map((c, i) => {
@@ -367,9 +368,7 @@ function CompetitorsTab({ report }) {
           </div>
         </Card>
 
-        {/* RIGHT: actionable insights */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Your top moves (grounded recommendations) */}
+          {/* Your top moves (suggestions) — now below the scan results, full width */}
           <Card style={{ padding: 20 }}>
             <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Your top moves</div>
             {recs.length === 0 ? (
@@ -395,7 +394,10 @@ function CompetitorsTab({ report }) {
               );
             })}
           </Card>
+        </div>
 
+        {/* RIGHT: supporting insight */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Where you're missing (query gaps) */}
           <Card style={{ padding: 20 }}>
             <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>Where you're missing</div>
