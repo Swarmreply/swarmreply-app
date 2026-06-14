@@ -45,7 +45,9 @@ const FOURSQUARE_FEEDS = [
 // 'foursquare' activates once its API key is configured server-side.
 const MONITORED = [
   { id: 'facebook',   name: 'Facebook',   needsKey: false, connectable: true,  blurb: 'Watches your Facebook page info for changes.' },
-  { id: 'foursquare', name: 'Foursquare', needsKey: true,  connectable: false, blurb: 'Feeds Apple Maps, Uber, Nextdoor & more — fix it once, fix it everywhere.' },
+  { id: 'foursquare', name: 'Foursquare', needsKey: true,  connectable: false, blurb: 'Feeds Apple Maps, Uber, Nextdoor & more — fix it once, fix it everywhere.',
+    setupUrl: 'https://business.foursquare.com/claim/',
+    setupNote: 'Claiming your Foursquare listing is free — you just verify by phone. Foursquare also offers $20 instant verification if you’d rather not wait for the call. Once it’s claimed, keep your name, address and phone matching the info above.' },
 ];
 
 const STATUS_CHIP = {
@@ -133,7 +135,7 @@ export default function Listings() {
 
 const DIR_FIX_URL = {
   facebook:   'https://www.facebook.com/settings',
-  foursquare: 'https://foursquare.com/venue/claim',
+  foursquare: 'https://business.foursquare.com/claim/',
 };
 const DIR_NAME = { facebook: 'Facebook', foursquare: 'Foursquare' };
 
@@ -503,7 +505,7 @@ function MonitoredCard({ monitored, locationId, reload }) {
           chipBg = '#e8f5ef'; chipColor = '#1a6b45'; chipLabel = 'Consistent ✓';
           sub = `Auto-checked ${new Date(d.last_checked_at).toLocaleDateString()}`; subColor = '#7a7670';
         } else if (m.needsKey) {
-          chipBg = '#f3f1ec'; chipColor = '#7a7670'; chipLabel = 'Coming soon';
+          chipBg = '#f3f1ec'; chipColor = '#7a7670'; chipLabel = m.setupUrl ? 'Guided setup' : 'Coming soon';
           sub = m.blurb; subColor = '#a39e93';
         } else {
           chipBg = '#eef2fb'; chipColor = '#27508f'; chipLabel = 'Connect to monitor';
@@ -538,9 +540,23 @@ function MonitoredCard({ monitored, locationId, reload }) {
                   Connect
                 </button>
               ))}
+              {/* Guided setup link for non-connectable directories the customer claims themselves (Foursquare) */}
+              {!m.connectable && m.setupUrl && (
+                <a href={m.setupUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ background: '#0a0a0a', color: 'white', borderRadius: 50, padding: '5px 13px',
+                    fontSize: '.74rem', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+                  Set up on {m.name} →
+                </a>
+              )}
             </div>
 
-            {/* Foursquare feed-sites dropdown (#4) */}
+            {/* Guided-setup helper copy for directories the customer claims themselves */}
+            {!m.connectable && m.setupNote && (
+              <div style={{ background: '#f7f9fc', border: '1px solid #e3e9f3', borderRadius: 12, padding: '11px 14px', marginBottom: 12 }}>
+                <div style={{ fontSize: '.76rem', color: '#41506b', lineHeight: 1.5 }}>{m.setupNote}</div>
+              </div>
+            )}
+
             {m.id === 'foursquare' && openFeed && (
               <div style={{ background: '#faf9f6', border: '1px solid #ece8e0', borderRadius: 12, padding: '12px 14px', marginBottom: 12 }}>
                 <div style={{ fontSize: '.74rem', color: '#7a7670', marginBottom: 8 }}>
