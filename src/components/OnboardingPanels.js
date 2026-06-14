@@ -301,6 +301,15 @@ function TestRequestPanel({ customer, onDone }) {
     } finally { setSending(false); }
   }
 
+  // Mirror Grow › Email preview: render the real subject + body exactly as it sends.
+  const businessName = customer?.name || 'Your Business';
+  const recipientName = name.trim() || 'there';
+  const DEFAULT_SUBJECT = 'How did we do, {name}?';
+  const DEFAULT_BODY = "Hi {name},\n\nThank you for choosing {business}! Your experience matters to us.\n\nWe'd love to hear how we did — it only takes a moment.\n\nTap below to share your feedback:\n{link}\n\nThank you,\n{business} Team";
+  const fillTokens = s => (s || '').replace(/{name}/g, recipientName).replace(/{business}/g, businessName);
+  const subjectPreview = fillTokens(tpl.emailSubject || DEFAULT_SUBJECT);
+  const bodyPreview = fillTokens((tpl.emailBody || DEFAULT_BODY).split('{link}')[0]).replace(/\s+$/, '');
+
   if (sent) return <Note tone="success">Sent! Check <strong>{email}</strong> to see exactly what your customers receive — with your branding.</Note>;
 
   return (
@@ -330,19 +339,30 @@ function TestRequestPanel({ customer, onDone }) {
         </div>
       </div>
 
-      {/* Live preview of the branded email header/button */}
+      {/* Live preview — exactly how the email arrives, matching Grow › Email preview */}
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Preview</label>
-        <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '20px', background: '#fff' }}>
-          <div style={{ display: 'flex', justifyContent: ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[brandLogoPosition] || 'center', marginBottom: 12 }}>
-          {brandLogo.trim()
-            ? <img src={brandLogo.trim()} alt="" style={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
-            : <div style={{ fontFamily: '"Playfair Display", serif', fontWeight: 900, fontSize: '1.1rem', color: '#0a0a0a' }}>{customer?.name || 'Your Business'}</div>}
+        <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', fontFamily: 'sans-serif' }}>
+          {/* Banner */}
+          <div style={{ background: brandColor, padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[brandLogoPosition] || 'flex-start' }}>
+            {brandLogo.trim()
+              ? <img src={brandLogo.trim()} alt="" style={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
+              : <div style={{ fontWeight: 800, fontSize: '1.05rem', color: '#0a0a0a', letterSpacing: '-.01em' }}>{businessName}</div>}
           </div>
-          <div style={{ fontSize: '.84rem', color: '#1a1a18', marginBottom: 14 }}>How was your experience with us?</div>
-          <span style={{ display: 'inline-block', background: brandColor, color: '#0a0a0a', borderRadius: 50, padding: '10px 22px', fontWeight: 700, fontSize: '.85rem' }}>
-            {buttonText}
-          </span>
+          {/* Body */}
+          <div style={{ padding: '22px', background: 'white' }}>
+            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#0a0a0a', marginBottom: 12 }}>{subjectPreview}</div>
+            <div style={{ fontSize: '.86rem', color: '#3a3a38', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap' }}>{bodyPreview}</div>
+            <div style={{ textAlign: 'center' }}>
+              <span style={{ display: 'inline-block', background: brandColor, color: '#0a0a0a', padding: '13px 26px', borderRadius: 50, fontWeight: 700, fontSize: '.88rem' }}>
+                {buttonText}
+              </span>
+            </div>
+          </div>
+          {/* Footer */}
+          <div style={{ background: brandColor, padding: '13px 22px', opacity: .85 }}>
+            <div style={{ fontSize: '.7rem', color: '#0a0a0a', opacity: .7, textAlign: 'center' }}>Sent by SwarmReply on behalf of {businessName}</div>
+          </div>
         </div>
       </div>
 
