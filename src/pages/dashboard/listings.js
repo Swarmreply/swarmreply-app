@@ -46,7 +46,7 @@ const FOURSQUARE_FEEDS = [
 const MONITORED = [
   { id: 'facebook',   name: 'Facebook',   needsKey: false, connectable: true,  blurb: 'Watches your Facebook page info for changes.' },
   { id: 'foursquare', name: 'Foursquare', needsKey: true,  connectable: false, blurb: 'Feeds Apple Maps, Uber, Nextdoor & more — fix it once, fix it everywhere.',
-    setupUrl: 'https://business.foursquare.com/claim/',
+    setupUrl: 'https://app.foursquare.com/venue/claim',
     setupNote: 'Claiming your Foursquare listing is free — you just verify by phone. Foursquare also offers $20 instant verification if you’d rather not wait for the call. Once it’s claimed, keep your name, address and phone matching the info above.' },
 ];
 
@@ -135,7 +135,7 @@ export default function Listings() {
 
 const DIR_FIX_URL = {
   facebook:   'https://www.facebook.com/settings',
-  foursquare: 'https://business.foursquare.com/claim/',
+  foursquare: 'https://app.foursquare.com/venue/claim',
 };
 const DIR_NAME = { facebook: 'Facebook', foursquare: 'Foursquare' };
 
