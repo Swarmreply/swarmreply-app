@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import LogoUploader from './LogoUploader';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import { getListings, saveListings, pushListings } from '../utils/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 function authHeaders() {
@@ -639,8 +640,111 @@ function ConnectIntegrationPanel({ onDone }) {
   );
 }
 
+// ── STEP: Get your business info live on Google ───────────────────────
+function ListingsPanel({ onDone }) {
+  const router = useRouter();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [pushing, setPushing] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState(null);
+  const [locationId, setLocationId] = useState(null);
+
+  useEffect(() => { (async () => {
+    try {
+      const locs = await (await import('../utils/api')).getLocations();
+      if (!locs.length) { setLoading(false); return; }
+      setLocationId(locs[0].id);
+      const d = await getListings(locs[0].id);
+      setData(d);
+    } catch (e) { /* fall through */ }
+    finally { setLoading(false); }
+  })(); }, []);
+
+  const googleLive = data?.platforms?.some(p => p.platform === 'google' && (p.status === 'synced' || p.status === 'connected'));
+
+  async function pushLive() {
+    setPushing(true); setErr(null);
+    try {
+      const res = await pushListings(locationId, 'google');
+      const g = res.results?.google;
+      if (g && g.success === false) throw new Error(g.error || 'Push failed');
+      setDone(true);
+      onDone && onDone();
+    } catch (e) {
+      setErr(e.response?.data?.error || e.message || 'Could not push to Google.');
+    } finally { setPushing(false); }
+  }
+
+  if (loading) return <p style={{ fontSize: '.84rem', color: '#7a7670' }}>Loading your business info…</p>;
+
+  if (done) return (
+    <Note tone="success">
+      Your business info is now live on Google. SwarmReply will keep it in sync and flag any drift on
+      Yelp, Facebook, and Foursquare — so your listing stays consistent everywhere customers look.
+    </Note>
+  );
+
+  return (
+    <div>
+      <p style={{ fontSize: '.84rem', color: '#7a7670', margin: '0 0 14px', lineHeight: 1.55 }}>
+        One source of truth, live everywhere customers search. SwarmReply pushes your business info
+        straight to Google — the listing that matters most — then watches Yelp, Facebook, and
+        Foursquare for inconsistencies. No copy-paste, no portals.
+      </p>
+
+      {data?.location && (
+        <div style={{ background: '#faf9f6', border: '1.5px solid #e4e0d8', borderRadius: 12, padding: '14px 16px', marginBottom: 14 }}>
+          {[
+            ['Business', data.location.businessName],
+            ['Phone', data.location.phone],
+            ['Website', data.location.website],
+            ['Address', [data.location.addressLine1, data.location.city, data.location.state, data.location.zip].filter(Boolean).join(', ')],
+          ].filter(([, v]) => v).map(([k, v]) => (
+            <div key={k} style={{ fontSize: '.8rem', padding: '3px 0' }}>
+              <span style={{ color: '#a39e93', fontWeight: 700 }}>{k}: </span>{v}
+            </div>
+          ))}
+          <button onClick={() => router.push('/dashboard/listings')}
+            style={{ background: 'none', border: 'none', color: '#1a4baa', fontSize: '.76rem', cursor: 'pointer', padding: '6px 0 0', fontFamily: 'inherit' }}>
+            Edit business info →
+          </button>
+        </div>
+      )}
+
+      {err && <Note tone="error">{err}</Note>}
+
+      {googleLive ? (
+        <button onClick={pushLive} disabled={pushing} style={{ ...primaryBtn, opacity: pushing ? .6 : 1 }}>
+          {pushing ? 'Pushing to Google…' : 'Push my info live to Google →'}
+        </button>
+      ) : (
+        <div>
+          <Note tone="warn">
+            Connect Google first — it’s the listing SwarmReply pushes your info to. Once it’s connected,
+            come back here to go live.
+          </Note>
+          <div style={{ marginTop: 12 }}>
+            <button onClick={() => router.push('/dashboard/integrations?connect=google')} style={primaryBtn}>
+              Connect Google →
+            </button>
+          </div>
+        </div>
+      )}
+
+      <HelpBox title="Why just Google?">
+        Google is where the overwhelming majority of local customers look — and the only major platform
+        with a true write API, so we can push your info live and keep it synced. Yelp, Facebook, and
+        Foursquare don’t allow writes, so SwarmReply monitors them and flags drift instead. You’ll see all
+        of this on the Listings page.
+      </HelpBox>
+    </div>
+  );
+}
+
 export const STEP_PANELS = {
   business_details:    BusinessDetailsPanel,
+  listings_sync:       ListingsPanel,
   connect_google:      ConnectGooglePanel,
   review_link:         ReviewLinkPanel,
   test_request:        TestRequestPanel,
