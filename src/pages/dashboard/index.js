@@ -430,9 +430,9 @@ export default function Dashboard() {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
               <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Your Locations</span>
-              <a href="/dashboard/locations/add" style={{
+              <a href="/dashboard/billing" title="Add or remove locations in Manage Billing" style={{
                 fontSize: '0.78rem', color: '#7a7670', textDecoration: 'none'
-              }}>+ Add</a>
+              }}>Manage →</a>
             </div>
 
             {loading ? (
