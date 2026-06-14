@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import LogoUploader from '../../components/LogoUploader';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -479,6 +480,7 @@ const SWARMREPLY_COLOR = '#f5c842';
 const DEFAULT_TMPL = {
   brandColor: SWARMREPLY_COLOR,
   brandLogo: SWARMREPLY_LOGO,
+  brandLogoPosition: 'left',
   buttonText: 'Share Your Feedback →',
   smsRequest: "Hi {name}, thanks for choosing {business}! We'd love your feedback — it only takes 30 seconds. {link}",
   emailSubject: 'How did we do, {name}?',
@@ -538,7 +540,7 @@ function TemplatesTab() {
   async function save() {
     try {
       await axios.put(`${API}/templates`, { template: {
-        brandColor, brandLogo: tmpl.brandLogo, buttonText: tmpl.buttonText,
+        brandColor, brandLogo: tmpl.brandLogo, brandLogoPosition: tmpl.brandLogoPosition, buttonText: tmpl.buttonText,
         promoterMin, neutralMin,
         smsRequest: tmpl.smsRequest, emailSubject: tmpl.emailSubject, emailBody: tmpl.emailBody,
         npsQuestion: tmpl.npsQuestion, promoterMessage: tmpl.promoterMessage,
@@ -632,16 +634,13 @@ function TemplatesTab() {
           </div>
         </TField>
 
-        <TField label="Business logo URL" hint="Paste a URL to your logo image (PNG or JPG). Shown in the email header. Recommended: 200×60px.">
-          <input style={{ ...inp, resize: 'none' }} value={tmpl.brandLogo}
-            onChange={e => updateTmpl('brandLogo', e.target.value)}
-            placeholder="https://yourwebsite.com/logo.png" />
-          {tmpl.brandLogo && (
-            <div style={{ marginTop: 10, background: '#f8f7f4', borderRadius: 9, padding: 12, textAlign: 'center' }}>
-              <img src={tmpl.brandLogo} alt="Logo preview" style={{ maxHeight: 60, maxWidth: 200, objectFit: 'contain' }}
-                onError={e => { e.target.style.display='none'; }} />
-            </div>
-          )}
+        <TField label="Business logo" hint="Drag in your logo (PNG, JPG, WEBP, or SVG). Shown in the email header — pick where it sits below.">
+          <LogoUploader
+            value={tmpl.brandLogo && tmpl.brandLogo !== SWARMREPLY_LOGO ? tmpl.brandLogo : null}
+            position={tmpl.brandLogoPosition || 'left'}
+            brandColor={tmpl.brandColor}
+            onChange={({ url, position }) => { updateTmpl('brandLogo', url); updateTmpl('brandLogoPosition', position); }}
+          />
         </TField>
 
         <TField label="Button text" hint="The call-to-action button in the email.">
@@ -654,7 +653,7 @@ function TemplatesTab() {
           <span style={lbl}>Email preview</span>
           <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', fontFamily: 'sans-serif' }}>
             {/* Banner */}
-            <div style={{ background: tmpl.brandColor, padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ background: tmpl.brandColor, padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[tmpl.brandLogoPosition] || 'flex-start' }}>
               {tmpl.brandLogo
                 ? <img src={tmpl.brandLogo} alt="Logo" style={{ maxHeight: 48, maxWidth: 160, objectFit: 'contain' }} onError={e => e.target.style.display='none'} />
                 : <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0a0a0a', letterSpacing: '-.01em' }}>Your Business</div>
