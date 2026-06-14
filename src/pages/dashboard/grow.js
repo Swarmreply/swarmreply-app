@@ -685,12 +685,12 @@ function TemplatesTab() {
           Define what score range qualifies as Promoter, Neutral, or Detractor. This controls which follow-up path a customer is sent down after completing the NPS survey.
         </div>
         <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', height: 40, marginBottom: 12 }}>
-          <div style={{ flex: neutralMin, background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: '#c0392b' }}>Detractor · 0–{detractorMax}</div>
+          <div style={{ flex: neutralMin - 1, background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: '#c0392b' }}>Detractor · 1–{detractorMax}</div>
           <div style={{ flex: Math.max(1, promoterMin - neutralMin), background: '#fef9c3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: '#92690a' }}>Neutral · {neutralMin}–{neutralMax}</div>
           <div style={{ flex: 11 - promoterMin, background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: '#1a6b45' }}>Promoter · {promoterMin}–10</div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: '#7a7670', marginBottom: 20, padding: '0 2px' }}>
-          {[0,1,2,3,4,5,6,7,8,9,10].map(n => <span key={n} style={{ fontWeight: 600 }}>{n}</span>)}
+          {[1,2,3,4,5,6,7,8,9,10].map(n => <span key={n} style={{ fontWeight: 600 }}>{n}</span>)}
         </div>
         <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           <TField label="Neutral starts at" hint="Scores below this are Detractors (min 1, max 7)">
@@ -718,7 +718,7 @@ function TemplatesTab() {
         </div>
         <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginTop: 8 }}>
           {[
-            { label: 'Detractor', range: `0–${detractorMax}`, bg: '#fee2e2', border: '#fca5a5', tc: '#c0392b', desc: 'Taken to a feedback form to share their experience.' },
+            { label: 'Detractor', range: `1–${detractorMax}`, bg: '#fee2e2', border: '#fca5a5', tc: '#c0392b', desc: 'Taken to a feedback form to share their experience.' },
             { label: 'Neutral', range: `${neutralMin}–${neutralMax}`, bg: '#fef9c3', border: '#fde68a', tc: '#92690a', desc: 'Asked if they would return. Yes → Promoter. No → Detractor.' },
             { label: 'Promoter', range: `${promoterMin}–10`, bg: '#dcfce7', border: '#bbf7d0', tc: '#1a6b45', desc: 'Asked to leave a review on your priority platform.' },
           ].map(p => (
@@ -795,7 +795,7 @@ function TemplatesTab() {
           <div style={{ fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>Live preview</div>
           <div style={{ fontSize: '.9rem', color: '#0a0a0a', fontWeight: 500, marginBottom: 14 }}>{tmpl.npsQuestion.replace(/{business}/g, 'Your Business')}</div>
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-            {[0,1,2,3,4,5,6,7,8,9,10].map(n => (
+            {[1,2,3,4,5,6,7,8,9,10].map(n => (
               <div key={n} style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #e4e0d8', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.8rem', fontWeight: 600, color: '#7a7670' }}>{n}</div>
             ))}
           </div>
@@ -849,7 +849,7 @@ function TemplatesTab() {
     detractor: (
       <div style={{ maxWidth: 560 }}>
         <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 10, padding: '10px 14px', fontSize: '.8rem', color: '#c0392b', marginBottom: 20 }}>
-          Shown to customers who scored 0–{detractorMax}, or neutral customers who said they would not return
+          Shown to customers who scored 1–{detractorMax}, or neutral customers who said they would not return
         </div>
         <TField label="Opening message"><textarea rows={2} style={inp} value={tmpl.detractorOpening} onChange={e => updateTmpl('detractorOpening', e.target.value)} /></TField>
         <TField label="Question 1 — What fell short" hint="Free text response"><input style={{ ...inp, resize: 'none' }} value={tmpl.detractorQ1} onChange={e => updateTmpl('detractorQ1', e.target.value)} /></TField>
