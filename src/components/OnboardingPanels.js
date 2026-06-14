@@ -634,6 +634,7 @@ function ConnectIntegrationPanel({ onDone }) {
       onDone && onDone();
     } catch (e) {
       setErr('Could not save. Please try again.');
+    } finally {
       setSkipping(false);
     }
   }
