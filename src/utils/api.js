@@ -110,13 +110,8 @@ export async function getSurveyHistory(locationId) {
 }
 
 // Support — in-app support form (dashboard → Support)
-export async function uploadLogo(locationId, dataUri) {
-  const res = await api.post(`/locations/${locationId}/logo`, { dataUri });
-  return res.data;
-}
-
-export async function setLogoOptions(locationId, opts) {
-  const res = await api.put(`/locations/${locationId}/logo`, opts);
+export async function uploadBrandingLogo(dataUri) {
+  const res = await api.post('/branding/logo', { dataUri });
   return res.data;
 }
 
