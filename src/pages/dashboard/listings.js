@@ -7,10 +7,11 @@
 // ============================================
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Card, PageHeader, Button, StatCard, EmptyState } from '../../components/ui';
 import { Skeleton } from '../../components/Skeleton';
-import { getLocations, getListings, saveListings, pushListings, scanListings } from '../../utils/api';
+import { getLocations, getListings, saveListings, pushListings, scanListings, disconnectGoogleListing, disconnectMonitored } from '../../utils/api';
 
 const SERIF = "'Playfair Display', serif";
 
@@ -21,12 +22,30 @@ const PLATFORM_META = {
   apple:  { name: 'Apple Maps', note: 'Apple’s listings API is partner-gated — manage Apple Business directly for now.' },
 };
 
+// Surfaces that pull from a Google Business Profile — the "leverage" story:
+// get Google right, and these stay right too.
+const GOOGLE_SURFACES = [
+  'Google Search',
+  'Google Maps',
+  'The Google knowledge panel',
+  'Google Assistant & voice search',
+  'Android & Android Auto',
+  'Waze',
+  'Bing Places (imports from Google)',
+];
+
+// Sites and apps that draw on Foursquare's location data.
+const FOURSQUARE_FEEDS = [
+  'Apple Maps', 'Uber', 'Nextdoor', 'Redfin', 'Snapchat',
+  'Samsung', 'Yahoo', 'Tinder', 'X (Twitter)', 'ChatGPT',
+];
+
 // MONITORED tier — read-only API: we watch for drift and flag mismatches.
 // 'facebook' works with the page connection you already have;
 // 'foursquare' activates once its API key is configured server-side.
 const MONITORED = [
-  { id: 'facebook',   name: 'Facebook',   needsKey: false, blurb: 'Watches your Facebook page info for changes.' },
-  { id: 'foursquare', name: 'Foursquare', needsKey: true,  blurb: 'Feeds Apple Maps, Uber, Nextdoor & more — fix it once, fix it everywhere.' },
+  { id: 'facebook',   name: 'Facebook',   needsKey: false, connectable: true,  blurb: 'Watches your Facebook page info for changes.' },
+  { id: 'foursquare', name: 'Foursquare', needsKey: true,  connectable: false, blurb: 'Feeds Apple Maps, Uber, Nextdoor & more — fix it once, fix it everywhere.' },
 ];
 
 const STATUS_CHIP = {
@@ -161,7 +180,7 @@ function ListingsBoard({ data, locationId, reload }) {
       )}
 
       <BusinessInfoCard location={location} locationId={locationId} reload={reload} />
-      <SyncPlatformsCard platforms={platforms} locationId={locationId} reload={reload} />
+      <GoogleCard platforms={platforms} googleConnected={data.googleConnected} locationId={locationId} reload={reload} />
       <MonitoredCard monitored={monitored} locationId={locationId} reload={reload} />
       {history?.length > 0 && <HistoryCard history={history} />}
     </div>
@@ -226,78 +245,83 @@ function BusinessInfoCard({ location, locationId, reload }) {
   );
 }
 
-// ── Synced platforms ─────────────────────────
+// ── Google Business Profile (connect / disconnect + leverage summary) ──
 
-function SyncPlatformsCard({ platforms, locationId, reload }) {
-  const [pushing, setPushing] = useState(null); // platform | 'all'
+function GoogleCard({ platforms, googleConnected, locationId, reload }) {
+  const router = useRouter();
+  const [pushing, setPushing] = useState(false);
+  const [disc, setDisc] = useState(false);
   const [result, setResult] = useState(null);
 
-  async function push(platform) {
-    setPushing(platform || 'all'); setResult(null);
-    try {
-      const res = await pushListings(locationId, platform);
-      setResult(res.results);
-      reload();
-    } catch (e) {
-      setResult({ _error: e.response?.data?.error || e.message });
-    } finally { setPushing(null); }
-  }
+  const google = platforms.find(p => p.platform === 'google') || { status: 'not_connected' };
+  const connected = googleConnected ?? ['connected', 'synced', 'diverged', 'pending_review'].includes(google.status);
 
-  const anyConnected = platforms.some(p => p.status !== 'not_connected');
+  async function push() {
+    setPushing(true); setResult(null);
+    try { const res = await pushListings(locationId, 'google'); setResult(res.results); reload(); }
+    catch (e) { setResult({ _error: e.response?.data?.error || e.message }); }
+    finally { setPushing(false); }
+  }
+  async function disconnect() {
+    if (!confirm('Disconnect Google Business Profile? SwarmReply will stop syncing your info and posting AI replies until you reconnect.')) return;
+    setDisc(true);
+    try { await disconnectGoogleListing(locationId); reload(); }
+    catch (e) { alert(e.response?.data?.error || 'Could not disconnect.'); }
+    finally { setDisc(false); }
+  }
 
   return (
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4, flexWrap: 'wrap' }}>
-        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Synced to Google</div>
-        {anyConnected && (
-          <Button size="sm" onClick={() => push(null)} disabled={!!pushing}>
-            {pushing === 'all' ? 'Pushing…' : 'Push my info live'}
-          </Button>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Google Business Profile</div>
+        {connected ? (
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.72rem', fontWeight: 700, padding: '4px 11px', borderRadius: 50 }}>Connected ✓</span>
+            <Button size="sm" onClick={push} disabled={pushing}>{pushing ? 'Pushing…' : 'Push my info live'}</Button>
+            <button onClick={disconnect} disabled={disc}
+              style={{ background: 'none', border: '1.5px solid #f0d0d0', color: '#b3261e', borderRadius: 50, padding: '6px 14px', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              {disc ? 'Disconnecting…' : 'Disconnect'}
+            </button>
+          </div>
+        ) : (
+          <Button size="sm" onClick={() => router.push('/onboarding')}>Connect Google →</Button>
         )}
       </div>
-      <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 14 }}>
-        This is the listing customers actually see first. Connect Google once and SwarmReply pushes your
-        business info live — then keeps it in sync every day. Bing mirrors Google automatically.
+
+      <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: connected ? 16 : 14 }}>
+        {connected
+          ? 'Your info is pushed live to Google and re-checked daily. This is the listing customers see first — and the source the rest of your web presence pulls from.'
+          : 'Google is where most customers find you first. Connect it once and SwarmReply pushes your business info live, keeps it in sync, and posts AI replies to your reviews.'}
       </div>
-      {platforms.map(p => {
-        const meta = PLATFORM_META[p.platform] || { name: p.platform };
-        return (
-          <div key={p.platform} style={{ display: 'flex', alignItems: 'center', gap: 12,
-            padding: '13px 0', borderTop: '1px solid #f0eeea', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: 180 }}>
-              <div style={{ fontWeight: 600, fontSize: '.875rem' }}>{meta.name}</div>
-              <div style={{ fontSize: '.74rem', color: '#7a7670' }}>
-                {p.status === 'diverged' && p.diverged_fields?.length
-                  ? `Differs on: ${p.diverged_fields.join(', ')}`
-                  : p.status === 'error' && p.last_error
-                  ? p.last_error.slice(0, 90)
-                  : p.last_synced_at
-                  ? `Last checked ${new Date(p.last_synced_at).toLocaleDateString()}`
-                  : meta.note}
-              </div>
-            </div>
-            <Chip status={p.status} />
-            {(p.status === 'connected' || p.status === 'synced' || p.status === 'diverged') && (
-              <Button size="sm" variant="ghost" onClick={() => push(p.platform)} disabled={!!pushing}>
-                {pushing === p.platform ? 'Pushing…' : p.status === 'diverged' ? 'Push fix' : 'Sync now'}
-              </Button>
-            )}
+
+      {/* Leverage summary — Google accuracy propagates to these surfaces */}
+      {connected && (
+        <div style={{ background: '#f6faf8', border: '1px solid #d8ebe1', borderRadius: 12, padding: '14px 16px' }}>
+          <div style={{ fontSize: '.78rem', fontWeight: 700, color: '#1a6b45', marginBottom: 8 }}>
+            Get Google right, and {GOOGLE_SURFACES.length} more surfaces stay right
           </div>
-        );
-      })}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {GOOGLE_SURFACES.map(s => (
+              <span key={s} style={{ fontSize: '.74rem', background: 'white', border: '1px solid #d8ebe1',
+                color: '#3a3a38', padding: '4px 10px', borderRadius: 50 }}>{s}</span>
+            ))}
+          </div>
+          <div style={{ fontSize: '.72rem', color: '#7a8a82', marginTop: 9 }}>
+            Your Google profile feeds all of these — so one accurate listing keeps your whole core web presence consistent.
+          </div>
+        </div>
+      )}
+
       {result?._error && <div style={{ fontSize: '.78rem', color: '#b3261e', fontWeight: 600, marginTop: 10 }}>{result._error}</div>}
-      {result && !result._error && (
-        <div style={{ fontSize: '.78rem', marginTop: 10 }}>
-          {Object.entries(result).map(([k, v]) => (
-            <div key={k} style={{ color: v.success ? '#1a6b45' : '#b3261e', fontWeight: 600 }}>
-              {PLATFORM_META[k]?.name || k}: {v.success ? 'pushed ✓' : v.error}
-            </div>
-          ))}
+      {result && !result._error && result.google && (
+        <div style={{ fontSize: '.78rem', marginTop: 10, color: result.google.success ? '#1a6b45' : '#b3261e', fontWeight: 600 }}>
+          {result.google.success ? 'Pushed to Google ✓' : result.google.error}
         </div>
       )}
     </Card>
   );
 }
+
 
 // ── Monitored directories (read-only API) ────
 
@@ -422,8 +446,11 @@ function MismatchAlert({ issues, location, locationId, reload }) {
 }
 
 function MonitoredCard({ monitored, locationId, reload }) {
+  const router = useRouter();
   const [scanning, setScanning] = useState(false);
   const [scanMsg, setScanMsg] = useState('');
+  const [openFeed, setOpenFeed] = useState(false);
+  const [disc, setDisc] = useState(null);
   const byKey = Object.fromEntries((monitored || []).map(d => [d.directory, d]));
 
   async function scan() {
@@ -439,6 +466,14 @@ function MonitoredCard({ monitored, locationId, reload }) {
     } catch (e) {
       setScanMsg(e.response?.data?.error || 'Scan failed — please try again.');
     } finally { setScanning(false); }
+  }
+
+  async function disconnectFb() {
+    if (!confirm('Stop monitoring your Facebook page? SwarmReply will no longer flag drift on Facebook.')) return;
+    setDisc('facebook');
+    try { await disconnectMonitored(locationId, 'facebook'); reload(); }
+    catch (e) { alert(e.response?.data?.error || 'Could not disconnect.'); }
+    finally { setDisc(null); }
   }
 
   return (
@@ -459,7 +494,7 @@ function MonitoredCard({ monitored, locationId, reload }) {
         const d = byKey[m.id] || {};
         const checked = !!d.last_checked_at;
         const diverged = d.status === 'attention';
-        // Status + sub copy
+        const fbConnected = m.id === 'facebook' && (checked || d.status === 'attention' || d.connected);
         let chipBg, chipColor, chipLabel, sub, subColor;
         if (diverged) {
           chipBg = '#fdf3e0'; chipColor = '#9a6a08'; chipLabel = 'Mismatch';
@@ -475,20 +510,57 @@ function MonitoredCard({ monitored, locationId, reload }) {
           sub = m.blurb; subColor = '#7a7670';
         }
         return (
-          <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12,
-            padding: '13px 0', borderTop: '1px solid #f0eeea', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: 180 }}>
-              <div style={{ fontWeight: 600, fontSize: '.875rem' }}>{m.name}</div>
-              <div style={{ fontSize: '.74rem', color: subColor }}>{sub}</div>
+          <div key={m.id} style={{ borderTop: '1px solid #f0eeea' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontWeight: 600, fontSize: '.875rem' }}>{m.name}</span>
+                  {m.id === 'foursquare' && (
+                    <button onClick={() => setOpenFeed(o => !o)}
+                      style={{ background: 'none', border: 'none', color: '#1a4baa', fontSize: '.72rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+                      {openFeed ? 'Hide sites ▴' : `Feeds ${FOURSQUARE_FEEDS.length}+ sites ▾`}
+                    </button>
+                  )}
+                </div>
+                <div style={{ fontSize: '.74rem', color: subColor }}>{sub}</div>
+              </div>
+              <span style={{ background: chipBg, color: chipColor, fontSize: '.72rem', fontWeight: 700,
+                padding: '4px 11px', borderRadius: 50, whiteSpace: 'nowrap' }}>{chipLabel}</span>
+              {/* Connect / disconnect for connectable monitored platforms (Facebook) */}
+              {m.connectable && (fbConnected ? (
+                <button onClick={disconnectFb} disabled={disc === 'facebook'}
+                  style={{ background: 'none', border: '1.5px solid #f0d0d0', color: '#b3261e', borderRadius: 50, padding: '5px 13px', fontSize: '.74rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  {disc === 'facebook' ? '…' : 'Disconnect'}
+                </button>
+              ) : (
+                <button onClick={() => router.push('/onboarding')}
+                  style={{ background: '#0a0a0a', border: 'none', color: 'white', borderRadius: 50, padding: '5px 13px', fontSize: '.74rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Connect
+                </button>
+              ))}
             </div>
-            <span style={{ background: chipBg, color: chipColor, fontSize: '.72rem', fontWeight: 700,
-              padding: '4px 11px', borderRadius: 50, whiteSpace: 'nowrap' }}>{chipLabel}</span>
+
+            {/* Foursquare feed-sites dropdown (#4) */}
+            {m.id === 'foursquare' && openFeed && (
+              <div style={{ background: '#faf9f6', border: '1px solid #ece8e0', borderRadius: 12, padding: '12px 14px', marginBottom: 12 }}>
+                <div style={{ fontSize: '.74rem', color: '#7a7670', marginBottom: 8 }}>
+                  Foursquare licenses its location data to dozens of major apps. Fix your info here once and it propagates to places like:
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                  {FOURSQUARE_FEEDS.map(s => (
+                    <span key={s} style={{ fontSize: '.74rem', background: 'white', border: '1px solid #ece8e0',
+                      color: '#3a3a38', padding: '4px 10px', borderRadius: 50 }}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
       })}
     </Card>
   );
 }
+
 
 // ── History ──────────────────────────────────
 
