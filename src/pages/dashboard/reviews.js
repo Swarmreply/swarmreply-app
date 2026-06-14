@@ -39,6 +39,18 @@ function ReviewSkeletonRow() {
   );
 }
 
+// Source badge per review platform — capitalized, colored, consistent with the
+// Home page. Reviews come from Google and Facebook (both in the reviews table).
+const PLATFORM_BADGE = {
+  google:   { label: 'Google',   bg: '#eef1f5', fg: '#3c4043' },
+  facebook: { label: 'Facebook', bg: '#e7f0ff', fg: '#1877F2' },
+};
+function platformBadge(p) {
+  const key = (p || '').toLowerCase();
+  return PLATFORM_BADGE[key]
+    || { label: p ? p.charAt(0).toUpperCase() + p.slice(1) : 'Other', bg: '#f0eeea', fg: '#7a7670' };
+}
+
 function ReviewCard({ review, onReply }) {
   return (
     <div style={{ padding: '18px 24px', borderBottom: '1px solid #e4e0d8' }}>
@@ -48,8 +60,11 @@ function ReviewCard({ review, onReply }) {
           <div style={{ color: '#f5c842', fontSize: '.875rem', letterSpacing: 1 }}>{STARS(review.star_rating)}</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {(() => { const b = platformBadge(review.platform); return (
+            <span style={{ fontSize: '.65rem', fontWeight: 700, background: b.bg, color: b.fg, padding: '2px 8px', borderRadius: 50 }}>{b.label}</span>
+          ); })()}
           <span style={{ fontSize: '.72rem', color: '#7a7670' }}>
-            {review.platform} · {new Date(review.review_date).toLocaleDateString()}
+            {new Date(review.review_date).toLocaleDateString()}
           </span>
           {review.status === 'replied' && (
             <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>Replied</span>
