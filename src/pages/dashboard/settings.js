@@ -782,8 +782,8 @@ function BillingTab() {
       <Card style={{ padding: 20 }}>
         <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>How pricing works</div>
         <div style={{ fontSize: '.85rem', color: '#7a7670', lineHeight: 1.7 }}>
-          You're billed per active location — $99/mo for your first location, $79/mo each for
-          locations 2–5, and $69/mo each for 6–25. Your total updates automatically when you add
+          You're billed per active location — $99/mo each for your first two locations, $89/mo each for
+          locations 3–25, and $79/mo each for 26–99. Your total updates automatically when you add
           or remove a location. See your current total and full breakdown on the{' '}
           <Link href="/dashboard/billing" style={{ color: '#0a0a0a', fontWeight: 600 }}>billing page</Link>.
         </div>

@@ -303,8 +303,8 @@ export default function Billing() {
           </a>
 
           <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 14, lineHeight: 1.6 }}>
-            $99/mo for your first location, $79/mo each for locations 2–5, and
-            $69/mo each for 6–25. No contracts — cancel anytime.
+            $99/mo each for your first two locations, $89/mo each for locations 3–25, and
+            $79/mo each for 26–99. No contracts — cancel anytime.
           </div>
         </div>
 
