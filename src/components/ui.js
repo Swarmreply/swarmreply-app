@@ -151,7 +151,7 @@ const TONES = {
   red:   { bg: '#fdecea', fg: '#b3261e' },
   green: { bg: '#e8f5ef', fg: '#1a6b45' },
 };
-export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, href }) {
+export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, href, onDismiss }) {
   const t = TONES[tone] || TONES.amber;
   return (
     <div className="sr-queue-item" style={{
@@ -177,6 +177,18 @@ export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, hr
         )}
       </div>
       {href && <Button href={href} variant="ghost" size="sm">{actionLabel || 'View'}</Button>}
+      {onDismiss && (
+        <button onClick={onDismiss} aria-label="Clear notification" title="Clear"
+          style={{
+            flexShrink: 0, width: 28, height: 28, borderRadius: '50%', border: 'none',
+            background: 'transparent', color: '#a8a39a', cursor: 'pointer', fontSize: '1.1rem',
+            lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#f0eeea'; e.currentTarget.style.color = '#4a4a48'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a8a39a'; }}>
+          ✕
+        </button>
+      )}
     </div>
   );
 }
