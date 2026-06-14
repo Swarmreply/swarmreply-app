@@ -2,7 +2,7 @@
 // pages/dashboard/listings.js
 // Listings Health — one canonical business profile,
 // pushed live to Google (true write-API) and monitored
-// for drift on Yelp, Facebook, and Foursquare.
+// for drift on Facebook and Foursquare.
 // No copy-paste portals: every row here connects via API.
 // ============================================
 
@@ -22,12 +22,11 @@ const PLATFORM_META = {
 };
 
 // MONITORED tier — read-only API: we watch for drift and flag mismatches.
-// 'facebook' works with the page connection you already have; 'yelp' and
-// 'foursquare' activate once their API keys are configured server-side.
+// 'facebook' works with the page connection you already have;
+// 'foursquare' activates once its API key is configured server-side.
 const MONITORED = [
   { id: 'facebook',   name: 'Facebook',   needsKey: false, blurb: 'Watches your Facebook page info for changes.' },
-  { id: 'yelp',       name: 'Yelp',       needsKey: true,  blurb: 'Flags when your Yelp listing drifts from your info.' },
-  { id: 'foursquare', name: 'Foursquare', needsKey: true,  blurb: 'Powers Apple Maps and others that cross-reference it.' },
+  { id: 'foursquare', name: 'Foursquare', needsKey: true,  blurb: 'Feeds Apple Maps, Uber, Nextdoor & more — fix it once, fix it everywhere.' },
 ];
 
 const STATUS_CHIP = {
@@ -113,11 +112,35 @@ export default function Listings() {
   );
 }
 
+const DIR_FIX_URL = {
+  facebook:   'https://www.facebook.com/settings',
+  foursquare: 'https://foursquare.com/venue/claim',
+};
+const DIR_NAME = { facebook: 'Facebook', foursquare: 'Foursquare' };
+
 function ListingsBoard({ data, locationId, reload }) {
   const { location, platforms, directories, summary, history } = data;
-  const monitored = (directories || []).filter(d => ['facebook', 'yelp', 'foursquare'].includes(d.directory));
-  const drift = monitored.filter(d => d.status === 'attention').length
-    + platforms.filter(p => p.status === 'diverged' || p.status === 'error').length;
+  const monitored = (directories || []).filter(d => ['facebook', 'foursquare'].includes(d.directory));
+
+  // Build a single, specific list of everything that's inconsistent
+  const issues = [];
+  platforms.forEach(p => {
+    if (p.status === 'diverged' && p.diverged_fields?.length) {
+      issues.push({ kind: 'google', platform: p.platform, name: 'Google',
+        fields: p.diverged_fields, fixable: true });
+    } else if (p.status === 'error') {
+      issues.push({ kind: 'error', platform: p.platform, name: PLATFORM_META[p.platform]?.name || p.platform,
+        message: p.last_error });
+    }
+  });
+  monitored.forEach(d => {
+    if (d.status === 'attention') {
+      issues.push({ kind: 'monitored', platform: d.directory, name: DIR_NAME[d.directory] || d.directory,
+        fields: d.diverged_fields || [], found: { name: d.found_name, phone: d.found_phone, address: d.found_address } });
+    }
+  });
+
+  const drift = issues.length;
   const googleLive = platforms.some(p => p.platform === 'google' && (p.status === 'synced' || p.status === 'connected'));
 
   return (
@@ -129,9 +152,13 @@ function ListingsBoard({ data, locationId, reload }) {
         <StatCard label="Synced to Google" value={googleLive ? 'Live' : 'Off'}
           sub={googleLive ? 'Hours, phone, website' : 'Not connected yet'}
           valueColor={googleLive ? '#1a6b45' : '#7a7670'} />
-        <StatCard label="Needs attention" value={drift} sub={drift ? 'Drift detected below' : 'All consistent'}
+        <StatCard label="Needs attention" value={drift} sub={drift ? 'Fix below' : 'All consistent'}
           valueColor={drift ? '#b3261e' : '#1a6b45'} />
       </div>
+
+      {issues.length > 0 && (
+        <MismatchAlert issues={issues} location={location} locationId={locationId} reload={reload} />
+      )}
 
       <BusinessInfoCard location={location} locationId={locationId} reload={reload} />
       <SyncPlatformsCard platforms={platforms} locationId={locationId} reload={reload} />
@@ -274,6 +301,126 @@ function SyncPlatformsCard({ platforms, locationId, reload }) {
 
 // ── Monitored directories (read-only API) ────
 
+// ── Prominent mismatch alert ─────────────────
+// One unmissable banner that names exactly what's wrong, where, and how to fix.
+
+const FIELD_LABEL = { name: 'Business name', phone: 'Phone', address: 'Address', website: 'Website', hours: 'Hours' };
+
+function yourValue(field, location) {
+  if (!location) return null;
+  switch (field) {
+    case 'name':    return location.businessName || location.business_name;
+    case 'phone':   return location.phone;
+    case 'website': return location.website;
+    case 'address': return [location.addressLine1 || location.address_line1, location.city, location.state, location.zip].filter(Boolean).join(', ');
+    default: return null;
+  }
+}
+
+function MismatchAlert({ issues, location, locationId, reload }) {
+  const [pushing, setPushing] = useState(false);
+  const [rescanning, setRescanning] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  async function pushGoogleFix() {
+    setPushing(true); setMsg('');
+    try {
+      await pushListings(locationId, 'google');
+      setMsg('Pushed your info to Google ✓');
+      reload();
+    } catch (e) {
+      setMsg(e.response?.data?.error || 'Could not push to Google.');
+    } finally { setPushing(false); }
+  }
+
+  async function rescan() {
+    setRescanning(true); setMsg('');
+    try { await scanListings(locationId); reload(); }
+    catch (e) { setMsg(e.response?.data?.error || 'Re-scan failed.'); }
+    finally { setRescanning(false); }
+  }
+
+  return (
+    <Card style={{ border: '1.5px solid #f0c9c0', background: '#fdf6f4' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: '1.1rem' }}>⚠️</span>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem', color: '#9a2b1c' }}>
+          {issues.length} {issues.length === 1 ? 'listing needs' : 'listings need'} your attention
+        </div>
+        <button onClick={rescan} disabled={rescanning}
+          style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#9a2b1c', fontSize: '.78rem',
+            fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
+          {rescanning ? 'Re-scanning…' : 'Re-scan now'}
+        </button>
+      </div>
+      <div style={{ fontSize: '.8rem', color: '#7a5a54', marginBottom: 12 }}>
+        Customers see your business info across the web. These don’t match what you’ve told us — here’s exactly what’s off and how to fix it.
+      </div>
+
+      {issues.map((issue, i) => (
+        <div key={i} style={{ borderTop: '1px solid #f3ddd6', padding: '12px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+            <span style={{ fontWeight: 700, fontSize: '.86rem', color: '#1a1a18' }}>{issue.name}</span>
+            {issue.kind === 'google' && (
+              <span style={{ fontSize: '.72rem', color: '#9a6a08', fontWeight: 600 }}>
+                differs on {issue.fields.map(f => FIELD_LABEL[f] || f).join(', ')}
+              </span>
+            )}
+            {issue.kind === 'error' && (
+              <span style={{ fontSize: '.72rem', color: '#b3261e', fontWeight: 600 }}>connection issue</span>
+            )}
+            {issue.kind === 'monitored' && issue.fields.length > 0 && (
+              <span style={{ fontSize: '.72rem', color: '#9a6a08', fontWeight: 600 }}>
+                lists a different {issue.fields.map(f => (FIELD_LABEL[f] || f).toLowerCase()).join(', ')}
+              </span>
+            )}
+          </div>
+
+          {/* Field-by-field: yours → what they list */}
+          {issue.kind === 'monitored' && issue.fields.map(f => {
+            const mine = yourValue(f, location);
+            const theirs = f === 'name' ? issue.found?.name : f === 'phone' ? issue.found?.phone : f === 'address' ? issue.found?.address : null;
+            if (!mine && !theirs) return null;
+            return (
+              <div key={f} style={{ fontSize: '.76rem', padding: '2px 0', lineHeight: 1.5 }}>
+                <span style={{ color: '#a39e93', fontWeight: 700 }}>{FIELD_LABEL[f] || f}: </span>
+                <span style={{ color: '#1a6b45', fontWeight: 600 }}>{mine || '—'}</span>
+                <span style={{ color: '#a39e93' }}> · they list </span>
+                <span style={{ color: '#b3261e', fontWeight: 600 }}>{theirs || 'something different'}</span>
+              </div>
+            );
+          })}
+
+          {issue.kind === 'error' && issue.message && (
+            <div style={{ fontSize: '.76rem', color: '#b3261e' }}>{String(issue.message).slice(0, 120)}</div>
+          )}
+
+          {/* Fix CTA */}
+          <div style={{ marginTop: 8 }}>
+            {issue.kind === 'google' ? (
+              <Button size="sm" onClick={pushGoogleFix} disabled={pushing}>
+                {pushing ? 'Pushing…' : 'Push my correct info to Google →'}
+              </Button>
+            ) : issue.kind === 'monitored' ? (
+              <a href={DIR_FIX_URL[issue.platform] || '#'} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-block', fontSize: '.78rem', fontWeight: 700, color: '#9a2b1c',
+                  textDecoration: 'none', border: '1.5px solid #e7b3a8', borderRadius: 50, padding: '6px 14px' }}>
+                Fix on {issue.name} ↗
+              </a>
+            ) : (
+              <a href="/dashboard/integrations" style={{ fontSize: '.78rem', fontWeight: 700, color: '#9a2b1c' }}>
+                Reconnect {issue.name} →
+              </a>
+            )}
+          </div>
+        </div>
+      ))}
+
+      {msg && <div style={{ fontSize: '.78rem', fontWeight: 600, color: '#1a6b45', marginTop: 10 }}>{msg}</div>}
+    </Card>
+  );
+}
+
 function MonitoredCard({ monitored, locationId, reload }) {
   const [scanning, setScanning] = useState(false);
   const [scanMsg, setScanMsg] = useState('');
@@ -286,8 +433,8 @@ function MonitoredCard({ monitored, locationId, reload }) {
       const checked = Object.values(res.results || {}).filter(r => r.checked).length;
       const flagged = Object.values(res.results || {}).filter(r => r.diverged).length;
       setScanMsg(checked === 0
-        ? 'No directories are connected to scan yet — Facebook needs your page connected; Yelp and Foursquare activate once we enable them.'
-        : `Checked ${checked} director${checked === 1 ? 'y' : 'ies'} — ${flagged ? `${flagged} need${flagged === 1 ? 's' : ''} attention` : 'all consistent ✓'}`);
+        ? 'Nothing to scan yet — connect your Facebook page, and Foursquare activates once we enable it.'
+        : `Checked ${checked} director${checked === 1 ? 'y' : 'ies'} — ${flagged ? `${flagged} need${flagged === 1 ? 's' : ''} attention (see the alert above)` : 'all consistent ✓'}`);
       reload();
     } catch (e) {
       setScanMsg(e.response?.data?.error || 'Scan failed — please try again.');
@@ -316,7 +463,7 @@ function MonitoredCard({ monitored, locationId, reload }) {
         let chipBg, chipColor, chipLabel, sub, subColor;
         if (diverged) {
           chipBg = '#fdf3e0'; chipColor = '#9a6a08'; chipLabel = 'Mismatch';
-          sub = d.note || 'Differs from your business info'; subColor = '#b3261e';
+          sub = (d.diverged_fields?.length ? `Differs on ${d.diverged_fields.join(', ')} — see fix above` : (d.note || 'Differs from your info — see fix above')); subColor = '#b3261e';
         } else if (checked) {
           chipBg = '#e8f5ef'; chipColor = '#1a6b45'; chipLabel = 'Consistent ✓';
           sub = `Auto-checked ${new Date(d.last_checked_at).toLocaleDateString()}`; subColor = '#7a7670';
