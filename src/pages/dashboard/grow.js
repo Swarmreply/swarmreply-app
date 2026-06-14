@@ -494,6 +494,22 @@ const DEFAULT_TMPL = {
   detractorClosing: 'Thank you for sharing this with us. We take every piece of feedback seriously.',
 };
 
+// Hoisted to module scope so they keep a stable identity across renders.
+// (Defining TField inside TemplatesTab remounted every input on each keystroke,
+// which dropped focus after a single character.)
+const inp = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' };
+const lbl = { fontWeight: 600, fontSize: '.78rem', color: '#4a4a48', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6, display: 'block' };
+
+function TField({ label, hint, children }) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <span style={lbl}>{label}</span>
+      {children}
+      {hint && <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 5, lineHeight: 1.5 }}>{hint}</div>}
+    </div>
+  );
+}
+
 function TemplatesTab() {
   const [section, setSection]         = useState('thresholds');
   const [saved, setSaved]             = useState(false);
@@ -588,29 +604,15 @@ function TemplatesTab() {
   }
 
   const NAV = [
-    { id: 'branding',   label: '① Branding'          },
+    { id: 'branding',   label: '① Branding & message' },
     { id: 'thresholds', label: '② Score thresholds' },
     { id: 'platforms',  label: '③ Review platforms'  },
-    { id: 'request',    label: '④ Request message'   },
-    { id: 'nps',        label: '⑤ NPS survey'        },
-    { id: 'promoter',   label: '⑥ Promoter path'     },
-    { id: 'neutral',    label: '⑦ Neutral path'      },
-    { id: 'detractor',  label: '⑧ Detractor path'    },
-    { id: 'locations',  label: '⑨ Locations'         },
+    { id: 'nps',        label: '④ NPS survey'        },
+    { id: 'promoter',   label: '⑤ Promoter path'     },
+    { id: 'neutral',    label: '⑥ Neutral path'      },
+    { id: 'detractor',  label: '⑦ Detractor path'    },
+    { id: 'locations',  label: '⑧ Locations'         },
   ];
-
-  const inp = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' };
-  const lbl = { fontWeight: 600, fontSize: '.78rem', color: '#4a4a48', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6, display: 'block' };
-
-  function TField({ label, hint, children }) {
-    return (
-      <div style={{ marginBottom: 18 }}>
-        <span style={lbl}>{label}</span>
-        {children}
-        {hint && <div style={{ fontSize: '.73rem', color: '#7a7670', marginTop: 5, lineHeight: 1.5 }}>{hint}</div>}
-      </div>
-    );
-  }
 
   const sections = {
     branding: (
@@ -648,6 +650,24 @@ function TemplatesTab() {
             onChange={e => updateTmpl('buttonText', e.target.value)} />
         </TField>
 
+        {/* Request message — merged in from the old standalone tab */}
+        <div style={{ borderTop: '1px solid #f0eeea', margin: '4px 0 18px' }} />
+        <div style={{ fontWeight: 700, fontSize: '.95rem', color: '#0a0a0a', marginBottom: 4 }}>Request message</div>
+        <div style={{ fontSize: '.84rem', color: '#7a7670', marginBottom: 18, lineHeight: 1.6 }}>
+          The wording your customers receive. Use the variables <code>{'{name}'}</code>, <code>{'{business}'}</code> and <code>{'{link}'}</code> — they’re filled in automatically.
+        </div>
+
+        <TField label="Email subject">
+          <input style={{ ...inp, resize: 'none' }} value={tmpl.emailSubject} onChange={e => updateTmpl('emailSubject', e.target.value)} />
+        </TField>
+        <TField label="Email body" hint="Variables: {name} {business} {link}">
+          <textarea rows={8} style={inp} value={tmpl.emailBody} onChange={e => updateTmpl('emailBody', e.target.value)} />
+        </TField>
+        <TField label="SMS message" hint="Max 160 chars. Variables: {name} {business} {link}">
+          <textarea rows={3} style={inp} maxLength={160} value={tmpl.smsRequest} onChange={e => updateTmpl('smsRequest', e.target.value)} />
+          <div style={{ fontSize: '.7rem', color: tmpl.smsRequest.length > 150 ? '#c0392b' : '#7a7670', textAlign: 'right', marginTop: 4 }}>{tmpl.smsRequest.length}/160</div>
+        </TField>
+
         {/* Live email preview */}
         <div style={{ marginTop: 8 }}>
           <span style={lbl}>Email preview</span>
@@ -661,7 +681,7 @@ function TemplatesTab() {
             </div>
             {/* Body */}
             <div style={{ padding: '28px 32px', background: 'white' }}>
-              <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#0a0a0a', marginBottom: 12 }}>How did we do, {'{name}'}?</div>
+              <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#0a0a0a', marginBottom: 12 }}>{(tmpl.emailSubject || 'How did we do, {name}?').replace(/{name}/g, 'Test Customer').replace(/{business}/g, 'Your Business')}</div>
               <div style={{ fontSize: '.875rem', color: '#3a3a38', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap' }}>
                 {tmpl.emailBody.split('{link}')[0].replace(/{name}/g, 'Test Customer').replace(/{business}/g, 'Your Business')}
               </div>
@@ -769,23 +789,6 @@ function TemplatesTab() {
       </div>
     ),
 
-    request: (
-      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-        <TField label="SMS message" hint="Max 160 chars. Variables: {name} {business} {link}">
-          <textarea rows={3} style={inp} maxLength={160} value={tmpl.smsRequest} onChange={e => updateTmpl('smsRequest', e.target.value)} />
-          <div style={{ fontSize: '.7rem', color: tmpl.smsRequest.length > 150 ? '#c0392b' : '#7a7670', textAlign: 'right', marginTop: 4 }}>{tmpl.smsRequest.length}/160</div>
-        </TField>
-        <div>
-          <TField label="Email subject">
-            <input style={{ ...inp, resize: 'none' }} value={tmpl.emailSubject} onChange={e => updateTmpl('emailSubject', e.target.value)} />
-          </TField>
-          <TField label="Email body" hint="Variables: {name} {business} {link}">
-            <textarea rows={8} style={inp} value={tmpl.emailBody} onChange={e => updateTmpl('emailBody', e.target.value)} />
-          </TField>
-        </div>
-      </div>
-    ),
-
     nps: (
       <div style={{ maxWidth: 560 }}>
         <TField label="Survey question" hint="Variables: {business}">
@@ -882,7 +885,7 @@ function TemplatesTab() {
     ),
   };
 
-  const titles = { thresholds:'Score thresholds', platforms:'Review platforms', request:'Request message', nps:'NPS survey', promoter:'Promoter path', neutral:'Neutral path', detractor:'Detractor path', locations:'Location sharing' };
+  const titles = { branding:'Branding & message', thresholds:'Score thresholds', platforms:'Review platforms', nps:'NPS survey', promoter:'Promoter path', neutral:'Neutral path', detractor:'Detractor path', locations:'Location sharing' };
 
   return (
     <div style={{ padding: 24 }}>
