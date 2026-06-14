@@ -151,6 +151,21 @@ export default function Dashboard() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [queue, setQueue] = useState({ sessions: [], detractors: [], integrationErrors: [] });
 
+  // Dismissed "needs your attention" items. Keyed by a signature that changes
+  // when the underlying data changes, so a cleared item stays cleared but new
+  // activity re-surfaces the banner. Persisted locally so it survives reloads.
+  const [dismissed, setDismissed] = useState(() => new Set());
+  useEffect(() => {
+    try { setDismissed(new Set(JSON.parse(localStorage.getItem('sr_attention_dismissed') || '[]'))); } catch {}
+  }, []);
+  function dismissAttention(sig) {
+    setDismissed(prev => {
+      const next = new Set(prev); next.add(sig);
+      try { localStorage.setItem('sr_attention_dismissed', JSON.stringify([...next].slice(-50))); } catch {}
+      return next;
+    });
+  }
+
   useEffect(() => {
     if (customer) loadData();
   }, [customer]);
@@ -245,18 +260,21 @@ export default function Dashboard() {
         {(() => {
           const pending = (reviews || []).filter(r => r.status === 'pending' || r.status === 'processing');
           const items = [];
+          const add = (sig, node) => { if (!dismissed.has(sig)) items.push(node); };
           if (pending.length > 0) {
             const latest = pending[0];
-            items.push(
-              <QueueItem key="reviews" icon="★" tone="amber"
+            const sig = `reviews:${pending.length}:${latest?.id ?? latest?.reviewer_name ?? ''}`;
+            add(sig,
+              <QueueItem key="reviews" icon="★" tone="amber" onDismiss={() => dismissAttention(sig)}
                 title={`${pending.length} review${pending.length > 1 ? 's' : ''} waiting for a reply`}
                 detail={latest ? `${latest.reviewer_name || 'A customer'} · ${'★'.repeat(latest.star_rating || 0)}${latest.review_text ? ` · “${latest.review_text.slice(0, 60)}${latest.review_text.length > 60 ? '…' : ''}”` : ''}` : null}
                 actionLabel="Reply now" href="/dashboard/reviews" />
             );
           }
           if (queue.sessions.length > 0) {
-            items.push(
-              <QueueItem key="chats" icon="💬" tone="blue"
+            const sig = `chats:${queue.sessions.length}:${queue.sessions[0]?.id ?? ''}`;
+            add(sig,
+              <QueueItem key="chats" icon="💬" tone="blue" onDismiss={() => dismissAttention(sig)}
                 title={`${queue.sessions.length} webchat conversation${queue.sessions.length > 1 ? 's' : ''} waiting`}
                 detail="A visitor asked to speak with you"
                 actionLabel="Open inbox" href="/dashboard/inbox" />
@@ -266,8 +284,9 @@ export default function Dashboard() {
             const ie = queue.integrationErrors[0];
             const pretty = { stripe_trigger: 'Stripe' }[ie.provider]
               || ie.provider.charAt(0).toUpperCase() + ie.provider.slice(1);
-            items.push(
-              <QueueItem key="integration-error" icon="⚠" tone="red"
+            const sig = `integration-error:${ie.id ?? ie.provider}:${(ie.last_error || '').slice(0, 40)}`;
+            add(sig,
+              <QueueItem key="integration-error" icon="⚠" tone="red" onDismiss={() => dismissAttention(sig)}
                 title={`${pretty} integration hit an error`}
                 detail={`${ie.last_error ? ie.last_error.slice(0, 80) : 'Connection problem'} — review requests from it may be paused`}
                 actionLabel="Fix" href="/dashboard/integrations" />
@@ -275,8 +294,9 @@ export default function Dashboard() {
           }
           if (queue.detractors.length > 0) {
             const d = queue.detractors[0];
-            items.push(
-              <QueueItem key="nps" icon="☹" tone="red"
+            const sig = `nps:${queue.detractors.length}:${d.id ?? d.contact_name ?? ''}:${d.score ?? ''}`;
+            add(sig,
+              <QueueItem key="nps" icon="☹" tone="red" onDismiss={() => dismissAttention(sig)}
                 title={`${queue.detractors.length} unhappy survey response${queue.detractors.length > 1 ? 's' : ''} this week`}
                 detail={`${d.contact_name || 'A customer'} scored ${d.score}/10 — follow up before it becomes a public review`}
                 actionLabel="View" href="/dashboard/grow?tab=surveys" />
