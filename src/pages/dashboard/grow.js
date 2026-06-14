@@ -940,6 +940,9 @@ function BulkSendTab() {
   const [sending, setSending]     = useState(false);
   const [result, setResult]       = useState(null);
   const [error, setError]         = useState('');
+  const [segName, setSegName]     = useState('');   // assign-to-segment input
+  const [assigning, setAssigning] = useState(false);
+  const [assignMsg, setAssignMsg] = useState('');
 
   const API = process.env.NEXT_PUBLIC_API_URL;
   function authH() {
@@ -1001,6 +1004,25 @@ function BulkSendTab() {
   }
 
   const allFilteredSelected = filtered.length > 0 && filtered.every(c => selected.includes(c.id));
+
+  async function assignSegment() {
+    const seg = segName.trim();
+    if (selected.length === 0) { setError('Select contacts to add to a segment.'); return; }
+    if (!seg) { setError('Type a segment name.'); return; }
+    setAssigning(true); setError(''); setAssignMsg('');
+    try {
+      const res = await axios.post(`${API}/contacts/segment`,
+        { contactIds: selected, segment: seg },
+        { headers: authH() });
+      setAssignMsg(`Added ${res.data.updated ?? selected.length} to “${seg}”.`);
+      setSegName('');
+      await loadContacts();          // refresh so the new segment shows in the dropdown
+    } catch (e) {
+      setError(e.response?.data?.error || 'Could not assign segment.');
+    } finally {
+      setAssigning(false);
+    }
+  }
 
   if (result) return (
     <div style={{ padding: 32, textAlign: 'center' }}>
@@ -1065,7 +1087,16 @@ function BulkSendTab() {
                     <div style={{ fontWeight: 600, fontSize: '.84rem', color: '#0a0a0a' }}>{c.name || '(no name)'}</div>
                     <div style={{ fontSize: '.75rem', color: '#7a7670' }}>{c.email}{c.phone ? ' · ' + c.phone : ''}</div>
                   </div>
-                  {c.last_request && <span style={{ fontSize: '.68rem', color: '#92690a', background: '#fef9c3', padding: '2px 7px', borderRadius: 50 }}>Sent {new Date(c.last_request).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                    {c.segment && c.segment !== 'all' && (
+                      <span style={{ fontSize: '.66rem', color: '#4a4a48', background: '#f0eeea', padding: '2px 7px', borderRadius: 50, textTransform: 'capitalize' }}>{c.segment}</span>
+                    )}
+                    {c.last_request && (
+                      <span style={{ fontSize: '.68rem', color: '#92690a', background: '#fef9c3', padding: '2px 7px', borderRadius: 50, whiteSpace: 'nowrap' }}>
+                        Requested {new Date(c.last_request).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -1086,6 +1117,26 @@ function BulkSendTab() {
           <KitButton onClick={sendBulk} disabled={sending || selected.length === 0} variant="dark" style={{ width: '100%' }}>
             {sending ? 'Sending…' : `Send ${selected.length || ''} request${selected.length !== 1 ? 's' : ''} →`}
           </KitButton>
+
+          {/* Organize selected contacts into a shared segment (same field SMS Campaigns target) */}
+          <div style={{ borderTop: '1px solid #f0eeea', marginTop: 16, paddingTop: 16 }}>
+            <div style={{ fontWeight: 600, fontSize: '.8rem', marginBottom: 4 }}>Add to a segment</div>
+            <div style={{ fontSize: '.72rem', color: '#7a7670', lineHeight: 1.5, marginBottom: 10 }}>
+              Tag the selected contacts so you can target them here and in SMS Campaigns.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input value={segName} onChange={e => setSegName(e.target.value)} placeholder="e.g. vip, lapsed"
+                list="bulk-segment-options"
+                style={{ flex: 1, minWidth: 0, padding: '8px 11px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.82rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+              <datalist id="bulk-segment-options">
+                {segments.filter(s => s.id !== 'all').map(s => <option key={s.id} value={s.id} />)}
+              </datalist>
+              <KitButton onClick={assignSegment} disabled={assigning || selected.length === 0 || !segName.trim()} style={{ whiteSpace: 'nowrap' }}>
+                {assigning ? '…' : 'Add'}
+              </KitButton>
+            </div>
+            {assignMsg && <div style={{ fontSize: '.72rem', color: '#1a6b45', marginTop: 8 }}>✓ {assignMsg}</div>}
+          </div>
         </Card>
       </div>
     </div>

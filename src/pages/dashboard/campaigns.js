@@ -556,6 +556,7 @@ export default function Campaigns() {
   const [tab, setTab]       = useState('list');
   const [campaigns, setCampaigns] = useState([]);
   const [usage, setUsage]   = useState({ used: 0, limit: 1000 });
+  const [segments, setSegments] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [name, setName]     = useState('');
   const [message, setMessage] = useState('');
@@ -571,6 +572,10 @@ export default function Campaigns() {
       ]);
       setCampaigns(campRes.data.campaigns || []);
       if (usageRes.data.usage) setUsage(usageRes.data.usage);
+      // Segments are shared with Grow (contacts.segment) — load them for the Segments tab.
+      axios.get(`${API}/contacts`, { headers: authHeaders() })
+        .then(r => setSegments(r.data.segments || []))
+        .catch(() => {});
     } catch (e) { console.error(e); }
   }
 
@@ -641,10 +646,27 @@ export default function Campaigns() {
         )}
 
         {tab === 'segments' && (
-          <div style={{ textAlign: 'center', padding: 60, color: '#7a7670' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>🎯</div>
-            <div style={{ fontWeight: 600, marginBottom: 6 }}>Audience segments</div>
-            <div style={{ fontSize: '.875rem' }}>Create reusable filters to target specific customers — by tag, visit recency, or spend.</div>
+          <div style={{ maxWidth: 640 }}>
+            <div style={{ fontWeight: 600, fontSize: '.95rem', marginBottom: 4 }}>Audience segments</div>
+            <div style={{ fontSize: '.84rem', color: '#7a7670', lineHeight: 1.6, marginBottom: 16 }}>
+              Segments are shared across SwarmReply — tag contacts in Grow › Bulk Send and target them here in your campaigns.
+            </div>
+            {segments.filter(s => s.id !== 'all').length === 0 ? (
+              <Card style={{ padding: 28, textAlign: 'center', color: '#7a7670' }}>
+                <div style={{ fontSize: '1.4rem', marginBottom: 8 }}>🎯</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>No segments yet</div>
+                <div style={{ fontSize: '.84rem' }}>Create one in <strong>Grow › Bulk Send</strong> by selecting contacts and adding them to a segment.</div>
+              </Card>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {segments.filter(s => s.id !== 'all').map(s => (
+                  <Card key={s.id} style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ fontWeight: 600, fontSize: '.88rem', textTransform: 'capitalize' }}>{s.id}</div>
+                    <span style={{ fontSize: '.74rem', color: '#7a7670', background: '#f0eeea', padding: '3px 10px', borderRadius: 50 }}>{s.count} contact{s.count !== 1 ? 's' : ''}</span>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
