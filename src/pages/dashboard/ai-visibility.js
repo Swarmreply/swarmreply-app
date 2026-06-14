@@ -331,95 +331,100 @@ function CompetitorsTab({ report }) {
 
   return (
     <div style={{ padding: 24 }}>
-      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
-        {/* LEFT: scan results, with the suggestions box stacked directly below */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
-        <Card style={{ overflow: 'hidden', height: 'fit-content' }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>AI competitor leaderboard</div>
-          {competitors.map((c, i) => {
-            const isYou = i === 0;
-            return (
-              <div key={i} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4', background: isYou ? 'rgba(245,200,66,.06)' : undefined }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: 12, alignItems: 'center' }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: isYou ? '#f5c842' : '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', fontWeight: 800, color: isYou ? '#0a0a0a' : '#7a7670' }}>{i + 1}</div>
-                  <div>
-                    <div style={{ fontWeight: isYou ? 700 : 500, fontSize: '.875rem' }}>{c.competitor}</div>
-                    <div style={{ height: 5, background: '#f0eeea', borderRadius: 3, overflow: 'hidden', marginTop: 5, width: '100%' }}>
-                      <div style={{ width: `${(c.mentions / max) * 100}%`, height: '100%', background: isYou ? '#f5c842' : '#e4e0d8', borderRadius: 3 }} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Top: scan results (left) + supporting insight (right) */}
+        <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, alignItems: 'start' }}>
+          {/* LEFT: scan results — AI competitor leaderboard */}
+          <Card style={{ overflow: 'hidden', height: 'fit-content' }}>
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>AI competitor leaderboard</div>
+            {competitors.map((c, i) => {
+              const isYou = i === 0;
+              return (
+                <div key={i} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4', background: isYou ? 'rgba(245,200,66,.06)' : undefined }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: 12, alignItems: 'center' }}>
+                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: isYou ? '#f5c842' : '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', fontWeight: 800, color: isYou ? '#0a0a0a' : '#7a7670' }}>{i + 1}</div>
+                    <div>
+                      <div style={{ fontWeight: isYou ? 700 : 500, fontSize: '.875rem' }}>{c.competitor}</div>
+                      <div style={{ height: 5, background: '#f0eeea', borderRadius: 3, overflow: 'hidden', marginTop: 5, width: '100%' }}>
+                        <div style={{ width: `${(c.mentions / max) * 100}%`, height: '100%', background: isYou ? '#f5c842' : '#e4e0d8', borderRadius: 3 }} />
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: 700, fontSize: '.9rem' }}>{c.mentions}</div>
+                      <div style={{ fontSize: '.65rem', color: '#7a7670' }}>mentions</div>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 700, fontSize: '.9rem' }}>{c.mentions}</div>
-                    <div style={{ fontSize: '.65rem', color: '#7a7670' }}>mentions</div>
-                  </div>
-                </div>
-                {!isYou && c.reasons && c.reasons.length > 0 && (
-                  <div style={{ marginLeft: 40, marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {c.reasons.map((r, j) => (
-                      <span key={j} style={{ fontSize: '.72rem', color: '#4a4a48', background: '#f8f7f4', border: '1px solid #f0eeea', borderRadius: 50, padding: '3px 9px' }}>{r}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          <div style={{ padding: '11px 20px', fontSize: '.72rem', color: '#7a7670', lineHeight: 1.5 }}>
-            Chips show why each competitor was favored — pulled from what the AI models actually said.
-          </div>
-        </Card>
-
-          {/* Your top moves (suggestions) — now below the scan results, full width */}
-          <Card style={{ padding: 20 }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Your top moves</div>
-            {recs.length === 0 ? (
-              <EmptyState compact title="No recommendations yet"
-                description="Run a scan and Wallabee will tell you exactly what to improve so AI assistants recommend your business." />
-            ) : recs.map((r, i) => {
-              const p = prio[r.priority] || prio.medium;
-              return (
-                <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: i < recs.length - 1 ? '1px solid #f0eeea' : 'none' }}>
-                  <div style={{ marginBottom: 5 }}>
-                    <span style={{ fontSize: '.65rem', fontWeight: 700, color: p.color, background: p.bg, padding: '2px 8px', borderRadius: 50, textTransform: 'uppercase', letterSpacing: '.04em' }}>{p.text}</span>
-                  </div>
-                  <div style={{ fontSize: '.83rem', fontWeight: 600, color: '#0a0a0a', lineHeight: 1.45 }}>{r.action}</div>
-                  {r.rationale && <div style={{ fontSize: '.76rem', color: '#7a7670', lineHeight: 1.55, marginTop: 3 }}>{r.rationale}</div>}
-                  {r.steps && r.steps.length > 0 && (
-                    <ul style={{ margin: '7px 0 0', paddingLeft: 16 }}>
-                      {r.steps.map((s, k) => (
-                        <li key={k} style={{ fontSize: '.76rem', color: '#4a4a48', lineHeight: 1.5, marginBottom: 3 }}>{s}</li>
+                  {!isYou && c.reasons && c.reasons.length > 0 && (
+                    <div style={{ marginLeft: 40, marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {c.reasons.map((r, j) => (
+                        <span key={j} style={{ fontSize: '.72rem', color: '#4a4a48', background: '#f8f7f4', border: '1px solid #f0eeea', borderRadius: 50, padding: '3px 9px' }}>{r}</span>
                       ))}
-                    </ul>
+                    </div>
                   )}
                 </div>
               );
             })}
-          </Card>
-        </div>
-
-        {/* RIGHT: supporting insight */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Where you're missing (query gaps) */}
-          <Card style={{ padding: 20 }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>Where you're missing</div>
-            <div style={{ fontSize: '.74rem', color: '#7a7670', marginBottom: 12, lineHeight: 1.5 }}>Searches where AI didn't mention you — your highest-value targets.</div>
-            {gaps.length === 0 ? (
-              <div style={{ fontSize: '.8rem', color: '#1a6b45' }}>You're mentioned across all tracked queries.</div>
-            ) : gaps.map((g, i) => (
-              <div key={i} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: i < gaps.length - 1 ? '1px solid #f0eeea' : 'none' }}>
-                <div style={{ fontSize: '.8rem', fontWeight: 500, color: '#0a0a0a', lineHeight: 1.4 }}>&ldquo;{g.query_text}&rdquo;</div>
-                <div style={{ fontSize: '.7rem', color: '#c0392b', marginTop: 3 }}>Missing on {(g.missedOn || []).map(label).join(', ')}</div>
-              </div>
-            ))}
+            <div style={{ padding: '11px 20px', fontSize: '.72rem', color: '#7a7670', lineHeight: 1.5 }}>
+              Chips show why each competitor was favored — pulled from what the AI models actually said.
+            </div>
           </Card>
 
-          {/* Brief explainer */}
-          <Card style={{ padding: 20 }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 8 }}>How this works</div>
-            <p style={{ fontSize: '.8rem', color: '#4a4a48', lineHeight: 1.65, margin: 0 }}>
-              When customers ask ChatGPT, Gemini, or Claude for the &ldquo;best business near me,&rdquo; the models recommend a shortlist. We track who appears, why they&rsquo;re favored, and where you&rsquo;re absent — so you can climb the list with more reviews, stronger web presence, and consistent listings.
-            </p>
-          </Card>
+          {/* RIGHT: supporting insight */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Where you're missing (query gaps) */}
+            <Card style={{ padding: 20 }}>
+              <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>Where you're missing</div>
+              <div style={{ fontSize: '.74rem', color: '#7a7670', marginBottom: 12, lineHeight: 1.5 }}>Searches where AI didn't mention you — your highest-value targets.</div>
+              {gaps.length === 0 ? (
+                <div style={{ fontSize: '.8rem', color: '#1a6b45' }}>You're mentioned across all tracked queries.</div>
+              ) : gaps.map((g, i) => (
+                <div key={i} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: i < gaps.length - 1 ? '1px solid #f0eeea' : 'none' }}>
+                  <div style={{ fontSize: '.8rem', fontWeight: 500, color: '#0a0a0a', lineHeight: 1.4 }}>&ldquo;{g.query_text}&rdquo;</div>
+                  <div style={{ fontSize: '.7rem', color: '#c0392b', marginTop: 3 }}>Missing on {(g.missedOn || []).map(label).join(', ')}</div>
+                </div>
+              ))}
+            </Card>
+
+            {/* Brief explainer */}
+            <Card style={{ padding: 20 }}>
+              <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 8 }}>How this works</div>
+              <p style={{ fontSize: '.8rem', color: '#4a4a48', lineHeight: 1.65, margin: 0 }}>
+                When customers ask ChatGPT, Gemini, or Claude for the &ldquo;best business near me,&rdquo; the models recommend a shortlist. We track who appears, why they&rsquo;re favored, and where you&rsquo;re absent — so you can climb the list with more reviews, stronger web presence, and consistent listings.
+              </p>
+            </Card>
+          </div>
         </div>
+
+        {/* Your top moves (suggestions) — full width, matching the Query Results box */}
+        <Card style={{ padding: 20 }}>
+          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Your top moves</div>
+          {recs.length === 0 ? (
+            <EmptyState compact title="No recommendations yet"
+              description="Run a scan and Wallabee will tell you exactly what to improve so AI assistants recommend your business." />
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14 }}>
+              {recs.map((r, i) => {
+                const p = prio[r.priority] || prio.medium;
+                return (
+                  <div key={i} style={{ border: '1px solid #f0eeea', borderRadius: 12, padding: '14px 16px', height: 'fit-content' }}>
+                    <div style={{ marginBottom: 5 }}>
+                      <span style={{ fontSize: '.65rem', fontWeight: 700, color: p.color, background: p.bg, padding: '2px 8px', borderRadius: 50, textTransform: 'uppercase', letterSpacing: '.04em' }}>{p.text}</span>
+                    </div>
+                    <div style={{ fontSize: '.83rem', fontWeight: 600, color: '#0a0a0a', lineHeight: 1.45 }}>{r.action}</div>
+                    {r.rationale && <div style={{ fontSize: '.76rem', color: '#7a7670', lineHeight: 1.55, marginTop: 3 }}>{r.rationale}</div>}
+                    {r.steps && r.steps.length > 0 && (
+                      <ul style={{ margin: '7px 0 0', paddingLeft: 16 }}>
+                        {r.steps.map((s, k) => (
+                          <li key={k} style={{ fontSize: '.76rem', color: '#4a4a48', lineHeight: 1.5, marginBottom: 3 }}>{s}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   );
