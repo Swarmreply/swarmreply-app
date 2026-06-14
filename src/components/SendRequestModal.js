@@ -6,11 +6,14 @@
 // ============================================
 
 import { useState, useEffect, useRef } from 'react';
+import SmsGateBanner from './SmsGateBanner';
+import { useSmsGate } from '../hooks/useSmsGate';
 import { sendQuickReviewRequest } from '../utils/api';
 
 const SERIF = "'Playfair Display', serif";
 
 export default function SendRequestModal({ open, onClose }) {
+  const smsGate = useSmsGate();
   const [name, setName]   = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -118,6 +121,7 @@ export default function SendRequestModal({ open, onClose }) {
         ) : (
           /* ── Form ── */
           <div style={{ padding: '24px 28px 28px' }}>
+            <SmsGateBanner feature="Text invites" enabled={smsGate.enabled} loading={smsGate.loading} liveDate={smsGate.liveDate} />
             <div style={{ marginBottom: 14 }}>
               <label style={label} htmlFor="srm-name">Customer name <span style={{ textTransform: 'none', fontWeight: 500 }}>(optional)</span></label>
               <input id="srm-name" style={field} placeholder="Sarah Miller"

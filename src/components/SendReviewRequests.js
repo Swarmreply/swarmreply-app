@@ -6,6 +6,8 @@
 // ============================================
 
 import { useState, useEffect } from 'react';
+import SmsGateBanner from './SmsGateBanner';
+import { useSmsGate } from '../hooks/useSmsGate';
 import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -158,6 +160,8 @@ export default function SendReviewRequests({ location, templates }) {
   const emailTemplates = templates?.filter(t => t.channel === 'email') || [];
   const smsTemplates = templates?.filter(t => t.channel === 'sms') || [];
   const selectedTpl = templates?.find(t => t.id === selectedTemplate);
+  const smsGate = useSmsGate();
+  const smsBlocked = selectedTpl?.channel === 'sms' && !smsGate.enabled && !smsGate.loading;
 
   const inputStyle = {
     width: '100%', padding: '10px 14px',
@@ -168,6 +172,7 @@ export default function SendReviewRequests({ location, templates }) {
 
   return (
     <div>
+      <SmsGateBanner feature="Text (SMS) review requests" enabled={smsGate.enabled} loading={smsGate.loading} liveDate={smsGate.liveDate} />
       {/* Daily limit banner */}
       {dailyStats && (
         <div style={{
@@ -385,7 +390,7 @@ export default function SendReviewRequests({ location, templates }) {
 
               <button
                 onClick={handleSend}
-                disabled={sending || contacts.length === 0 || !selectedTemplate}
+                disabled={sending || contacts.length === 0 || !selectedTemplate || smsBlocked}
                 style={{
                   width: '100%', padding: 14, borderRadius: 50,
                   background: sending || contacts.length === 0 ? '#c8c4bc' : '#0d0d0d',
@@ -394,7 +399,7 @@ export default function SendReviewRequests({ location, templates }) {
                   fontFamily: 'DM Sans, sans-serif'
                 }}
               >
-                {sending ? 'Sending...' : `Send to ${contacts.length} contact${contacts.length !== 1 ? 's' : ''} →`}
+                {smsBlocked ? 'Text sending unavailable until SMS goes live' : sending ? 'Sending...' : `Send to ${contacts.length} contact${contacts.length !== 1 ? 's' : ''} →`}
               </button>
 
               <p style={{ fontSize: '0.75rem', color: '#7a7670', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
