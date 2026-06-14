@@ -524,7 +524,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
                       {[
                         ['Score 9–10', 'Customer is sent to your Google review link'],
                         ['Score 7–8',  'Customer gets a follow-up question'],
-                        ['Score 0–6',  'Customer fills in private feedback — never public']
+                        ['Score 1–6',  'Customer fills in private feedback — never public']
                       ].map(([score, desc]) => (
                         <div key={score} style={{ display: 'flex', gap: 8, fontSize: '.8rem' }}>
                           <span style={{ fontWeight: 700, color: '#1a6b45', flexShrink: 0 }}>{score}</span>
