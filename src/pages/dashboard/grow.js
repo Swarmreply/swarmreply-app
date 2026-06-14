@@ -1274,23 +1274,43 @@ function ImportTab() {
     if (!lines.length) return [];
     // Detect header row
     const header = lines[0].toLowerCase();
-    const hasHeader = /name|email|phone/.test(header);
-    let nameIdx = 0, emailIdx = 1, phoneIdx = 2;
+    const hasHeader = /name|email|phone|segment/.test(header);
+    let nameIdx = 0, emailIdx = 1, phoneIdx = 2, segIdx = 3;
     if (hasHeader) {
       const cols = lines[0].split(',').map(c => c.trim().toLowerCase());
       nameIdx  = cols.findIndex(c => c.includes('name'));
       emailIdx = cols.findIndex(c => c.includes('email') || c.includes('e-mail'));
       phoneIdx = cols.findIndex(c => c.includes('phone') || c.includes('mobile') || c.includes('cell'));
+      segIdx   = cols.findIndex(c => c.includes('segment') || c.includes('tag') || c.includes('group'));
     }
     const dataLines = hasHeader ? lines.slice(1) : lines;
     return dataLines.map(line => {
       const cells = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
       return {
-        name:  nameIdx  >= 0 ? (cells[nameIdx]  || '') : '',
-        email: emailIdx >= 0 ? (cells[emailIdx] || '') : '',
-        phone: phoneIdx >= 0 ? (cells[phoneIdx] || '') : '',
+        name:    nameIdx  >= 0 ? (cells[nameIdx]  || '') : '',
+        email:   emailIdx >= 0 ? (cells[emailIdx] || '') : '',
+        phone:   phoneIdx >= 0 ? (cells[phoneIdx] || '') : '',
+        segment: segIdx   >= 0 ? (cells[segIdx]   || '') : '',
       };
-    }).filter(r => r.email || r.phone);
+    }).filter(r => r.email);   // email is the only required field
+  }
+
+  function downloadTemplate() {
+    const csv = [
+      'Name,Email,Cell Phone,Segment',
+      'Jane Smith,jane@example.com,555-123-4567,vip',
+      'John Doe,john@example.com,,',
+      'Maria Garcia,maria@example.com,555-987-6543,lapsed',
+    ].join('\n') + '\n';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'swarmreply-contacts-template.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   function handleFile(file) {
@@ -1301,7 +1321,7 @@ function ImportTab() {
     reader.onload = e => {
       try {
         const rows = parseCsv(e.target.result);
-        if (!rows.length) { setError('No valid rows found. Make sure your CSV has name, email, and phone columns.'); setParsed([]); return; }
+        if (!rows.length) { setError('No valid rows found. Each contact needs an email — download the template if you’re unsure of the format.'); setParsed([]); return; }
         setParsed(rows);
       } catch (err) {
         setError('Could not read that file. Please upload a valid CSV.');
@@ -1316,7 +1336,7 @@ function ImportTab() {
     setError('');
     try {
       const res = await axios.post(`${API}/contacts/import`,
-        { rows: parsed, filename, segment: 'all' },
+        { rows: parsed, filename },
         { headers: authHeaders() });
       setResult(res.data);
       setParsed([]);
@@ -1338,13 +1358,24 @@ function ImportTab() {
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         {/* Import card */}
         <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Import contacts</div>
-          <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.6 }}>Upload a CSV from your PMS, CRM, or POS. We import names, emails, and phone numbers.</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 6 }}>
+            <div style={{ fontWeight: 600, fontSize: '.875rem' }}>Import contacts</div>
+            <button onClick={downloadTemplate}
+              style={{ background: 'none', border: '1.5px solid #e4e0d8', borderRadius: 50, padding: '5px 12px', fontSize: '.74rem', fontWeight: 600, color: '#4a4a48', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+              ⬇ CSV template
+            </button>
+          </div>
+          <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.6 }}>Upload a CSV from your PMS, CRM, or POS with <strong>Name, Email, Cell Phone, and Segment</strong> columns. Only email is required. Existing contacts with a matching email or phone are updated, not duplicated — and any mobile numbers are also added to your SMS audience in Campaigns › Contacts.</div>
 
           {result ? (
             <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 12, padding: '16px 18px', marginBottom: 14 }}>
               <div style={{ fontWeight: 700, fontSize: '.9rem', color: '#1a6b45', marginBottom: 4 }}>✓ Import complete</div>
-              <div style={{ fontSize: '.82rem', color: '#1a6b45' }}>{result.imported} contact{result.imported !== 1 ? 's' : ''} imported{result.skipped > 0 ? `, ${result.skipped} skipped (duplicates or missing email/phone)` : ''}.</div>
+              <div style={{ fontSize: '.82rem', color: '#1a6b45' }}>
+                {result.imported} new contact{result.imported !== 1 ? 's' : ''}
+                {result.updated > 0 ? `, ${result.updated} updated` : ''}
+                {result.skipped > 0 ? `, ${result.skipped} skipped (missing email)` : ''}.
+                {result.smsImported > 0 ? ` ${result.smsImported} mobile number${result.smsImported !== 1 ? 's' : ''} added to Campaigns › Contacts.` : ''}
+              </div>
               <button onClick={() => setResult(null)} style={{ marginTop: 10, padding: '7px 16px', borderRadius: 50, background: 'white', border: '1.5px solid #bbf7d0', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit', color: '#1a6b45' }}>Import another</button>
             </div>
           ) : (
@@ -1356,7 +1387,7 @@ function ImportTab() {
                   {filename ? filename : 'Drop CSV here or click to browse'}
                 </div>
                 <div style={{ fontSize: '.78rem', color: '#7a7670' }}>
-                  {parsed.length ? `${parsed.length} contact${parsed.length !== 1 ? 's' : ''} ready to import` : 'CSV with name, email, phone columns'}
+                  {parsed.length ? `${parsed.length} contact${parsed.length !== 1 ? 's' : ''} ready to import` : 'CSV columns: Name, Email, Cell Phone, Segment (email required)'}
                 </div>
                 <input id="csv-input" type="file" accept=".csv,text/csv" style={{ display: 'none' }}
                   onChange={e => handleFile(e.target.files[0])} />
@@ -1367,9 +1398,12 @@ function ImportTab() {
               {parsed.length > 0 && (
                 <div style={{ marginBottom: 12, maxHeight: 140, overflowY: 'auto', border: '1px solid #f0eeea', borderRadius: 9 }}>
                   {parsed.slice(0, 50).map((r, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 12px', borderBottom: '1px solid #f8f7f4', fontSize: '.78rem' }}>
-                      <span style={{ fontWeight: 600 }}>{r.name || '(no name)'}</span>
-                      <span style={{ color: '#7a7670' }}>{r.email || r.phone}</span>
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '7px 12px', borderBottom: '1px solid #f8f7f4', fontSize: '.78rem' }}>
+                      <span style={{ fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name || '(no name)'}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#7a7670', flexShrink: 0 }}>
+                        {r.segment && <span style={{ fontSize: '.66rem', background: '#f0eeea', color: '#4a4a48', padding: '1px 7px', borderRadius: 50, textTransform: 'capitalize' }}>{r.segment}</span>}
+                        {r.email}
+                      </span>
                     </div>
                   ))}
                   {parsed.length > 50 && <div style={{ padding: '7px 12px', fontSize: '.73rem', color: '#7a7670', textAlign: 'center' }}>+ {parsed.length - 50} more</div>}
