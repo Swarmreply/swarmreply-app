@@ -47,6 +47,18 @@ function ReviewRowSkeleton() {
 
 // Stat card component
 // Review item component
+// Source badge per review platform. Reviews come from Google and Facebook
+// (both ingested into the reviews table); show where each one came from.
+const PLATFORM_BADGE = {
+  google:   { label: 'Google',   bg: '#eef1f5', fg: '#3c4043' },
+  facebook: { label: 'Facebook', bg: '#e7f0ff', fg: '#1877F2' },
+};
+function platformBadge(p) {
+  const key = (p || '').toLowerCase();
+  return PLATFORM_BADGE[key]
+    || { label: p ? p.charAt(0).toUpperCase() + p.slice(1) : 'Other', bg: '#f0eeea', fg: '#7a7670' };
+}
+
 function ReviewItem({ review }) {
   const stars = '★'.repeat(review.star_rating) + '☆'.repeat(5 - review.star_rating);
   const isReplied = review.status === 'replied';
@@ -78,11 +90,13 @@ function ReviewItem({ review }) {
           <span style={{ color: review.star_rating >= 4 ? '#f59e0b' : '#e53e3e', fontSize: '0.78rem' }}>
             {stars}
           </span>
+          {(() => { const b = platformBadge(review.platform); return (
           <span style={{
-            fontSize: '0.68rem', background: '#f0eeea',
+            fontSize: '0.68rem', background: b.bg,
             padding: '2px 8px', borderRadius: 50,
-            color: '#7a7670', fontWeight: 600
-          }}>Google</span>
+            color: b.fg, fontWeight: 600
+          }}>{b.label}</span>
+          ); })()}
         </div>
 
         {/* Review text */}
