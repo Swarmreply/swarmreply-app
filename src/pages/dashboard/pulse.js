@@ -16,8 +16,6 @@ import { StatCard } from '../../components/ui';
 const TABS = [
   { id: 'analytics',   label: 'Analytics'    },
   { id: 'competitors', label: 'Competitors'  },
-  { id: 'listings',    label: 'Listings'     },
-  { id: 'posts',       label: 'Google Posts' },
 ];
 
 const RANGES = [
@@ -195,14 +193,6 @@ export default function Pulse() {
       {tab === 'competitors' && (
         <ComingSoon icon="🏆" title="Competitor tracking is coming soon"
           description="This will benchmark your rating and review volume against nearby businesses in your category. It needs the competitor-tracking data source, which isn't connected yet." />
-      )}
-      {tab === 'listings' && (
-        <ComingSoon icon="📍" title="Listing accuracy is coming soon"
-          description="This will check your name, address, phone, and hours for mismatches across directories like Google, Apple Maps, and Bing — once listing sync is connected." />
-      )}
-      {tab === 'posts' && (
-        <ComingSoon icon="📣" title="Google Posts analytics are coming soon"
-          description="This will show views and clicks on the posts you publish to your Google Business Profile, once Google Posts reporting is wired up." />
       )}
     </DashboardLayout>
   );
