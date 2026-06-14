@@ -73,7 +73,7 @@ export default function ReviewPage({ preview }) {
     <>
       <Head><title>Share your feedback</title><meta name="viewport" content="width=device-width,initial-scale=1" /></Head>
       <div style={{ minHeight: '100vh', background: '#f4f4f0', fontFamily: 'system-ui,-apple-system,sans-serif', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ background: c, padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: c, padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[data.logoPosition] || 'center' }}>
           {data.brandLogo ? <img src={data.brandLogo} alt={data.businessName} style={{ maxHeight: 48, maxWidth: 160, objectFit: 'contain' }} /> : <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0a0a0a' }}>{data.businessName}</span>}
         </div>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 16px' }}>
