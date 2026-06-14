@@ -30,15 +30,19 @@ function Card({ children, style = {} }) {
 }
 
 
-function UsageMeter({ used = 634, limit = 2000 }) {
-  const pct = Math.round((used / limit) * 100);
+function UsageMeter({ used = 0, limit = 1000, resetAt = null }) {
+  const pct = limit > 0 ? Math.round((used / limit) * 100) : 0;
   const color = pct >= 100 ? '#c0392b' : pct >= 80 ? '#f59e0b' : '#1a6b45';
+  const resetLabel = (() => {
+    const d = resetAt ? new Date(resetAt) : (() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth() + 1, 1); })();
+    return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+  })();
   return (
     <Card style={{ padding: 18, marginBottom: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div>
           <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Monthly SMS campaign limit</div>
-          <div style={{ fontSize: '.75rem', color: '#7a7670' }}>Resets June 1</div>
+          <div style={{ fontSize: '.75rem', color: '#7a7670' }}>Resets {resetLabel}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.4rem', fontWeight: 900 }}>{used.toLocaleString()}</div>
@@ -548,7 +552,7 @@ export default function Campaigns() {
   const { customer } = useAuth();
   const [tab, setTab]       = useState('list');
   const [campaigns, setCampaigns] = useState([]);
-  const [usage, setUsage]   = useState({ used: 634, limit: 2000 });
+  const [usage, setUsage]   = useState({ used: 0, limit: 1000 });
   const [showModal, setShowModal] = useState(false);
   const [name, setName]     = useState('');
   const [message, setMessage] = useState('');
@@ -594,12 +598,12 @@ export default function Campaigns() {
       <div style={{ padding: 24 }}>
         {tab === 'list' && (
           <>
-            <UsageMeter used={usage.used || usage.campaign_sms_sent || 634}
-      limit={usage.limit || usage.sms_limit || 2000} />
+            <UsageMeter used={usage.used ?? usage.sms_sent ?? 0}
+      limit={usage.limit ?? usage.sms_limit ?? 1000} resetAt={usage.resetAt} />
             <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
               <StatCard label="Total sent" value={(usage.total_sent ?? 0).toLocaleString()} sub="Across all campaigns" />
               <StatCard label="Campaigns sent" value={(usage.total_campaigns ?? 0).toLocaleString()} sub="Completed campaigns" />
-              <StatCard label="SMS remaining" value={Math.max(0, (usage.limit || 2000) - (usage.used || 0)).toLocaleString()} sub={"of " + (usage.limit || 2000).toLocaleString() + " this month"} />
+              <StatCard label="SMS remaining" value={Math.max(0, (usage.limit ?? 1000) - (usage.used ?? 0)).toLocaleString()} sub={"of " + (usage.limit ?? 1000).toLocaleString() + " this month"} />
               <StatCard label="Replies" value={(usage.total_replies ?? 0).toLocaleString()} sub="Across all campaigns" />
             </div>
             <Card style={{ overflow: 'hidden' }}>
