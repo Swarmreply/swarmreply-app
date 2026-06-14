@@ -35,7 +35,7 @@ const INTEGRATIONS = [
     icon:        '📘',
     color:       '#1877F2',
     category:    'Reviews',
-    description: 'Monitor and reply to Facebook page reviews.',
+    description: 'Monitor Facebook page reviews in your dashboard.',
     trigger:     'Monitors reviews automatically',
     authType:    'oauth',
   },
