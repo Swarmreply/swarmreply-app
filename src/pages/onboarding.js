@@ -25,6 +25,7 @@ const STEP_DEST = {
   connect_google:      '/dashboard/integrations?connect=google',
   review_link:         '/dashboard/settings',
   test_request:        '/dashboard/grow',
+  listings_sync:       '/dashboard/listings',
   review_platforms:    '/dashboard/settings',
   keywords:            '/dashboard/rank-tracking',
   ai_criteria:         '/dashboard/ai-visibility',
