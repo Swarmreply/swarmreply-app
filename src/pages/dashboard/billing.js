@@ -392,7 +392,9 @@ export default function Billing() {
             </div>
             <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.65 }}>
               You'll keep full access until <strong>{formatDate(stripe?.currentPeriodEnd)}</strong>.
-              After that, your reviews will stop being replied to and your data will be saved for 30 days.
+              After that, your automatic replies and scans stop — but your reviews, contacts, and history
+              stay saved, so you can pick up right where you left off if you come back. Want your data
+              permanently removed instead? Just email <strong>hello@swarmreply.com</strong> and we'll take care of it.
             </p>
             <div style={{ marginBottom: 20 }}>
               <label style={fieldLabel}>What made you decide to cancel? (optional)</label>
