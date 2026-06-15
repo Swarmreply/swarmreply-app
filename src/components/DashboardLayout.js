@@ -90,8 +90,8 @@ export default function DashboardLayout({ children, title }) {
     checkOnboarding();
   }, [customer]);
 
-  // Load billing status
-  useEffect(() => { if (customer) checkBillingStatus(); }, [customer]);
+  // Load billing status (and re-check on each navigation so a mid-session lock is caught)
+  useEffect(() => { if (customer) checkBillingStatus(); }, [customer, router.pathname]);
 
   // Close more drawer on route change
   useEffect(() => { setMoreOpen(false); }, [router.pathname]);
@@ -124,8 +124,6 @@ export default function DashboardLayout({ children, title }) {
   }
 
   async function checkBillingStatus() {
-    // Skip billing check on billing page itself
-    if (router.pathname === '/dashboard/settings') return;
     try {
       const t = localStorage.getItem('swarmreply_token');
       const res = await axios.get(`${API}/billing/health`, {
@@ -171,7 +169,7 @@ export default function DashboardLayout({ children, title }) {
           <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '1.8rem' }}>💳</div>
           <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', fontWeight: 900, color: '#0a0a0a', marginBottom: 10 }}>Payment required</div>
           <p style={{ fontSize: '.9rem', color: '#7a7670', lineHeight: 1.75, marginBottom: 28 }}>
-            Your last payment didn't go through and the grace period has ended. Please update your payment method to restore access to SwarmReply.
+            Your most recent payment didn't go through, so access is paused. Please update your payment method to restore your account.
           </p>
           <button onClick={openBillingPortal} style={{ width: '100%', padding: '14px 0', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.95rem', fontWeight: 700, fontFamily: 'inherit', marginBottom: 12 }}>
             Update payment method →
