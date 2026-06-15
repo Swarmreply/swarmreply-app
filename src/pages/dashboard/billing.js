@@ -222,15 +222,6 @@ export default function Billing() {
                 {` · ${locationCount === 1 ? '1 location' : `${locationCount} locations`}`}
                 {billing?.billingCycle === 'annual' && ' · billed annually (10% off)'}
               </div>
-              {/* Features */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                {plan?.features?.map(f => (
-                  <span key={f} style={{
-                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
-                    padding: '3px 10px', borderRadius: 50, fontSize: '.75rem', color: '#4a4a48'
-                  }}>✓ {f}</span>
-                ))}
-              </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               {/* Next billing */}
@@ -254,10 +245,6 @@ export default function Billing() {
                   </div>
                 </div>
               )}
-              <button onClick={openPortal} disabled={portalLoading}
-                style={{ ...btnStyle('outline'), display: 'block', width: '100%', textAlign: 'center', marginBottom: 8 }}>
-                {portalLoading ? 'Opening…' : 'Manage billing →'}
-              </button>
             </div>
           </div>
         </div>
