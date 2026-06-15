@@ -221,6 +221,16 @@ export async function getAnalytics(range = '90d') {
   return res.data;
 }
 
+export async function getCompetitors() {
+  const res = await api.get('/reports/competitors');
+  return res.data;
+}
+
+export async function refreshCompetitors() {
+  const res = await api.post('/reports/competitors/refresh');
+  return res.data;
+}
+
 // ── BILLING ────────────────────────────────────────────────────────────────
 export async function getBillingStatus(token) {
   const res = await fetch(`${API_BASE}/billing/status`, {
