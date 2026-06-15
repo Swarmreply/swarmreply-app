@@ -98,14 +98,27 @@ function buildClientSummary(report) {
   const top = comps[0];
   const trend = delta > 0 ? `up ${delta} point${delta === 1 ? '' : 's'} from last week`
               : delta < 0 ? `down ${Math.abs(delta)} point${Math.abs(delta) === 1 ? '' : 's'} from last week`
-              : 'about level with last week';
-  let s = `AI assistants mentioned your business in ${mentions} of ${queries} test questions this week — a ${score}% visibility score, ${trend}.`;
-  if (top) {
-    const reason = (top.reasons && top.reasons[0]) ? ` (${String(top.reasons[0]).toLowerCase()})` : '';
-    s += ` ${top.competitor} came up most often as an alternative${reason}.`;
+              : 'level with last week';
+
+  let s = `Across ${queries} test question${queries === 1 ? '' : 's'} we ran on ChatGPT, Gemini and Claude, your business was named in ${mentions} — a ${score}% visibility score, ${trend}.`;
+
+  if (score === 0) {
+    s += ` Right now the AI assistants aren't surfacing you for these searches, so when potential customers ask them to recommend a business like yours, they're hearing about competitors instead.`;
+  } else if (score < 40) {
+    s += ` You're showing up some of the time, but competitors are still being recommended more often than you are.`;
+  } else if (score < 70) {
+    s += ` You're a solid presence in AI answers — the goal now is to become the top pick more consistently.`;
+  } else {
+    s += ` You're one of the businesses these assistants reliably recommend, which is a strong position to defend.`;
   }
-  const rec = (report.recommendations || [])[0];
-  if (rec && rec.action) s += ` Your biggest opportunity right now: ${String(rec.action).replace(/\.\s*$/, '')}.`;
+
+  if (top) {
+    const reason = (top.reasons && top.reasons[0]) ? `, largely for ${String(top.reasons[0]).toLowerCase()}` : '';
+    const others = comps.length > 1 ? ` — one of ${comps.length} alternatives the AI named` : '';
+    s += ` ${top.competitor} came up most often as an alternative${reason}${others}. The steps below are this week's best moves to close that gap.`;
+  } else {
+    s += ` The steps below are this week's best moves to improve.`;
+  }
   return s;
 }
 
@@ -114,7 +127,7 @@ function OverviewTab({ report, onGoCompetitors }) {
 
   const { run, byLLM = [] } = report;
   const summary = report.executiveSummary || buildClientSummary(report);
-  const topPriority = (report.recommendations || [])[0]?.action || null;
+  const tries = (report.recommendations || []).slice(0, 4);
 
   return (
     <div style={{ padding: 24 }}>
@@ -148,10 +161,11 @@ function OverviewTab({ report, onGoCompetitors }) {
         <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Executive summary</div>
-            <div style={{ fontSize: '.75rem', color: '#7a7670' }}>
-              A plain-English read on your AI search results
-              {report.lastScanAt ? ` · updated ${new Date(report.lastScanAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : ''}
-            </div>
+            {report.lastScanAt && (
+              <div style={{ fontSize: '.75rem', color: '#7a7670' }}>
+                Updated {new Date(report.lastScanAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+              </div>
+            )}
           </div>
           <span style={{ fontSize: '.66rem', fontWeight: 700, color: '#92690a', background: '#fff8e8', padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>Refreshes weekly</span>
         </div>
@@ -159,16 +173,30 @@ function OverviewTab({ report, onGoCompetitors }) {
           <p style={{ fontSize: '.92rem', lineHeight: 1.7, color: '#2a2a28', margin: 0, borderLeft: '3px solid #f5c842', paddingLeft: 14 }}>
             {summary}
           </p>
-          {topPriority && (
-            <div style={{ marginTop: 16, display: 'flex', alignItems: 'flex-start', gap: 10, background: '#f8f7f4', borderRadius: 10, padding: '12px 14px' }}>
-              <span style={{ fontSize: '.62rem', fontWeight: 800, color: '#0a0a0a', background: '#f5c842', padding: '3px 8px', borderRadius: 50, whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '.04em' }}>Top priority</span>
-              <span style={{ fontSize: '.84rem', color: '#3a3a38', lineHeight: 1.55, flex: 1 }}>{topPriority}</span>
+          {tries.length > 0 && (
+            <div style={{ marginTop: 18 }}>
+              <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 12 }}>What to try this week</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+                {tries.map((rec, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
+                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#f5c842', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', fontWeight: 800, color: '#0a0a0a', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '.85rem', fontWeight: 600, color: '#1a1a18', lineHeight: 1.5 }}>{rec.action}</div>
+                      {(rec.rationale || (rec.steps && rec.steps[0])) && (
+                        <div style={{ fontSize: '.78rem', color: '#6a6a66', lineHeight: 1.55, marginTop: 3 }}>
+                          {rec.rationale || rec.steps[0]}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-          <div style={{ marginTop: 14, fontSize: '.75rem', color: '#7a7670' }}>
+          <div style={{ marginTop: 16, fontSize: '.75rem', color: '#7a7670' }}>
             See{' '}
             <button onClick={() => onGoCompetitors && onGoCompetitors()} style={{ background: 'none', border: 'none', color: '#1a6b45', fontWeight: 600, cursor: 'pointer', padding: 0, font: 'inherit' }}>AI Competitors</button>
-            {' '}for the full breakdown and step-by-step moves.
+            {' '}for the full breakdown and the step-by-step behind each move.
           </div>
         </div>
       </Card>
