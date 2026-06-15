@@ -314,13 +314,143 @@ function ResultsTab({ report }) {
   );
 }
 
+// ── NEARBY BENCHMARK (Google Places) ──────────────────────────────────────────
+// Your rating + review count vs the nearest businesses in your category.
+// First scan is user-initiated ("Try scanning now"), then auto-refreshes weekly.
+function NearbyBenchmark() {
+  const [data, setData]          = useState(null);
+  const [loading, setLoading]    = useState(true);
+  const [refreshing, setRefresh] = useState(false);
+  const [err, setErr]            = useState('');
+
+  useEffect(() => {
+    let active = true;
+    axios.get(`${API}/reports/competitors`, { headers: authHeaders() })
+      .then(r => { if (active) { setData(r.data); setLoading(false); } })
+      .catch(() => { if (active) { setData(null); setLoading(false); } });
+    return () => { active = false; };
+  }, []);
+
+  async function scan() {
+    setRefresh(true); setErr('');
+    try {
+      const r = await axios.post(`${API}/reports/competitors/refresh`, {}, { headers: authHeaders() });
+      setData(prev => ({ ...(prev || {}), benchmark: r.data.benchmark }));
+    } catch (e) {
+      setErr((e && e.response && e.response.data && e.response.data.error) || 'Scan failed. Please try again.');
+    } finally {
+      setRefresh(false);
+    }
+  }
+
+  const benchmark = data && data.benchmark;
+  const configured = data && data.configured;
+  const hasData = benchmark && benchmark.hasData;
+  const fmtStars = (n) => `${n != null ? Number(n).toFixed(1) : '–'} ★`;
+  const errBox = err ? <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.8rem', color: '#c0392b', marginBottom: 12 }}>{err}</div> : null;
+
+  if (loading) {
+    return <Card style={{ padding: 20, marginBottom: 16 }}><div style={{ fontSize: '.82rem', color: '#7a7670' }}>Loading nearby benchmark…</div></Card>;
+  }
+
+  if (!hasData) {
+    return (
+      <Card style={{ padding: 24, marginBottom: 16, textAlign: 'center' }}>
+        <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>📍</div>
+        <div style={{ fontWeight: 700, fontSize: '.95rem', marginBottom: 4 }}>See how you stack up locally</div>
+        <div style={{ fontSize: '.82rem', color: '#7a7670', maxWidth: 440, margin: '0 auto 16px', lineHeight: 1.55 }}>
+          Run one scan to benchmark your Google rating and review count against the nearest businesses in your category. After that it refreshes automatically every week — nothing else to do.
+        </div>
+        {errBox}
+        {configured ? (
+          <button onClick={scan} disabled={refreshing}
+            style={{ padding: '9px 18px', borderRadius: 50, border: 'none', background: '#0a0a0a', color: 'white', fontSize: '.82rem', fontWeight: 700, cursor: refreshing ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+            {refreshing ? 'Scanning…' : 'Try scanning now'}
+          </button>
+        ) : (
+          <div style={{ fontSize: '.78rem', color: '#7a7670' }}>Competitor scanning isn’t enabled on this account yet.</div>
+        )}
+      </Card>
+    );
+  }
+
+  const ours = benchmark.ours;
+  const rows = [
+    { name: ours.name, rating: ours.rating, reviews: ours.totalReviews, isUs: true },
+    ...benchmark.competitors.map(c => ({ name: c.name, rating: c.rating, reviews: c.reviewCount, address: c.address, isUs: false })),
+  ].sort((a, b) => (b.rating - a.rating) || (b.reviews - a.reviews));
+  const top = benchmark.competitors.reduce((m, c) => c.reviewCount > (m ? m.reviewCount : -1) ? c : m, null);
+  const gap = top ? top.reviewCount - ours.totalReviews : null;
+  const topName = top ? top.name : '';
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      {errBox}
+      {/* Four stat cards */}
+      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 16 }}>
+        <StatCard label="Your rank nearby" value={`#${ours.rank}`} sub={`of ${ours.total} businesses`} />
+        <StatCard label="Your rating" value={fmtStars(ours.rating)} sub={`${ours.totalReviews} reviews`} />
+        <StatCard label="Area average" value={fmtStars(benchmark.avgCompetitorRating)}
+          sub={benchmark.ratingDiff >= 0 ? `You're +${benchmark.ratingDiff} above` : `You're ${benchmark.ratingDiff} below`} />
+        <StatCard label="New this month" value={ours.reviewsThisMonth}
+          sub={benchmark.ratingTrend > 0 ? `Rating ↑ ${benchmark.ratingTrend}` : benchmark.ratingTrend < 0 ? `Rating ↓ ${Math.abs(benchmark.ratingTrend)}` : 'Rating steady'} />
+      </div>
+
+      {/* Motivating gap callout */}
+      {gap != null && (
+        <Card style={{ padding: 16, marginBottom: 16, background: gap > 0 ? '#fff8e8' : '#e8f5ef', borderColor: gap > 0 ? '#fde68a' : '#bbf7d0' }}>
+          <div style={{ fontSize: '.9rem', fontWeight: 600, color: gap > 0 ? '#92690a' : '#1a6b45' }}>
+            {gap > 0
+              ? `You're ${gap} review${gap === 1 ? '' : 's'} behind ${topName}, the most-reviewed business nearby.`
+              : `You have more reviews than every competitor nearby. 🎉`}
+          </div>
+          {gap > 0 && (
+            <div style={{ fontSize: '.8rem', color: '#7a7670', marginTop: 4 }}>
+              Closing that gap pushes you up the local rankings — send a batch of review requests from Grow to catch up faster.
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Head-to-head table */}
+      <Card style={{ padding: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div style={{ fontWeight: 600, fontSize: '.875rem' }}>How you stack up nearby</div>
+          <button onClick={scan} disabled={refreshing}
+            style={{ padding: '6px 12px', borderRadius: 50, border: '1.5px solid #e4e0d8', background: 'white', fontSize: '.75rem', fontWeight: 600, cursor: refreshing ? 'default' : 'pointer', fontFamily: 'inherit', color: '#4a4a48' }}>
+            {refreshing ? 'Refreshing…' : '↻ Refresh'}
+          </button>
+        </div>
+        {rows.map((r, i) => (
+          <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto auto', gap: 12, alignItems: 'center', padding: '11px 0', borderBottom: i < rows.length - 1 ? '1px solid #f0eeea' : 'none', background: r.isUs ? 'rgba(245,200,66,.07)' : undefined, borderRadius: r.isUs ? 8 : 0, paddingLeft: r.isUs ? 8 : 0, paddingRight: r.isUs ? 8 : 0 }}>
+            <div style={{ width: 26, height: 26, borderRadius: '50%', background: r.isUs ? '#f5c842' : '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 800, color: r.isUs ? '#0a0a0a' : '#7a7670' }}>{i + 1}</div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: r.isUs ? 700 : 500, fontSize: '.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {r.name}{r.isUs && <span style={{ fontSize: '.66rem', fontWeight: 700, color: '#92690a', background: '#fef3c7', padding: '1px 7px', borderRadius: 50, marginLeft: 8 }}>You</span>}
+              </div>
+              {r.address && <div style={{ fontSize: '.7rem', color: '#7a7670', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.address}</div>}
+            </div>
+            <div style={{ textAlign: 'right', fontSize: '.82rem', fontWeight: 600 }}>{fmtStars(r.rating)}</div>
+            <div style={{ textAlign: 'right', fontSize: '.78rem', color: '#7a7670', width: 90 }}>{r.reviews} reviews</div>
+          </div>
+        ))}
+        {benchmark.lastUpdated && (
+          <div style={{ fontSize: '.7rem', color: '#7a7670', marginTop: 12 }}>
+            Nearby data from Google · updated {new Date(benchmark.lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · refreshes automatically every week
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
 // ── COMPETITORS TAB ───────────────────────────────────────────────────────────
 function CompetitorsTab({ report }) {
-  if (!report?.topCompetitors?.length) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" description="Run your first scan to see who AI recommends alongside you — and what to do about it." /></div>;
-  const competitors = report.topCompetitors;
+  const competitors = report?.topCompetitors || [];
+  const hasAi = competitors.length > 0;
   const max  = competitors[0]?.mentions || 1;
-  const gaps = report.queryGaps || [];
-  const recs = report.recommendations || [];
+  const gaps = report?.queryGaps || [];
+  const recs = report?.recommendations || [];
   const llmLabel = { chatgpt: 'ChatGPT', gemini: 'Gemini', claude: 'Claude' };
   const label = (n) => llmLabel[n] || n;
   const prio = {
@@ -331,6 +461,10 @@ function CompetitorsTab({ report }) {
 
   return (
     <div style={{ padding: 24 }}>
+      {/* Nearby benchmark (Google Places) — stat cards, gap callout, head-to-head */}
+      <NearbyBenchmark />
+
+      {hasAi ? (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Top: scan results (left) + supporting insight (right) */}
         <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, alignItems: 'start' }}>
@@ -426,6 +560,12 @@ function CompetitorsTab({ report }) {
           )}
         </Card>
       </div>
+      ) : (
+        <Card style={{ padding: 20 }}>
+          <EmptyState compact title="No AI visibility scan yet"
+            description="Run a scan from the Overview tab to see who AI assistants recommend in your area and how to climb the list." />
+        </Card>
+      )}
     </div>
   );
 }
