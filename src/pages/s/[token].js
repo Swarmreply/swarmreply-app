@@ -180,7 +180,10 @@ export default function SurveyPage() {
       setCountdown(count);
       if (count <= 0) {
         clearInterval(countdownRef.current);
-        window.location.href = redirectUrl;
+        // Only follow http(s) destinations — never a javascript:/data: URL.
+        if (typeof redirectUrl === 'string' && /^https?:\/\//i.test(redirectUrl)) {
+          window.location.href = redirectUrl;
+        }
       }
     }, 1000);
   }
