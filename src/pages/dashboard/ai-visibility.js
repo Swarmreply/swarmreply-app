@@ -85,10 +85,36 @@ function ScoreGauge({ score = 73, delta = 8 }) {
 }
 
 // ── OVERVIEW TAB ──────────────────────────────────────────────────────────────
-function OverviewTab({ report }) {
+// Plain-English fallback summary, used until the next weekly scan stores an
+// AI-written one. Mirrors the backend buildFallbackSummary, grounded in real data.
+function buildClientSummary(report) {
+  const r = report.run || {};
+  const score = r.visibility_score ?? 0;
+  const prev = r.prev_visibility;
+  const delta = (prev != null) ? score - prev : 0;
+  const mentions = r.total_mentions ?? 0;
+  const queries = r.total_queries ?? 0;
+  const comps = (report.topCompetitors || []).filter(c => c && !/\(you\)/i.test(c.competitor || ''));
+  const top = comps[0];
+  const trend = delta > 0 ? `up ${delta} point${delta === 1 ? '' : 's'} from last week`
+              : delta < 0 ? `down ${Math.abs(delta)} point${Math.abs(delta) === 1 ? '' : 's'} from last week`
+              : 'about level with last week';
+  let s = `AI assistants mentioned your business in ${mentions} of ${queries} test questions this week — a ${score}% visibility score, ${trend}.`;
+  if (top) {
+    const reason = (top.reasons && top.reasons[0]) ? ` (${String(top.reasons[0]).toLowerCase()})` : '';
+    s += ` ${top.competitor} came up most often as an alternative${reason}.`;
+  }
+  const rec = (report.recommendations || [])[0];
+  if (rec && rec.action) s += ` Your biggest opportunity right now: ${String(rec.action).replace(/\.\s*$/, '')}.`;
+  return s;
+}
+
+function OverviewTab({ report, onGoCompetitors }) {
   if (!report) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" description="Run your first scan to see how often AI assistants like ChatGPT recommend your business." /></div>;
 
-  const { run, byLLM = [], bestMentions = [], missedQueries = [] } = report;
+  const { run, byLLM = [] } = report;
+  const summary = report.executiveSummary || buildClientSummary(report);
+  const topPriority = (report.recommendations || [])[0]?.action || null;
 
   return (
     <div style={{ padding: 24 }}>
@@ -118,45 +144,34 @@ function OverviewTab({ report }) {
           </Card>
         </div>
       </div>
-      <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
-        <Card style={{ overflow: 'hidden' }}>
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8' }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Where AI mentioned you ✓</div>
-            <div style={{ fontSize: '.75rem', color: '#7a7670' }}>Queries where your business appeared</div>
+      <Card style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Executive summary</div>
+            <div style={{ fontSize: '.75rem', color: '#7a7670' }}>
+              A plain-English read on your AI search results
+              {report.lastScanAt ? ` · updated ${new Date(report.lastScanAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : ''}
+            </div>
           </div>
-          {bestMentions.slice(0,3).map((m, i) => (
-            <div key={i} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
-                <ModelBadge name={m.llm_name} />
-                <span style={{ fontSize: '.78rem', fontWeight: 600, flex: 1 }}>{m.query_text}</span>
-                <span style={{ fontSize: '.67rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50, background: m.sentiment === 'positive' ? '#e8f5ef' : '#f0eeea', color: m.sentiment === 'positive' ? '#1a6b45' : '#7a7670' }}>
-                  {m.sentiment === 'positive' ? '#1 result' : 'Mentioned'}
-                </span>
-              </div>
-              {m.mention_context && (
-                <div style={{ fontSize: '.78rem', color: '#4a4a48', fontStyle: 'italic', lineHeight: 1.6, padding: '6px 10px', background: '#f8f7f4', borderRadius: 8, borderLeft: '3px solid #f5c842' }}>
-                  "{m.mention_context}"
-                </div>
-              )}
+          <span style={{ fontSize: '.66rem', fontWeight: 700, color: '#92690a', background: '#fff8e8', padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>Refreshes weekly</span>
+        </div>
+        <div style={{ padding: '18px 20px' }}>
+          <p style={{ fontSize: '.92rem', lineHeight: 1.7, color: '#2a2a28', margin: 0, borderLeft: '3px solid #f5c842', paddingLeft: 14 }}>
+            {summary}
+          </p>
+          {topPriority && (
+            <div style={{ marginTop: 16, display: 'flex', alignItems: 'flex-start', gap: 10, background: '#f8f7f4', borderRadius: 10, padding: '12px 14px' }}>
+              <span style={{ fontSize: '.62rem', fontWeight: 800, color: '#0a0a0a', background: '#f5c842', padding: '3px 8px', borderRadius: 50, whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '.04em' }}>Top priority</span>
+              <span style={{ fontSize: '.84rem', color: '#3a3a38', lineHeight: 1.55, flex: 1 }}>{topPriority}</span>
             </div>
-          ))}
-        </Card>
-        <Card style={{ padding: 20, background: '#0a0a0a' }}>
-          <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 12 }}>How to improve your score</div>
-          {(report.recommendations && report.recommendations.length
-            ? report.recommendations.slice(0, 4).map(r => r.action)
-            : ['Keep Google reviews coming — AI models weight rating and review volume heavily.', 'Publish fresh content regularly — an active business signals trust to AI crawlers.', 'Keep listings synced across Apple Maps, Bing, and other platforms.', 'Use your business name and city consistently across every platform.']
-          ).map((tip, i) => (
-            <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-              <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#f5c842', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.65rem', fontWeight: 800, color: '#0a0a0a', flexShrink: 0 }}>{i+1}</span>
-              <div style={{ fontSize: '.8rem', color: 'rgba(255,255,255,.7)', lineHeight: 1.55 }}>{tip}</div>
-            </div>
-          ))}
-          {report.recommendations && report.recommendations.length > 0 && (
-            <div style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.45)', marginTop: 4 }}>See the Competitors tab for the steps behind each.</div>
           )}
-        </Card>
-      </div>
+          <div style={{ marginTop: 14, fontSize: '.75rem', color: '#7a7670' }}>
+            See{' '}
+            <button onClick={() => onGoCompetitors && onGoCompetitors()} style={{ background: 'none', border: 'none', color: '#1a6b45', fontWeight: 600, cursor: 'pointer', padding: 0, font: 'inherit' }}>AI Competitors</button>
+            {' '}for the full breakdown and step-by-step moves.
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
@@ -865,7 +880,7 @@ export function AiVisibilityPanel() {
         </div>
       )}
 
-      {tab === 'overview'    && <OverviewTab    report={report} />}
+      {tab === 'overview'    && <OverviewTab    report={report} onGoCompetitors={() => setTab('competitors')} />}
       {tab === 'by-model'    && <ByModelTab     report={report} />}
       {tab === 'results'     && <ResultsTab     report={report} />}
       {tab === 'competitors' && <CompetitorsTab report={report} />}
