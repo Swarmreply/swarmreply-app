@@ -67,6 +67,7 @@ export function RankTrackingPanel() {
   const [data, setData]           = useState([]);
   const [loading, setLoading]     = useState(true);
   const [lastChecked, setLast]    = useState(null);
+  const [nextCheck, setNextCheck] = useState(null);
   const [checking, setChecking]   = useState(false);
   const [newKw, setNewKw]         = useState('');
   const [adding, setAdding]       = useState(false);
@@ -81,6 +82,7 @@ export function RankTrackingPanel() {
       const res = await axios.get(`${API}/rank`, { headers: authH() });
       setData(res.data.keywords || []);
       setLast(res.data.lastChecked);
+      setNextCheck(res.data.nextCheckAt || null);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
@@ -144,9 +146,20 @@ export function RankTrackingPanel() {
           <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontWeight: 600, fontSize: '.875rem' }}>Keyword positions</span>
-              <button onClick={runCheck} disabled={checking} style={{ padding: '7px 16px', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit', opacity: checking ? .5 : 1 }}>
-                {checking ? '↻ Checking...' : '↻ Check now'}
-              </button>
+              {checking ? (
+                <span style={{ fontSize: '.82rem', color: '#92690a', fontWeight: 700 }}>↻ Checking…</span>
+              ) : lastChecked && nextCheck && new Date(nextCheck) > new Date() ? (
+                <div style={{ background: '#f8f7f4', border: '1.5px solid #e4e0d8', borderRadius: 8, padding: '5px 12px', textAlign: 'right' }}>
+                  <div style={{ fontSize: '.66rem', color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
+                  <div style={{ fontSize: '.8rem', fontWeight: 600, color: '#0a0a0a', marginTop: 1 }}>
+                    {new Date(nextCheck).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </div>
+                </div>
+              ) : (
+                <button onClick={runCheck} disabled={checking} style={{ padding: '7px 16px', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit' }}>
+                  ↻ {lastChecked ? 'Run scan' : 'Run my first scan'}
+                </button>
+              )}
             </div>
 
             {loading ? (
