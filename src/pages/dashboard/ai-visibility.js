@@ -393,7 +393,7 @@ function CompetitorsTab({ report }) {
     if (ar !== br) return (br ? 1 : 0) - (ar ? 1 : 0);
     if (ar && br && a.rating !== b.rating) return b.rating - a.rating;
     return (b.mentions || 0) - (a.mentions || 0);
-  });
+  }).slice(0, 10);   // never show more than 10
 
   // Review gap vs the most-reviewed nearby competitor.
   let gap = null, topName = '';
@@ -416,7 +416,7 @@ function CompetitorsTab({ report }) {
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
         <div style={{ fontWeight:700, fontSize:'1rem' }}>Local competition</div>
-        <InfoTip text="Two views of your competition in one place: how your Google rating and review count compare to the nearest businesses in your category, and which businesses AI assistants name when customers ask for the best nearby. A business that shows up in both is your biggest threat." />
+        <InfoTip text="Each competitor is tagged by where we found them: a green Google pill if they're a nearby business in your category, and a purple AI pill if AI assistants recommend them. Businesses carrying both pills are your strongest competitors, so they sit at the top. Shows up to 10." />
         <a href="https://swarmreply.com/help#competitor-benchmarking" target="_blank" rel="noreferrer"
           style={{ marginLeft:'auto', fontSize:'.78rem', fontWeight:600, color:'#4a4a48', textDecoration:'none', borderBottom:'1px solid #e4e0d8' }}>How this works →</a>
       </div>
@@ -458,7 +458,7 @@ function CompetitorsTab({ report }) {
         {(hasBench || aiScore != null) && (
           <div style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'center', padding:'12px 18px', background:'rgba(245,200,66,.09)', borderBottom:'1px solid #f0eeea' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flexWrap:'wrap' }}>
-              <span style={{ fontWeight:700, fontSize:'.86rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ours ? ours.name : 'Your business'}</span>
+              <span style={{ fontWeight:700, fontSize:'.86rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ours ? ours.name : ((bench && bench.businessName) || 'Your business')}</span>
               {tag('You', '#fef3c7', '#92690a')}
             </div>
             <div style={{ textAlign:'right', fontSize:'.82rem', fontWeight:700 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
@@ -479,15 +479,18 @@ function CompetitorsTab({ report }) {
             )}
           </div>
         ) : competitors.map((c, i) => {
-          const both = c.nearby && c.ai;
           return (
             <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'start', padding:'12px 18px', borderBottom: i < competitors.length-1 ? '1px solid #f8f7f4' : 'none' }}>
               <div style={{ minWidth:0 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
                   <span style={{ fontWeight:600, fontSize:'.85rem' }}>{c.name}</span>
-                  {both && tag('🔥 Top threat', '#fee2e2', '#c0392b')}
-                  {c.nearby && !both && tag('Nearby', '#e8f5ef', '#1a6b45')}
-                  {c.ai && !both && (
+                  {c.nearby && (
+                    <span title="A nearby business in your category, found via Google"
+                      style={{ fontSize:'.64rem', fontWeight:700, color:'#1a6b45', background:'#e8f5ef', padding:'2px 7px', borderRadius:50, whiteSpace:'nowrap', cursor:'help' }}>
+                      Google
+                    </span>
+                  )}
+                  {c.ai && (
                     <span title={`Recommended by AI assistants${c.mentions ? ` — named in ${c.mentions} ${c.mentions === 1 ? 'query' : 'queries'} we ran` : ''}`}
                       style={{ fontSize:'.64rem', fontWeight:700, color:'#6d28d9', background:'#ede9fe', padding:'2px 7px', borderRadius:50, whiteSpace:'nowrap', cursor:'help' }}>
                       AI recommends
