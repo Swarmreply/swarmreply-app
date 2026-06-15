@@ -314,20 +314,38 @@ function ResultsTab({ report }) {
   );
 }
 
-// ── NEARBY BENCHMARK (Google Places) ──────────────────────────────────────────
-// Your rating + review count vs the nearest businesses in your category.
-// First scan is user-initiated ("Try scanning now"), then auto-refreshes weekly.
-function NearbyBenchmark() {
-  const [data, setData]          = useState(null);
-  const [loading, setLoading]    = useState(true);
+// ── COMPETITORS TAB (unified) ─────────────────────────────────────────────────
+// One page, three zones: where you stand (strip), your competition (a single
+// merged list of Google-nearby + AI-recommended businesses, matched by name),
+// and condensed next moves. A business in BOTH lists is flagged as a top threat.
+const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+
+function InfoTip({ text }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span style={{ position: 'relative', display: 'inline-flex' }}>
+      <button onClick={() => setOpen(o => !o)} onBlur={() => setTimeout(() => setOpen(false), 150)}
+        aria-label="What is this?"
+        style={{ width: 18, height: 18, borderRadius: '50%', border: '1.5px solid #c8c4bc', background: 'white', color: '#7a7670', fontSize: '.64rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit', lineHeight: 1, padding: 0 }}>i</button>
+      {open && (
+        <span style={{ position: 'absolute', top: 24, left: 0, zIndex: 30, width: 290, background: '#0a0a0a', color: 'white', fontSize: '.74rem', lineHeight: 1.55, padding: '11px 13px', borderRadius: 10, boxShadow: '0 8px 28px rgba(0,0,0,.22)', fontWeight: 400, textAlign: 'left' }}>{text}</span>
+      )}
+    </span>
+  );
+}
+
+function CompetitorsTab({ report }) {
+  const [bench, setBench]        = useState(null);
+  const [bLoading, setBLoading]  = useState(true);
   const [refreshing, setRefresh] = useState(false);
+  const [showAll, setShowAll]    = useState(false);
   const [err, setErr]            = useState('');
 
   useEffect(() => {
     let active = true;
     axios.get(`${API}/reports/competitors`, { headers: authHeaders() })
-      .then(r => { if (active) { setData(r.data); setLoading(false); } })
-      .catch(() => { if (active) { setData(null); setLoading(false); } });
+      .then(r => { if (active) { setBench(r.data); setBLoading(false); } })
+      .catch(() => { if (active) { setBench(null); setBLoading(false); } });
     return () => { active = false; };
   }, []);
 
@@ -335,235 +353,210 @@ function NearbyBenchmark() {
     setRefresh(true); setErr('');
     try {
       const r = await axios.post(`${API}/reports/competitors/refresh`, {}, { headers: authHeaders() });
-      setData(prev => ({ ...(prev || {}), benchmark: r.data.benchmark }));
+      setBench(prev => ({ ...(prev || {}), benchmark: r.data.benchmark }));
     } catch (e) {
       setErr((e && e.response && e.response.data && e.response.data.error) || 'Scan failed. Please try again.');
-    } finally {
-      setRefresh(false);
+    } finally { setRefresh(false); }
+  }
+
+  const run = report?.run || {};
+  const benchmark = bench && bench.benchmark;
+  const configured = bench && bench.configured;
+  const hasBench = benchmark && benchmark.hasData;
+  const ours = hasBench ? benchmark.ours : null;
+  const fmtStars = (n) => n != null ? `${Number(n).toFixed(1)} ★` : '—';
+  const aiScore = run.visibility_score != null ? run.visibility_score : null;
+
+  // Merge competitors (nearby + AI), matched by normalized name.
+  const map = new Map();
+  if (hasBench) {
+    for (const c of benchmark.competitors) {
+      map.set(norm(c.name), { name: c.name, rating: c.rating, reviews: c.reviewCount, address: c.address, nearby: true, ai: false, mentions: null, reasons: [] });
     }
   }
+  for (const c of (report?.topCompetitors || [])) {
+    const name = c.competitor || c.name; if (!name) continue;
+    const k = norm(name);
+    if (map.has(k)) {
+      const row = map.get(k);
+      row.ai = true;
+      row.mentions = c.mentions != null ? Number(c.mentions) : row.mentions;
+      if (c.reasons && c.reasons.length) row.reasons = c.reasons;
+    } else {
+      map.set(k, { name, rating: null, reviews: null, address: null, nearby: false, ai: true, mentions: c.mentions != null ? Number(c.mentions) : null, reasons: c.reasons || [] });
+    }
+  }
+  const competitors = Array.from(map.values()).sort((a, b) => {
+    const aBoth = a.nearby && a.ai, bBoth = b.nearby && b.ai;
+    if (aBoth !== bBoth) return (bBoth ? 1 : 0) - (aBoth ? 1 : 0);
+    const ar = a.rating != null, br = b.rating != null;
+    if (ar !== br) return (br ? 1 : 0) - (ar ? 1 : 0);
+    if (ar && br && a.rating !== b.rating) return b.rating - a.rating;
+    return (b.mentions || 0) - (a.mentions || 0);
+  });
 
-  const benchmark = data && data.benchmark;
-  const configured = data && data.configured;
-  const hasData = benchmark && benchmark.hasData;
-  const fmtStars = (n) => `${n != null ? Number(n).toFixed(1) : '–'} ★`;
-  const errBox = err ? <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.8rem', color: '#c0392b', marginBottom: 12 }}>{err}</div> : null;
-
-  if (loading) {
-    return <Card style={{ padding: 20, marginBottom: 16 }}><div style={{ fontSize: '.82rem', color: '#7a7670' }}>Loading nearby benchmark…</div></Card>;
+  // Review gap vs the most-reviewed nearby competitor.
+  let gap = null, topName = '';
+  if (hasBench) {
+    const top = benchmark.competitors.reduce((m, c) => c.reviewCount > (m ? m.reviewCount : -1) ? c : m, null);
+    if (top) { topName = top.name; gap = top.reviewCount - ours.totalReviews; }
   }
 
-  if (!hasData) {
-    return (
-      <Card style={{ padding: 24, marginBottom: 16, textAlign: 'center' }}>
-        <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>📍</div>
-        <div style={{ fontWeight: 700, fontSize: '.95rem', marginBottom: 4 }}>See how you stack up locally</div>
-        <div style={{ fontSize: '.82rem', color: '#7a7670', maxWidth: 440, margin: '0 auto 16px', lineHeight: 1.55 }}>
-          Run one scan to benchmark your Google rating and review count against the nearest businesses in your category. After that it refreshes automatically every week — nothing else to do.
-        </div>
-        {errBox}
-        {configured ? (
-          <button onClick={scan} disabled={refreshing}
-            style={{ padding: '9px 18px', borderRadius: 50, border: 'none', background: '#0a0a0a', color: 'white', fontSize: '.82rem', fontWeight: 700, cursor: refreshing ? 'default' : 'pointer', fontFamily: 'inherit' }}>
-            {refreshing ? 'Scanning…' : 'Try scanning now'}
-          </button>
-        ) : (
-          <div style={{ fontSize: '.78rem', color: '#7a7670' }}>Competitor scanning isn’t enabled on this account yet.</div>
-        )}
-      </Card>
-    );
-  }
-
-  const ours = benchmark.ours;
-  const rows = [
-    { name: ours.name, rating: ours.rating, reviews: ours.totalReviews, isUs: true },
-    ...benchmark.competitors.map(c => ({ name: c.name, rating: c.rating, reviews: c.reviewCount, address: c.address, isUs: false })),
-  ].sort((a, b) => (b.rating - a.rating) || (b.reviews - a.reviews));
-  const top = benchmark.competitors.reduce((m, c) => c.reviewCount > (m ? m.reviewCount : -1) ? c : m, null);
-  const gap = top ? top.reviewCount - ours.totalReviews : null;
-  const topName = top ? top.name : '';
-
-  return (
-    <div style={{ marginBottom: 16 }}>
-      {errBox}
-      {/* Four stat cards */}
-      <div className="m-grid-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 16 }}>
-        <StatCard label="Your rank nearby" value={`#${ours.rank}`} sub={`of ${ours.total} businesses`} />
-        <StatCard label="Your rating" value={fmtStars(ours.rating)} sub={`${ours.totalReviews} reviews`} />
-        <StatCard label="Area average" value={fmtStars(benchmark.avgCompetitorRating)}
-          sub={benchmark.ratingDiff >= 0 ? `You're +${benchmark.ratingDiff} above` : `You're ${benchmark.ratingDiff} below`} />
-        <StatCard label="New this month" value={ours.reviewsThisMonth}
-          sub={benchmark.ratingTrend > 0 ? `Rating ↑ ${benchmark.ratingTrend}` : benchmark.ratingTrend < 0 ? `Rating ↓ ${Math.abs(benchmark.ratingTrend)}` : 'Rating steady'} />
-      </div>
-
-      {/* Motivating gap callout */}
-      {gap != null && (
-        <Card style={{ padding: 16, marginBottom: 16, background: gap > 0 ? '#fff8e8' : '#e8f5ef', borderColor: gap > 0 ? '#fde68a' : '#bbf7d0' }}>
-          <div style={{ fontSize: '.9rem', fontWeight: 600, color: gap > 0 ? '#92690a' : '#1a6b45' }}>
-            {gap > 0
-              ? `You're ${gap} review${gap === 1 ? '' : 's'} behind ${topName}, the most-reviewed business nearby.`
-              : `You have more reviews than every competitor nearby. 🎉`}
-          </div>
-          {gap > 0 && (
-            <div style={{ fontSize: '.8rem', color: '#7a7670', marginTop: 4 }}>
-              Closing that gap pushes you up the local rankings — send a batch of review requests from Grow to catch up faster.
-            </div>
-          )}
-        </Card>
-      )}
-
-      {/* Head-to-head table */}
-      <Card style={{ padding: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem' }}>How you stack up nearby</div>
-          <button onClick={scan} disabled={refreshing}
-            style={{ padding: '6px 12px', borderRadius: 50, border: '1.5px solid #e4e0d8', background: 'white', fontSize: '.75rem', fontWeight: 600, cursor: refreshing ? 'default' : 'pointer', fontFamily: 'inherit', color: '#4a4a48' }}>
-            {refreshing ? 'Refreshing…' : '↻ Refresh'}
-          </button>
-        </div>
-        {rows.map((r, i) => (
-          <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto auto', gap: 12, alignItems: 'center', padding: '11px 0', borderBottom: i < rows.length - 1 ? '1px solid #f0eeea' : 'none', background: r.isUs ? 'rgba(245,200,66,.07)' : undefined, borderRadius: r.isUs ? 8 : 0, paddingLeft: r.isUs ? 8 : 0, paddingRight: r.isUs ? 8 : 0 }}>
-            <div style={{ width: 26, height: 26, borderRadius: '50%', background: r.isUs ? '#f5c842' : '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 800, color: r.isUs ? '#0a0a0a' : '#7a7670' }}>{i + 1}</div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontWeight: r.isUs ? 700 : 500, fontSize: '.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {r.name}{r.isUs && <span style={{ fontSize: '.66rem', fontWeight: 700, color: '#92690a', background: '#fef3c7', padding: '1px 7px', borderRadius: 50, marginLeft: 8 }}>You</span>}
-              </div>
-              {r.address && <div style={{ fontSize: '.7rem', color: '#7a7670', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.address}</div>}
-            </div>
-            <div style={{ textAlign: 'right', fontSize: '.82rem', fontWeight: 600 }}>{fmtStars(r.rating)}</div>
-            <div style={{ textAlign: 'right', fontSize: '.78rem', color: '#7a7670', width: 90 }}>{r.reviews} reviews</div>
-          </div>
-        ))}
-        {benchmark.lastUpdated && (
-          <div style={{ fontSize: '.7rem', color: '#7a7670', marginTop: 12 }}>
-            Nearby data from Google · updated {new Date(benchmark.lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · refreshes automatically every week
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-}
-
-// ── COMPETITORS TAB ───────────────────────────────────────────────────────────
-function CompetitorsTab({ report }) {
-  const competitors = report?.topCompetitors || [];
-  const hasAi = competitors.length > 0;
-  const max  = competitors[0]?.mentions || 1;
-  const gaps = report?.queryGaps || [];
   const recs = report?.recommendations || [];
-  const llmLabel = { chatgpt: 'ChatGPT', gemini: 'Gemini', claude: 'Claude' };
+  const gaps = report?.queryGaps || [];
+  const prio = { high: { bg:'#fee2e2', color:'#c0392b', text:'High impact' }, medium: { bg:'#fef3c7', color:'#92690a', text:'Medium' }, low: { bg:'#f0eeea', color:'#7a7670', text:'Low' } };
+  const llmLabel = { chatgpt:'ChatGPT', gemini:'Gemini', claude:'Claude' };
   const label = (n) => llmLabel[n] || n;
-  const prio = {
-    high:   { bg: '#fee2e2', color: '#c0392b', text: 'High impact' },
-    medium: { bg: '#fef3c7', color: '#92690a', text: 'Medium' },
-    low:    { bg: '#f0eeea', color: '#7a7670', text: 'Low' },
-  };
+  const visibleRecs = showAll ? recs : recs.slice(0, 2);
+
+  const tag = (text, bg, color) => <span style={{ fontSize:'.64rem', fontWeight:700, color, background:bg, padding:'2px 7px', borderRadius:50, whiteSpace:'nowrap' }}>{text}</span>;
 
   return (
     <div style={{ padding: 24 }}>
-      {/* Nearby benchmark (Google Places) — stat cards, gap callout, head-to-head */}
-      <NearbyBenchmark />
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+        <div style={{ fontWeight:700, fontSize:'1rem' }}>Local competition</div>
+        <InfoTip text="Two views of your competition in one place: how your Google rating and review count compare to the nearest businesses in your category, and which businesses AI assistants name when customers ask for the best nearby. A business that shows up in both is your biggest threat." />
+        <a href="https://swarmreply.com/help#competitor-benchmarking" target="_blank" rel="noreferrer"
+          style={{ marginLeft:'auto', fontSize:'.78rem', fontWeight:600, color:'#4a4a48', textDecoration:'none', borderBottom:'1px solid #e4e0d8' }}>How this works →</a>
+      </div>
 
-      {hasAi ? (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {/* Top: scan results (left) + supporting insight (right) */}
-        <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16, alignItems: 'start' }}>
-          {/* LEFT: scan results — AI competitor leaderboard */}
-          <Card style={{ overflow: 'hidden', height: 'fit-content' }}>
-            <div style={{ padding: '14px 20px', borderBottom: '1px solid #e4e0d8', fontWeight: 600, fontSize: '.875rem' }}>AI competitor leaderboard</div>
-            {competitors.map((c, i) => {
-              const isYou = i === 0;
-              return (
-                <div key={i} style={{ padding: '13px 20px', borderBottom: '1px solid #f8f7f4', background: isYou ? 'rgba(245,200,66,.06)' : undefined }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '28px 1fr auto', gap: 12, alignItems: 'center' }}>
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: isYou ? '#f5c842' : '#f0eeea', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.75rem', fontWeight: 800, color: isYou ? '#0a0a0a' : '#7a7670' }}>{i + 1}</div>
-                    <div>
-                      <div style={{ fontWeight: isYou ? 700 : 500, fontSize: '.875rem' }}>{c.competitor}</div>
-                      <div style={{ height: 5, background: '#f0eeea', borderRadius: 3, overflow: 'hidden', marginTop: 5, width: '100%' }}>
-                        <div style={{ width: `${(c.mentions / max) * 100}%`, height: '100%', background: isYou ? '#f5c842' : '#e4e0d8', borderRadius: 3 }} />
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 700, fontSize: '.9rem' }}>{c.mentions}</div>
-                      <div style={{ fontSize: '.65rem', color: '#7a7670' }}>mentions</div>
-                    </div>
-                  </div>
-                  {!isYou && c.reasons && c.reasons.length > 0 && (
-                    <div style={{ marginLeft: 40, marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {c.reasons.map((r, j) => (
-                        <span key={j} style={{ fontSize: '.72rem', color: '#4a4a48', background: '#f8f7f4', border: '1px solid #f0eeea', borderRadius: 50, padding: '3px 9px' }}>{r}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-            <div style={{ padding: '11px 20px', fontSize: '.72rem', color: '#7a7670', lineHeight: 1.5 }}>
-              Chips show why each competitor was favored — pulled from what the AI models actually said.
-            </div>
-          </Card>
+      {err && <div style={{ background:'#fee2e2', border:'1px solid #fca5a5', borderRadius:9, padding:'9px 12px', fontSize:'.8rem', color:'#c0392b', marginBottom:14 }}>{err}</div>}
 
-          {/* RIGHT: supporting insight */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Where you're missing (query gaps) */}
-            <Card style={{ padding: 20 }}>
-              <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>Where you're missing</div>
-              <div style={{ fontSize: '.74rem', color: '#7a7670', marginBottom: 12, lineHeight: 1.5 }}>Searches where AI didn't mention you — your highest-value targets.</div>
-              {gaps.length === 0 ? (
-                <div style={{ fontSize: '.8rem', color: '#1a6b45' }}>You're mentioned across all tracked queries.</div>
-              ) : gaps.map((g, i) => (
-                <div key={i} style={{ marginBottom: 10, paddingBottom: 10, borderBottom: i < gaps.length - 1 ? '1px solid #f0eeea' : 'none' }}>
-                  <div style={{ fontSize: '.8rem', fontWeight: 500, color: '#0a0a0a', lineHeight: 1.4 }}>&ldquo;{g.query_text}&rdquo;</div>
-                  <div style={{ fontSize: '.7rem', color: '#c0392b', marginTop: 3 }}>Missing on {(g.missedOn || []).map(label).join(', ')}</div>
-                </div>
-              ))}
-            </Card>
-
-            {/* Brief explainer */}
-            <Card style={{ padding: 20 }}>
-              <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 8 }}>How this works</div>
-              <p style={{ fontSize: '.8rem', color: '#4a4a48', lineHeight: 1.65, margin: 0 }}>
-                When customers ask ChatGPT, Gemini, or Claude for the &ldquo;best business near me,&rdquo; the models recommend a shortlist. We track who appears, why they&rsquo;re favored, and where you&rsquo;re absent — so you can climb the list with more reviews, stronger web presence, and consistent listings.
-              </p>
-            </Card>
-          </div>
-        </div>
-
-        {/* Your top moves (suggestions) — full width, matching the Query Results box */}
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Your top moves</div>
-          {recs.length === 0 ? (
-            <EmptyState compact title="No recommendations yet"
-              description="Run a scan and Wallabee will tell you exactly what to improve so AI assistants recommend your business." />
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14 }}>
-              {recs.map((r, i) => {
-                const p = prio[r.priority] || prio.medium;
-                return (
-                  <div key={i} style={{ border: '1px solid #f0eeea', borderRadius: 12, padding: '14px 16px', height: 'fit-content' }}>
-                    <div style={{ marginBottom: 5 }}>
-                      <span style={{ fontSize: '.65rem', fontWeight: 700, color: p.color, background: p.bg, padding: '2px 8px', borderRadius: 50, textTransform: 'uppercase', letterSpacing: '.04em' }}>{p.text}</span>
-                    </div>
-                    <div style={{ fontSize: '.83rem', fontWeight: 600, color: '#0a0a0a', lineHeight: 1.45 }}>{r.action}</div>
-                    {r.rationale && <div style={{ fontSize: '.76rem', color: '#7a7670', lineHeight: 1.55, marginTop: 3 }}>{r.rationale}</div>}
-                    {r.steps && r.steps.length > 0 && (
-                      <ul style={{ margin: '7px 0 0', paddingLeft: 16 }}>
-                        {r.steps.map((s, k) => (
-                          <li key={k} style={{ fontSize: '.76rem', color: '#4a4a48', lineHeight: 1.5, marginBottom: 3 }}>{s}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+      {/* ZONE 1 — Where you stand */}
+      <div className="m-grid-2" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:18 }}>
+        <Card style={{ padding:'14px 16px' }}>
+          <div style={{ fontSize:'.7rem', color:'#7a7670', marginBottom:3 }}>Local rank</div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.5rem', fontWeight:900, lineHeight:1 }}>{hasBench ? `#${ours.rank}` : '—'}</div>
+          <div style={{ fontSize:'.68rem', color:'#7a7670', marginTop:3 }}>{hasBench ? `of ${ours.total} nearby` : 'Scan to see'}</div>
+        </Card>
+        <Card style={{ padding:'14px 16px' }}>
+          <div style={{ fontSize:'.7rem', color:'#7a7670', marginBottom:3 }}>Your rating</div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.5rem', fontWeight:900, lineHeight:1 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
+          <div style={{ fontSize:'.68rem', color:'#7a7670', marginTop:3 }}>{hasBench ? (benchmark.ratingDiff >= 0 ? `+${benchmark.ratingDiff} vs area avg` : `${benchmark.ratingDiff} vs area avg`) : 'vs area average'}</div>
+        </Card>
+        <Card style={{ padding:'14px 16px' }}>
+          <div style={{ fontSize:'.7rem', color:'#7a7670', marginBottom:3 }}>AI visibility</div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.5rem', fontWeight:900, lineHeight:1, color: aiScore != null ? (aiScore>=70?'#1a6b45':aiScore>=50?'#f59e0b':'#c0392b') : '#0a0a0a' }}>{aiScore != null ? `${aiScore}%` : '—'}</div>
+          <div style={{ fontSize:'.68rem', color:'#7a7670', marginTop:3 }}>{aiScore != null ? 'of AI queries mention you' : 'Run a scan'}</div>
         </Card>
       </div>
-      ) : (
-        <Card style={{ padding: 20 }}>
-          <EmptyState compact title="No AI visibility scan yet"
-            description="Run a scan from the Overview tab to see who AI assistants recommend in your area and how to climb the list." />
+
+      {/* ZONE 2 — Your competition (merged) */}
+      <Card style={{ marginBottom:18, overflow:'hidden', padding:0 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 18px', borderBottom:'1px solid #e4e0d8' }}>
+          <div style={{ fontWeight:600, fontSize:'.875rem' }}>Your competition</div>
+          {configured && (
+            <button onClick={scan} disabled={refreshing}
+              style={{ padding:'6px 12px', borderRadius:50, border:'1.5px solid #e4e0d8', background:'white', fontSize:'.74rem', fontWeight:600, cursor:refreshing?'default':'pointer', fontFamily:'inherit', color:'#4a4a48' }}>
+              {refreshing ? 'Scanning…' : hasBench ? '↻ Refresh' : '↻ Scan nearby'}
+            </button>
+          )}
+        </div>
+
+        {/* You */}
+        {(hasBench || aiScore != null) && (
+          <div style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'center', padding:'12px 18px', background:'rgba(245,200,66,.09)', borderBottom:'1px solid #f0eeea' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flexWrap:'wrap' }}>
+              <span style={{ fontWeight:700, fontSize:'.86rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ours ? ours.name : 'Your business'}</span>
+              {tag('You', '#fef3c7', '#92690a')}
+              {aiScore != null && tag(`AI ${aiScore}%`, '#ede9fe', '#6d28d9')}
+            </div>
+            <div style={{ textAlign:'right', fontSize:'.82rem', fontWeight:700 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
+            <div style={{ textAlign:'right', fontSize:'.78rem', color:'#7a7670', width:84 }}>{hasBench ? `${ours.totalReviews} rev` : '—'}</div>
+          </div>
+        )}
+
+        {/* Competitors */}
+        {competitors.length === 0 ? (
+          <div style={{ padding:'22px 18px' }}>
+            {configured ? (
+              <div style={{ textAlign:'center' }}>
+                <div style={{ fontSize:'.84rem', color:'#7a7670', marginBottom:12 }}>{hasBench ? 'No competitors found nearby yet.' : 'Scan to see the nearest businesses in your category — and run an AI visibility scan to see who AI recommends.'}</div>
+                {!hasBench && <button onClick={scan} disabled={refreshing} style={{ padding:'8px 16px', borderRadius:50, border:'none', background:'#0a0a0a', color:'white', fontSize:'.8rem', fontWeight:700, cursor:refreshing?'default':'pointer', fontFamily:'inherit' }}>{refreshing ? 'Scanning…' : 'Try scanning now'}</button>}
+              </div>
+            ) : (
+              <div style={{ fontSize:'.82rem', color:'#7a7670', textAlign:'center' }}>Competitor scanning isn’t enabled on this account yet.</div>
+            )}
+          </div>
+        ) : competitors.map((c, i) => {
+          const both = c.nearby && c.ai;
+          return (
+            <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'start', padding:'12px 18px', borderBottom: i < competitors.length-1 ? '1px solid #f8f7f4' : 'none' }}>
+              <div style={{ minWidth:0 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
+                  <span style={{ fontWeight:600, fontSize:'.85rem' }}>{c.name}</span>
+                  {both && tag('🔥 Top threat', '#fee2e2', '#c0392b')}
+                  {c.nearby && !both && tag('Nearby', '#e8f5ef', '#1a6b45')}
+                  {c.ai && tag(c.mentions ? `AI pick · ${c.mentions}` : 'AI pick', '#ede9fe', '#6d28d9')}
+                </div>
+                {c.address && <div style={{ fontSize:'.7rem', color:'#7a7670', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{c.address}</div>}
+                {c.reasons && c.reasons.length > 0 && (
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginTop:6 }}>
+                    {c.reasons.slice(0,3).map((r,j) => <span key={j} style={{ fontSize:'.7rem', color:'#4a4a48', background:'#f8f7f4', border:'1px solid #f0eeea', borderRadius:50, padding:'2px 8px' }}>{r}</span>)}
+                  </div>
+                )}
+              </div>
+              <div style={{ textAlign:'right', fontSize:'.82rem', fontWeight:600 }}>{fmtStars(c.rating)}</div>
+              <div style={{ textAlign:'right', fontSize:'.78rem', color:'#7a7670', width:84 }}>{c.reviews != null ? `${c.reviews} rev` : '—'}</div>
+            </div>
+          );
+        })}
+
+        {hasBench && benchmark.lastUpdated && (
+          <div style={{ fontSize:'.68rem', color:'#7a7670', padding:'10px 18px' }}>Nearby data from Google · updated {new Date(benchmark.lastUpdated).toLocaleDateString('en-US',{month:'short',day:'numeric'})} · refreshes weekly</div>
+        )}
+      </Card>
+
+      {/* ZONE 3 — What to do next */}
+      {(gap > 0 || recs.length > 0) && (
+        <Card style={{ padding:20 }}>
+          <div style={{ fontWeight:600, fontSize:'.875rem', marginBottom:14 }}>What to do next</div>
+
+          {gap > 0 && (
+            <div style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', background:'#fff8e8', border:'1px solid #fde68a', borderRadius:12, marginBottom:12 }}>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:'.84rem', fontWeight:700, color:'#92690a' }}>Close the review gap</div>
+                <div style={{ fontSize:'.78rem', color:'#7a7670', marginTop:2 }}>You're {gap} review{gap===1?'':'s'} behind {topName}, the most-reviewed business nearby.</div>
+              </div>
+              <a href="/dashboard/grow" style={{ alignSelf:'center', padding:'7px 14px', borderRadius:50, background:'#0a0a0a', color:'white', textDecoration:'none', fontSize:'.76rem', fontWeight:700, whiteSpace:'nowrap' }}>Send requests →</a>
+            </div>
+          )}
+
+          {visibleRecs.map((r, i) => {
+            const p = prio[r.priority] || prio.medium;
+            return (
+              <div key={i} style={{ padding:'10px 0', borderBottom: i < visibleRecs.length-1 ? '1px solid #f0eeea' : 'none' }}>
+                <div style={{ marginBottom:4 }}>{tag(p.text, p.bg, p.color)}</div>
+                <div style={{ fontSize:'.83rem', fontWeight:600, lineHeight:1.45 }}>{r.action}</div>
+                {r.rationale && <div style={{ fontSize:'.76rem', color:'#7a7670', lineHeight:1.55, marginTop:3 }}>{r.rationale}</div>}
+                {showAll && r.steps && r.steps.length > 0 && (
+                  <ul style={{ margin:'7px 0 0', paddingLeft:16 }}>
+                    {r.steps.map((s,k) => <li key={k} style={{ fontSize:'.76rem', color:'#4a4a48', lineHeight:1.5, marginBottom:3 }}>{s}</li>)}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+
+          {(recs.length > 2 || gaps.length > 0) && (
+            <button onClick={() => setShowAll(s => !s)}
+              style={{ marginTop:12, background:'none', border:'none', color:'#0a0a0a', fontSize:'.78rem', fontWeight:700, cursor:'pointer', fontFamily:'inherit', padding:0 }}>
+              {showAll ? '− Show less' : `+ See all moves${recs.length>2?` (${recs.length})`:''}`}
+            </button>
+          )}
+
+          {showAll && gaps.length > 0 && (
+            <div style={{ marginTop:14, paddingTop:14, borderTop:'1px solid #f0eeea' }}>
+              <div style={{ fontSize:'.78rem', fontWeight:700, marginBottom:8 }}>Searches where AI didn't mention you</div>
+              {gaps.map((g,i) => (
+                <div key={i} style={{ marginBottom:8 }}>
+                  <div style={{ fontSize:'.78rem', color:'#0a0a0a' }}>&ldquo;{g.query_text}&rdquo;</div>
+                  <div style={{ fontSize:'.7rem', color:'#c0392b', marginTop:2 }}>Missing on {(g.missedOn || []).map(label).join(', ')}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       )}
     </div>
