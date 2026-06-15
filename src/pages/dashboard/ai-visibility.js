@@ -460,7 +460,6 @@ function CompetitorsTab({ report }) {
             <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flexWrap:'wrap' }}>
               <span style={{ fontWeight:700, fontSize:'.86rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ours ? ours.name : 'Your business'}</span>
               {tag('You', '#fef3c7', '#92690a')}
-              {aiScore != null && tag(`AI ${aiScore}%`, '#ede9fe', '#6d28d9')}
             </div>
             <div style={{ textAlign:'right', fontSize:'.82rem', fontWeight:700 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
             <div style={{ textAlign:'right', fontSize:'.78rem', color:'#7a7670', width:84 }}>{hasBench ? `${ours.totalReviews} rev` : '—'}</div>
@@ -488,7 +487,12 @@ function CompetitorsTab({ report }) {
                   <span style={{ fontWeight:600, fontSize:'.85rem' }}>{c.name}</span>
                   {both && tag('🔥 Top threat', '#fee2e2', '#c0392b')}
                   {c.nearby && !both && tag('Nearby', '#e8f5ef', '#1a6b45')}
-                  {c.ai && tag(c.mentions ? `AI pick · ${c.mentions}` : 'AI pick', '#ede9fe', '#6d28d9')}
+                  {c.ai && !both && (
+                    <span title={`Recommended by AI assistants${c.mentions ? ` — named in ${c.mentions} ${c.mentions === 1 ? 'query' : 'queries'} we ran` : ''}`}
+                      style={{ fontSize:'.64rem', fontWeight:700, color:'#6d28d9', background:'#ede9fe', padding:'2px 7px', borderRadius:50, whiteSpace:'nowrap', cursor:'help' }}>
+                      AI recommends
+                    </span>
+                  )}
                 </div>
                 {c.address && <div style={{ fontSize:'.7rem', color:'#7a7670', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{c.address}</div>}
                 {c.reasons && c.reasons.length > 0 && (
