@@ -28,6 +28,35 @@ function formatCurrency(n) {
   return `$${Number(n || 0).toFixed(2)}`;
 }
 
+// Reason-aware save offers shown in step 2 of the cancel flow.
+const SAVE_OFFERS = {
+  too_expensive: {
+    headline: `Would pausing help more than cancelling?`,
+    body: `Pause for up to 3 months at no charge — your reviews, contacts, and history stay exactly as they are. If price is the real issue, we'd genuinely like to help: email hello@swarmreply.com before you go.`,
+  },
+  not_using: {
+    headline: `Take a break instead of cancelling?`,
+    body: `Pause for up to 3 months — billing stops, your data stays put, and you can pick right back up when things get busy again.`,
+  },
+  missing_features: {
+    headline: `Before you go — tell us what's missing`,
+    body: `We ship new features constantly, and what you need might be close. Email hello@swarmreply.com and let us know. In the meantime, you can pause instead of cancelling so you keep all your data.`,
+  },
+  switching: {
+    headline: `Pause in case the other tool doesn't stick?`,
+    body: `Switching is a big move. Pause for up to 3 months instead — your reviews and history stay saved, so coming back is one click if the new tool doesn't work out.`,
+  },
+  closing: {
+    headline: `We're sorry to hear it`,
+    body: `If there's any chance you'll reopen, pausing keeps everything saved at no charge for up to 3 months. Otherwise, you can cancel below.`,
+  },
+  other: {
+    headline: `Would pausing work better than cancelling?`,
+    body: `Pause for up to 3 months — billing stops and your data stays exactly as it is, so you can return whenever you're ready.`,
+  },
+};
+const DEFAULT_OFFER = SAVE_OFFERS.other;
+
 export default function Billing() {
   const { customer } = useAuth();
   const [billing, setBilling]   = useState(null);
@@ -39,6 +68,8 @@ export default function Billing() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [toast, setToast] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [cancelStep, setCancelStep] = useState(1);   // 1 = reason, 2 = save offer
+  const [pausing, setPausing] = useState(false);
 
   useEffect(() => {
     if (customer) loadBilling();
@@ -113,6 +144,31 @@ export default function Billing() {
     }
   }
 
+  async function handlePause() {
+    try {
+      setPausing(true);
+      const res = await axios.post(`${API}/billing/pause`, {}, { headers: authHeaders() });
+      showToast(res.data.message);
+      setShowCancelModal(false);
+      setCancelStep(1);
+      await loadBilling();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to pause', 'error');
+    } finally {
+      setPausing(false);
+    }
+  }
+
+  async function handleResume() {
+    try {
+      const res = await axios.post(`${API}/billing/resume`, {}, { headers: authHeaders() });
+      showToast(res.data.message);
+      await loadBilling();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to resume', 'error');
+    }
+  }
+
   if (loading) return (
     <DashboardLayout title="Billing">
       <div style={{ padding: 48, textAlign: 'center', color: '#7a7670', fontSize: '.9rem' }}>
@@ -133,6 +189,8 @@ export default function Billing() {
   const { plan, account, stripe, pricing, locationCount } = billing || {};
   const statusInfo = STATUS_LABELS[account?.status] || STATUS_LABELS.active;
   const cancelAtEnd = stripe?.cancelAtPeriodEnd;
+  const isPaused = account?.status === 'paused';
+  const pausedUntil = stripe?.pausedUntil;
   const hasPaymentIssue = account?.paymentFailed;
 
   return (
@@ -194,8 +252,30 @@ export default function Billing() {
                 You have full access until then. Changed your mind?
               </div>
             </div>
-            <button onClick={handleReactivate} style={{ ...btnStyle('amber'), flexShrink: 0, marginLeft: 16 }}>
-              Keep my subscription
+            <button onClick={handleReactivate} style={{ ...btnStyle('green'), flexShrink: 0, marginLeft: 16 }}>
+              Re-enable subscription
+            </button>
+          </div>
+        )}
+
+        {/* ── PAUSED BANNER ── */}
+        {isPaused && (
+          <div style={{
+            background: '#e8f5ef', border: '1px solid #bbf7d0',
+            borderRadius: 13, padding: '16px 20px',
+            display: 'flex', justifyContent: 'space-between',
+            alignItems: 'center', marginBottom: 20
+          }}>
+            <div>
+              <div style={{ fontWeight: 700, color: '#1a6b45', marginBottom: 4 }}>
+                Your subscription is paused{pausedUntil ? ` until ${formatDate(pausedUntil)}` : ''}
+              </div>
+              <div style={{ fontSize: '.82rem', color: '#1a6b45', opacity: .85 }}>
+                Billing is on hold and all your data is safe. Resume whenever you're ready.
+              </div>
+            </div>
+            <button onClick={handleResume} style={{ ...btnStyle('green'), flexShrink: 0, marginLeft: 16 }}>
+              Resume now
             </button>
           </div>
         )}
@@ -359,21 +439,18 @@ export default function Billing() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
             <div>
               <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>
-                {cancelAtEnd ? 'Cancellation scheduled' : 'Cancel subscription'}
+                {cancelAtEnd ? 'Cancellation scheduled' : isPaused ? 'Subscription paused' : 'Cancel subscription'}
               </div>
               <div style={{ fontSize: '.8rem', color: '#7a7670', lineHeight: 1.6 }}>
                 {cancelAtEnd
-                  ? `Your subscription ends ${formatDate(stripe?.cancelAt)}. You have full access until then.`
+                  ? `Your subscription ends ${formatDate(stripe?.cancelAt)}. You have full access until then — use the banner above to re-enable.`
+                  : isPaused
+                  ? 'Your subscription is paused. Use the banner above to resume whenever you\'re ready.'
                   : 'You\'ll keep access until the end of your current billing period. No refunds are issued for partial months.'}
               </div>
             </div>
-            {cancelAtEnd ? (
-              <button onClick={handleReactivate}
-                style={{ ...btnStyle('outline'), flexShrink: 0, marginLeft: 16 }}>
-                Undo cancellation
-              </button>
-            ) : (
-              <button onClick={() => setShowCancelModal(true)}
+            {!cancelAtEnd && !isPaused && (
+              <button onClick={() => { setCancelStep(1); setShowCancelModal(true); }}
                 style={{ ...btnStyle('red'), flexShrink: 0, marginLeft: 16 }}>
                 Cancel subscription
               </button>
@@ -383,43 +460,71 @@ export default function Billing() {
 
       </div>
 
-      {/* ── CANCEL MODAL ── */}
+      {/* ── CANCEL / SAVE MODAL ── */}
       {showCancelModal && (
-        <div style={modalOverlay} onClick={() => setShowCancelModal(false)}>
+        <div style={modalOverlay} onClick={() => { setShowCancelModal(false); setCancelStep(1); }}>
           <div style={modalCard} onClick={e => e.stopPropagation()}>
-            <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', fontWeight: 700, marginBottom: 8 }}>
-              Cancel your subscription?
-            </div>
-            <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.65 }}>
-              You'll keep full access until <strong>{formatDate(stripe?.currentPeriodEnd)}</strong>.
-              After that, your automatic replies and scans stop — but your reviews, contacts, and history
-              stay saved, so you can pick up right where you left off if you come back. Want your data
-              permanently removed instead? Just email <strong>hello@swarmreply.com</strong> and we'll take care of it.
-            </p>
-            <div style={{ marginBottom: 20 }}>
-              <label style={fieldLabel}>What made you decide to cancel? (optional)</label>
-              <select
-                value={cancelReason}
-                onChange={e => setCancelReason(e.target.value)}
-                style={fieldStyle}
-              >
-                <option value="">Select a reason…</option>
-                <option value="too_expensive">Too expensive</option>
-                <option value="missing_features">Missing features I need</option>
-                <option value="not_using">Not using it enough</option>
-                <option value="switching">Switching to another tool</option>
-                <option value="closing">Business is closing</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setShowCancelModal(false)}
-                style={{ ...btnStyle('outline'), flex: 1 }}>Never mind</button>
-              <button onClick={handleCancel} disabled={cancelling}
-                style={{ ...btnStyle('red'), flex: 1 }}>
-                {cancelling ? 'Cancelling…' : 'Yes, cancel subscription'}
-              </button>
-            </div>
+            {cancelStep === 1 ? (
+              <div>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', fontWeight: 700, marginBottom: 8 }}>
+                  Before you go…
+                </div>
+                <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.65 }}>
+                  We'd love to keep you on board. Mind sharing what's prompting this? It helps us point
+                  you to the best option.
+                </p>
+                <div style={{ marginBottom: 20 }}>
+                  <label style={fieldLabel}>What's making you consider cancelling? (optional)</label>
+                  <select
+                    value={cancelReason}
+                    onChange={e => setCancelReason(e.target.value)}
+                    style={fieldStyle}
+                  >
+                    <option value="">Select a reason…</option>
+                    <option value="too_expensive">Too expensive</option>
+                    <option value="missing_features">Missing features I need</option>
+                    <option value="not_using">Not using it enough</option>
+                    <option value="switching">Switching to another tool</option>
+                    <option value="closing">Business is closing</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => { setShowCancelModal(false); setCancelStep(1); }}
+                    style={{ ...btnStyle('outline'), flex: 1 }}>Never mind</button>
+                  <button onClick={() => setCancelStep(2)}
+                    style={{ ...btnStyle('primary'), flex: 1 }}>Continue</button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', fontWeight: 700, marginBottom: 8 }}>
+                  {(SAVE_OFFERS[cancelReason] || DEFAULT_OFFER).headline}
+                </div>
+                <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.65 }}>
+                  {(SAVE_OFFERS[cancelReason] || DEFAULT_OFFER).body}
+                </p>
+                <button onClick={handlePause} disabled={pausing}
+                  style={{ ...btnStyle('green'), width: '100%', justifyContent: 'center', padding: '12px 20px', marginBottom: 16 }}>
+                  {pausing ? 'Pausing…' : 'Pause for 3 months instead'}
+                </button>
+                <div style={{ borderTop: '1px solid #e4e0d8', paddingTop: 14 }}>
+                  <p style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 12, lineHeight: 1.6 }}>
+                    Still want to cancel? You'll keep full access until <strong>{formatDate(stripe?.currentPeriodEnd)}</strong>.
+                    After that, replies and scans stop — but your reviews, contacts, and history stay saved, so you
+                    can return anytime. Prefer your data permanently removed? Email <strong>hello@swarmreply.com</strong>.
+                  </p>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button onClick={() => setCancelStep(1)}
+                      style={{ ...btnStyle('outline'), flex: 1 }}>Back</button>
+                    <button onClick={handleCancel} disabled={cancelling}
+                      style={{ ...btnStyle('red'), flex: 1 }}>
+                      {cancelling ? 'Cancelling…' : 'Cancel anyway'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -484,7 +589,8 @@ function btnStyle(variant) {
     gold:    { background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408' },
     outline: { background: 'transparent', border: '1.5px solid #e4e0d8', color: '#1a1a18' },
     red:     { background: '#fee2e2', color: '#c0392b', border: '1px solid #fecaca' },
-    amber:   { background: '#fef3cd', color: '#92690a', border: '1px solid #fde68a' }
+    amber:   { background: '#fef3cd', color: '#92690a', border: '1px solid #fde68a' },
+    green:   { background: '#e8f5ef', color: '#1a6b45', border: '1px solid #bbf7d0' }
   };
   return { ...base, ...variants[variant] };
 }
