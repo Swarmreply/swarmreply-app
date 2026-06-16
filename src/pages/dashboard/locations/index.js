@@ -60,8 +60,8 @@ export default function Locations() {
     }
   }
 
-  function handleFinishSetup(loc) {
-    window.location.href = getGoogleAuthUrl(loc.id);
+  async function handleFinishSetup(loc) {
+    window.location.href = await getGoogleAuthUrl(loc.id);
   }
 
   const badge = (text, color, bg) => (
