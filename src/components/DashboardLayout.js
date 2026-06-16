@@ -130,6 +130,9 @@ export default function DashboardLayout({ children, title }) {
         headers: t ? { Authorization: `Bearer ${t}` } : {}
       });
       setBilling(res.data.billing);
+      // A 'pending' account hasn't completed its first payment — route it to the
+      // activation/checkout gate on /onboarding rather than into the product.
+      if (res.data.billing?.status === 'pending') { router.push('/onboarding'); return; }
     } catch (err) {
       // Don't block the dashboard if billing check fails
       console.warn('Billing status check failed:', err.message);
