@@ -136,7 +136,7 @@ export default function AcceptInvite() {
 
           {/* Logo */}
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <a href="/" style={{
+            <a href="https://swarmreply.com" style={{
               display: 'inline-flex', alignItems: 'center', gap: 10,
               fontFamily: 'Playfair Display, serif',
               fontSize: '1.5rem', fontWeight: 900, color: '#0a0a0a',

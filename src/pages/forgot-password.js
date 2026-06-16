@@ -47,11 +47,11 @@ export default function ForgotPassword() {
         fontFamily: 'DM Sans, sans-serif', padding: 20 }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
-            <Link href="/" style={{ fontFamily: 'Playfair Display, serif',
+            <a href="https://swarmreply.com" style={{ fontFamily: 'Playfair Display, serif',
               fontSize: '1.5rem', fontWeight: 900, color: '#0a0a0a',
               textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 9 }}>
               🐝 SwarmReply
-            </Link>
+            </a>
           </div>
 
           <div style={card}>
