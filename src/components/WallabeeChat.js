@@ -153,10 +153,12 @@ const GREETING = {
   text: "Hi! I'm Wallabee \uD83D\uDC1D \u2014 SwarmReply's support bee. Ask me anything, like \u201chow do I connect Google\u201d or \u201csend my first review request\u201d, and I'll point you to the right guide.",
 };
 
+const GREETING_CHIPS = { who: 'bee', type: 'chips', chips: ['Email our team'] };
+
 // ── Component ────────────────────────────────────────────────────────────────
 export default function WallabeeChat({ customer }) {
   const [open, setOpen]         = useState(false);
-  const [messages, setMessages] = useState([GREETING]);
+  const [messages, setMessages] = useState([GREETING, GREETING_CHIPS]);
   const [input, setInput]       = useState('');
   const [typing, setTyping]     = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -173,7 +175,7 @@ export default function WallabeeChat({ customer }) {
     const saved = loadState();
     if (saved) {
       setOpen(!!saved.open);
-      setMessages(saved.messages?.length ? saved.messages : [GREETING]);
+      setMessages(saved.messages?.length ? saved.messages : [GREETING, GREETING_CHIPS]);
       setShowForm(!!saved.showForm);
       setSubject(saved.subject || '');
       lastQuestion.current = saved.lastQuestion || '';
@@ -226,11 +228,22 @@ export default function WallabeeChat({ customer }) {
     setTimeout(() => setShowForm(true), 600);
   }
 
+  function contactTeam() {
+    beeSay([
+      { who: 'bee', type: 'text',
+        text: "Happy to connect you with a human \u2014 send the team a message right here and they'll reply to your email, or email our team directly.",
+        mailto: true },
+    ]);
+    setTimeout(() => setShowForm(true), 600);
+  }
+
   function chip(label) {
     setMessages(m => [...m.map(x => x.type === 'chips' ? { ...x, done: true } : x),
       { who: 'user', type: 'text', text: label }]);
     if (label.startsWith('That helped')) {
       beeSay([{ who: 'bee', type: 'text', text: 'Happy to help! Buzz me anytime. \uD83D\uDC1D' }]);
+    } else if (label.startsWith('Email our team')) {
+      contactTeam();
     } else {
       escalate();
     }
@@ -338,8 +351,11 @@ export default function WallabeeChat({ customer }) {
                   <div style={bubble(m.who)}>
                     {m.text}
                     {m.mailto && (
-                      <div style={{ marginTop: 8 }}>
-                        <a href="https://swarmreply.com/contact.html" target="_blank" rel="noopener" style={{ color: '#0a0a0a', fontWeight: 700, fontSize: '.8rem' }}>Email our team ↗</a>
+                      <div style={{ marginTop: 10 }}>
+                        <a href="https://swarmreply.com/contact.html" target="_blank" rel="noopener"
+                          style={{ display: 'inline-block', background: GOLD, color: '#1a1408', fontWeight: 700, fontSize: '.8rem', padding: '8px 16px', borderRadius: 50, textDecoration: 'none' }}>
+                          Email our team →
+                        </a>
                       </div>
                     )}
                   </div>
