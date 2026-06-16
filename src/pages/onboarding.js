@@ -108,6 +108,8 @@ export default function Onboarding() {
   const [selectedId, setSelectedId] = useState(null);
   const [celebrate, setCelebrate] = useState(false);
   const prevActivated = useRef(null);
+  // Subscription activation gate: 'checking' | 'active' | 'polling' | 'failed'.
+  const [acct, setAcct] = useState('checking');
 
   useEffect(() => { if (!loading && !customer) router.push('/login'); }, [customer, loading, router]);
 
@@ -116,6 +118,36 @@ export default function Onboarding() {
     const onFocus = () => customer && load();
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customer]);
+
+  // Subscription activation gate. A brand-new signup can land here a beat before
+  // the payment webhook flips the account to 'active', so poll the real account
+  // status and hold on a brief "finalizing" screen until it activates. A
+  // never-paid 'pending' account that reaches here times out into a prompt to
+  // finish checkout — so the product is never reachable without an active plan.
+  useEffect(() => {
+    if (!customer) return;
+    let cancelled = false, tries = 0, timer = null;
+    async function check() {
+      try {
+        const res = await axios.get(`${API}/billing/health`, { headers: authHeaders() });
+        const status = res.data && res.data.billing && res.data.billing.status;
+        if (cancelled) return;
+        if (status && status !== 'pending') { setAcct('active'); return; }
+        tries += 1;
+        if (tries >= 8) { setAcct('failed'); return; }   // ~17s of polling
+        setAcct('polling');
+        timer = setTimeout(check, 2200);
+      } catch (e) {
+        if (cancelled) return;
+        tries += 1;
+        if (tries >= 3) { setAcct('active'); return; }    // health check itself failing — don't hard-block
+        timer = setTimeout(check, 2200);
+      }
+    }
+    check();
+    return () => { cancelled = true; if (timer) clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer]);
 
@@ -167,8 +199,38 @@ export default function Onboarding() {
     } catch (e) { /* leave as-is */ }
   }
 
-  if (loading || !customer || !ob) {
-    return <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7a7670', fontFamily: "'DM Sans', system-ui, sans-serif" }}>Loading your setup…</div>;
+  const gateScreen = (node) => (
+    <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'DM Sans', system-ui, sans-serif", padding: 24 }}>{node}</div>
+  );
+
+  if (loading || !customer || acct === 'checking') {
+    return gateScreen(<span style={{ color: '#7a7670' }}>Loading your setup…</span>);
+  }
+  if (acct === 'polling') {
+    return gateScreen(
+      <>
+        <div style={{ width: 42, height: 42, border: '3px solid #e4e0d8', borderTopColor: '#f5c842', borderRadius: '50%', animation: 'srspin .8s linear infinite', marginBottom: 18 }} />
+        <div style={{ fontFamily: '"Playfair Display", serif', fontWeight: 700, fontSize: '1.3rem', color: '#0a0a0a', marginBottom: 6 }}>Finalizing your subscription…</div>
+        <div style={{ fontSize: '.88rem', color: '#7a7670' }}>This only takes a moment.</div>
+        <style>{'@keyframes srspin{to{transform:rotate(360deg)}}'}</style>
+      </>
+    );
+  }
+  if (acct === 'failed') {
+    return gateScreen(
+      <div style={{ maxWidth: 420 }}>
+        <div style={{ fontFamily: '"Playfair Display", serif', fontWeight: 700, fontSize: '1.4rem', color: '#0a0a0a', marginBottom: 10 }}>Let's finish setting up your plan</div>
+        <p style={{ fontSize: '.9rem', color: '#7a7670', lineHeight: 1.6, marginBottom: 22 }}>
+          We couldn't confirm an active subscription on your account yet. If you just paid, give it a moment and refresh. Otherwise, complete checkout to get started.
+        </p>
+        <button onClick={() => window.location.reload()} style={{ display: 'block', width: '100%', padding: 13, borderRadius: 50, background: '#0a0a0a', color: '#fff', border: 'none', fontWeight: 600, fontSize: '.92rem', cursor: 'pointer', marginBottom: 10, fontFamily: 'inherit' }}>Refresh</button>
+        <a href="https://swarmreply.com/signup.html" style={{ display: 'block', width: '100%', padding: 13, borderRadius: 50, background: '#fff', color: '#0a0a0a', border: '1.5px solid #e4e0d8', fontWeight: 600, fontSize: '.92rem', textDecoration: 'none', boxSizing: 'border-box' }}>Complete checkout &rarr;</a>
+        <p style={{ fontSize: '.78rem', color: '#a39e95', marginTop: 16 }}>Need help? <a href="mailto:hello@swarmreply.com" style={{ color: '#0a0a0a' }}>hello@swarmreply.com</a></p>
+      </div>
+    );
+  }
+  if (!ob) {
+    return gateScreen(<span style={{ color: '#7a7670' }}>Loading your setup…</span>);
   }
 
   // Sequential numbering across steps in display order.
