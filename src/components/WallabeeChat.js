@@ -220,7 +220,7 @@ export default function WallabeeChat({ customer }) {
     setSubject(lastQuestion.current.slice(0, 200));
     beeSay([
       { who: 'bee', type: 'text',
-        text: "Hmm, I couldn't find a guide for that one. Our human team can help \u2014 send them a message right here and they'll reply to your email, or write to hello@swarmreply.com directly.",
+        text: "Hmm, I couldn't find a guide for that one. Our human team can help \u2014 send them a message right here and they'll reply to your email, or email our team directly.",
         mailto: true },
     ]);
     setTimeout(() => setShowForm(true), 600);
@@ -339,7 +339,7 @@ export default function WallabeeChat({ customer }) {
                     {m.text}
                     {m.mailto && (
                       <div style={{ marginTop: 8 }}>
-                        <a href="mailto:hello@swarmreply.com" style={{ color: '#0a0a0a', fontWeight: 700, fontSize: '.8rem' }}>hello@swarmreply.com ↗</a>
+                        <a href="https://swarmreply.com/contact.html" target="_blank" rel="noopener" style={{ color: '#0a0a0a', fontWeight: 700, fontSize: '.8rem' }}>Email our team ↗</a>
                       </div>
                     )}
                   </div>
