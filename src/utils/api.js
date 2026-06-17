@@ -228,6 +228,12 @@ export async function getAnalytics(range = '90d') {
   return res.data;
 }
 
+// Comprehensive payload powering all eight reports on the Reports page.
+export async function getInsights({ range = '90d', locationId = 'all', platform = 'all' } = {}) {
+  const res = await api.get('/reports/insights', { params: { range, locationId, platform } });
+  return res.data;
+}
+
 // ── BILLING ────────────────────────────────────────────────────────────────
 export async function getBillingStatus(token) {
   const res = await fetch(`${API_BASE}/billing/status`, {
