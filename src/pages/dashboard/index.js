@@ -411,6 +411,7 @@ export default function Dashboard() {
               )}
             </div>
 
+            <div style={{ maxHeight: 500, overflowY: 'auto' }}>
             {loading ? (
               <>
                 <ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton />
@@ -432,6 +433,7 @@ export default function Dashboard() {
                 <ReviewItem key={review.id} review={review} />
               ))
             )}
+            </div>
           </div>
 
           {/* Locations panel */}

@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
-import { getReviews, getLocations } from '../../utils/api';
+import { getReviews, getLocations, approveReply } from '../../utils/api';
 import EmptyState from '../../components/EmptyState';
 import { Button } from '../../components/ui';
 import { Skeleton } from '../../components/Skeleton';
@@ -51,7 +51,25 @@ function platformBadge(p) {
     || { label: p ? p.charAt(0).toUpperCase() + p.slice(1) : 'Other', bg: '#f0eeea', fg: '#7a7670' };
 }
 
-function ReviewCard({ review, onReply }) {
+function ReviewCard({ review, onApprove }) {
+  const [approving, setApproving] = useState(false);
+  const postedReply = review.posted_reply;
+  const isPendingApproval = !postedReply && review.reply_status === 'pending_approval' && !!review.generated_reply;
+  const replyLabel = FEATURES.autoReply ? 'AI Reply' : 'Reply';
+
+  async function handleApprove() {
+    if (!review.reply_id || approving) return;
+    setApproving(true);
+    try {
+      await approveReply(review.reply_id);
+      if (onApprove) await onApprove();
+    } catch (e) {
+      console.error(e);
+      alert('Could not post the reply. Please try again.');
+      setApproving(false);
+    }
+  }
+
   return (
     <div style={{ padding: '18px 24px', borderBottom: '1px solid #e4e0d8' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -69,7 +87,10 @@ function ReviewCard({ review, onReply }) {
           {review.status === 'replied' && (
             <span style={{ background: '#e8f5ef', color: '#1a6b45', fontSize: '.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>Replied</span>
           )}
-          {review.status === 'pending' && (
+          {isPendingApproval && (
+            <span style={{ background: '#fff3d4', color: '#9a6a00', fontSize: '.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>Pending Approval</span>
+          )}
+          {review.status === 'pending' && !isPendingApproval && (
             <span style={{ background: '#fef3cd', color: '#92690a', fontSize: '.65rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>Pending</span>
           )}
           {(review.status === 'processing' || !review.status) && (
@@ -78,14 +99,31 @@ function ReviewCard({ review, onReply }) {
         </div>
       </div>
       {review.review_text && (
-        <p style={{ fontSize: '.875rem', color: '#3a3a38', lineHeight: 1.7, marginBottom: review.reply_text ? 10 : 0 }}>
+        <p style={{ fontSize: '.875rem', color: '#3a3a38', lineHeight: 1.7, marginBottom: (postedReply || isPendingApproval) ? 10 : 0 }}>
           {review.review_text}
         </p>
       )}
-      {review.reply_text && (
+
+      {/* Reply that was posted */}
+      {postedReply && (
         <div style={{ background: '#f8f7f4', borderRadius: 10, padding: '12px 14px', marginTop: 10, borderLeft: '3px solid #f5c842' }}>
-          <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 5 }}>{FEATURES.autoReply ? 'AI Reply' : 'Reply'}</div>
-          <p style={{ fontSize: '.84rem', color: '#3a3a38', lineHeight: 1.65 }}>{review.reply_text}</p>
+          <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 5 }}>{replyLabel}</div>
+          <p style={{ fontSize: '.84rem', color: '#3a3a38', lineHeight: 1.65 }}>{postedReply}</p>
+        </div>
+      )}
+
+      {/* Drafted reply awaiting the customer's approval (Approve before posting) */}
+      {isPendingApproval && (
+        <div style={{ background: '#fffaf0', borderRadius: 10, padding: '12px 14px', marginTop: 10, borderLeft: '3px solid #d4a515' }}>
+          <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#9a6a00', marginBottom: 5 }}>Suggested reply · awaiting approval</div>
+          <p style={{ fontSize: '.84rem', color: '#3a3a38', lineHeight: 1.65, marginBottom: 12 }}>{review.generated_reply}</p>
+          <button onClick={handleApprove} disabled={approving} style={{
+            padding: '7px 16px', borderRadius: 50, background: '#1a6b45', color: 'white',
+            border: 'none', cursor: approving ? 'default' : 'pointer', fontSize: '.8rem',
+            fontWeight: 700, fontFamily: 'inherit', opacity: approving ? 0.6 : 1
+          }}>
+            {approving ? 'Posting…' : '✓ Approve & Post'}
+          </button>
         </div>
       )}
     </div>
@@ -196,7 +234,7 @@ export default function Reviews() {
             </div>
           ) : (
             <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1.5px solid #e4e0d8', overflow: 'hidden' }}>
-              {filtered.map(r => <ReviewCard key={r.id} review={r} />)}
+              {filtered.map(r => <ReviewCard key={r.id} review={r} onApprove={load} />)}
             </div>
           )}
           </>
