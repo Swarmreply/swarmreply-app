@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { getInsights } from '../../utils/api';
 import EmptyState from '../../components/EmptyState';
+import { CountUp } from '../../components/ui';
 
 const SERIF = "'Playfair Display', serif";
 const C = {
@@ -94,7 +95,7 @@ function StatTile({ label, value, sub, delta }) {
   return (
     <div className="rep-card" style={{ padding: '16px 18px' }}>
       <Eyebrow>{label}</Eyebrow>
-      <div style={{ fontFamily: SERIF, fontSize: '1.95rem', fontWeight: 700, color: C.ink, lineHeight: 1.05, letterSpacing: '-.01em', margin: '10px 0 7px' }}>{value}</div>
+      <div style={{ fontFamily: SERIF, fontSize: '1.95rem', fontWeight: 700, color: C.ink, lineHeight: 1.05, letterSpacing: '-.01em', margin: '10px 0 7px' }}><CountUp value={value} /></div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         {delta}
         {sub && <span style={{ fontSize: '.74rem', color: C.taupe }}>{sub}</span>}
@@ -281,7 +282,7 @@ function ReportOverview({ d }) {
 
       <div className="rep-card" style={{ display: 'flex', gap: 28, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
         <Ring value={score || 0} color={scoreColor}>
-          <div style={{ fontFamily: SERIF, fontSize: '2.5rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}>{score ?? '—'}</div>
+          <div style={{ fontFamily: SERIF, fontSize: '2.5rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={score ?? '—'} /></div>
           <div style={{ fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>Score</div>
         </Ring>
         <div style={{ flex: 1, minWidth: 220 }}>
@@ -572,7 +573,7 @@ function ReportNps({ d }) {
 
       <div className="rep-card" style={{ display: 'flex', gap: 28, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
         <Ring value={(n.score || 0) + 100} max={200} color={npsColor}>
-          <div style={{ fontFamily: SERIF, fontSize: '2.3rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}>{n.score}</div>
+          <div style={{ fontFamily: SERIF, fontSize: '2.3rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={n.score} /></div>
           <div style={{ fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>NPS</div>
         </Ring>
         <div style={{ flex: 1, minWidth: 240 }}>
