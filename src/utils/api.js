@@ -206,6 +206,13 @@ export async function getReviews(locationId, params = {}) {
   return res.data.reviews;
 }
 
+// Approve a drafted reply (posts it) — used by the Pending Approval action
+// on the Reviews page. For demo accounts the backend skips the real post.
+export async function approveReply(replyId) {
+  const res = await api.post(`/approvals/${replyId}/approve`);
+  return res.data;
+}
+
 // ============================================
 // STATS
 // ============================================
