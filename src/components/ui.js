@@ -6,7 +6,7 @@
 //        Playfair Display (titles/numbers) · DM Sans (body)
 // ============================================
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 const SERIF = "'Playfair Display', serif";
@@ -100,6 +100,61 @@ export function Button({ children, variant = 'gold', size = 'md', href, onClick,
   );
 }
 
+// ── CountUp ──────────────────────────────────
+// Animates a data number up to its final value, then gives it a brief "pop"
+// (enlarge, then settle). Drop-in anywhere: <CountUp value={value} />.
+// Accepts a number or a string that contains a number — "4.5 ★", "92%",
+// "$1,240", "19.2h" all work; the surrounding text is preserved. Respects
+// reduced-motion (shows the final value with no animation).
+export function CountUp({ value, duration = 1100, style }) {
+  const isPrimitive = typeof value === 'string' || typeof value === 'number';
+  const str = isPrimitive ? String(value) : '';
+  const match = str.match(/-?[\d,]*\.?\d+/);
+
+  const parse = () => {
+    const numStr = match[0];
+    const prefix = str.slice(0, match.index);
+    const suffix = str.slice(match.index + numStr.length);
+    const decimals = numStr.includes('.') ? numStr.split('.')[1].length : 0;
+    const hasComma = numStr.includes(',');
+    const target = parseFloat(numStr.replace(/,/g, ''));
+    const fmt = (n) => {
+      let s = Math.abs(n).toFixed(decimals);
+      if (hasComma) { const [w, d] = s.split('.'); s = Number(w).toLocaleString() + (d ? '.' + d : ''); }
+      return prefix + (n < 0 ? '-' : '') + s + suffix;
+    };
+    return { target, fmt };
+  };
+
+  const [display, setDisplay] = useState(() => (isPrimitive && match ? parse().fmt(0) : str));
+  const [pop, setPop] = useState(false);
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+    if (!isPrimitive || !match) { setDisplay(str); return; }
+    const { target, fmt } = parse();
+    const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !isFinite(target) || target === 0) { setDisplay(fmt(target)); return; }
+
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      if (t < 1) { setDisplay(fmt(target * eased)); rafRef.current = requestAnimationFrame(step); }
+      else { setDisplay(fmt(target)); setPop(true); setTimeout(() => setPop(false), 230); }
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [str]);
+
+  if (!isPrimitive) return <span style={style}>{value}</span>;
+  if (!match) return <span style={style}>{str}</span>;
+  return (
+    <span style={{ display: 'inline-block', transform: pop ? 'scale(1.16)' : 'scale(1)', transition: 'transform .23s cubic-bezier(.34,1.6,.5,1)', ...style }}>{display}</span>
+  );
+}
+
 // ── StatCard ─────────────────────────────────
 // Big serif number with eyebrow label. Optional sub line + accent bar + link.
 export function StatCard({ label, value, sub, subColor = '#7a7670', accent, valueColor = '#1a1a18', dest, loading = false }) {
@@ -122,7 +177,7 @@ export function StatCard({ label, value, sub, subColor = '#7a7670', accent, valu
         fontFamily: SERIF, fontSize: '1.9rem', fontWeight: 700,
         color: valueColor, lineHeight: 1.05, letterSpacing: '-.01em'
       }}>
-        {loading ? '·' : value}
+        {loading ? '·' : <CountUp value={value} />}
       </div>
       {sub && (
         <div style={{ fontSize: '.78rem', color: subColor, marginTop: 8, fontWeight: 500 }}>
