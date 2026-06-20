@@ -57,7 +57,7 @@ const STEPS = [
     icon:    '📊',
     title:   'Set up your NPS survey',
     sub:     'Protect your rating before bad reviews post',
-    detail:  'After every visit, customers rate their experience. High scores go to Google. Low scores come to you privately. Paste your Google review link to activate.',
+    detail:  'After every visit, customers rate their experience and are invited to leave a public review. Anyone unhappy can also tell you privately first, so you can make it right. Add your review link to activate.',
     action:  'Activate surveys',
     col:     'ob_survey_configured'
   }
@@ -522,9 +522,9 @@ export default function OnboardingWizard({ customer, onComplete }) {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       {[
-                        ['Score 9–10', 'Customer is sent to your Google review link'],
-                        ['Score 7–8',  'Customer gets a follow-up question'],
-                        ['Score 1–6',  'Customer fills in private feedback — never public']
+                        ['Score 9–10', 'Quick thank-you, then invited to review'],
+                        ['Score 7–8',  'A follow-up question, then invited to review'],
+                        ['Score 1–6',  'Private feedback first, then invited to review']
                       ].map(([score, desc]) => (
                         <div key={score} style={{ display: 'flex', gap: 8, fontSize: '.8rem' }}>
                           <span style={{ fontWeight: 700, color: '#1a6b45', flexShrink: 0 }}>{score}</span>
