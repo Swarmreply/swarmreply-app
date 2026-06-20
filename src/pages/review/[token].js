@@ -127,7 +127,24 @@ export default function ReviewPage({ preview }) {
                 <label style={{ display: 'block', fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>{data.detractorQ2}</label>
                 <textarea value={d2} onChange={e => setD2(e.target.value)} rows={3} style={{ width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
               </div>
-              <button onClick={() => { submit({ detractorQ1: d1, detractorQ2: d2 }); setStep('done'); }} disabled={submitting} style={{ width: '100%', padding: 13, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.9rem', fontFamily: 'inherit', opacity: submitting ? .6 : 1 }}>{submitting ? 'Submitting…' : 'Submit feedback'}</button>
+              <button onClick={() => { submit({ detractorQ1: d1, detractorQ2: d2 }); setStep('share'); }} disabled={submitting} style={{ width: '100%', padding: 13, borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.9rem', fontFamily: 'inherit', opacity: submitting ? .6 : 1 }}>{submitting ? 'Submitting…' : 'Submit feedback'}</button>
+            </div>
+          )}
+
+          {/* Everyone — including customers who left private feedback — is offered the same
+              public-review option, at equal prominence. The feedback above is already saved,
+              so these are plain navigations (no second submit). */}
+          {step === 'share' && (
+            <div style={card}>
+              <div style={{ textAlign: 'center', fontSize: '2rem', marginBottom: 16 }}>🙏</div>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, textAlign: 'center', marginBottom: 12 }}>Thank you — we've shared this with the team.</h2>
+              <p style={{ fontSize: '.875rem', color: '#4a4a48', textAlign: 'center', lineHeight: 1.7, marginBottom: 28 }}>Someone will follow up with you personally. You're also welcome to share your experience publicly.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {(data.platforms || []).map(p => (
+                  <a key={p.id} href={p.url || '#'} style={{ display: 'block', padding: '14px 20px', borderRadius: 50, background: p.color, color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: '.9rem', textAlign: 'center' }}>{p.icon} Leave a review on {p.name}</a>
+                ))}
+              </div>
+              <button onClick={() => setStep('done')} style={{ width: '100%', marginTop: 12, padding: 10, background: 'none', border: 'none', cursor: 'pointer', fontSize: '.78rem', color: '#7a7670' }}>No thanks</button>
             </div>
           )}
 
