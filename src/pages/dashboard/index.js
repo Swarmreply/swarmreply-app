@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
-import { getStats, getReviews, getLocations, getOpenChatSessions, getSurveyHistory, getIntegrationErrors } from '../../utils/api';
+import { getStats, getReviews, getLocations, getOpenChatSessions, getRecentDetractors, getIntegrationErrors } from '../../utils/api';
 import { StatCard, QueueItem, SectionLabel } from '../../components/ui';
 import SetupProgressCard from '../../components/SetupProgressCard';
 import { Skeleton } from '../../components/Skeleton';
@@ -194,17 +194,12 @@ export default function Dashboard() {
       setStats(statsData);
       setLocations(locsData);
 
-      // Action queue — both helpers fail soft (return [])
-      const [sessions, history, integrationErrors] = await Promise.all([
+      // Action queue — all helpers fail soft (return [])
+      const [sessions, detractors, integrationErrors] = await Promise.all([
         getOpenChatSessions(),
-        locsData.length > 0 ? getSurveyHistory(locsData[0].id) : Promise.resolve([]),
+        getRecentDetractors(7),
         getIntegrationErrors()
       ]);
-      const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
-      const detractors = (history || []).filter(h =>
-        h.score != null && h.score <= 6 &&
-        h.sent_at && new Date(h.sent_at).getTime() > cutoff
-      );
       setQueue({ sessions, detractors, integrationErrors });
 
       // Load reviews for first location
@@ -308,12 +303,15 @@ export default function Dashboard() {
           }
           if (queue.detractors.length > 0) {
             const d = queue.detractors[0];
-            const sig = `nps:${queue.detractors.length}:${d.id ?? d.contact_name ?? ''}:${d.score ?? ''}`;
+            const sig = `nps:${queue.detractors.length}:${d.uid ?? d.contactName ?? ''}:${d.score ?? ''}`;
+            const note = (d.answers || []).find((a) => a.text && String(a.text).trim());
             add(sig,
               <QueueItem key="nps" icon="☹" tone="red" onDismiss={() => dismissAttention(sig)}
                 title={`${queue.detractors.length} unhappy survey response${queue.detractors.length > 1 ? 's' : ''} this week`}
-                detail={`${d.contact_name || 'A customer'} scored ${d.score}/10 — follow up before it becomes a public review`}
-                actionLabel="View" href="/dashboard/grow?tab=surveys" />
+                detail={note
+                  ? `${d.contactName || 'A customer'} (${d.score}/10): "${String(note.text).length > 90 ? String(note.text).slice(0, 90) + '…' : note.text}"`
+                  : `${d.contactName || 'A customer'} scored ${d.score}/10 — follow up before it becomes a public review`}
+                actionLabel="View" href="/dashboard/pulse?report=responses&cls=detractor" />
             );
           }
           if (loading || items.length === 0) return null;

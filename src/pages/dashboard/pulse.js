@@ -12,6 +12,7 @@ import { getInsights } from '../../utils/api';
 import EmptyState from '../../components/EmptyState';
 import { CountUp } from '../../components/ui';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 function authHeaders() {
@@ -671,6 +672,7 @@ function Select({ value, onChange, options }) {
 }
 
 function ReportResponses() {
+  const router = useRouter();
   const [cls, setCls] = useState('all');
   const [channel, setChannel] = useState('all');
   const [q, setQ] = useState('');
@@ -678,6 +680,12 @@ function ReportResponses() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(null);
+
+  // Honor /dashboard/pulse?cls=detractor deep links (e.g. from the Home queue).
+  useEffect(() => {
+    const c = router.query.cls;
+    if (typeof c === 'string' && ['promoter', 'passive', 'detractor'].includes(c)) setCls(c);
+  }, [router.query.cls]);
 
   useEffect(() => {
     let active = true; setLoading(true);
@@ -788,12 +796,19 @@ function ReportResponses() {
 }
 
 export default function Pulse() {
+  const router = useRouter();
   const [reportId, setReportId] = useState('overview');
   const [range, setRange]       = useState('90d');
   const [locationId, setLoc]    = useState('all');
   const [platform, setPlatform] = useState('all');
   const [data, setData]         = useState(null);
   const [loading, setLoading]   = useState(true);
+
+  // Honor deep links like /dashboard/pulse?report=responses (e.g. from the Home queue).
+  useEffect(() => {
+    const rep = router.query.report;
+    if (typeof rep === 'string' && REPORTS.some((r) => r.id === rep)) setReportId(rep);
+  }, [router.query.report]);
 
   useEffect(() => {
     let active = true;
