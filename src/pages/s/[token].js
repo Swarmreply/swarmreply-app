@@ -31,20 +31,20 @@ function ScoreButton({ score, selected, onClick, accent, promoterThreshold }) {
   let bg, color, border;
   if (isSelected) {
     bg     = accent;
-    color  = '#0a0a0a';
+    color  = 'var(--ink, #0a0a0a)';
     border = accent;
   } else if (isPromoter) {
     bg     = `${accent}20`;
-    color  = accent === '#f5c842' ? '#92690a' : accent;
+    color  = accent === 'var(--honey, #f5c842)' ? 'var(--amber-tx, #92690a)' : accent;
     border = `${accent}40`;
   } else if (isDetractor) {
-    bg     = '#fee2e2';
-    color  = '#c0392b';
+    bg     = 'var(--danger-bg, #fee2e2)';
+    color  = 'var(--danger, #c0392b)';
     border = '#fecaca';
   } else {
-    bg     = '#f8f7f4';
-    color  = '#7a7670';
-    border = '#e4e0d8';
+    bg     = 'var(--cream, #f8f7f4)';
+    color  = 'var(--taupe, #7a7670)';
+    border = 'var(--line, #e4e0d8)';
   }
 
   return (
@@ -73,7 +73,7 @@ function ProgressDots({ step, total, accent }) {
       {Array.from({ length: total }).map((_, i) => (
         <div key={i} style={{
           width: i < step ? 18 : 7, height: 7, borderRadius: 50,
-          background: i < step ? accent : '#e4e0d8',
+          background: i < step ? accent : 'var(--line, #e4e0d8)',
           transition: 'all .3s'
         }} />
       ))}
@@ -193,13 +193,13 @@ export default function SurveyPage() {
 
   if (!survey && state !== 'loading' && state !== 'notfound') return null;
 
-  const accent   = survey?.accentColor  || '#f5c842';
+  const accent   = survey?.accentColor  || 'var(--honey, #f5c842)';
   const isDark   = survey?.theme        === 'dark';
-  const bg       = isDark ? '#0a0a0a'   : '#f8f7f4';
-  const cardBg   = isDark ? '#141414'   : '#ffffff';
-  const textCol  = isDark ? '#ffffff'   : '#0a0a0a';
-  const mutedCol = isDark ? 'rgba(255,255,255,.5)' : '#7a7670';
-  const borderCol = isDark ? 'rgba(255,255,255,.1)' : '#e4e0d8';
+  const bg       = isDark ? 'var(--ink, #0a0a0a)'   : 'var(--cream, #f8f7f4)';
+  const cardBg   = isDark ? '#141414'   : 'var(--paper, #ffffff)';
+  const textCol  = isDark ? 'var(--paper, #ffffff)'   : 'var(--ink, #0a0a0a)';
+  const mutedCol = isDark ? 'rgba(255,255,255,.5)' : 'var(--taupe, #7a7670)';
+  const borderCol = isDark ? 'rgba(255,255,255,.1)' : 'var(--line, #e4e0d8)';
 
   const wrapStyle = {
     minHeight: '100vh',
@@ -343,11 +343,11 @@ export default function SurveyPage() {
             fontSize: '0.72rem', color: mutedCol, flexWrap: 'wrap'
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fee2e2', border: '1px solid #fecaca', display: 'inline-block' }} />
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', display: 'inline-block' }} />
               0–6 Needs work
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f8f7f4', border: '1px solid #e4e0d8', display: 'inline-block' }} />
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--cream, #f8f7f4)', border: '1px solid var(--line, #e4e0d8)', display: 'inline-block' }} />
               7–8 Good
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -389,7 +389,7 @@ export default function SurveyPage() {
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#fee2e2', color: '#c0392b',
+              background: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)',
               padding: '6px 16px', borderRadius: 50, fontSize: '0.82rem', fontWeight: 600
             }}>
               You rated us {selected}/10
@@ -419,7 +419,7 @@ export default function SurveyPage() {
               width: '100%', minHeight: 110, padding: '13px 15px',
               border: `1.5px solid ${borderCol}`, borderRadius: 12,
               fontSize: '0.9rem', fontFamily: 'DM Sans, sans-serif',
-              color: textCol, background: isDark ? '#0a0a0a' : 'white',
+              color: textCol, background: isDark ? 'var(--ink, #0a0a0a)' : 'white',
               outline: 'none', resize: 'vertical', lineHeight: 1.6,
               marginBottom: 6,
               transition: 'border-color .15s',
@@ -449,7 +449,7 @@ export default function SurveyPage() {
               style={{
                 flex: 2, padding: '13px', borderRadius: 50,
                 border: 'none', background: accent,
-                color: '#0a0a0a', fontSize: '0.9rem', fontWeight: 700,
+                color: 'var(--ink, #0a0a0a)', fontSize: '0.9rem', fontWeight: 700,
                 cursor: submitting ? 'not-allowed' : 'pointer',
                 fontFamily: 'DM Sans, sans-serif',
                 opacity: submitting ? 0.7 : 1,
@@ -478,7 +478,7 @@ export default function SurveyPage() {
           {/* Animated score display */}
           <div style={{
             width: 72, height: 72, borderRadius: '50%',
-            background: accent, color: '#0a0a0a',
+            background: accent, color: 'var(--ink, #0a0a0a)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '1.6rem', fontWeight: 900,
             margin: '0 auto 20px',
@@ -544,7 +544,7 @@ export default function SurveyPage() {
 
           <div style={{
             width: 64, height: 64, borderRadius: '50%',
-            background: '#f8f7f4', border: `2px solid ${accent}`,
+            background: 'var(--cream, #f8f7f4)', border: `2px solid ${accent}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '1.4rem', fontWeight: 900,
             margin: '0 auto 20px',
@@ -562,7 +562,7 @@ export default function SurveyPage() {
 
           {followup && (
             <div style={{
-              background: isDark ? '#1a1a1a' : '#f8f7f4',
+              background: isDark ? '#1a1a1a' : 'var(--cream, #f8f7f4)',
               border: `1px solid ${borderCol}`,
               borderRadius: 12, padding: '12px 16px',
               fontSize: '0.85rem', color: mutedCol,
