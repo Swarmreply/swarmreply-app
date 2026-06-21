@@ -405,7 +405,7 @@ function ReportVelocity({ d }) {
 
       <div className="rep-card" style={{ marginBottom: 20 }}>
         <SectionTitle right={editing ? null : (
-          <button onClick={() => { setDraft(String(goal)); setGoalErr(null); setEditing(true); }} style={{ background: 'none', border: 'none', color: C.amber, fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Edit goal</button>
+          <button onClick={() => { setDraft(String(goal)); setGoalErr(null); setEditing(true); }} style={{ background: C.amberSoft, border: `1.5px solid ${C.honey}`, color: C.amber, fontSize: '.74rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: '5px 13px', borderRadius: 50 }}>Edit goal</button>
         )}>Monthly goal</SectionTitle>
 
         {editing ? (
