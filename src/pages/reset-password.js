@@ -40,10 +40,10 @@ export default function ResetPassword() {
     if (/[A-Z]/.test(password))     s++;
     if (/[0-9]/.test(password))     s++;
     if (/[^A-Za-z0-9]/.test(password)) s++;
-    if (s <= 1) return { label: 'Weak',   color: '#c0392b', pct: '25%'  };
+    if (s <= 1) return { label: 'Weak',   color: 'var(--danger, #c0392b)', pct: '25%'  };
     if (s <= 2) return { label: 'Fair',   color: '#f59e0b', pct: '50%'  };
     if (s <= 3) return { label: 'Good',   color: '#66bb6a', pct: '75%'  };
-    return           { label: 'Strong', color: '#1a6b45', pct: '100%' };
+    return           { label: 'Strong', color: 'var(--green, #1a6b45)', pct: '100%' };
   })();
 
   async function handleSubmit(e) {
@@ -70,7 +70,7 @@ export default function ResetPassword() {
   }
 
   const inp = { width: '100%', padding: '12px 14px',
-    border: '1.5px solid #e4e0d8', borderRadius: 10,
+    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10,
     fontSize: 16, fontFamily: 'inherit', outline: 'none' };
 
   return (
@@ -79,44 +79,44 @@ export default function ResetPassword() {
         <title>Set new password — SwarmReply</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex',
+      <div style={{ minHeight: '100vh', background: 'var(--cream, #f8f7f4)', display: 'flex',
         alignItems: 'center', justifyContent: 'center',
         fontFamily: 'DM Sans, sans-serif', padding: 20 }}>
         <div style={{ width: '100%', maxWidth: 420 }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
             <a href="https://swarmreply.com" style={{ fontFamily: 'Playfair Display, serif',
-              fontSize: '1.5rem', fontWeight: 900, color: '#0a0a0a',
+              fontSize: '1.5rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
               textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 9 }}>
               🐝 SwarmReply
             </a>
           </div>
 
-          <div style={{ background: 'white', border: '1px solid #e4e0d8', borderRadius: 20,
+          <div style={{ background: 'white', border: '1px solid var(--line, #e4e0d8)', borderRadius: 20,
             boxShadow: '0 8px 40px rgba(0,0,0,.07)', overflow: 'hidden' }}>
 
             {/* Checking token */}
             {tokenValid === null && token && (
               <div style={{ padding: 48, textAlign: 'center' }}>
                 <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
-                <div style={{ color: '#7a7670', fontSize: '.875rem' }}>Validating reset link...</div>
+                <div style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem' }}>Validating reset link...</div>
               </div>
             )}
 
             {/* Invalid token */}
             {tokenValid === false && (
               <div style={{ padding: 40, textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#fee2e2',
+                <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--danger-bg, #fee2e2)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 16px', fontSize: '1.4rem' }}>!</div>
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem',
                   fontWeight: 900, marginBottom: 10 }}>Link expired</div>
-                <p style={{ color: '#7a7670', fontSize: '.875rem', lineHeight: 1.7, marginBottom: 20 }}>
+                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem', lineHeight: 1.7, marginBottom: 20 }}>
                   This reset link has expired or already been used. Reset links are
                   valid for 1 hour.
                 </p>
                 <Link href="/forgot-password" style={{
                   display: 'inline-block', padding: '10px 24px', borderRadius: 50,
-                  background: '#0a0a0a', color: 'white', textDecoration: 'none',
+                  background: 'var(--ink, #0a0a0a)', color: 'white', textDecoration: 'none',
                   fontWeight: 700, fontSize: '.875rem' }}>
                   Request a new link →
                 </Link>
@@ -126,12 +126,12 @@ export default function ResetPassword() {
             {/* Success */}
             {done && (
               <div style={{ padding: 48, textAlign: 'center' }}>
-                <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#e8f5ef',
+                <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--green-bg, #e8f5ef)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 16px', fontSize: '1.5rem' }}>✓</div>
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem',
                   fontWeight: 900, marginBottom: 8 }}>Password updated!</div>
-                <p style={{ color: '#7a7670', fontSize: '.875rem' }}>
+                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem' }}>
                   Taking you to the dashboard...
                 </p>
               </div>
@@ -140,10 +140,10 @@ export default function ResetPassword() {
             {/* Form */}
             {(tokenValid === true || tokenValid === null) && !done && (
               <>
-                <div style={{ padding: '28px 32px 20px', borderBottom: '1px solid #f0eeea' }}>
+                <div style={{ padding: '28px 32px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
                   <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem',
                     fontWeight: 900, marginBottom: 6 }}>Set your password</div>
-                  <p style={{ color: '#7a7670', fontSize: '.875rem', lineHeight: 1.65, margin: 0 }}>
+                  <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem', lineHeight: 1.65, margin: 0 }}>
                     Choose a strong password for your SwarmReply account.
                   </p>
                 </div>
@@ -153,7 +153,7 @@ export default function ResetPassword() {
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
                       letterSpacing: '.08em', textTransform: 'uppercase',
-                      color: '#7a7670', marginBottom: 6 }}>New password</label>
+                      color: 'var(--taupe, #7a7670)', marginBottom: 6 }}>New password</label>
                     <div style={{ position: 'relative' }}>
                       <input
                         type={showPw ? 'text' : 'password'}
@@ -163,19 +163,19 @@ export default function ResetPassword() {
                         autoComplete="new-password"
                         required
                         style={{ ...inp, paddingRight: 52 }}
-                        onFocus={e => e.target.style.borderColor = '#0a0a0a'}
-                        onBlur={e  => e.target.style.borderColor = '#e4e0d8'}
+                        onFocus={e => e.target.style.borderColor = 'var(--ink, #0a0a0a)'}
+                        onBlur={e  => e.target.style.borderColor = 'var(--line, #e4e0d8)'}
                       />
                       <button type="button" onClick={() => setShowPw(v => !v)} style={{
                         position: 'absolute', right: 12, top: '50%',
                         transform: 'translateY(-50%)', background: 'none',
-                        border: 'none', cursor: 'pointer', color: '#7a7670', fontSize: '.8rem' }}>
+                        border: 'none', cursor: 'pointer', color: 'var(--taupe, #7a7670)', fontSize: '.8rem' }}>
                         {showPw ? 'Hide' : 'Show'}
                       </button>
                     </div>
                     {pwStrength && (
                       <div style={{ marginTop: 7 }}>
-                        <div style={{ height: 4, background: '#f0eeea', borderRadius: 50, overflow: 'hidden' }}>
+                        <div style={{ height: 4, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden' }}>
                           <div style={{ width: pwStrength.pct, height: '100%',
                             background: pwStrength.color, borderRadius: 50,
                             transition: 'width .3s, background .3s' }} />
@@ -190,7 +190,7 @@ export default function ResetPassword() {
                   <div style={{ marginBottom: 20 }}>
                     <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
                       letterSpacing: '.08em', textTransform: 'uppercase',
-                      color: '#7a7670', marginBottom: 6 }}>Confirm password</label>
+                      color: 'var(--taupe, #7a7670)', marginBottom: 6 }}>Confirm password</label>
                     <input
                       type={showPw ? 'text' : 'password'}
                       value={confirm}
@@ -200,29 +200,29 @@ export default function ResetPassword() {
                       required
                       style={{ ...inp,
                         borderColor: confirm && password && confirm !== password
-                          ? '#c0392b' : '#e4e0d8' }}
-                      onFocus={e => e.target.style.borderColor = '#0a0a0a'}
+                          ? 'var(--danger, #c0392b)' : 'var(--line, #e4e0d8)' }}
+                      onFocus={e => e.target.style.borderColor = 'var(--ink, #0a0a0a)'}
                       onBlur={e  => e.target.style.borderColor =
-                        confirm && password !== confirm ? '#c0392b' : '#e4e0d8'}
+                        confirm && password !== confirm ? 'var(--danger, #c0392b)' : 'var(--line, #e4e0d8)'}
                     />
                     {confirm && password && confirm !== password && (
-                      <div style={{ fontSize: '.72rem', color: '#c0392b', marginTop: 4 }}>
+                      <div style={{ fontSize: '.72rem', color: 'var(--danger, #c0392b)', marginTop: 4 }}>
                         Passwords don't match
                       </div>
                     )}
                   </div>
 
                   {error && (
-                    <div style={{ background: '#fee2e2', border: '1px solid #fecaca',
+                    <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca',
                       borderRadius: 9, padding: '10px 14px', fontSize: '.82rem',
-                      color: '#c0392b', marginBottom: 16, lineHeight: 1.5 }}>
+                      color: 'var(--danger, #c0392b)', marginBottom: 16, lineHeight: 1.5 }}>
                       {error}
                     </div>
                   )}
 
                   <button type="submit" disabled={loading} style={{
                     width: '100%', padding: 13, borderRadius: 50,
-                    background: '#0a0a0a', color: 'white', border: 'none',
+                    background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none',
                     cursor: loading ? 'not-allowed' : 'pointer',
                     fontSize: '.95rem', fontWeight: 700, fontFamily: 'inherit',
                     opacity: loading ? .6 : 1 }}>
@@ -230,9 +230,9 @@ export default function ResetPassword() {
                   </button>
 
                   <p style={{ textAlign: 'center', marginTop: 14,
-                    fontSize: '.78rem', color: '#7a7670' }}>
+                    fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
                     Remember your password?{' '}
-                    <Link href="/login" style={{ color: '#0a0a0a', fontWeight: 600 }}>
+                    <Link href="/login" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600 }}>
                       Log in
                     </Link>
                   </p>

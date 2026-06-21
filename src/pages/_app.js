@@ -14,7 +14,7 @@ export default function App({ Component, pageProps }) {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#0a0a0a" />
+        <meta name="theme-color" content="var(--ink, #0a0a0a)" />
       </Head>
       <Component {...pageProps} />
     </>
