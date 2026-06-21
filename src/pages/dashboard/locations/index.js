@@ -89,7 +89,7 @@ export default function Locations() {
             </p>
           </div>
           <a href="/dashboard/locations/add" style={{
-            background: '#0d0d0d', color: 'white', textDecoration: 'none',
+            background: '#0a0a0a', color: 'white', textDecoration: 'none',
             borderRadius: 50, padding: '12px 22px', fontSize: '0.9rem',
             fontWeight: 600, fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap'
           }}>+ Add location</a>
@@ -125,7 +125,7 @@ export default function Locations() {
               Add your first business location to start collecting and replying to reviews.
             </p>
             <a href="/dashboard/locations/add" style={{
-              display: 'inline-block', background: '#0d0d0d', color: 'white',
+              display: 'inline-block', background: '#0a0a0a', color: 'white',
               textDecoration: 'none', borderRadius: 50, padding: '14px 28px',
               fontSize: '0.95rem', fontWeight: 600, fontFamily: 'DM Sans, sans-serif'
             }}>Add a location →</a>
@@ -166,7 +166,7 @@ export default function Locations() {
                   <button
                     onClick={() => handleFinishSetup(loc)}
                     style={{
-                      background: '#0d0d0d', color: 'white', border: 'none',
+                      background: '#0a0a0a', color: 'white', border: 'none',
                       borderRadius: 50, padding: '9px 18px', fontSize: '0.82rem',
                       fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
                     }}

@@ -47,7 +47,7 @@ function industryToType(label) {
   return 'other';
 }
 
-const inputStyle = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.86rem', fontFamily: 'DM Sans, sans-serif', color: '#0d0d0d', background: '#fff', outline: 'none' };
+const inputStyle = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.86rem', fontFamily: 'DM Sans, sans-serif', color: '#0a0a0a', background: '#fff', outline: 'none' };
 const labelStyle = { display: 'block', fontSize: '.68rem', fontWeight: 600, letterSpacing: '.05em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 6 };
 const primaryBtn = (disabled) => ({ width: '100%', padding: 13, borderRadius: 50, background: disabled ? '#d8d3c8' : '#0a0a0a', color: '#fff', border: 'none', fontSize: '.9rem', fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans, sans-serif' });
 const ghostBtn = { width: '100%', padding: 12, borderRadius: 50, background: 'transparent', color: '#7a7670', border: '1.5px solid #e4e0d8', fontSize: '.86rem', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' };
@@ -84,7 +84,7 @@ function IndustryCombobox({ value, onChange }) {
   return (
     <div style={{ position: 'relative' }}>
       <div onClick={() => setOpen(true)}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, border: `1.5px solid ${open ? '#0d0d0d' : '#e4e0d8'}`, borderRadius: 9, padding: '10px 13px', background: '#fff', cursor: 'text' }}>
+        style={{ display: 'flex', alignItems: 'center', gap: 8, border: `1.5px solid ${open ? '#0a0a0a' : '#e4e0d8'}`, borderRadius: 9, padding: '10px 13px', background: '#fff', cursor: 'text' }}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7a7670" strokeWidth="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
         <input
           value={open ? q : (value || '')}
@@ -93,7 +93,7 @@ function IndustryCombobox({ value, onChange }) {
           onBlur={() => setTimeout(() => setOpen(false), 120)}
           placeholder={value ? '' : 'Search your industry…'}
           aria-label="Industry"
-          style={{ border: 'none', outline: 'none', flex: 1, fontSize: '.86rem', fontFamily: 'DM Sans, sans-serif', color: '#0d0d0d', background: 'transparent' }}
+          style={{ border: 'none', outline: 'none', flex: 1, fontSize: '.86rem', fontFamily: 'DM Sans, sans-serif', color: '#0a0a0a', background: 'transparent' }}
         />
       </div>
       {open && (
