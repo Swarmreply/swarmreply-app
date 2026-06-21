@@ -53,15 +53,35 @@ function blankConfig() {
   };
 }
 
+function blankCustomConfig() {
+  return {
+    type: 'custom',
+    questions: [],
+    reviewInvite: true,
+    messages: { intro: '', thankYou: 'Thanks for your feedback!' },
+    brand: { color: '#f5c842' },
+  };
+}
+
 const label = { display: 'block', fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 };
 const input = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', color: '#1a1a18' };
 
 function mergeConfig(c0) {
-  const base = blankConfig();
   const c = c0 || {};
+  if ((c.type || 'nps') === 'custom') {
+    const base = blankCustomConfig();
+    return {
+      ...base, ...c, type: 'custom',
+      questions: Array.isArray(c.questions) ? c.questions : [],
+      reviewInvite: c.reviewInvite !== false,
+      messages: { ...base.messages, ...(c.messages || {}) },
+      brand: { ...base.brand, ...(c.brand || {}) },
+    };
+  }
+  const base = blankConfig();
   return {
     ...base, ...c,
-    type: c.type || 'nps',
+    type: 'nps',
     classifier: { ...base.classifier, ...(c.classifier || {}), thresholds: { ...base.classifier.thresholds, ...((c.classifier || {}).thresholds || {}) } },
     paths: { promoter: (c.paths || {}).promoter || [], passive: (c.paths || {}).passive || [], detractor: (c.paths || {}).detractor || [] },
     messages: { ...base.messages, ...(c.messages || {}) },
@@ -87,8 +107,10 @@ export default function SurveysPage() {
   }
 
   function openEdit(t) { setSelected(t); setView('edit'); }
-  function createNew() {
-    setSelected({ id: null, name: 'Untitled survey', config: { ...blankConfig(), type: 'nps' }, is_default: templates.length === 0 });
+  function createNew() { setView('pick'); }
+  function create(type) {
+    const config = type === 'custom' ? blankCustomConfig() : { ...blankConfig(), type: 'nps' };
+    setSelected({ id: null, name: type === 'custom' ? 'Untitled survey' : 'Post-visit feedback', config, is_default: templates.length === 0 && type !== 'custom' });
     setView('edit');
   }
   async function remove(t) {
@@ -99,6 +121,18 @@ export default function SurveysPage() {
 
   if (view === 'edit') {
     return <Editor template={selected} onBack={() => { setView('list'); loadList(); }} />;
+  }
+
+  if (view === 'pick') {
+    return (
+      <DashboardLayout>
+        <PageHeader title="New survey" subtitle="Pick a starting point — you can change the questions either way." action={<Button variant="ghost" onClick={() => setView('list')}>{'\u2190'} All surveys</Button>} />
+        <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+          <TypeCard title="NPS survey" tone="#1a6b45" bg="#dcfce7" desc="A scored 0–10 question that sorts customers into Promoters, Passives, and Detractors, each with its own follow-up. Best for measuring loyalty." foot="Scoring question · branching follow-ups" onClick={() => create('nps')} />
+          <TypeCard title="Custom survey" tone="#6d28d9" bg="#ede9fe" desc="Build from scratch — a simple ordered list of questions, no score required. Best for feedback forms, intake, or anything you design." foot="Linear questions · no branching" onClick={() => create('custom')} />
+        </div>
+      </DashboardLayout>
+    );
   }
 
   return (
@@ -146,6 +180,25 @@ function SurveyRow({ t, onEdit, onDelete }) {
       <Button variant="ghost" onClick={onEdit}>Edit</Button>
       {!t.is_default && <button onClick={onDelete} title="Delete survey" style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #f0d0d0', background: 'white', color: '#c0392b', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, fontFamily: 'inherit' }}>{'\u00D7'}</button>}
     </Card>
+  );
+}
+
+function TypeCard({ title, desc, foot, tone, bg, onClick }) {
+  return (
+    <button onClick={onClick} style={{ textAlign: 'left', background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 16, padding: 22, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: 10, transition: 'border-color .15s' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = tone; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e4e0d8'; }}>
+      <span style={{ alignSelf: 'flex-start', fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: tone, background: bg, borderRadius: 50, padding: '3px 10px' }}>{title}</span>
+      <p style={{ fontSize: '.86rem', color: '#4a4a48', margin: 0, lineHeight: 1.6 }}>{desc}</p>
+      <span style={{ fontSize: '.74rem', color: '#a8a39a', marginTop: 'auto' }}>{foot}</span>
+    </button>
+  );
+}
+
+function Toggle({ on, onChange }) {
+  return (
+    <button onClick={() => onChange(!on)} aria-pressed={on} style={{ width: 46, height: 27, borderRadius: 50, border: 'none', cursor: 'pointer', background: on ? '#1a6b45' : '#d4cfc5', position: 'relative', flexShrink: 0, transition: 'background .15s', padding: 0 }}>
+      <span style={{ position: 'absolute', top: 3, left: on ? 22 : 3, width: 21, height: 21, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 2px rgba(0,0,0,.2)' }} />
+    </button>
   );
 }
 
@@ -202,6 +255,19 @@ function Editor({ template, onBack }) {
   function moveBlock(pk, i, dir) {
     setCfg((c) => { const a = [...(c.paths[pk] || [])]; const j = i + dir; if (j < 0 || j >= a.length) return c; const t = a[i]; a[i] = a[j]; a[j] = t; return { ...c, paths: { ...c.paths, [pk]: a } }; });
   }
+  function addQuestion(type) {
+    setCfg((c) => ({ ...c, questions: [...(c.questions || []), { blockId: newBlockId(), type, question: '', ...(type === 'multiple_choice' ? { options: ['', ''] } : {}) }] }));
+  }
+  function updateQuestion(i, patch) {
+    setCfg((c) => { const a = [...(c.questions || [])]; a[i] = { ...a[i], ...patch }; return { ...c, questions: a }; });
+  }
+  function removeQuestion(i) {
+    setCfg((c) => { const a = [...(c.questions || [])]; a.splice(i, 1); return { ...c, questions: a }; });
+  }
+  function moveQuestion(i, dir) {
+    setCfg((c) => { const a = [...(c.questions || [])]; const j = i + dir; if (j < 0 || j >= a.length) return c; const t = a[i]; a[i] = a[j]; a[j] = t; return { ...c, questions: a }; });
+  }
+  function setReviewInvite(v) { setCfg((c) => ({ ...c, reviewInvite: v })); }
 
   const SaveBtn = (
     <Button variant="gold" onClick={save} disabled={saving}>
@@ -229,6 +295,7 @@ function Editor({ template, onBack }) {
               <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '8px 0 0' }}>Just for you — customers never see this.</p>
             </Card>
 
+            {cfg.type !== 'custom' && (<>
             {/* Scoring question */}
             <Card style={{ marginBottom: 16 }}>
               <SectionLabel>The scoring question</SectionLabel>
@@ -279,6 +346,35 @@ function Editor({ template, onBack }) {
                 onMove={(i, dir) => moveBlock(p.key, i, dir)}
               />
             ))}
+            </>)}
+
+            {cfg.type === 'custom' && (<>
+              <Card style={{ marginBottom: 16 }}>
+                <SectionLabel>Opening message</SectionLabel>
+                <p style={{ fontSize: '.82rem', color: '#7a7670', margin: '4px 0 12px', lineHeight: 1.55 }}>An optional welcome shown before the first question.</p>
+                <input value={cfg.messages.intro || ''} onChange={(e) => updateMessage('intro', e.target.value)} style={input} placeholder="e.g. We'd love your feedback — it only takes a minute." />
+              </Card>
+
+              <PathEditor
+                path={{ key: 'questions', label: 'Questions', desc: 'Asked in order, to everyone', tone: '#6d28d9', bg: '#ede9fe', bd: '#ddd6fe' }}
+                blocks={cfg.questions || []}
+                showMessage={false}
+                onAdd={(type) => addQuestion(type)}
+                onUpdate={(i, patch) => updateQuestion(i, patch)}
+                onRemove={(i) => removeQuestion(i)}
+                onMove={(i, dir) => moveQuestion(i, dir)}
+              />
+
+              <Card style={{ marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                <div style={{ flex: 1 }}>
+                  <SectionLabel>Invite a public review at the end</SectionLabel>
+                  <p style={{ fontSize: '.82rem', color: '#7a7670', margin: '4px 0 0', lineHeight: 1.55 }}>
+                    When on, everyone who finishes sees a neutral invitation to leave a public review — shown to every respondent, never gated on answers. Turn off for purely internal feedback.
+                  </p>
+                </div>
+                <Toggle on={cfg.reviewInvite !== false} onChange={setReviewInvite} />
+              </Card>
+            </>)}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 8 }}>
               {SaveBtn}
