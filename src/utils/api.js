@@ -234,6 +234,15 @@ export async function getInsights({ range = '90d', locationId = 'all', platform 
   return res.data;
 }
 
+// Recent detractor survey responses across all locations, for the Home action queue.
+// Returns each response with its per-question answers (open-text included).
+export async function getRecentDetractors(days = 7) {
+  try {
+    const res = await api.get('/reports/survey-responses', { params: { classification: 'detractor', days, limit: 50 } });
+    return res.data.responses || [];
+  } catch (e) { return []; }
+}
+
 // ── BILLING ────────────────────────────────────────────────────────────────
 export async function getBillingStatus(token) {
   const res = await fetch(`${API_BASE}/billing/status`, {
