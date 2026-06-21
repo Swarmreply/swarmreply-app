@@ -182,15 +182,15 @@ export default function SendReviewRequests({ location, templates }) {
           flexWrap: 'wrap', gap: 8
         }}>
           <div style={{ fontSize: '0.825rem', color: '#7a7670' }}>
-            <strong style={{ color: '#0d0d0d' }}>{dailyStats.sent_today || 0}</strong> sent today ·
-            <strong style={{ color: '#0d0d0d' }}> {Math.max(0, parseInt(dailyStats.remaining_today || 100))}</strong> remaining (100/day limit)
+            <strong style={{ color: '#0a0a0a' }}>{dailyStats.sent_today || 0}</strong> sent today ·
+            <strong style={{ color: '#0a0a0a' }}> {Math.max(0, parseInt(dailyStats.remaining_today || 100))}</strong> remaining (100/day limit)
           </div>
           <div style={{
             width: 200, height: 6, background: '#e4e0d8',
             borderRadius: 50, overflow: 'hidden'
           }}>
             <div style={{
-              height: '100%', borderRadius: 50, background: '#0d0d0d',
+              height: '100%', borderRadius: 50, background: '#0a0a0a',
               width: `${Math.min(100, ((dailyStats.sent_today || 0) / 100) * 100)}%`,
               transition: 'width 0.3s'
             }} />
@@ -210,7 +210,7 @@ export default function SendReviewRequests({ location, templates }) {
             borderBottom: activeTab === tab.id ? '1px solid white' : '1px solid #e4e0d8',
             borderRadius: '8px 8px 0 0',
             background: activeTab === tab.id ? 'white' : '#f8f7f4',
-            color: activeTab === tab.id ? '#0d0d0d' : '#7a7670',
+            color: activeTab === tab.id ? '#0a0a0a' : '#7a7670',
             cursor: 'pointer', fontFamily: 'DM Sans, sans-serif',
             marginBottom: activeTab === tab.id ? '-1px' : 0,
             position: 'relative', zIndex: activeTab === tab.id ? 1 : 0
@@ -250,7 +250,7 @@ export default function SendReviewRequests({ location, templates }) {
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button onClick={handleParsePaste} disabled={!pasteText.trim()} style={{
                     flex: 1, padding: '9px', borderRadius: 8,
-                    background: pasteText.trim() ? '#0d0d0d' : '#c8c4bc',
+                    background: pasteText.trim() ? '#0a0a0a' : '#c8c4bc',
                     color: 'white', border: 'none', fontSize: '0.825rem',
                     fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
                   }}>Add from paste</button>
@@ -393,7 +393,7 @@ export default function SendReviewRequests({ location, templates }) {
                 disabled={sending || contacts.length === 0 || !selectedTemplate || smsBlocked}
                 style={{
                   width: '100%', padding: 14, borderRadius: 50,
-                  background: sending || contacts.length === 0 ? '#c8c4bc' : '#0d0d0d',
+                  background: sending || contacts.length === 0 ? '#c8c4bc' : '#0a0a0a',
                   color: 'white', border: 'none', fontSize: '0.9rem',
                   fontWeight: 600, cursor: contacts.length === 0 ? 'not-allowed' : 'pointer',
                   fontFamily: 'DM Sans, sans-serif'
