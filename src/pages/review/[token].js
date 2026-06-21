@@ -47,19 +47,39 @@ function classify(score, thresholds) {
 
 const card = { background: 'white', borderRadius: 16, padding: '32px 28px', boxShadow: '0 4px 24px rgba(0,0,0,.08)', maxWidth: 520, width: '100%', margin: '0 auto' };
 
-// 5d-1: conditional display. A question with a condition is shown only when an
-// earlier choice answer matches. No condition (or no values) → always shown.
-// answers carry the selected value(s) in `options` (multiple-choice/dropdown) or
-// `text` (yes/no, single-select), so we check both.
+// 5d-1/5d-2: conditional display. A question's condition is satisfied when its
+// rule(s) match earlier answers. Choice sources match selected value(s) (is /
+// is_not); rating/scale sources compare the number (≤ ≥ = < >). Multiple rules
+// combine with all (AND) / any (OR). No condition / no rules → always shown.
+function ruleMet(rule, answers) {
+  if (!rule || !rule.blockId) return true;
+  const a = (answers || []).find((x) => x && x.blockId === rule.blockId);
+  if (['lte', 'gte', 'lt', 'gt', 'eq'].includes(rule.op)) {
+    const n = a && a.number != null ? Number(a.number) : null;
+    const v = Number(rule.value);
+    if (n == null || isNaN(n) || isNaN(v)) return false;
+    if (rule.op === 'lte') return n <= v;
+    if (rule.op === 'gte') return n >= v;
+    if (rule.op === 'lt') return n < v;
+    if (rule.op === 'gt') return n > v;
+    return n === v; // eq
+  }
+  if (!(rule.values || []).length) return true;
+  const answered = a ? ((a.options && a.options.length) ? a.options : (a.text != null && a.text !== '' ? [String(a.text)] : [])) : [];
+  const hit = answered.some((v) => rule.values.includes(v));
+  return rule.op === 'is_not' ? !hit : hit;
+}
+
 function condMet(condition, answers) {
-  if (!condition || !condition.blockId || !(condition.values || []).length) return true;
-  const a = (answers || []).find((x) => x && x.blockId === condition.blockId);
-  if (!a) return false; // the trigger question wasn't answered (e.g. itself skipped)
-  const answered = (a.options && a.options.length)
-    ? a.options
-    : (a.text != null && a.text !== '' ? [String(a.text)] : []);
-  const hit = answered.some((v) => condition.values.includes(v));
-  return condition.op === 'is_not' ? !hit : hit;
+  if (!condition) return true;
+  if (Array.isArray(condition.rules)) {
+    const active = condition.rules.filter((r) => r && r.blockId);
+    if (!active.length) return true;
+    const results = active.map((r) => ruleMet(r, answers));
+    return condition.match === 'any' ? results.some(Boolean) : results.every(Boolean);
+  }
+  if (!condition.blockId) return true; // legacy single condition (5d-1)
+  return ruleMet(condition, answers);
 }
 
 export default function ReviewPage({ preview }) {
@@ -95,7 +115,7 @@ export default function ReviewPage({ preview }) {
     setTimeout(() => {
       let i = 0;
       while (i < blocks.length && !condMet(blocks[i].condition, [])) i++;
-      if (i < blocks.length) { setBlockIdx(i); setPhase('blocks'); }
+      if (i < blocks.length && blocks[i].type !== 'end') { setBlockIdx(i); setPhase('blocks'); }
       else goShare([], n, cls);
     }, 280);
   }
@@ -115,7 +135,7 @@ export default function ReviewPage({ preview }) {
     const bl = isCustom ? (survey.questions || []) : ((survey.paths && survey.paths[classification]) || []);
     let nextIdx = blockIdx + 1;
     while (nextIdx < bl.length && !condMet(bl[nextIdx].condition, next)) nextIdx++;
-    if (nextIdx < bl.length) setBlockIdx(nextIdx);
+    if (nextIdx < bl.length && bl[nextIdx].type !== 'end') setBlockIdx(nextIdx);
     else goShare(next, score, classification);
   }
 
@@ -151,7 +171,7 @@ export default function ReviewPage({ preview }) {
     if (survey.type === 'custom' && phase === 'classifier') {
       let i = 0;
       while (i < blocks.length && !condMet(blocks[i].condition, [])) i++;
-      if (i < blocks.length) { setBlockIdx(i); setPhase('blocks'); }
+      if (i < blocks.length && blocks[i].type !== 'end') { setBlockIdx(i); setPhase('blocks'); }
       else goShare([], null, null);
     }
   }, [survey.type]); // eslint-disable-line react-hooks/exhaustive-deps
