@@ -570,56 +570,105 @@ function ReportFunnel({ d }) {
 // REPORT 8 — NPS & Loyalty
 // ============================================================
 function ReportNps({ d, range }) {
-  const n = d.nps;
+  const [surveys, setSurveys] = useState([]);
+  const [sel, setSel] = useState('all');
   const [questions, setQuestions] = useState([]);
+  const [filteredNps, setFilteredNps] = useState(null);
+
+  useEffect(() => {
+    axios.get(`${API}/survey-templates`, { headers: authHeaders() })
+      .then((r) => setSurveys(r.data.templates || [])).catch(() => {});
+  }, []);
+
+  const days = ({ '30d': 30, '90d': 90, '12m': 365, all: 3650 })[range] || 90;
+
   useEffect(() => {
     let active = true;
-    const days = ({ '30d': 30, '90d': 90, '12m': 365, all: 3650 })[range] || 90;
-    axios.get(`${API}/reports/survey-questions?days=${days}`, { headers: authHeaders() })
+    const tp = sel !== 'all' ? `&templateId=${encodeURIComponent(sel)}` : '';
+    axios.get(`${API}/reports/survey-questions?days=${days}${tp}`, { headers: authHeaders() })
       .then((r) => { if (active) setQuestions(r.data.questions || []); })
-      .catch(() => {});
+      .catch(() => { if (active) setQuestions([]); });
+    if (sel !== 'all') {
+      axios.get(`${API}/reports/survey-nps?days=${days}&templateId=${encodeURIComponent(sel)}`, { headers: authHeaders() })
+        .then((r) => { if (active) setFilteredNps(r.data.nps || null); })
+        .catch(() => { if (active) setFilteredNps(null); });
+    } else if (active) { setFilteredNps(null); }
     return () => { active = false; };
-  }, [range]);
-  if (!n.total) return <NoData icon="💛" title="No survey responses yet" body="When customers complete NPS surveys, loyalty and the reasons behind it show here." />;
+  }, [sel, days]);
+
+  const n = sel === 'all' ? d.nps : (filteredNps || { total: 0, score: null, promoters: 0, passives: 0, detractors: 0, wouldReturnPct: 0, scoreDelta: null, reasons: [] });
+  const selSurvey = surveys.find((s) => s.id === sel);
+  const selIsCustom = !!(selSurvey && selSurvey.config && selSurvey.config.type === 'custom');
+  const hasNps = (n.total || 0) > 0;
   const npsColor = n.score == null ? C.taupe : n.score >= 50 ? C.green : n.score >= 0 ? C.amber : C.red;
+
+  const picker = surveys.length > 1 ? (
+    <div className="rep-card" style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
+      <span style={{ fontSize: '.78rem', color: C.taupe, fontWeight: 600 }}>Survey</span>
+      <Select value={sel} onChange={setSel} options={[
+        { value: 'all', label: 'All surveys' },
+        ...surveys.map((s) => ({ value: s.id, label: (s.name || 'Untitled') + ((s.config && s.config.type === 'custom') ? ' (Custom)' : '') })),
+      ]} />
+    </div>
+  ) : null;
+
+  if (!hasNps && questions.length === 0) {
+    return (
+      <div className="rep-fade">
+        {picker}
+        <NoData icon="💛" title={selIsCustom ? 'No responses for this survey yet' : 'No survey responses yet'} body={selIsCustom ? 'Custom surveys show their question results here once people respond.' : 'When customers complete NPS surveys, loyalty and the reasons behind it show here.'} />
+      </div>
+    );
+  }
+
   return (
     <div className="rep-fade">
-      <Insight>
-        Your NPS is <strong>{n.score}</strong> from {fmtInt(n.total)} responses. <strong>{n.wouldReturnPct}%</strong> say they'd return.
-      </Insight>
+      {picker}
 
-      <div className="rep-card" style={{ display: 'flex', gap: 28, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
-        <Ring value={(n.score || 0) + 100} max={200} color={npsColor}>
-          <div style={{ fontFamily: SERIF, fontSize: '2.3rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={n.score} /></div>
-          <div style={{ fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>NPS</div>
-        </Ring>
-        <div style={{ flex: 1, minWidth: 240 }}>
-          <Eyebrow>Promoters · Passives · Detractors</Eyebrow>
-          <div style={{ margin: '12px 0' }}>
-            <SegBar segments={[
-              { label: 'Promoters', value: n.promoters, color: C.green },
-              { label: 'Passives', value: n.passives, color: C.amber },
-              { label: 'Detractors', value: n.detractors, color: C.red },
-            ]} />
+      {selIsCustom && (
+        <Insight>This is a custom survey — it doesn't produce an NPS score. Question results are below.</Insight>
+      )}
+
+      {hasNps && (
+        <>
+          <Insight>
+            Your NPS is <strong>{n.score}</strong> from {fmtInt(n.total)} responses. <strong>{n.wouldReturnPct}%</strong> say they'd return.
+          </Insight>
+
+          <div className="rep-card" style={{ display: 'flex', gap: 28, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
+            <Ring value={(n.score || 0) + 100} max={200} color={npsColor}>
+              <div style={{ fontFamily: SERIF, fontSize: '2.3rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={n.score} /></div>
+              <div style={{ fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>NPS</div>
+            </Ring>
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <Eyebrow>Promoters · Passives · Detractors</Eyebrow>
+              <div style={{ margin: '12px 0' }}>
+                <SegBar segments={[
+                  { label: 'Promoters', value: n.promoters, color: C.green },
+                  { label: 'Passives', value: n.passives, color: C.amber },
+                  { label: 'Detractors', value: n.detractors, color: C.red },
+                ]} />
+              </div>
+              <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: '.8rem', color: C.taupe }}>
+                <span><span style={{ color: C.green, fontWeight: 700 }}>{n.promoters}</span> promoters</span>
+                <span><span style={{ color: C.amber, fontWeight: 700 }}>{n.passives}</span> passives</span>
+                <span><span style={{ color: C.red, fontWeight: 700 }}>{n.detractors}</span> detractors</span>
+              </div>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: '.8rem', color: C.taupe }}>
-            <span><span style={{ color: C.green, fontWeight: 700 }}>{n.promoters}</span> promoters</span>
-            <span><span style={{ color: C.amber, fontWeight: 700 }}>{n.passives}</span> passives</span>
-            <span><span style={{ color: C.red, fontWeight: 700 }}>{n.detractors}</span> detractors</span>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 20 }}>
+            <StatTile label="Would return" value={fmtPct(n.wouldReturnPct)} />
+            <StatTile label="NPS change" value={n.scoreDelta == null ? '—' : (n.scoreDelta > 0 ? `+${n.scoreDelta}` : n.scoreDelta)} delta={<Delta value={n.scoreDelta} />} />
           </div>
-        </div>
-      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 20 }}>
-        <StatTile label="Would return" value={fmtPct(n.wouldReturnPct)} />
-        <StatTile label="NPS change" value={n.scoreDelta == null ? '—' : (n.scoreDelta > 0 ? `+${n.scoreDelta}` : n.scoreDelta)} delta={<Delta value={n.scoreDelta} />} />
-      </div>
-
-      {n.reasons.length > 0 && (
-        <div className="rep-card">
-          <SectionTitle>Top reasons detractors gave</SectionTitle>
-          <HBars rows={n.reasons.map((r) => ({ label: r.reason, value: r.count }))} color={C.red} />
-        </div>
+          {n.reasons.length > 0 && (
+            <div className="rep-card">
+              <SectionTitle>Top reasons detractors gave</SectionTitle>
+              <HBars rows={n.reasons.map((r) => ({ label: r.reason, value: r.count }))} color={C.red} />
+            </div>
+          )}
+        </>
       )}
 
       {questions.length > 0 && (
