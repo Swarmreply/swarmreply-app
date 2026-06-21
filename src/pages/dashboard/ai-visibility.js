@@ -6,6 +6,7 @@
 // the 15 weekly queries before each scan.
 // ============================================
 
+import { keyClick } from '../../utils/a11y';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Card as KitCard, StatCard, Button as KitButton } from '../../components/ui';
@@ -219,7 +220,7 @@ function ByModelTab({ report }) {
         const sent=sc[m.sentiment]||sc.neutral, open=expanded===m.llm_name;
         return (
           <Card key={m.llm_name} style={{ overflow:'hidden', borderTop:'3px solid '+(mm.color||'var(--ink, #0a0a0a)') }}>
-            <div style={{ padding:'16px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', cursor:'pointer' }} onClick={() => setExpanded(open?null:m.llm_name)}>
+            <div role="button" tabIndex={0} onKeyDown={keyClick} aria-expanded={open} style={{ padding:'16px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', cursor:'pointer' }} onClick={() => setExpanded(open?null:m.llm_name)}>
               <div style={{ display:'flex', alignItems:'center', gap:14 }}>
                 <div>
                   <div style={{ fontWeight:700, fontSize: 'var(--fs-base, 0.875rem)', textTransform:'capitalize', marginBottom:2 }}>{m.llm_name}</div>

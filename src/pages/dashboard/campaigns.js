@@ -3,6 +3,7 @@
 // SMS Campaigns — list / contacts / segments / compliance
 // ============================================
 
+import { keyClick } from '../../utils/a11y';
 import React, { useState, useEffect } from 'react';
 import SmsGateBanner from '../../components/SmsGateBanner';
 import { useSmsGate } from '../../hooks/useSmsGate';
@@ -312,7 +313,7 @@ function SocialPostsTab() {
               <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)', marginBottom:16 }}>Your selection will determine which platforms are available.</div>
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                 {CONTENT_TYPES.map(ct => (
-                  <div key={ct.id} onClick={() => setContentType(ct.id)}
+                  <div role="button" tabIndex={0} onKeyDown={keyClick} aria-pressed={contentType === ct.id} key={ct.id} onClick={() => setContentType(ct.id)}
                     style={{ padding:'14px 16px', border:'1.5px solid', borderRadius: 'var(--r-md, 16px)', cursor:'pointer', display:'flex', alignItems:'center', gap:14, transition:'all .12s',
                       borderColor: contentType===ct.id ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)',
                       background: contentType===ct.id ? 'var(--ink, #0a0a0a)' : 'white' }}>
@@ -340,7 +341,7 @@ function SocialPostsTab() {
                   const isSelected = selectedPlatforms.includes(p.id);
                   const disabled = !p.compatible;
                   return (
-                    <div key={p.id} onClick={() => !disabled && togglePlatform(p.id)}
+                    <div role="button" tabIndex={0} onKeyDown={keyClick} key={p.id} onClick={() => !disabled && togglePlatform(p.id)}
                       style={{ padding:'14px 16px', border:'1.5px solid', borderRadius: 'var(--r-md, 16px)',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         opacity: disabled ? .45 : 1, transition:'all .12s',
@@ -422,7 +423,7 @@ function SocialPostsTab() {
               {(contentType === 'text_image') && (
                 <div style={{ marginBottom:16 }}>
                   <label style={{ display:'block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Image</label>
-                  <div style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
+                  <div role="button" tabIndex={0} onKeyDown={keyClick} style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
                     onClick={() => document.getElementById('img-upload').click()}>
                     {postImage ? (
                       <div>
@@ -446,7 +447,7 @@ function SocialPostsTab() {
               {(contentType === 'video' || contentType === 'reel') && (
                 <div style={{ marginBottom:16 }}>
                   <label style={{ display:'block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Video file</label>
-                  <div style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
+                  <div role="button" tabIndex={0} onKeyDown={keyClick} style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
                     onClick={() => document.getElementById('vid-upload').click()}>
                     {postVideo ? (
                       <div>

@@ -3,6 +3,7 @@
 // Grow — Review Requests / Request Templates / Bulk Send / Import tabs
 // ============================================
 
+import { keyClick } from '../../utils/a11y';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import LogoUploader from '../../components/LogoUploader';
@@ -283,7 +284,7 @@ function RequestsTab() {
                   description={search ? 'No surveys match your search — try different terms.' : 'Send your first request and completed surveys will land here.'} />
               </div>
             ) : filtered.map(s => (
-              <div key={s.id}
+              <div role="button" tabIndex={0} onKeyDown={keyClick} key={s.id}
                 onClick={() => { setSelected(s); setResent(false); setCopied(false); }}
                 className="m-survey-row" style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
                   padding: '12px 20px', borderBottom: '1px solid var(--cream, #f8f7f4)', cursor: 'pointer',
@@ -864,7 +865,7 @@ function TemplatesTab() {
           { val: shareAll, setter: setShareAll, title: 'Share this template across all locations', desc: 'Other locations on your account can see and apply this template.', bg: shareAll ? '#dcfce7' : 'white', border: shareAll ? '#bbf7d0' : 'var(--line, #e4e0d8)' },
           { val: suppress, setter: setSuppress, title: 'Suppress templates from other locations', desc: 'Hide templates shared by other locations. Only your own templates will appear.', bg: suppress ? 'var(--cream, #f8f7f4)' : 'white', border: suppress ? 'var(--mute-2, #c8c4bc)' : 'var(--line, #e4e0d8)' },
         ].map((item, i) => (
-          <div key={i} onClick={() => item.setter(v => !v)}
+          <div role="checkbox" tabIndex={0} onKeyDown={keyClick} aria-checked={item.val} key={i} onClick={() => item.setter(v => !v)}
             style={{ background: item.bg, border: `1.5px solid ${item.border}`, borderRadius: 'var(--r-md, 16px)', padding: '14px 16px', marginBottom: 12, display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer', transition: 'all .15s' }}>
             <div style={{ width: 20, height: 20, borderRadius: 'var(--r-xs, 8px)', border: `2px solid ${item.val ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)'}`, background: item.val ? 'var(--ink, #0a0a0a)' : 'white', flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {item.val && <span style={{ color: 'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 900 }}>✓</span>}
@@ -1069,7 +1070,7 @@ function BulkSendTab() {
           </div>
 
           {/* Select all */}
-          <div onClick={toggleAll} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)', cursor: 'pointer', background: 'var(--cream, #f8f7f4)' }}>
+          <div role="checkbox" tabIndex={0} onKeyDown={keyClick} aria-checked={allFilteredSelected} onClick={toggleAll} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)', cursor: 'pointer', background: 'var(--cream, #f8f7f4)' }}>
             <div style={{ width: 18, height: 18, borderRadius: 'var(--r-xs, 8px)', border: '2px solid', borderColor: allFilteredSelected ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)', background: allFilteredSelected ? 'var(--ink, #0a0a0a)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {allFilteredSelected && <span style={{ color: 'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 900 }}>✓</span>}
             </div>
@@ -1092,13 +1093,13 @@ function BulkSendTab() {
               const isSel = selected.includes(c.id);
               const isOut = !!c.opted_out;
               return (
-                <div key={c.id} onClick={() => { if (menuFor === c.id) setMenuFor(null); else if (!isOut) toggle(c.id); }}
+                <div role="button" tabIndex={0} onKeyDown={keyClick} key={c.id} onClick={() => { if (menuFor === c.id) setMenuFor(null); else if (!isOut) toggle(c.id); }}
                   style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px', borderBottom: '1px solid var(--cream, #f8f7f4)', cursor: isOut ? 'default' : 'pointer', background: isSel ? '#fafaf9' : 'white', opacity: isOut ? .6 : 1, position: 'relative' }}>
                   <div style={{ width: 18, height: 18, borderRadius: 'var(--r-xs, 8px)', border: '2px solid', borderColor: isOut ? 'var(--line, #e4e0d8)' : (isSel ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)'), background: (isSel && !isOut) ? 'var(--ink, #0a0a0a)' : 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {isSel && !isOut && <span style={{ color: 'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 900 }}>✓</span>}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <span onClick={e => { e.stopPropagation(); setMenuFor(menuFor === c.id ? null : c.id); }}
+                    <span role="button" tabIndex={0} onKeyDown={keyClick} onClick={e => { e.stopPropagation(); setMenuFor(menuFor === c.id ? null : c.id); }}
                       title="Click to opt out / re-enable"
                       style={{ fontWeight: 600, fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--ink, #0a0a0a)', cursor: 'pointer', borderBottom: '1px dotted var(--mute-2, #c8c4bc)' }}>
                       {c.name || '(no name)'}
@@ -1400,7 +1401,7 @@ function ImportTab() {
             </div>
           ) : (
             <>
-              <div onClick={() => document.getElementById('csv-input').click()}
+              <div role="button" tabIndex={0} onKeyDown={keyClick} onClick={() => document.getElementById('csv-input').click()}
                 style={{ border: '2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: 32, textAlign: 'center', marginBottom: 14, cursor: 'pointer' }}>
                 <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom: 8 }}>⇪</div>
                 <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 4 }}>

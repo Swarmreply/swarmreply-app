@@ -3,6 +3,7 @@
 // Webchat inbox — sessions, thread, reply, resolve
 // ============================================
 
+import { keyClick } from '../../utils/a11y';
 import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Button as KitButton } from '../../components/ui';
@@ -119,7 +120,7 @@ export default function Inbox() {
                   description="When website visitors chat with your AI agent, conversations land here." />
               </div>
             ) : sessions.map(s => (
-              <div key={s.id} onClick={() => openSession(s)} style={{
+              <div role="button" tabIndex={0} onKeyDown={keyClick} key={s.id} onClick={() => openSession(s)} style={{
                 padding: '13px 15px', borderBottom: '1px solid var(--cream, #f8f7f4)', cursor: 'pointer',
                 background: active?.id === s.id ? 'var(--cream, #f8f7f4)' : 'white',
                 borderLeft: active?.id === s.id ? '3px solid var(--ink, #0a0a0a)' : '3px solid transparent',

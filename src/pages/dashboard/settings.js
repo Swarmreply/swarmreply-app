@@ -3,6 +3,7 @@
 // Settings hub — AI Replies / Webchat / Integrations / Account / Billing / API
 // ============================================
 
+import { keyClick } from '../../utils/a11y';
 import { useState, useEffect, useRef } from 'react';
 import { FEATURES } from '../../utils/featureFlags';
 import SetupProgressCard from '../../components/SetupProgressCard';
@@ -43,7 +44,7 @@ function Card({ children, style = {} }) {
 
 function Toggle({ on, onChange }) {
   return (
-    <div onClick={() => onChange(!on)} style={{ width: 42, height: 24, background: on ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', borderRadius: 'var(--r-pill, 999px)', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0 }}>
+    <div role="switch" tabIndex={0} onKeyDown={keyClick} aria-checked={on} onClick={() => onChange(!on)} style={{ width: 42, height: 24, background: on ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', borderRadius: 'var(--r-pill, 999px)', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0 }}>
       <div style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 18, height: 18, background: 'white', borderRadius: 'var(--r-full, 50%)', transition: 'left .2s' }} />
     </div>
   );
@@ -721,7 +722,7 @@ function SearchableSelect({ value, options, onChange, disabled, placeholder }) {
     : options;
   return (
     <div ref={wrapRef} style={{ position: 'relative' }}>
-      <div
+      <div role="button" tabIndex={0} onKeyDown={keyClick}
         onClick={() => { if (!disabled) { setOpen(o => !o); setQ(''); } }}
         style={{ ...inp, cursor: disabled ? 'default' : 'pointer', display: 'flex', alignItems: 'center',
                  opacity: disabled ? .6 : 1 }}>
@@ -738,7 +739,7 @@ function SearchableSelect({ value, options, onChange, disabled, placeholder }) {
                      outline: 'none', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', boxSizing: 'border-box' }} />
           {shown.length === 0 && <div style={{ padding: '10px 14px', fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)' }}>No matches</div>}
           {shown.map(o => (
-            <div key={o} onClick={() => { onChange(o); setOpen(false); }}
+            <div role="button" tabIndex={0} onKeyDown={keyClick} key={o} onClick={() => { onChange(o); setOpen(false); }}
                  style={{ padding: '9px 14px', fontSize: 'var(--fs-base, 0.875rem)', cursor: 'pointer',
                           background: o === value ? '#f6f4f0' : '#fff', color: 'var(--ink, #0a0a0a)' }}
                  onMouseEnter={e => e.currentTarget.style.background = '#f6f4f0'}

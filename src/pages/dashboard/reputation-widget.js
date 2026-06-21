@@ -1,4 +1,5 @@
 // pages/dashboard/reputation-widget.js — Item 14
+import { keyClick } from '../../utils/a11y';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../hooks/useAuth';
@@ -139,7 +140,7 @@ export function RepWidgetPanel() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 2 }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)' }}>
-                    <div onClick={() => setShowCount(v => !v)} style={{ width: 40, height: 22, background: showCount ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', borderRadius: 'var(--r-pill, 999px)', position: 'relative', transition: 'background .2s', flexShrink: 0 }}>
+                    <div role="switch" tabIndex={0} onKeyDown={keyClick} aria-checked={showCount} onClick={() => setShowCount(v => !v)} style={{ width: 40, height: 22, background: showCount ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', borderRadius: 'var(--r-pill, 999px)', position: 'relative', transition: 'background .2s', flexShrink: 0 }}>
                       <div style={{ position: 'absolute', top: 2, left: showCount ? 20 : 2, width: 18, height: 18, background: 'white', borderRadius: 'var(--r-full, 50%)', transition: 'left .2s' }} />
                     </div>
                     Show review count

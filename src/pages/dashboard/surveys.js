@@ -5,6 +5,7 @@
 // The customer-facing /review/[token] renderer reads whatever is saved here.
 // ============================================
 
+import { keyClick } from '../../utils/a11y';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
@@ -307,7 +308,7 @@ function ContactPicker({ contacts, selected, setSelected, search, setSearch }) {
             const checked = sel.has((c.email || '').toLowerCase());
             const disabled = !!c.opted_out;
             return (
-              <div key={c.id || c.email} onClick={disabled ? undefined : () => toggle(c.email)} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 13px', borderTop: '1px solid #f5f3ef', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? .5 : 1 }}>
+              <div role="button" tabIndex={0} onKeyDown={keyClick} key={c.id || c.email} onClick={disabled ? undefined : () => toggle(c.email)} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 13px', borderTop: '1px solid #f5f3ef', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? .5 : 1 }}>
                 <span style={{ width: 17, height: 17, flexShrink: 0, borderRadius: 'var(--r-xs, 8px)', border: '1.5px solid', borderColor: checked ? 'var(--honey, #f5c842)' : '#d4cfc5', background: checked ? 'var(--honey, #f5c842)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-2xs, 0.6875rem)', color: '#1a1408', fontWeight: 900 }}>{checked ? '\u2713' : ''}</span>
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx, #1a1a18)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name || c.email}</div>
