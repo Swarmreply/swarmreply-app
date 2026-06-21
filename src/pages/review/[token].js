@@ -45,7 +45,7 @@ function classify(score, thresholds) {
   return 'passive';
 }
 
-const card = { background: 'white', borderRadius: 16, padding: '32px 28px', boxShadow: '0 4px 24px rgba(0,0,0,.08)', maxWidth: 520, width: '100%', margin: '0 auto' };
+const card = { background: 'white', borderRadius: 'var(--r-md, 16px)', padding: '32px 28px', boxShadow: '0 4px 24px rgba(0,0,0,.08)', maxWidth: 520, width: '100%', margin: '0 auto' };
 
 // 5d-1/5d-2: conditional display. A question's condition is satisfied when its
 // rule(s) match earlier answers. Choice sources match selected value(s) (is /
@@ -188,7 +188,7 @@ export default function ReviewPage({ preview }) {
       <Head><title>Share your feedback</title><meta name="viewport" content="width=device-width,initial-scale=1" /></Head>
       <div style={{ minHeight: '100vh', background: '#f4f4f0', fontFamily: 'system-ui,-apple-system,sans-serif', display: 'flex', flexDirection: 'column' }}>
         <div style={{ background: c, padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: justify }}>
-          {data.brandLogo ? <img src={data.brandLogo} alt={data.businessName} style={{ maxHeight: 48, maxWidth: 160, objectFit: 'contain' }} /> : <span style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--ink, #0a0a0a)' }}>{data.businessName}</span>}
+          {data.brandLogo ? <img src={data.brandLogo} alt={data.businessName} style={{ maxHeight: 48, maxWidth: 160, objectFit: 'contain' }} /> : <span style={{ fontWeight: 800, fontSize: 'var(--fs-lg, 1rem)', color: 'var(--ink, #0a0a0a)' }}>{data.businessName}</span>}
         </div>
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 16px' }}>
@@ -196,7 +196,7 @@ export default function ReviewPage({ preview }) {
           {phase === 'classifier' && (
             <div style={card}>
               {preview && <PreviewBanner />}
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)', marginBottom: 8, textAlign: 'center', lineHeight: 1.4 }}>{fmt(survey.classifier && survey.classifier.question)}</h2>
+              <h2 style={{ fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)', marginBottom: 8, textAlign: 'center', lineHeight: 1.4 }}>{fmt(survey.classifier && survey.classifier.question)}</h2>
               <ScaleInput classifier={survey.classifier} color={c} onPick={pickScore} />
             </div>
           )}
@@ -204,10 +204,10 @@ export default function ReviewPage({ preview }) {
           {phase === 'blocks' && currentBlock && (
             <div style={card}>
               {!isCustom && classification === 'detractor' && blockIdx === 0 && survey.messages && survey.messages.detractorOpening && (
-                <p style={{ fontSize: '.875rem', color: 'var(--tx-2, #4a4a48)', marginBottom: 20, lineHeight: 1.65 }}>{fmt(survey.messages.detractorOpening)}</p>
+                <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-2, #4a4a48)', marginBottom: 20, lineHeight: 1.65 }}>{fmt(survey.messages.detractorOpening)}</p>
               )}
               {isCustom && blockIdx === 0 && survey.messages && survey.messages.intro && (
-                <p style={{ fontSize: '.875rem', color: 'var(--tx-2, #4a4a48)', marginBottom: 20, lineHeight: 1.65 }}>{fmt(survey.messages.intro)}</p>
+                <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-2, #4a4a48)', marginBottom: 20, lineHeight: 1.65 }}>{fmt(survey.messages.intro)}</p>
               )}
               <BlockInput key={currentBlock.blockId || blockIdx} block={currentBlock} color={c} businessName={data.businessName} onAnswer={(v) => answerBlock(currentBlock, v)} />
             </div>
@@ -215,9 +215,9 @@ export default function ReviewPage({ preview }) {
 
           {phase === 'share' && (
             <div style={card}>
-              <div style={{ textAlign: 'center', fontSize: '2rem', marginBottom: 16 }}>{classification === 'promoter' ? '\uD83C\uDF1F' : '\uD83D\uDE4F'}</div>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, textAlign: 'center', marginBottom: 12 }}>Thank you!</h2>
-              <p style={{ fontSize: '.875rem', color: 'var(--tx-2, #4a4a48)', textAlign: 'center', lineHeight: 1.7, marginBottom: 28 }}>
+              <div style={{ textAlign: 'center', fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 16 }}>{classification === 'promoter' ? '\uD83C\uDF1F' : '\uD83D\uDE4F'}</div>
+              <h2 style={{ fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, textAlign: 'center', marginBottom: 12 }}>Thank you!</h2>
+              <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-2, #4a4a48)', textAlign: 'center', lineHeight: 1.7, marginBottom: 28 }}>
                 {isCustom
                   ? "Thanks for taking the time to share your feedback. If you have a moment, we'd love you to share your experience publicly too."
                   : classification === 'promoter'
@@ -226,25 +226,25 @@ export default function ReviewPage({ preview }) {
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {(data.platforms || []).map((p) => (
-                  <a key={p.id} href={p.url || '#'} style={{ display: 'block', padding: '14px 20px', borderRadius: 50, background: p.color, color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: '.9rem', textAlign: 'center' }}>{p.icon} Leave a review on {p.name}</a>
+                  <a key={p.id} href={p.url || '#'} style={{ display: 'block', padding: '14px 20px', borderRadius: 'var(--r-pill, 999px)', background: p.color, color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', textAlign: 'center' }}>{p.icon} Leave a review on {p.name}</a>
                 ))}
               </div>
-              <button onClick={() => setPhase('done')} style={{ width: '100%', marginTop: 12, padding: 10, background: 'none', border: 'none', cursor: 'pointer', fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>No thanks</button>
+              <button onClick={() => setPhase('done')} style={{ width: '100%', marginTop: 12, padding: 10, background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>No thanks</button>
             </div>
           )}
 
           {phase === 'done' && (
             <div style={{ ...card, textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>{'\uD83D\uDE4F'}</div>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 8 }}>Thank you for your feedback!</h2>
-              <p style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>Your response has been recorded. We appreciate you taking the time.</p>
+              <div style={{ fontSize: 'var(--fs-4xl, 2.5rem)', marginBottom: 16 }}>{'\uD83D\uDE4F'}</div>
+              <h2 style={{ fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, marginBottom: 8 }}>Thank you for your feedback!</h2>
+              <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>Your response has been recorded. We appreciate you taking the time.</p>
             </div>
           )}
 
         </div>
 
         <div style={{ background: c, padding: '12px 24px', textAlign: 'center' }}>
-          <span style={{ fontSize: '.68rem', color: 'var(--ink, #0a0a0a)', opacity: .6 }}>Powered by <a href="https://swarmreply.com" style={{ color: 'var(--ink, #0a0a0a)', opacity: .6, textDecoration: 'none' }}>SwarmReply</a></span>
+          <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--ink, #0a0a0a)', opacity: .6 }}>Powered by <a href="https://swarmreply.com" style={{ color: 'var(--ink, #0a0a0a)', opacity: .6, textDecoration: 'none' }}>SwarmReply</a></span>
         </div>
       </div>
     </>
@@ -262,7 +262,7 @@ function ScaleInput({ classifier, color, onPick }) {
     return (
       <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginTop: 10 }}>
         {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} onClick={() => pick(n)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '2.4rem', lineHeight: 1, padding: 2, transition: 'transform .1s', transform: sel === n ? 'scale(1.15)' : 'scale(1)', color: sel != null && n <= sel ? 'var(--honey, #f5c842)' : '#dcd8d0' }}>★</button>
+          <button key={n} onClick={() => pick(n)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-4xl, 2.5rem)', lineHeight: 1, padding: 2, transition: 'transform .1s', transform: sel === n ? 'scale(1.15)' : 'scale(1)', color: sel != null && n <= sel ? 'var(--honey, #f5c842)' : '#dcd8d0' }}>★</button>
         ))}
       </div>
     );
@@ -271,7 +271,7 @@ function ScaleInput({ classifier, color, onPick }) {
     return (
       <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginTop: 10 }}>
         {SMILEYS.map((e, i) => (
-          <button key={i} onClick={() => pick(i + 1)} style={{ background: sel === i + 1 ? color : 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.9rem', borderRadius: 12, padding: '6px 8px', transition: 'all .12s', transform: sel === i + 1 ? 'scale(1.1)' : 'scale(1)' }}>{e}</button>
+          <button key={i} onClick={() => pick(i + 1)} style={{ background: sel === i + 1 ? color : 'transparent', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-3xl, 2rem)', borderRadius: 'var(--r-md, 16px)', padding: '6px 8px', transition: 'all .12s', transform: sel === i + 1 ? 'scale(1.1)' : 'scale(1)' }}>{e}</button>
         ))}
       </div>
     );
@@ -280,7 +280,7 @@ function ScaleInput({ classifier, color, onPick }) {
     return (
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 10 }}>
         {[1, 2, 3, 4, 5].map((n) => (
-          <button key={n} onClick={() => pick(n)} style={{ width: 48, height: 48, borderRadius: 12, border: '1.5px solid', borderColor: sel === n ? color : 'var(--line, #e4e0d8)', background: sel === n ? color : 'white', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', color: sel === n ? 'var(--ink, #0a0a0a)' : 'var(--tx-2, #4a4a48)', transition: 'all .12s' }}>{n}</button>
+          <button key={n} onClick={() => pick(n)} style={{ width: 48, height: 48, borderRadius: 'var(--r-md, 16px)', border: '1.5px solid', borderColor: sel === n ? color : 'var(--line, #e4e0d8)', background: sel === n ? color : 'white', fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', cursor: 'pointer', color: sel === n ? 'var(--ink, #0a0a0a)' : 'var(--tx-2, #4a4a48)', transition: 'all .12s' }}>{n}</button>
         ))}
       </div>
     );
@@ -290,13 +290,13 @@ function ScaleInput({ classifier, color, onPick }) {
   for (let i = 0; i <= 10; i++) nums.push(i);
   return (
     <>
-      <p style={{ fontSize: '.82rem', color: 'var(--taupe, #7a7670)', textAlign: 'center', margin: '0 0 18px' }}>Tap a number below</p>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', textAlign: 'center', margin: '0 0 18px' }}>Tap a number below</p>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10 }}>
         {nums.map((n) => (
-          <button key={n} onClick={() => pick(n)} style={{ width: 40, height: 40, borderRadius: 10, border: '1.5px solid', borderColor: sel === n ? color : 'var(--line, #e4e0d8)', background: sel === n ? color : 'white', fontWeight: 700, fontSize: '.85rem', cursor: 'pointer', color: sel === n ? 'var(--ink, #0a0a0a)' : 'var(--tx-2, #4a4a48)', transition: 'all .12s' }}>{n}</button>
+          <button key={n} onClick={() => pick(n)} style={{ width: 40, height: 40, borderRadius: 'var(--r-sm, 10px)', border: '1.5px solid', borderColor: sel === n ? color : 'var(--line, #e4e0d8)', background: sel === n ? color : 'white', fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', cursor: 'pointer', color: sel === n ? 'var(--ink, #0a0a0a)' : 'var(--tx-2, #4a4a48)', transition: 'all .12s' }}>{n}</button>
         ))}
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.72rem', color: 'var(--taupe, #7a7670)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
         <span>{(classifier && classifier.lowLabel) || 'Not likely'}</span>
         <span>{(classifier && classifier.highLabel) || 'Extremely likely'}</span>
       </div>
@@ -312,13 +312,13 @@ function BlockInput({ block, color, businessName, onAnswer }) {
   const [contact, setContact] = useState({});
   const q = (block.question || '').replace(/\{business\}/g, businessName || '');
   const type = block.type;
-  const labelStyle = { display: 'block', fontSize: '1.05rem', fontWeight: 700, textAlign: 'center', marginBottom: 20, lineHeight: 1.5, color: 'var(--ink, #0a0a0a)' };
+  const labelStyle = { display: 'block', fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, textAlign: 'center', marginBottom: 20, lineHeight: 1.5, color: 'var(--ink, #0a0a0a)' };
 
   if (type === 'open_text') {
     return (
       <div>
         <label style={labelStyle}>{q}</label>
-        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 16 }} placeholder="Type your answer…" />
+        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 16 }} placeholder="Type your answer…" />
         <ContinueBtn color={color} onClick={() => onAnswer({ text: text.trim() })} />
       </div>
     );
@@ -345,7 +345,7 @@ function BlockInput({ block, color, businessName, onAnswer }) {
           <label style={labelStyle}>{q}</label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
             {options.map((o) => (
-              <button key={o} onClick={() => toggle(o)} style={{ padding: '12px 16px', borderRadius: 10, border: '1.5px solid', borderColor: opts.includes(o) ? color : 'var(--line, #e4e0d8)', background: opts.includes(o) ? '#fffbe9' : 'white', cursor: 'pointer', fontWeight: 600, fontSize: '.875rem', textAlign: 'left', fontFamily: 'inherit' }}>{opts.includes(o) ? '\u2713 ' : ''}{o}</button>
+              <button key={o} onClick={() => toggle(o)} style={{ padding: '12px 16px', borderRadius: 'var(--r-sm, 10px)', border: '1.5px solid', borderColor: opts.includes(o) ? color : 'var(--line, #e4e0d8)', background: opts.includes(o) ? '#fffbe9' : 'white', cursor: 'pointer', fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', textAlign: 'left', fontFamily: 'inherit' }}>{opts.includes(o) ? '\u2713 ' : ''}{o}</button>
             ))}
           </div>
           <ContinueBtn color={color} onClick={() => onAnswer({ options: opts, text: opts.join(', ') })} />
@@ -357,7 +357,7 @@ function BlockInput({ block, color, businessName, onAnswer }) {
         <label style={labelStyle}>{q}</label>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {options.map((o) => (
-            <button key={o} onClick={() => onAnswer({ text: o, options: [o] })} style={{ padding: '13px 16px', borderRadius: 10, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: '.875rem', textAlign: 'left', fontFamily: 'inherit', transition: 'all .1s' }}>{o}</button>
+            <button key={o} onClick={() => onAnswer({ text: o, options: [o] })} style={{ padding: '13px 16px', borderRadius: 'var(--r-sm, 10px)', border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', textAlign: 'left', fontFamily: 'inherit', transition: 'all .1s' }}>{o}</button>
           ))}
         </div>
       </div>
@@ -379,7 +379,7 @@ function BlockInput({ block, color, businessName, onAnswer }) {
     return (
       <div>
         <label style={labelStyle}>{q}</label>
-        <select value={text} onChange={(e) => setText(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16, background: 'white' }}>
+        <select value={text} onChange={(e) => setText(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16, background: 'white' }}>
           <option value="">Choose…</option>
           {options.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
@@ -392,7 +392,7 @@ function BlockInput({ block, color, businessName, onAnswer }) {
     return (
       <div>
         <label style={labelStyle}>{q}</label>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
         <ContinueBtn color={color} onClick={() => onAnswer({ text: date || null })} />
       </div>
     );
@@ -401,7 +401,7 @@ function BlockInput({ block, color, businessName, onAnswer }) {
   if (type === 'contact') {
     const fields = block.fields || ['name', 'email', 'phone'];
     const fieldInput = (key, ph, inputType) => fields.includes(key) ? (
-      <input key={key} type={inputType} value={contact[key] || ''} onChange={(e) => setContact({ ...contact, [key]: e.target.value })} placeholder={ph} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 10 }} />
+      <input key={key} type={inputType} value={contact[key] || ''} onChange={(e) => setContact({ ...contact, [key]: e.target.value })} placeholder={ph} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 10 }} />
     ) : null;
     const filled = fields.map((k) => contact[k]).filter(Boolean);
     return (
@@ -420,8 +420,8 @@ function BlockInput({ block, color, businessName, onAnswer }) {
   if (type === 'section') {
     return (
       <div>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--ink, #0a0a0a)', textAlign: 'center', marginBottom: block.description ? 10 : 22, lineHeight: 1.4 }}>{q}</h3>
-        {block.description ? <p style={{ fontSize: '.9rem', color: 'var(--tx-2, #4a4a48)', textAlign: 'center', lineHeight: 1.65, marginBottom: 22 }}>{block.description.replace(/\{business\}/g, businessName || '')}</p> : null}
+        <h3 style={{ fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 800, color: 'var(--ink, #0a0a0a)', textAlign: 'center', marginBottom: block.description ? 10 : 22, lineHeight: 1.4 }}>{q}</h3>
+        {block.description ? <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-2, #4a4a48)', textAlign: 'center', lineHeight: 1.65, marginBottom: 22 }}>{block.description.replace(/\{business\}/g, businessName || '')}</p> : null}
         <ContinueBtn color={color} onClick={() => onAnswer({ section: true })} />
       </div>
     );
@@ -437,13 +437,13 @@ function BlockInput({ block, color, businessName, onAnswer }) {
 }
 
 function ContinueBtn({ color, onClick, label }) {
-  return <button onClick={onClick} style={{ width: '100%', padding: 13, borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '.9rem', fontFamily: 'inherit' }}>{label || 'Continue'}</button>;
+  return <button onClick={onClick} style={{ width: '100%', padding: 13, borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit' }}>{label || 'Continue'}</button>;
 }
 
 function choiceBtn(bg, border, fg) {
-  return { flex: 1, padding: 14, borderRadius: 12, background: bg, border: '1.5px solid ' + border, cursor: 'pointer', fontWeight: 700, fontSize: '.875rem', color: fg, fontFamily: 'inherit' };
+  return { flex: 1, padding: 14, borderRadius: 'var(--r-md, 16px)', background: bg, border: '1.5px solid ' + border, cursor: 'pointer', fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', color: fg, fontFamily: 'inherit' };
 }
 
 function PreviewBanner() {
-  return <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 8, padding: '8px 12px', marginBottom: 20, fontSize: '.78rem', color: 'var(--amber-tx, #92690a)', fontWeight: 600 }}>Preview mode — this is how your customers will see the survey</div>;
+  return <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 'var(--r-xs, 8px)', padding: '8px 12px', marginBottom: 20, fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--amber-tx, #92690a)', fontWeight: 600 }}>Preview mode — this is how your customers will see the survey</div>;
 }
