@@ -149,6 +149,15 @@ button:active:not(:disabled) { transform: scale(.97); }
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
+.grid-responsive-5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1024px) { .grid-responsive-5 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .grid-responsive-5 { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+@media (max-width: 420px)  { .grid-responsive-5 { grid-template-columns: 1fr 1fr; gap: 8px; } }
+
 
 /* ── TABLE SCROLL WRAPPER ── */
 .table-scroll {
