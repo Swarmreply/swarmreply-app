@@ -251,6 +251,22 @@ function SendSurvey({ onBack }) {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null);
   const [err, setErr] = useState('');
+  const [when, setWhen] = useState('now');
+  const [schedDate, setSchedDate] = useState(() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); });
+  const [schedTime, setSchedTime] = useState('09:00');
+  const [scheduled, setScheduled] = useState([]);
+
+  function loadScheduled() {
+    axios.get(`${API}/campaigns/survey-scheduled`, { headers: authHeaders() })
+      .then((r) => setScheduled(r.data.scheduled || []))
+      .catch(() => {});
+  }
+  async function cancelScheduled(id) {
+    try { await axios.delete(`${API}/campaigns/survey-scheduled/${id}`, { headers: authHeaders() }); } catch (e) {}
+    loadScheduled();
+  }
+
+  useEffect(() => { loadScheduled(); }, []);
 
   useEffect(() => {
     Promise.all([
@@ -276,9 +292,20 @@ function SendSurvey({ onBack }) {
 
   async function send() {
     setSending(true); setErr(''); setResult(null);
+    let sendAt = null;
+    if (when === 'later') {
+      if (!schedDate || !schedTime) { setErr('Pick a date and time to schedule.'); setSending(false); return; }
+      const dt = new Date(`${schedDate}T${schedTime}`);
+      if (isNaN(dt.getTime())) { setErr('That date or time isn\u2019t valid.'); setSending(false); return; }
+      if (dt.getTime() <= Date.now() + 60000) { setErr('Pick a time at least a minute from now.'); setSending(false); return; }
+      sendAt = dt.toISOString();
+    }
     try {
-      const r = await axios.post(`${API}/campaigns/survey-send`, { segment, surveyTemplateId: selectedId }, { headers: authHeaders() });
+      const body = { segment, surveyTemplateId: selectedId };
+      if (sendAt) body.sendAt = sendAt;
+      const r = await axios.post(`${API}/campaigns/survey-send`, body, { headers: authHeaders() });
       setResult(r.data);
+      loadScheduled();
     } catch (e) { setErr(e.response?.data?.error || e.message || 'Send failed'); }
     setSending(false);
   }
@@ -293,18 +320,15 @@ function SendSurvey({ onBack }) {
       <div style={{ maxWidth: 620, margin: '0 auto', padding: '8px 0 60px' }}>
         {result ? (
           <Card style={{ padding: 28, textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', marginBottom: 8 }}>{'\u2713'}</div>
-            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#1a1a18', marginBottom: 8 }}>Survey sent</div>
+            <div style={{ fontSize: '2rem', marginBottom: 8 }}>{result.scheduled ? '\u23F0' : '\u2713'}</div>
+            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#1a1a18', marginBottom: 8 }}>{result.scheduled ? 'Survey scheduled' : 'Survey sent'}</div>
             <p style={{ fontSize: '.88rem', color: '#4a4a48', lineHeight: 1.6, margin: '0 0 20px' }}>
-              {result.audience === 0
-                ? 'No contacts with an email in that segment yet.'
-                : `Sent to ${result.sent} ${result.sent === 1 ? 'contact' : 'contacts'}.`}
-              {result.skipped ? ` ${result.skipped} skipped (opted out).` : ''}
-              {result.failed ? ` ${result.failed} failed.` : ''}
-              {result.capped ? " Reached your monthly email limit — the rest weren't sent." : ''}
+              {result.scheduled
+                ? `It'll send ${result.sendAt ? new Date(result.sendAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'at the scheduled time'}. You can cancel it below any time before then.`
+                : <>{result.audience === 0 ? 'No contacts with an email in that segment yet.' : `Sent to ${result.sent} ${result.sent === 1 ? 'contact' : 'contacts'}.`}{result.skipped ? ` ${result.skipped} skipped (opted out).` : ''}{result.failed ? ` ${result.failed} failed.` : ''}{result.capped ? " Reached your monthly email limit — the rest weren't sent." : ''}</>}
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-              <Button variant="gold" onClick={() => setResult(null)}>Send another</Button>
+              <Button variant="gold" onClick={() => setResult(null)}>{result.scheduled ? 'Schedule another' : 'Send another'}</Button>
               <Button variant="ghost" onClick={onBack}>Done</Button>
             </div>
           </Card>
@@ -367,14 +391,54 @@ function SendSurvey({ onBack }) {
               <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '12px 0 0' }}>Preview only — texting turns on once SMS is approved.</p>
             </Card>
 
+            <Card style={{ padding: 24, marginBottom: 16 }}>
+              <SectionLabel>When</SectionLabel>
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                <ChannelChip active={when === 'now'} label="Send now" sub="Goes out immediately" onClick={() => setWhen('now')} />
+                <ChannelChip active={when === 'later'} label="Schedule for later" sub="Pick a date & time" onClick={() => setWhen('later')} />
+              </div>
+              {when === 'later' && (
+                <>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: 150 }}>
+                      <label style={{ fontSize: '.74rem', fontWeight: 700, color: '#7a7670', display: 'block', marginBottom: 4 }}>Date</label>
+                      <input type="date" value={schedDate} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setSchedDate(e.target.value)} style={{ ...input, background: 'white' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 120 }}>
+                      <label style={{ fontSize: '.74rem', fontWeight: 700, color: '#7a7670', display: 'block', marginBottom: 4 }}>Time</label>
+                      <input type="time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} style={{ ...input, background: 'white' }} />
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '12px 0 0' }}>Uses this device's clock. It'll appear under Scheduled sends below until it goes out — you can cancel it any time before then.</p>
+                </>
+              )}
+            </Card>
+
             {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <Button variant="gold" onClick={send} disabled={sending || !selectedId || !channels.email}>{sending ? 'Sending…' : 'Send survey'}</Button>
+              <Button variant="gold" onClick={send} disabled={sending || !selectedId || !channels.email}>{sending ? (when === 'later' ? 'Scheduling…' : 'Sending…') : (when === 'later' ? 'Schedule survey' : 'Send survey')}</Button>
               {!channels.email && <span style={{ fontSize: '.8rem', color: '#a8a39a' }}>Turn on a channel to send.</span>}
             </div>
             <p style={{ fontSize: '.78rem', color: '#a8a39a', lineHeight: 1.6, marginTop: 18 }}>Survey emails count toward your 5,000-per-location monthly email allowance, shared with review requests.</p>
           </>
+        )}
+
+        {scheduled.length > 0 && (
+          <Card style={{ padding: 24, marginTop: 8 }}>
+            <SectionLabel>Scheduled sends</SectionLabel>
+            <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {scheduled.map((s) => (
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, border: '1px solid #f0eeea', borderRadius: 10, padding: '11px 14px' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 600, fontSize: '.88rem', color: '#1a1a18', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.survey_name || 'Default survey'} <span style={{ color: '#a8a39a', fontWeight: 500 }}>{'\u2192'} {s.segment === 'all' ? 'All contacts' : s.segment}</span></div>
+                    <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2 }}>{new Date(s.send_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                  </div>
+                  <button onClick={() => cancelScheduled(s.id)} style={{ flexShrink: 0, padding: '7px 13px', borderRadius: 8, border: '1.5px solid #e4e0d8', background: 'white', color: '#7a7670', fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer' }}>Cancel</button>
+                </div>
+              ))}
+            </div>
+          </Card>
         )}
       </div>
     </DashboardLayout>
