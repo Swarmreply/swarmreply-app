@@ -33,7 +33,7 @@ export default function ForgotPassword() {
     }
   }
 
-  const card = { background: 'white', border: '1px solid var(--line, #e4e0d8)', borderRadius: 20,
+  const card = { background: 'white', border: '1px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)',
     boxShadow: '0 8px 40px rgba(0,0,0,.07)', overflow: 'hidden' };
 
   return (
@@ -48,7 +48,7 @@ export default function ForgotPassword() {
         <div style={{ width: '100%', maxWidth: 420 }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
             <a href="https://swarmreply.com" style={{ fontFamily: 'Playfair Display, serif',
-              fontSize: '1.5rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
+              fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
               textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 9 }}>
               🐝 SwarmReply
             </a>
@@ -58,15 +58,15 @@ export default function ForgotPassword() {
             {!submitted ? (
               <>
                 <div style={{ padding: '28px 32px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
-                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem',
+                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 'var(--fs-2xl, 1.5rem)',
                     fontWeight: 900, marginBottom: 6 }}>Reset your password</div>
-                  <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem', lineHeight: 1.65, margin: 0 }}>
+                  <p style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)', lineHeight: 1.65, margin: 0 }}>
                     Enter your email and we'll send you a reset link.
                   </p>
                 </div>
                 <form onSubmit={handleSubmit} style={{ padding: '24px 32px 28px' }}>
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
+                    <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700,
                       letterSpacing: '.08em', textTransform: 'uppercase',
                       color: 'var(--taupe, #7a7670)', marginBottom: 6 }}>Email address</label>
                     <input
@@ -74,26 +74,26 @@ export default function ForgotPassword() {
                       placeholder="you@yourbusiness.com"
                       required autoFocus
                       style={{ width: '100%', padding: '12px 14px',
-                        border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10,
-                        fontSize: 16, fontFamily: 'inherit', outline: 'none' }}
+                        border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)',
+                        fontSize: 'var(--fs-lg, 1rem)', fontFamily: 'inherit', outline: 'none' }}
                     />
                   </div>
                   {error && (
                     <div style={{ background: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)', border: '1px solid #f5c6c6',
-                      borderRadius: 10, padding: '10px 12px', fontSize: '.82rem', marginBottom: 12 }}>
+                      borderRadius: 'var(--r-sm, 10px)', padding: '10px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', marginBottom: 12 }}>
                       {error}
                     </div>
                   )}
                   <button type="submit" disabled={loading} style={{
-                    width: '100%', padding: 13, borderRadius: 50,
+                    width: '100%', padding: 13, borderRadius: 'var(--r-pill, 999px)',
                     background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none',
                     cursor: loading ? 'not-allowed' : 'pointer',
-                    fontSize: '.95rem', fontWeight: 700,
+                    fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700,
                     fontFamily: 'inherit', opacity: loading ? .6 : 1 }}>
                     {loading ? 'Sending...' : 'Send reset link →'}
                   </button>
                   <p style={{ textAlign: 'center', marginTop: 14,
-                    fontSize: '.78rem', color: 'var(--taupe, #7a7670)', margin: '14px 0 0' }}>
+                    fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', margin: '14px 0 0' }}>
                     <Link href="/login" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600 }}>
                       Back to login
                     </Link>
@@ -102,18 +102,18 @@ export default function ForgotPassword() {
               </>
             ) : (
               <div style={{ padding: 40, textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, borderRadius: '50%',
+                <div style={{ width: 56, height: 56, borderRadius: 'var(--r-full, 50%)',
                   background: 'var(--green-bg, #e8f5ef)', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', margin: '0 auto 16px', fontSize: '1.3rem' }}>
+                  justifyContent: 'center', margin: '0 auto 16px', fontSize: 'var(--fs-xl, 1.25rem)' }}>
                   ✓
                 </div>
-                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem',
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 'var(--fs-xl, 1.25rem)',
                   fontWeight: 900, marginBottom: 10 }}>Check your email</div>
-                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem', lineHeight: 1.7, marginBottom: 24 }}>
+                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)', lineHeight: 1.7, marginBottom: 24 }}>
                   If <strong>{email}</strong> has a SwarmReply account, a reset
                   link is on its way. Check your inbox and spam folder.
                 </p>
-                <Link href="/login" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600, fontSize: '.875rem' }}>
+                <Link href="/login" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>
                   Back to login →
                 </Link>
               </div>

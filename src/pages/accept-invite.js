@@ -112,8 +112,8 @@ export default function AcceptInvite() {
 
   const inp = {
     width: '100%', padding: '12px 14px',
-    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10,
-    fontSize: 16, fontFamily: 'DM Sans, sans-serif',
+    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)',
+    fontSize: 'var(--fs-lg, 1rem)', fontFamily: 'DM Sans, sans-serif',
     outline: 'none', transition: 'border-color .15s',
   };
 
@@ -139,7 +139,7 @@ export default function AcceptInvite() {
             <a href="https://swarmreply.com" style={{
               display: 'inline-flex', alignItems: 'center', gap: 10,
               fontFamily: 'Playfair Display, serif',
-              fontSize: '1.5rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
+              fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
               textDecoration: 'none',
             }}>
               <BEE /> SwarmReply
@@ -149,30 +149,30 @@ export default function AcceptInvite() {
           {/* Card */}
           <div style={{
             background: 'white', border: '1px solid var(--line, #e4e0d8)',
-            borderRadius: 20, overflow: 'hidden',
+            borderRadius: 'var(--r-md, 16px)', overflow: 'hidden',
             boxShadow: '0 8px 40px rgba(0,0,0,.07)',
           }}>
 
             {/* Loading */}
             {step === 'loading' && (
               <div style={{ padding: 48, textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
-                <div style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem' }}>Validating your invite...</div>
+                <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 12 }}>🐝</div>
+                <div style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>Validating your invite...</div>
               </div>
             )}
 
             {/* Error */}
             {step === 'error' && (
               <div style={{ padding: 40, textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--danger-bg, #fee2e2)',
+                <div style={{ width: 56, height: 56, borderRadius: 'var(--r-full, 50%)', background: 'var(--danger-bg, #fee2e2)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 16px', fontSize: '1.4rem' }}>!</div>
-                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem',
+                  margin: '0 auto 16px', fontSize: 'var(--fs-2xl, 1.5rem)' }}>!</div>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 'var(--fs-xl, 1.25rem)',
                   fontWeight: 900, marginBottom: 10 }}>Link expired</div>
-                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem', lineHeight: 1.7, marginBottom: 24 }}>
+                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)', lineHeight: 1.7, marginBottom: 24 }}>
                   {error}
                 </p>
-                <a href="/login" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600, fontSize: '.875rem' }}>
+                <a href="/login" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>
                   Go to login →
                 </a>
               </div>
@@ -181,13 +181,13 @@ export default function AcceptInvite() {
             {/* Success */}
             {step === 'success' && (
               <div style={{ padding: 48, textAlign: 'center' }}>
-                <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'var(--green-bg, #e8f5ef)',
+                <div style={{ width: 60, height: 60, borderRadius: 'var(--r-full, 50%)', background: 'var(--green-bg, #e8f5ef)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  margin: '0 auto 16px', fontSize: '1.5rem' }}>✓</div>
-                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', fontWeight: 900, marginBottom: 8 }}>
+                  margin: '0 auto 16px', fontSize: 'var(--fs-2xl, 1.5rem)' }}>✓</div>
+                <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 900, marginBottom: 8 }}>
                   Welcome to the swarm!
                 </div>
-                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '.875rem' }}>Taking you to the dashboard...</p>
+                <p style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>Taking you to the dashboard...</p>
               </div>
             )}
 
@@ -196,12 +196,12 @@ export default function AcceptInvite() {
               <>
                 {/* Header */}
                 <div style={{ padding: '28px 32px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
-                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem',
+                  <div style={{ fontFamily: 'Playfair Display, serif', fontSize: 'var(--fs-2xl, 1.5rem)',
                     fontWeight: 900, marginBottom: 6 }}>
                     You've been invited
                   </div>
                   {inviteData?.name && (
-                    <div style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.65 }}>
+                    <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.65 }}>
                       Hi <strong style={{ color: 'var(--ink, #0a0a0a)' }}>{inviteData.name}</strong> — set
                       your password to activate your SwarmReply account.
                     </div>
@@ -214,10 +214,10 @@ export default function AcceptInvite() {
                     borderBottom: '1px solid var(--cream-2, #f0eeea)', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{
                       background: rm.color, color: rm.text,
-                      fontSize: '.7rem', fontWeight: 700,
-                      padding: '3px 10px', borderRadius: 50,
+                      fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700,
+                      padding: '3px 10px', borderRadius: 'var(--r-pill, 999px)',
                     }}>{rm.label}</span>
-                    <span style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>{rm.desc}</span>
+                    <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{rm.desc}</span>
                   </div>
                 )}
 
@@ -225,7 +225,7 @@ export default function AcceptInvite() {
                 <form onSubmit={handleSubmit} style={{ padding: '24px 32px 28px' }}>
                   {inviteData?.email && (
                     <div style={{ marginBottom: 16 }}>
-                      <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
+                      <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700,
                         letterSpacing: '.08em', textTransform: 'uppercase',
                         color: 'var(--taupe, #7a7670)', marginBottom: 6 }}>Email</label>
                       <div style={{ ...inp, background: 'var(--cream, #f8f7f4)', color: 'var(--taupe, #7a7670)',
@@ -237,7 +237,7 @@ export default function AcceptInvite() {
 
                   {/* Password */}
                   <div style={{ marginBottom: 16 }}>
-                    <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
+                    <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700,
                       letterSpacing: '.08em', textTransform: 'uppercase',
                       color: 'var(--taupe, #7a7670)', marginBottom: 6 }}>Choose a password</label>
                     <div style={{ position: 'relative' }}>
@@ -256,18 +256,18 @@ export default function AcceptInvite() {
                         position: 'absolute', right: 12, top: '50%',
                         transform: 'translateY(-50%)', background: 'none',
                         border: 'none', cursor: 'pointer', color: 'var(--taupe, #7a7670)',
-                        fontSize: '.8rem', padding: 4,
+                        fontSize: 'var(--fs-sm, 0.8125rem)', padding: 4,
                       }}>{showPw ? 'Hide' : 'Show'}</button>
                     </div>
                     {/* Strength bar */}
                     {pwStrength && (
                       <div style={{ marginTop: 8 }}>
-                        <div style={{ height: 4, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden' }}>
+                        <div style={{ height: 4, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden' }}>
                           <div style={{ width: pwStrength.pct, height: '100%',
-                            background: pwStrength.color, borderRadius: 50,
+                            background: pwStrength.color, borderRadius: 'var(--r-pill, 999px)',
                             transition: 'width .3s, background .3s' }} />
                         </div>
-                        <div style={{ fontSize: '.7rem', color: pwStrength.color,
+                        <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: pwStrength.color,
                           fontWeight: 600, marginTop: 4 }}>{pwStrength.label}</div>
                       </div>
                     )}
@@ -275,7 +275,7 @@ export default function AcceptInvite() {
 
                   {/* Confirm */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700,
+                    <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700,
                       letterSpacing: '.08em', textTransform: 'uppercase',
                       color: 'var(--taupe, #7a7670)', marginBottom: 6 }}>Confirm password</label>
                     <input
@@ -294,7 +294,7 @@ export default function AcceptInvite() {
                         confirm && password !== confirm ? 'var(--danger, #c0392b)' : 'var(--line, #e4e0d8)'}
                     />
                     {confirm && password && confirm !== password && (
-                      <div style={{ fontSize: '.72rem', color: 'var(--danger, #c0392b)', marginTop: 4 }}>
+                      <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--danger, #c0392b)', marginTop: 4 }}>
                         Passwords don't match
                       </div>
                     )}
@@ -303,17 +303,17 @@ export default function AcceptInvite() {
                   {/* Error */}
                   {error && (
                     <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca',
-                      borderRadius: 9, padding: '10px 14px', fontSize: '.82rem',
+                      borderRadius: 'var(--r-xs, 8px)', padding: '10px 14px', fontSize: 'var(--fs-sm, 0.8125rem)',
                       color: 'var(--danger, #c0392b)', marginBottom: 16, lineHeight: 1.5 }}>
                       {error}
                     </div>
                   )}
 
                   <button type="submit" disabled={submitting} style={{
-                    width: '100%', padding: '13px 0', borderRadius: 50,
+                    width: '100%', padding: '13px 0', borderRadius: 'var(--r-pill, 999px)',
                     background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none',
                     cursor: submitting ? 'not-allowed' : 'pointer',
-                    fontSize: '.95rem', fontWeight: 700,
+                    fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700,
                     fontFamily: 'DM Sans, sans-serif',
                     opacity: submitting ? .6 : 1, transition: 'opacity .15s',
                   }}>
@@ -321,7 +321,7 @@ export default function AcceptInvite() {
                   </button>
 
                   <p style={{ textAlign: 'center', marginTop: 14,
-                    fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
+                    fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
                     Already have an account?{' '}
                     <a href="/login" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600 }}>Log in</a>
                   </p>

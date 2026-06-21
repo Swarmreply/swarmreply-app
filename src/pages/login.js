@@ -15,8 +15,8 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--cream, #f8f7f4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)', marginBottom: 8 }}>SwarmReply</div>
-        <div style={{ fontSize: '.9rem', color: 'var(--taupe, #7a7670)' }}>Taking you to the login page&hellip;</div>
+        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900, color: 'var(--ink, #0a0a0a)', marginBottom: 8 }}>SwarmReply</div>
+        <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)' }}>Taking you to the login page&hellip;</div>
       </div>
     </div>
   );
