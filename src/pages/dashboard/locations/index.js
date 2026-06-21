@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../../components/DashboardLayout';
 import { useAuth } from '../../../hooks/useAuth';
 import { getLocations, getGoogleAuthUrl, setLocationActive } from '../../../utils/api';
+import { Card, Button, EmptyState } from '../../../components/ui';
 
 const TYPE_LABELS = {
   restaurant: 'Restaurant / Food & Beverage',
@@ -88,11 +89,7 @@ export default function Locations() {
               Each active location is monitored by SwarmReply and billed on your subscription.
             </p>
           </div>
-          <a href="/dashboard/locations/add" style={{
-            background: 'var(--ink, #0a0a0a)', color: 'white', textDecoration: 'none',
-            borderRadius: 50, padding: '12px 22px', fontSize: '0.9rem',
-            fontWeight: 600, fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap'
-          }}>+ Add location</a>
+          <Button href="/dashboard/locations/add" variant="dark">+ Add location</Button>
         </div>
 
         {error && (
@@ -112,33 +109,19 @@ export default function Locations() {
 
         {/* Empty state */}
         {locations && locations.length === 0 && !error && (
-          <div style={{
-            background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
-            borderRadius: 16, padding: 48, textAlign: 'center'
-          }}>
-            <img src="/bee-logo.png" alt="" style={{ width: 56, height: 56, objectFit: 'contain', marginBottom: 12, opacity: .92 }} />
-            <h3 style={{
-              fontFamily: 'Playfair Display, serif',
-              fontSize: '1.3rem', fontWeight: 700, marginBottom: 8
-            }}>No locations yet</h3>
-            <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '0.9rem', marginBottom: 24 }}>
-              Add your first business location to start collecting and replying to reviews.
-            </p>
-            <a href="/dashboard/locations/add" style={{
-              display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
-              textDecoration: 'none', borderRadius: 50, padding: '14px 28px',
-              fontSize: '0.95rem', fontWeight: 600, fontFamily: 'DM Sans, sans-serif'
-            }}>Add a location →</a>
-          </div>
+          <Card pad={0}>
+            <EmptyState
+              title="No locations yet"
+              body="Add your first business location to start collecting and replying to reviews."
+              actionLabel="Add a location →"
+              href="/dashboard/locations/add"
+            />
+          </Card>
         )}
 
         {/* Location cards */}
         {locations && locations.map(loc => (
-          <div key={loc.id} style={{
-            background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
-            borderRadius: 14, padding: '20px 24px', marginBottom: 14,
-            opacity: loc.is_active ? 1 : 0.65
-          }}>
+          <Card key={loc.id} pad="20px 24px" style={{ marginBottom: 14, opacity: loc.is_active ? 1 : 0.65 }}>
             <div style={{
               display: 'flex', justifyContent: 'space-between',
               alignItems: 'flex-start', gap: 16, flexWrap: 'wrap'
@@ -163,31 +146,19 @@ export default function Locations() {
 
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {loc.is_active && !loc.google_connected && (
-                  <button
-                    onClick={() => handleFinishSetup(loc)}
-                    style={{
-                      background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none',
-                      borderRadius: 50, padding: '9px 18px', fontSize: '0.82rem',
-                      fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
-                    }}
-                  >Finish setup →</button>
+                  <Button onClick={() => handleFinishSetup(loc)} variant="dark" size="sm">Finish setup →</Button>
                 )}
-                <button
+                <Button
                   onClick={() => handleToggleActive(loc)}
                   disabled={busyId === loc.id}
-                  style={{
-                    background: 'transparent', color: 'var(--taupe, #7a7670)',
-                    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 50,
-                    padding: '9px 18px', fontSize: '0.82rem', fontWeight: 600,
-                    cursor: busyId === loc.id ? 'wait' : 'pointer',
-                    fontFamily: 'DM Sans, sans-serif'
-                  }}
+                  variant="ghost"
+                  size="sm"
                 >
                   {busyId === loc.id ? 'Updating…' : (loc.is_active ? 'Deactivate' : 'Reactivate')}
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
         ))}
 
         {/* Footer note */}
