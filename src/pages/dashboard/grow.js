@@ -1255,10 +1255,16 @@ function ImportTab() {
   const [autoSurvey, setAutoSurvey] = useState(false);
   const [surveyId, setSurveyId] = useState('');
   const [delayDays, setDelayDays] = useState(3);
+  const [locations, setLocations] = useState([]);
+  const [importLocationId, setImportLocationId] = useState('');
 
   const API = process.env.NEXT_PUBLIC_API_URL;
 
-  useEffect(() => { loadHistory(); loadSurveys(); }, []);
+  useEffect(() => { loadHistory(); loadSurveys(); loadLocations(); }, []);
+
+  async function loadLocations() {
+    try { const r = await axios.get(`${API}/locations`, { headers: authHeaders() }); setLocations(r.data.locations || []); } catch (e) { /* single-location or unavailable */ }
+  }
 
   async function loadSurveys() {
     try {
@@ -1282,7 +1288,7 @@ function ImportTab() {
     // Detect header row
     const header = lines[0].toLowerCase();
     const hasHeader = /name|email|phone|segment/.test(header);
-    let nameIdx = 0, emailIdx = 1, phoneIdx = 2, segIdx = 3, visitIdx = -1;
+    let nameIdx = 0, emailIdx = 1, phoneIdx = 2, segIdx = 3, visitIdx = -1, locIdx = -1;
     if (hasHeader) {
       const cols = lines[0].split(',').map(c => c.trim().toLowerCase());
       nameIdx  = cols.findIndex(c => c.includes('name'));
@@ -1290,6 +1296,7 @@ function ImportTab() {
       phoneIdx = cols.findIndex(c => c.includes('phone') || c.includes('mobile') || c.includes('cell'));
       segIdx   = cols.findIndex(c => c.includes('segment') || c.includes('tag') || c.includes('group'));
       visitIdx = cols.findIndex(c => c.includes('visit') || c.includes('service date') || c.includes('appointment') || c.includes('completed') || c === 'date');
+      locIdx = cols.findIndex(c => c.includes('location') || c.includes('store') || c.includes('branch') || c.includes('site'));
     }
     const dataLines = hasHeader ? lines.slice(1) : lines;
     return dataLines.map(line => {
@@ -1300,6 +1307,7 @@ function ImportTab() {
         phone:   phoneIdx >= 0 ? (cells[phoneIdx] || '') : '',
         segment: segIdx   >= 0 ? (cells[segIdx]   || '') : '',
         visit_date: visitIdx >= 0 ? (cells[visitIdx] || '') : '',
+        location: locIdx >= 0 ? (cells[locIdx] || '') : '',
       };
     }).filter(r => r.email);   // email is the only required field
   }
@@ -1345,7 +1353,7 @@ function ImportTab() {
     setError('');
     try {
       const res = await axios.post(`${API}/contacts/import`,
-        { rows: parsed, filename, autoSurvey: autoSurvey ? { enabled: true, surveyTemplateId: surveyId || null, delayDays: Number(delayDays) || 0 } : null },
+        { rows: parsed, filename, importLocationId: importLocationId || null, autoSurvey: autoSurvey ? { enabled: true, surveyTemplateId: surveyId || null, delayDays: Number(delayDays) || 0 } : null },
         { headers: authHeaders() });
       setResult(res.data);
       setParsed([]);
@@ -1419,6 +1427,17 @@ function ImportTab() {
                     </div>
                   ))}
                   {parsed.length > 50 && <div style={{ padding: '7px 12px', fontSize: '.73rem', color: '#7a7670', textAlign: 'center' }}>+ {parsed.length - 50} more</div>}
+                </div>
+              )}
+
+              {parsed.length > 0 && locations.length > 1 && (
+                <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, padding: 14, marginBottom: 12, background: '#fcfbf8' }}>
+                  <label style={{ display: 'block', fontSize: '.84rem', fontWeight: 700, color: '#1a1a18', marginBottom: 8 }}>Assign these contacts to a location</label>
+                  <select value={importLocationId} onChange={e => setImportLocationId(e.target.value)} style={{ ...selStyle, width: '100%', maxWidth: 340 }}>
+                    <option value="">All locations (no specific location)</option>
+                    {locations.map((l, i) => <option key={l.id} value={l.id}>{l.business_name || `Location ${i + 1}`}</option>)}
+                  </select>
+                  <p style={{ fontSize: '.74rem', color: '#a8a39a', margin: '8px 0 0', lineHeight: 1.5 }}>Tags every imported contact with this location, so their surveys use that location&apos;s survey. A &quot;Location&quot; column in your CSV overrides this per row.</p>
                 </div>
               )}
 
