@@ -7,14 +7,63 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* ── Layout (unchanged) ── */
   --sidebar-width: 220px;
   --topbar-height: 57px;
   --mobile-nav-height: 60px;
-  --color-k: #0a0a0a;
-  --color-g: #f5c842;
-  --color-bd: #e4e0d8;
-  --color-of: #f8f7f4;
-  --color-mu: #7a7670;
+
+  /* ════════════════════════════════════════════════════════════════
+     DESIGN TOKENS — single source of truth.
+     Names match the marketing site (swarm.css) so the app and the
+     website now speak ONE vocabulary. Values = the app's existing
+     colors (usage counts noted), so adopting these in Phase 2 changes
+     nothing visually — it just makes them maintainable.
+     ════════════════════════════════════════════════════════════════ */
+
+  /* ── Brand palette ── */
+  --ink:        #0a0a0a;   /* structural black            (280×) */
+  --tx:         #1a1a18;   /* body text, warm near-black   (54×) */
+  --tx-2:       #4a4a48;   /* secondary text              (43×) */
+  --tx-3:       #3a3a38;   /* tertiary text               (25×) */
+  --paper:      #ffffff;   /* white surfaces                    */
+  --cream:      #f8f7f4;   /* off-white sections          (94×) */
+  --cream-2:    #f0eeea;   /* deeper off-white            (77×) */
+  --honey:      #f5c842;   /* primary gold / CTA          (83×) */
+  --amber:      #d4a515;   /* gold hover / deep gold            */
+  --amber-tx:   #92690a;   /* dark gold text on light     (41×) */
+  --green:      #1a6b45;   /* success                    (119×) */
+  --green-bg:   #e8f5ef;   /* success tint background     (44×) */
+  --danger:     #c0392b;   /* error / destructive         (99×) */
+  --danger-bg:  #fee2e2;   /* error tint background       (54×) */
+  --taupe:      #7a7670;   /* muted text                 (439×) */
+  --mute:       #a8a39a;   /* lighter muted / placeholder (41×) */
+  --mute-2:     #c8c4bc;   /* light gray                  (23×) */
+  --line:       #e4e0d8;   /* borders / dividers         (299×) */
+
+  /* ── Back-compat: original tokens now resolve to the palette (identical values) ── */
+  --color-k:  var(--ink);
+  --color-g:  var(--honey);
+  --color-bd: var(--line);
+  --color-of: var(--cream);
+  --color-mu: var(--taupe);
+
+  /* ── Type scale (Phase 4 snaps the app's 67 ad-hoc sizes onto these) ── */
+  --fs-2xs:   0.6875rem;   /* 11px — micro labels   */
+  --fs-xs:    0.75rem;     /* 12px — small meta     */
+  --fs-sm:    0.8125rem;   /* 13px — secondary      */
+  --fs-base:  0.875rem;    /* 14px — body default   */
+  --fs-lg:    1rem;        /* 16px — emphasized     */
+  --fs-xl:    1.25rem;     /* 20px — subheads       */
+  --fs-2xl:   1.5rem;      /* 24px — section heads  */
+  --fs-3xl:   2rem;        /* 32px — page titles    */
+
+  /* ── Radius scale (Phase 4 snaps the app's 19 ad-hoc radii onto these) ── */
+  --r-xs:     8px;
+  --r-sm:     10px;
+  --r-md:     16px;
+  --r-lg:     24px;
+  --r-pill:   999px;
+  --r-full:   50%;         /* circular avatars/dots */
 }
 
 html { -webkit-text-size-adjust: 100%; }
