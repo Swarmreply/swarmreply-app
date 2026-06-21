@@ -68,7 +68,8 @@ export default function ReviewPage({ preview }) {
 
   const survey = data.survey || DEMO_SURVEY;
   const c = data.brandColor || (survey.brand && survey.brand.color) || '#f5c842';
-  const path = (survey.paths && survey.paths[classification]) || [];
+  const isCustom = survey.type === 'custom';
+  const blocks = isCustom ? (survey.questions || []) : ((survey.paths && survey.paths[classification]) || []);
   const fmt = (s) => (s || '').replace(/\{business\}/g, data.businessName || '');
 
   function pickScore(n) {
@@ -89,13 +90,14 @@ export default function ReviewPage({ preview }) {
     };
     const next = [...answers, ans];
     setAnswers(next);
-    const blocks = (survey.paths && survey.paths[classification]) || [];
-    if (blockIdx + 1 < blocks.length) setBlockIdx(blockIdx + 1);
+    const bl = isCustom ? (survey.questions || []) : ((survey.paths && survey.paths[classification]) || []);
+    if (blockIdx + 1 < bl.length) setBlockIdx(blockIdx + 1);
     else goShare(next, score, classification);
   }
 
   async function goShare(finalAnswers, finalScore, finalClass) {
-    setPhase('share');
+    const showReview = !isCustom || survey.reviewInvite !== false;
+    setPhase(showReview ? 'share' : 'done');
     if (preview || submitted || !token) return;
     setSubmitted(true);
     try {
@@ -110,11 +112,19 @@ export default function ReviewPage({ preview }) {
     } catch (e) { console.error('Survey submit failed:', e.message); }
   }
 
+  // Custom surveys have no scoring step — start directly on the questions.
+  useEffect(() => {
+    if (survey.type === 'custom' && phase === 'classifier') {
+      if (blocks.length) { setBlockIdx(0); setPhase('blocks'); }
+      else goShare([], null, null);
+    }
+  }, [survey.type]); // eslint-disable-line react-hooks/exhaustive-deps
+
   if (loading) {
     return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f4f4f0' }}><span style={{ color: '#7a7670' }}>Loading…</span></div>;
   }
 
-  const currentBlock = phase === 'blocks' ? path[blockIdx] : null;
+  const currentBlock = phase === 'blocks' ? blocks[blockIdx] : null;
   const justify = ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[data.logoPosition] || 'center';
 
   return (
@@ -137,8 +147,11 @@ export default function ReviewPage({ preview }) {
 
           {phase === 'blocks' && currentBlock && (
             <div style={card}>
-              {classification === 'detractor' && blockIdx === 0 && survey.messages && survey.messages.detractorOpening && (
+              {!isCustom && classification === 'detractor' && blockIdx === 0 && survey.messages && survey.messages.detractorOpening && (
                 <p style={{ fontSize: '.875rem', color: '#4a4a48', marginBottom: 20, lineHeight: 1.65 }}>{fmt(survey.messages.detractorOpening)}</p>
+              )}
+              {isCustom && blockIdx === 0 && survey.messages && survey.messages.intro && (
+                <p style={{ fontSize: '.875rem', color: '#4a4a48', marginBottom: 20, lineHeight: 1.65 }}>{fmt(survey.messages.intro)}</p>
               )}
               <BlockInput key={currentBlock.blockId || blockIdx} block={currentBlock} color={c} businessName={data.businessName} onAnswer={(v) => answerBlock(currentBlock, v)} />
             </div>
@@ -149,7 +162,9 @@ export default function ReviewPage({ preview }) {
               <div style={{ textAlign: 'center', fontSize: '2rem', marginBottom: 16 }}>{classification === 'promoter' ? '\uD83C\uDF1F' : '\uD83D\uDE4F'}</div>
               <h2 style={{ fontSize: '1.1rem', fontWeight: 700, textAlign: 'center', marginBottom: 12 }}>Thank you!</h2>
               <p style={{ fontSize: '.875rem', color: '#4a4a48', textAlign: 'center', lineHeight: 1.7, marginBottom: 28 }}>
-                {classification === 'promoter'
+                {isCustom
+                  ? "Thanks for taking the time to share your feedback. If you have a moment, we'd love you to share your experience publicly too."
+                  : classification === 'promoter'
                   ? (fmt(survey.messages && survey.messages.promoter) || "We're so glad you had a great experience!") + ' Would you mind sharing it publicly?'
                   : "We've shared your feedback with the team. You're also welcome to share your experience publicly."}
               </p>
