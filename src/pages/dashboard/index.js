@@ -113,10 +113,10 @@ function ReviewItem({ review }) {
         {/* Reply preview */}
         {review.posted_reply && (
           <div style={{
-            background: '#f8f7f4', borderLeft: '3px solid #0d0d0d',
+            background: '#f8f7f4', borderLeft: '3px solid #0a0a0a',
             padding: '10px 14px', borderRadius: '0 8px 8px 0', marginBottom: 8
           }}>
-            <div style={{ fontSize: '0.8rem', lineHeight: 1.6, color: '#0d0d0d' }}>
+            <div style={{ fontSize: '0.8rem', lineHeight: 1.6, color: '#0a0a0a' }}>
               {review.posted_reply.substring(0, 120)}
               {review.posted_reply.length > 120 ? '...' : ''}
             </div>
@@ -473,7 +473,7 @@ export default function Dashboard() {
                   No locations connected yet
                 </div>
                 <a href="/dashboard/locations/add" style={{
-                  display: 'inline-block', background: '#0d0d0d', color: 'white',
+                  display: 'inline-block', background: '#0a0a0a', color: 'white',
                   padding: '10px 20px', borderRadius: 50,
                   fontSize: '0.825rem', fontWeight: 600, textDecoration: 'none'
                 }}>Connect Google Business</a>
