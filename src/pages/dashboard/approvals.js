@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useRouter } from 'next/router';
 import { FEATURES } from '../../utils/featureFlags';
 import axios from 'axios';
+import { Card, Button } from '../../components/ui';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -20,7 +21,7 @@ const STARS = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 // Loading placeholder matching an approval card.
 function ApprovalCardSkeleton() {
   return (
-    <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, marginBottom: 12, overflow: 'hidden' }}>
+    <Card pad={0} style={{ marginBottom: 12, overflow: 'hidden' }}>
       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
           <Skeleton width={150} height={13} />
@@ -38,7 +39,7 @@ function ApprovalCardSkeleton() {
         <Skeleton width={130} height={34} radius={50} />
         <Skeleton width={80} height={34} radius={50} />
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -59,7 +60,7 @@ function ApprovalCard({ item, onAction }) {
   }
 
   return (
-    <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, marginBottom: 12, overflow: 'hidden' }}>
+    <Card pad={0} style={{ marginBottom: 12, overflow: 'hidden' }}>
       {/* Review */}
       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
@@ -111,9 +112,9 @@ function ApprovalCard({ item, onAction }) {
             <button onClick={() => act('approve')} disabled={!!loading} style={{ padding: '8px 20px', borderRadius: 50, background: 'var(--green, #1a6b45)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit', opacity: loading === 'approve' ? .6 : 1 }}>
               {loading === 'approve' ? 'Posting...' : '✓ Approve & Post'}
             </button>
-            <button onClick={() => setEditing(true)} style={{ padding: '8px 18px', borderRadius: 50, background: 'transparent', color: 'var(--ink, #0a0a0a)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.84rem', fontWeight: 600, fontFamily: 'inherit' }}>
+            <Button onClick={() => setEditing(true)} variant="ghost" size="sm">
               Edit reply
-            </button>
+            </Button>
             <button onClick={() => setShowReject(true)} style={{ padding: '8px 18px', borderRadius: 50, background: 'transparent', color: 'var(--danger, #c0392b)', border: '1.5px solid #fecaca', cursor: 'pointer', fontSize: '.84rem', fontWeight: 600, fontFamily: 'inherit' }}>
               Reject
             </button>
@@ -140,7 +141,7 @@ function ApprovalCard({ item, onAction }) {
           </>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -178,7 +179,7 @@ export function ApprovalsPanel() {
       <div className="page-padding" style={{ padding: 24, maxWidth: 760 }}>
 
         {/* Mode toggle */}
-        <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: '18px 20px', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <Card pad="18px 20px" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 4 }}>Reply mode</div>
             <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6 }}>
@@ -195,7 +196,7 @@ export function ApprovalsPanel() {
               Approve before posting
             </button>
           </div>
-        </div>
+        </Card>
 
         {/* Queue */}
         {loading ? (
@@ -204,7 +205,7 @@ export function ApprovalsPanel() {
             <ApprovalCardSkeleton />
           </>
         ) : items.length === 0 ? (
-          <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: 48, textAlign: 'center' }}>
+          <Card pad={48} style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '2rem', marginBottom: 12 }}>{mode === 'auto' ? '🐝' : '🎉'}</div>
             <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.2rem', fontWeight: 900, marginBottom: 8 }}>
               {mode === 'auto' ? 'Auto-reply is on' : "You're all caught up"}
@@ -214,7 +215,7 @@ export function ApprovalsPanel() {
                 ? 'Switch to "Approve before posting" above to review AI replies before they go live.'
                 : 'No replies waiting — new AI drafts will appear here for you to review and post.'}
             </div>
-          </div>
+          </Card>
         ) : (
           <>
             <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', marginBottom: 14 }}>
