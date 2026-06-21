@@ -11,6 +11,13 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { getInsights } from '../../utils/api';
 import EmptyState from '../../components/EmptyState';
 import { CountUp } from '../../components/ui';
+import axios from 'axios';
+
+const API = process.env.NEXT_PUBLIC_API_URL;
+function authHeaders() {
+  const t = typeof window !== 'undefined' ? localStorage.getItem('swarmreply_token') : '';
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
 
 const SERIF = "'Playfair Display', serif";
 const C = {
@@ -618,6 +625,7 @@ const REPORTS = [
   { id: 'locations',name: 'Locations',        icon: 'M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11zM12 12a2 2 0 100-4 2 2 0 000 4z', Comp: ReportLocations},
   { id: 'funnel',   name: 'Request funnel',   icon: 'M3 4h18l-7 8v7l-4 2v-9z',                                            Comp: ReportFunnel   },
   { id: 'nps',      name: 'NPS & loyalty',    icon: 'M12 21l-1.5-1.4C5 14.6 2 11.9 2 8.5 2 6 4 4 6.5 4c1.5 0 3 .8 3.5 2 .5-1.2 2-2 3.5-2C16 4 18 6 18 8.5c0 3.4-3 6.1-8.5 11.1z', Comp: ReportNps },
+  { id: 'responses', name: 'Responses',      icon: 'M4 6h16M4 11h16M4 16h10', Comp: ReportResponses },
 ];
 
 function RailIcon({ path, active }) {
@@ -636,6 +644,123 @@ function Select({ value, onChange, options }) {
     }}>
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
     </select>
+  );
+}
+
+function ReportResponses() {
+  const [cls, setCls] = useState('all');
+  const [channel, setChannel] = useState('all');
+  const [q, setQ] = useState('');
+  const [days, setDays] = useState(90);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(null);
+
+  useEffect(() => {
+    let active = true; setLoading(true);
+    const p = new URLSearchParams({ days: String(days) });
+    if (cls !== 'all') p.set('classification', cls);
+    if (channel !== 'all') p.set('channel', channel);
+    if (q.trim()) p.set('q', q.trim());
+    axios.get(`${API}/reports/survey-responses?` + p.toString(), { headers: authHeaders() })
+      .then((r) => { if (active) setRows(r.data.responses || []); })
+      .catch(() => { if (active) setRows([]); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [cls, channel, q, days]);
+
+  function exportCsv() {
+    const questions = [];
+    rows.forEach((r) => (r.answers || []).forEach((a) => { if (a.question && !questions.includes(a.question)) questions.push(a.question); }));
+    const head = ['Date', 'Contact', 'Email', 'Score', 'Classification', 'Channel', ...questions];
+    const esc = (v) => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const lines = [head.map(esc).join(',')];
+    rows.forEach((r) => {
+      const byQ = {};
+      (r.answers || []).forEach((a) => { byQ[a.question] = a.text != null ? a.text : (a.number != null ? a.number : (a.options || []).join('; ')); });
+      lines.push([
+        r.completedAt ? new Date(r.completedAt).toISOString().slice(0, 10) : '',
+        r.contactName || '', r.contactEmail || '', r.score == null ? '' : r.score,
+        r.classification || '', r.channel || '', ...questions.map((qq) => (byQ[qq] == null ? '' : byQ[qq])),
+      ].map(esc).join(','));
+    });
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'survey-responses.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const tone = (c) => ({ promoter: C.green, passive: C.amber, detractor: C.red }[(c || '').toLowerCase()] || C.taupe);
+  const toneBg = (c) => ({ promoter: C.greenSoft, passive: C.amberSoft, detractor: C.redSoft }[(c || '').toLowerCase()] || C.soft);
+
+  return (
+    <div className="rep-fade">
+      <div className="rep-card" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
+        <Select value={cls} onChange={setCls} options={[
+          { value: 'all', label: 'All sentiment' }, { value: 'promoter', label: 'Promoters' },
+          { value: 'passive', label: 'Passives' }, { value: 'detractor', label: 'Detractors' },
+        ]} />
+        <Select value={channel} onChange={setChannel} options={[
+          { value: 'all', label: 'All channels' }, { value: 'email', label: 'Email' }, { value: 'sms', label: 'SMS' },
+        ]} />
+        <Select value={String(days)} onChange={(v) => setDays(parseInt(v, 10))} options={[
+          { value: '30', label: 'Last 30 days' }, { value: '90', label: 'Last 90 days' },
+          { value: '365', label: 'Last 12 months' }, { value: '3650', label: 'All time' },
+        ]} />
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search answers…" style={{
+          flex: 1, minWidth: 160, padding: '7px 12px', border: `1.5px solid ${C.line}`, borderRadius: 9,
+          fontSize: '.82rem', fontFamily: 'inherit', outline: 'none', color: C.ink,
+        }} />
+        <button onClick={exportCsv} disabled={!rows.length} style={{
+          padding: '8px 16px', borderRadius: 9, border: 'none', cursor: rows.length ? 'pointer' : 'default',
+          background: rows.length ? 'linear-gradient(135deg,#f5c842,#d4a515)' : C.soft, color: rows.length ? '#1a1408' : C.faint,
+          fontWeight: 700, fontSize: '.8rem', fontFamily: 'inherit',
+        }}>Export CSV</button>
+      </div>
+
+      {loading ? (
+        <div className="rep-card" style={{ textAlign: 'center', color: C.taupe, padding: 40 }}>Loading responses…</div>
+      ) : rows.length === 0 ? (
+        <NoData icon="🗒️" title="No responses match" body="Try widening the date range or clearing filters. Responses appear here as customers complete your survey." />
+      ) : (
+        <>
+          <div style={{ fontSize: '.78rem', color: C.taupe, margin: '0 0 10px' }}>{rows.length} response{rows.length === 1 ? '' : 's'}</div>
+          <div className="rep-card" style={{ padding: 0, overflow: 'hidden' }}>
+            {rows.map((r, idx) => {
+              const isOpen = open === r.uid;
+              return (
+                <div key={r.uid || idx} style={{ borderTop: idx ? `1px solid ${C.line}` : 'none' }}>
+                  <button onClick={() => setOpen(isOpen ? null : r.uid)} style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px',
+                    background: isOpen ? C.soft : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+                  }}>
+                    <span style={{ fontSize: '.8rem', fontWeight: 700, color: C.ink, minWidth: 26 }}>{r.score == null ? '—' : r.score}</span>
+                    <span style={{ fontSize: '.64rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.04em', color: tone(r.classification), background: toneBg(r.classification), borderRadius: 50, padding: '3px 9px' }}>{r.classification || '—'}</span>
+                    <span style={{ flex: 1, minWidth: 0, fontSize: '.84rem', color: C.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.contactName || r.contactEmail || 'Anonymous'}</span>
+                    <span style={{ fontSize: '.74rem', color: C.faint }}>{r.completedAt ? new Date(r.completedAt).toLocaleDateString() : ''}</span>
+                    <span style={{ color: C.faint, fontSize: '.85rem', display: 'inline-block', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}>›</span>
+                  </button>
+                  {isOpen && (
+                    <div style={{ padding: '4px 16px 16px 54px', background: C.soft }}>
+                      {(r.answers || []).length === 0 ? (
+                        <div style={{ fontSize: '.8rem', color: C.faint, fontStyle: 'italic' }}>No follow-up answers.</div>
+                      ) : (
+                        (r.answers || []).map((a, ai) => (
+                          <div key={ai} style={{ marginBottom: 10 }}>
+                            <div style={{ fontSize: '.7rem', fontWeight: 700, color: C.taupe, marginBottom: 2 }}>{a.question || a.type}</div>
+                            <div style={{ fontSize: '.84rem', color: C.ink }}>{a.text != null && a.text !== '' ? a.text : (a.number != null ? a.number : ((a.options || []).join(', ') || '—'))}</div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
