@@ -111,6 +111,7 @@ export default function SurveysPage() {
 
   function openEdit(t) { setSelected(t); setView('edit'); }
   function createNew() { setView('pick'); }
+  function openSend() { setView('send'); }
   function create(type) {
     const config = type === 'custom' ? blankCustomConfig() : { ...blankConfig(), type: 'nps' };
     setSelected({ id: null, name: type === 'custom' ? 'Untitled survey' : 'Post-visit feedback', config, is_default: templates.length === 0 && type !== 'custom' });
@@ -124,6 +125,10 @@ export default function SurveysPage() {
 
   if (view === 'edit') {
     return <Editor template={selected} onBack={(savedName) => { setView('list'); loadList(); if (savedName) setFlash(`"${savedName}" saved`); }} />;
+  }
+
+  if (view === 'send') {
+    return <SendSurvey onBack={() => setView('list')} />;
   }
 
   if (view === 'pick') {
@@ -143,7 +148,7 @@ export default function SurveysPage() {
       <PageHeader
         title="Surveys"
         subtitle="Build and manage the feedback surveys your customers see. Every customer is invited to leave a public review — your questions are how you listen."
-        action={<Button variant="gold" onClick={createNew}>New survey</Button>}
+        action={<div style={{ display: 'flex', gap: 10 }}>{templates.length > 0 && <Button variant="dark" onClick={openSend}>Send survey</Button>}<Button variant="gold" onClick={createNew}>New survey</Button></div>}
       />
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px' }}>
         {flash && <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: 12, padding: '11px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}><span>{'\u2713'}</span>{flash}</div>}
@@ -216,6 +221,163 @@ function Toggle({ on, onChange }) {
     <button onClick={() => onChange(!on)} aria-pressed={on} style={{ width: 46, height: 27, borderRadius: 50, border: 'none', cursor: 'pointer', background: on ? '#1a6b45' : '#d4cfc5', position: 'relative', flexShrink: 0, transition: 'background .15s', padding: 0 }}>
       <span style={{ position: 'absolute', top: 3, left: on ? 22 : 3, width: 21, height: 21, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 2px rgba(0,0,0,.2)' }} />
     </button>
+  );
+}
+
+function ChannelChip({ active, disabled, label, sub, onClick }) {
+  return (
+    <button onClick={disabled ? undefined : onClick} disabled={disabled} style={{
+      flex: 1, padding: '13px 16px', borderRadius: 12, border: '1.5px solid',
+      borderColor: active ? '#f5c842' : '#e4e0d8', background: active ? '#fffbe9' : disabled ? '#faf9f7' : 'white',
+      cursor: disabled ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left', opacity: disabled ? .65 : 1,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontWeight: 700, fontSize: '.92rem', color: '#1a1a18' }}>{label}</span>
+        <span style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid', borderColor: active ? '#f5c842' : '#d4cfc5', background: active ? '#f5c842' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{active && <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1a1408' }} />}</span>
+      </div>
+      <div style={{ fontSize: '.74rem', color: active ? '#7a5a06' : '#a8a39a', marginTop: 4, fontWeight: 600 }}>{sub}</div>
+    </button>
+  );
+}
+
+function SendSurvey({ onBack }) {
+  const [surveys, setSurveys] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [segments, setSegments] = useState([]);
+  const [segment, setSegment] = useState('all');
+  const [channels, setChannels] = useState({ email: true, text: false });
+  const [brand, setBrand] = useState({ brandColor: '#f5c842', brandLogo: '' });
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState(null);
+  const [err, setErr] = useState('');
+
+  useEffect(() => {
+    Promise.all([
+      axios.get(`${API}/survey-templates`, { headers: authHeaders() }).catch(() => ({ data: {} })),
+      axios.get(`${API}/contacts`, { headers: authHeaders() }).catch(() => ({ data: {} })),
+      axios.get(`${API}/templates`, { headers: authHeaders() }).catch(() => ({ data: {} })),
+    ]).then(([sv, ct, tp]) => {
+      const list = sv.data.templates || [];
+      setSurveys(list);
+      const def = list.find((t) => t.is_default) || list[0];
+      if (def) setSelectedId(def.id);
+      setSegments(ct.data.segments || []);
+      const t = tp.data.template || tp.data || {};
+      setBrand({ brandColor: t.brandColor || '#f5c842', brandLogo: t.brandLogo || '' });
+    }).finally(() => setLoading(false));
+  }, []);
+
+  const segOptions = segments.length ? segments : [{ id: 'all', label: 'All contacts' }];
+  const brandColor = brand.brandColor || '#f5c842';
+  const sampleName = 'Alex';
+  const bizName = 'Your Business';
+  const selStyle = { ...input, background: 'white', marginTop: 6 };
+
+  async function send() {
+    setSending(true); setErr(''); setResult(null);
+    try {
+      const r = await axios.post(`${API}/campaigns/survey-send`, { segment, surveyTemplateId: selectedId }, { headers: authHeaders() });
+      setResult(r.data);
+    } catch (e) { setErr(e.response?.data?.error || e.message || 'Send failed'); }
+    setSending(false);
+  }
+
+  return (
+    <DashboardLayout>
+      <PageHeader
+        title="Send survey"
+        subtitle="Email a survey to your contacts. Everyone who responds is invited to leave a public review — no one is filtered out."
+        action={<Button variant="ghost" onClick={onBack}>{'\u2190'} All surveys</Button>}
+      />
+      <div style={{ maxWidth: 620, margin: '0 auto', padding: '8px 0 60px' }}>
+        {result ? (
+          <Card style={{ padding: 28, textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: 8 }}>{'\u2713'}</div>
+            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#1a1a18', marginBottom: 8 }}>Survey sent</div>
+            <p style={{ fontSize: '.88rem', color: '#4a4a48', lineHeight: 1.6, margin: '0 0 20px' }}>
+              {result.audience === 0
+                ? 'No contacts with an email in that segment yet.'
+                : `Sent to ${result.sent} ${result.sent === 1 ? 'contact' : 'contacts'}.`}
+              {result.skipped ? ` ${result.skipped} skipped (opted out).` : ''}
+              {result.failed ? ` ${result.failed} failed.` : ''}
+              {result.capped ? " Reached your monthly email limit — the rest weren't sent." : ''}
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <Button variant="gold" onClick={() => setResult(null)}>Send another</Button>
+              <Button variant="ghost" onClick={onBack}>Done</Button>
+            </div>
+          </Card>
+        ) : (
+          <>
+            <Card style={{ padding: 24, marginBottom: 16 }}>
+              <SectionLabel>Survey</SectionLabel>
+              <select value={selectedId || ''} onChange={(e) => setSelectedId(e.target.value)} disabled={loading} style={selStyle}>
+                {loading && <option>Loading…</option>}
+                {!loading && surveys.length === 0 && <option value="">No surveys yet</option>}
+                {surveys.map((t) => <option key={t.id} value={t.id}>{(t.name || 'Untitled survey') + ((t.config && t.config.type === 'custom') ? ' (Custom)' : ' (NPS)') + (t.is_default ? ' — default' : '')}</option>)}
+              </select>
+              {!loading && surveys.length === 0 && <p style={{ fontSize: '.8rem', color: '#a8a39a', margin: '10px 0 0' }}>Create a survey first, then come back to send it.</p>}
+            </Card>
+
+            <Card style={{ padding: 24, marginBottom: 16 }}>
+              <SectionLabel>Send to</SectionLabel>
+              <select value={segment} onChange={(e) => setSegment(e.target.value)} style={selStyle}>
+                {segOptions.map((s) => <option key={s.id || s.label} value={s.id || s.label}>{(s.label || s.id) + (s.count != null ? ` (${s.count})` : '')}</option>)}
+              </select>
+              <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '10px 0 0' }}>Contacts are managed in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Import</a>. Anyone opted out is skipped automatically.</p>
+            </Card>
+
+            <Card style={{ padding: 24, marginBottom: 16 }}>
+              <SectionLabel>Send via</SectionLabel>
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                <ChannelChip active={channels.email} label="Email" sub="Ready to send" onClick={() => setChannels((c) => ({ ...c, email: !c.email }))} />
+                <ChannelChip active={false} disabled label="Text" sub="Coming soon" onClick={() => {}} />
+              </div>
+              <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '12px 0 0' }}>Text (SMS) unlocks once your carrier registration is approved.</p>
+            </Card>
+
+            <Card style={{ padding: 24, marginBottom: 16 }}>
+              <SectionLabel>Email preview</SectionLabel>
+              <div style={{ marginTop: 10, border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
+                <div style={{ background: brandColor, padding: '20px 32px' }}>
+                  {brand.brandLogo
+                    ? <img src={brand.brandLogo} alt={bizName} style={{ maxHeight: 52, maxWidth: 180, objectFit: 'contain', display: 'block' }} />
+                    : <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0a0a0a' }}>{bizName}</div>}
+                </div>
+                <div style={{ padding: 32, background: 'white' }}>
+                  <h2 style={{ margin: '0 0 16px', fontSize: '1.2rem', color: '#0a0a0a' }}>How was your experience, {sampleName}?</h2>
+                  <div style={{ fontSize: '.9rem', lineHeight: 1.75, color: '#3a3a38', marginBottom: 26 }}>We'd love your honest feedback about your experience with {bizName}. It takes about 30 seconds and helps us do better.</div>
+                  <div style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', background: brandColor, color: '#0a0a0a', padding: '14px 30px', borderRadius: 50, fontWeight: 700, fontSize: '.92rem' }}>Start the survey →</span></div>
+                </div>
+                <div style={{ background: brandColor, padding: '14px 32px', textAlign: 'center' }}>
+                  <span style={{ fontSize: '.72rem', color: '#0a0a0a', opacity: .65 }}>Sent by {bizName} via SwarmReply</span>
+                </div>
+              </div>
+              <p style={{ fontSize: '.76rem', color: '#a8a39a', margin: '10px 0 0' }}>Your logo and brand color come from <a href="/dashboard/grow?tab=templates" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Request Templates</a>.</p>
+            </Card>
+
+            <Card style={{ padding: 24, marginBottom: 16, opacity: .9 }}>
+              <SectionLabel>Text preview</SectionLabel>
+              <div style={{ marginTop: 10 }}>
+                <div style={{ background: '#e7ebf0', color: '#1a1a18', padding: '11px 15px', borderRadius: 16, borderBottomLeftRadius: 4, fontSize: '.85rem', lineHeight: 1.5, display: 'inline-block', maxWidth: 340 }}>
+                  Hi {sampleName}, {bizName} would love your quick feedback — it takes 30 seconds: app.swarmreply.com/r/…
+                </div>
+              </div>
+              <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '12px 0 0' }}>Preview only — texting turns on once SMS is approved.</p>
+            </Card>
+
+            {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <Button variant="gold" onClick={send} disabled={sending || !selectedId || !channels.email}>{sending ? 'Sending…' : 'Send survey'}</Button>
+              {!channels.email && <span style={{ fontSize: '.8rem', color: '#a8a39a' }}>Turn on a channel to send.</span>}
+            </div>
+            <p style={{ fontSize: '.78rem', color: '#a8a39a', lineHeight: 1.6, marginTop: 18 }}>Survey emails count toward your 5,000-per-location monthly email allowance, shared with review requests.</p>
+          </>
+        )}
+      </div>
+    </DashboardLayout>
   );
 }
 
