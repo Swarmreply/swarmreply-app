@@ -23,7 +23,18 @@ const BLOCK_TYPES = [
   { type: 'rating', label: 'Rating 1\u20135', icon: '\u25D4', hint: '1 to 5 scale' },
   { type: 'star', label: 'Star rating', icon: '\u2605', hint: '1 to 5 stars' },
   { type: 'smiley', label: 'Smiley scale', icon: '\u263A', hint: '5 faces' },
+  { type: 'dropdown', label: 'Dropdown', icon: '\u25BE', hint: 'Pick one from a list' },
+  { type: 'date', label: 'Date', icon: '\uD83D\uDCC5', hint: 'A date picker' },
+  { type: 'contact', label: 'Contact info', icon: '\u2709', hint: 'Collect name, email, phone' },
+  { type: 'section', label: 'Section', icon: '\u00A7', hint: 'A heading between questions' },
 ];
+// Type-specific starting fields for a new block.
+function blockDefaults(type) {
+  if (type === 'multiple_choice' || type === 'dropdown') return { options: ['', ''] };
+  if (type === 'contact') return { fields: ['name', 'email', 'phone'] };
+  if (type === 'section') return { description: '' };
+  return {};
+}
 const SCALE_OPTIONS = [
   { type: 'nps', label: 'NPS (0\u201310)', max: 10 },
   { type: 'star', label: 'Stars (1\u20135)', max: 5 },
@@ -562,7 +573,7 @@ function Editor({ template, onBack }) {
   function updateClassifier(patch) { setCfg((c) => ({ ...c, classifier: { ...c.classifier, ...patch } })); }
   function updateMessage(k, v) { setCfg((c) => ({ ...c, messages: { ...c.messages, [k]: v } })); }
   function addBlock(pk, type) {
-    setCfg((c) => ({ ...c, paths: { ...c.paths, [pk]: [...(c.paths[pk] || []), { blockId: newBlockId(), type, question: '', ...(type === 'multiple_choice' ? { options: ['', ''] } : {}) }] } }));
+    setCfg((c) => ({ ...c, paths: { ...c.paths, [pk]: [...(c.paths[pk] || []), { blockId: newBlockId(), type, question: '', ...blockDefaults(type) }] } }));
   }
   function updateBlock(pk, i, patch) {
     setCfg((c) => { const a = [...(c.paths[pk] || [])]; a[i] = { ...a[i], ...patch }; return { ...c, paths: { ...c.paths, [pk]: a } }; });
@@ -574,7 +585,7 @@ function Editor({ template, onBack }) {
     setCfg((c) => { const a = [...(c.paths[pk] || [])]; const j = i + dir; if (j < 0 || j >= a.length) return c; const t = a[i]; a[i] = a[j]; a[j] = t; return { ...c, paths: { ...c.paths, [pk]: a } }; });
   }
   function addQuestion(type) {
-    setCfg((c) => ({ ...c, questions: [...(c.questions || []), { blockId: newBlockId(), type, question: '', ...(type === 'multiple_choice' ? { options: ['', ''] } : {}) }] }));
+    setCfg((c) => ({ ...c, questions: [...(c.questions || []), { blockId: newBlockId(), type, question: '', ...blockDefaults(type) }] }));
   }
   function updateQuestion(i, patch) {
     setCfg((c) => { const a = [...(c.questions || [])]; a[i] = { ...a[i], ...patch }; return { ...c, questions: a }; });
@@ -770,6 +781,10 @@ function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUp
 function BlockCard({ block, idx, total, onUpdate, onRemove, onMove }) {
   const meta = BLOCK_TYPES.find((t) => t.type === block.type) || { label: block.type, icon: '\u2022' };
   const isMC = block.type === 'multiple_choice';
+  const isDropdown = block.type === 'dropdown';
+  const hasOptions = isMC || isDropdown;
+  const isContact = block.type === 'contact';
+  const isSection = block.type === 'section';
   function setOpt(i, v) { const o = [...(block.options || [])]; o[i] = v; onUpdate({ options: o }); }
   function addOpt() { onUpdate({ options: [...(block.options || []), ''] }); }
   function rmOpt(i) { const o = [...(block.options || [])]; o.splice(i, 1); onUpdate({ options: o }); }
@@ -786,8 +801,11 @@ function BlockCard({ block, idx, total, onUpdate, onRemove, onMove }) {
           <button style={{ ...mini, color: '#c0392b' }} onClick={onRemove} title="Remove">{'\u00D7'}</button>
         </div>
       </div>
-      <input value={block.question || ''} onChange={(e) => onUpdate({ question: e.target.value })} style={input} placeholder="Type your question…" />
-      {isMC && (
+      <input value={block.question || ''} onChange={(e) => onUpdate({ question: e.target.value })} style={input} placeholder={isSection ? 'Section heading' : isContact ? 'Prompt (e.g. "Your contact details")' : 'Type your question…'} />
+      {isSection && (
+        <textarea value={block.description || ''} onChange={(e) => onUpdate({ description: e.target.value })} rows={2} style={{ ...input, marginTop: 8, resize: 'vertical' }} placeholder="Optional text shown under the heading" />
+      )}
+      {hasOptions && (
         <div style={{ marginTop: 10 }}>
           <div style={{ fontSize: '.7rem', fontWeight: 700, color: '#a8a39a', marginBottom: 6 }}>Options</div>
           {(block.options || []).map((o, i) => (
@@ -797,9 +815,24 @@ function BlockCard({ block, idx, total, onUpdate, onRemove, onMove }) {
             </div>
           ))}
           <button onClick={addOpt} style={{ background: 'none', border: 'none', color: '#7a5a06', fontSize: '.78rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ Add option</button>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8, fontSize: '.78rem', color: '#7a7670', cursor: 'pointer' }}>
-            <input type="checkbox" checked={!!block.multiple} onChange={(e) => onUpdate({ multiple: e.target.checked })} /> Allow multiple selections
-          </label>
+          {isMC && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8, fontSize: '.78rem', color: '#7a7670', cursor: 'pointer' }}>
+              <input type="checkbox" checked={!!block.multiple} onChange={(e) => onUpdate({ multiple: e.target.checked })} /> Allow multiple selections
+            </label>
+          )}
+        </div>
+      )}
+      {isContact && (
+        <div style={{ marginTop: 10 }}>
+          <div style={{ fontSize: '.7rem', fontWeight: 700, color: '#a8a39a', marginBottom: 6 }}>Fields to collect</div>
+          {[['name', 'Name'], ['email', 'Email'], ['phone', 'Phone']].map(([k, lbl]) => {
+            const fields = block.fields || ['name', 'email', 'phone'];
+            return (
+              <label key={k} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5, fontSize: '.8rem', color: '#7a7670', cursor: 'pointer' }}>
+                <input type="checkbox" checked={fields.includes(k)} onChange={(e) => { const f = new Set(block.fields || ['name', 'email', 'phone']); if (e.target.checked) f.add(k); else f.delete(k); onUpdate({ fields: Array.from(f) }); }} /> {lbl}
+              </label>
+            );
+          })}
         </div>
       )}
     </div>
