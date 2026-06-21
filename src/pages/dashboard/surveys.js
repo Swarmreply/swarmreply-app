@@ -227,8 +227,9 @@ function Editor({ template, onBack }) {
     setSaving(false);
   }
 
-  const scaleMax = (SCALE_OPTIONS.find((o) => o.type === (cfg.classifier.type === 'nps' ? 'nps' : cfg.classifier.type)) || SCALE_OPTIONS[0]).max;
-  const th = cfg.classifier.thresholds;
+  const clsType = (cfg.classifier && cfg.classifier.type) || 'nps';
+  const scaleMax = (SCALE_OPTIONS.find((o) => o.type === clsType) || SCALE_OPTIONS[0]).max;
+  const th = (cfg.classifier && cfg.classifier.thresholds) || {};
 
   function setScale(type) {
     const isNps = type === 'nps';
