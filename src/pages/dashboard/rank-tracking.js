@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
+import { Card, Button } from '../../components/ui';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 function authH() {
@@ -132,18 +133,18 @@ export function RankTrackingPanel() {
             ['In local pack', inPackCount, inPackCount === 1 ? 'keyword in map pack' : 'keywords in map pack'],
             ['Last checked', lastChecked ? new Date(lastChecked).toLocaleDateString() : 'Never', 'runs every Monday'],
           ].map(([label, value, sub]) => (
-            <div key={label} style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, padding: '16px 18px' }}>
+            <Card key={label} pad="16px 18px">
               <div style={{ fontSize: '.72rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 6 }}>{label}</div>
               <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.7rem', fontWeight: 900, lineHeight: 1 }}>{value}</div>
               <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', marginTop: 4 }}>{sub}</div>
-            </div>
+            </Card>
           ))}
         </div>
 
         <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 16, alignItems: 'start' }}>
 
           {/* Keyword results table */}
-          <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, overflow: 'hidden' }}>
+          <Card pad={0} style={{ overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--line, #e4e0d8)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontWeight: 600, fontSize: '.875rem' }}>Keyword positions</span>
               {checking ? (
@@ -156,9 +157,9 @@ export function RankTrackingPanel() {
                   </div>
                 </div>
               ) : (
-                <button onClick={runCheck} disabled={checking} style={{ padding: '7px 16px', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit' }}>
+                <Button onClick={runCheck} disabled={checking} variant="dark" size="sm">
                   ↻ {lastChecked ? 'Run scan' : 'Run my first scan'}
-                </button>
+                </Button>
               )}
             </div>
 
@@ -205,11 +206,11 @@ export function RankTrackingPanel() {
                 </tbody>
               </table>
             )}
-          </div>
+          </Card>
 
           {/* Add keyword + info */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: 18 }}>
+            <Card pad={18}>
               <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Add keyword</div>
               {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', borderRadius: 9, padding: '8px 12px', fontSize: '.78rem', color: 'var(--danger, #c0392b)', marginBottom: 10 }}>{error}</div>}
               <input
@@ -219,11 +220,11 @@ export function RankTrackingPanel() {
                 disabled={data.length >= MAX}
                 style={{ width: '100%', padding: '9px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: 16, fontFamily: 'inherit', outline: 'none', marginBottom: 10 }}
               />
-              <button onClick={addKeyword} disabled={adding || !newKw.trim() || data.length >= MAX} style={{ width: '100%', padding: 10, borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit', opacity: !newKw.trim() || data.length >= MAX ? .4 : 1 }}>
+              <Button onClick={addKeyword} disabled={adding || !newKw.trim() || data.length >= MAX} variant="dark" style={{ width: '100%' }}>
                 {adding ? 'Adding...' : 'Add keyword'}
-              </button>
+              </Button>
               <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', marginTop: 8, textAlign: 'center' }}>{data.length}/{MAX} keywords used</div>
-            </div>
+            </Card>
 
             <div style={{ background: 'var(--ink, #0a0a0a)', borderRadius: 14, padding: 18 }}>
               <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,.4)', marginBottom: 10 }}>How to pick keywords</div>
