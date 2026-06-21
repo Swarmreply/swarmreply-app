@@ -217,7 +217,6 @@ export default function SurveyBuilder() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 8 }}>
               {SaveBtn}
-              <a href="/review/preview" target="_blank" rel="noreferrer" style={{ fontSize: '.85rem', fontWeight: 600, color: '#7a7670', textDecoration: 'none' }}>Preview survey \u2197</a>
             </div>
           </>
         )}
@@ -236,7 +235,7 @@ function Stepper({ title, value, min, max, onChange }) {
     <div>
       <div style={{ fontSize: '.72rem', color: '#7a7670', fontWeight: 600, marginBottom: 6 }}>{title}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button style={btn} onClick={() => onChange(Math.max(min, value - 1))} disabled={value <= min}>\u2212</button>
+        <button style={btn} onClick={() => onChange(Math.max(min, value - 1))} disabled={value <= min}>{'\u2212'}</button>
         <span style={{ minWidth: 26, textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: '#1a1a18' }}>{value}</span>
         <button style={btn} onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max}>+</button>
       </div>

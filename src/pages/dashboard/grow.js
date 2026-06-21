@@ -1,6 +1,6 @@
 // ============================================
 // pages/dashboard/grow.js
-// Grow — Review Requests / Surveys & NPS / Import tabs
+// Grow — Review Requests / Request Templates / Bulk Send / Import tabs
 // ============================================
 
 import { useState, useEffect } from 'react';
@@ -23,7 +23,6 @@ const TABS = [
   { id: 'requests',  label: 'Review Requests'   },
   { id: 'templates', label: 'Request Templates' },
   { id: 'bulk',      label: 'Bulk Send'         },
-  { id: 'surveys',   label: 'Surveys & NPS'     },
   { id: 'import',    label: 'Import Contacts'   },
 ];
 
@@ -511,7 +510,7 @@ function TField({ label, hint, children }) {
 }
 
 function TemplatesTab() {
-  const [section, setSection]         = useState('thresholds');
+  const [section, setSection]         = useState('branding');
   const [saved, setSaved]             = useState(false);
   const [testSent, setTestSent]       = useState(false);
   const [testEmail, setTestEmail]     = useState('');
@@ -605,13 +604,8 @@ function TemplatesTab() {
 
   const NAV = [
     { id: 'branding',   label: '① Branding & message' },
-    { id: 'thresholds', label: '② Score thresholds' },
-    { id: 'platforms',  label: '③ Review platforms'  },
-    { id: 'nps',        label: '④ NPS survey'        },
-    { id: 'promoter',   label: '⑤ Promoter path'     },
-    { id: 'neutral',    label: '⑥ Neutral path'      },
-    { id: 'detractor',  label: '⑦ Detractor path'    },
-    { id: 'locations',  label: '⑧ Locations'         },
+    { id: 'platforms',  label: '② Review platforms'  },
+    { id: 'locations',  label: '③ Locations'         },
   ];
 
   const sections = {
@@ -1445,12 +1439,12 @@ export default function Grow() {
   const router = useRouter();
   const [tab, setTab] = useState('requests');
 
-  // Deep link: /dashboard/grow?tab=surveys lands on the right tab
+  // Deep link: /dashboard/grow?tab=… lands on the right tab.
+  // The retired "Surveys & NPS" tab now redirects to the dedicated survey builder.
   useEffect(() => {
-    const t = router.query?.tab;
-    if (t && ['requests', 'templates', 'bulk', 'surveys', 'import'].includes(String(t))) {
-      setTab(String(t));
-    }
+    const t = router.query?.tab ? String(router.query.tab) : '';
+    if (t === 'surveys') { router.replace('/dashboard/surveys'); return; }
+    if (['requests', 'templates', 'bulk', 'import'].includes(t)) setTab(t);
   }, [router.query?.tab]);
 
   return (
@@ -1468,7 +1462,6 @@ export default function Grow() {
       {tab === 'requests'  && <RequestsTab />}
       {tab === 'templates' && <TemplatesTab />}
       {tab === 'bulk'     && <BulkSendTab />}
-      {tab === 'surveys'  && <SurveysTab />}
       {tab === 'import'   && <ImportTab />}
     </DashboardLayout>
   );
