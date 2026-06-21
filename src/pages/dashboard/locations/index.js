@@ -67,8 +67,8 @@ export default function Locations() {
 
   const badge = (text, color, bg) => (
     <span style={{
-      fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.04em',
-      color, background: bg, borderRadius: 50, padding: '4px 10px'
+      fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, letterSpacing: '0.04em',
+      color, background: bg, borderRadius: 'var(--r-pill, 999px)', padding: '4px 10px'
     }}>{text}</span>
   );
 
@@ -83,7 +83,7 @@ export default function Locations() {
           <div>
             <h1 style={{
               fontFamily: 'Playfair Display, serif',
-              fontSize: '2rem', fontWeight: 700
+              fontSize: 'var(--fs-3xl, 2rem)', fontWeight: 700
             }}>Locations</h1>
             <p style={{ color: 'var(--taupe, #7a7670)', marginTop: 8 }}>
               Each active location is monitored by SwarmReply and billed on your subscription.
@@ -95,14 +95,14 @@ export default function Locations() {
         {error && (
           <div style={{
             background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5',
-            borderRadius: 10, padding: '12px 16px',
-            fontSize: '0.875rem', color: 'var(--danger, #c0392b)', marginBottom: 20
+            borderRadius: 'var(--r-sm, 10px)', padding: '12px 16px',
+            fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--danger, #c0392b)', marginBottom: 20
           }}>{error}</div>
         )}
 
         {/* Loading */}
         {locations === null && (
-          <div style={{ padding: 32, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '0.85rem' }}>
+          <div style={{ padding: 32, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>
             Loading locations…
           </div>
         )}
@@ -128,7 +128,7 @@ export default function Locations() {
             }}>
               <div style={{ minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>{loc.business_name}</h3>
+                  <h3 style={{ fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700 }}>{loc.business_name}</h3>
                   {loc.is_active
                     ? badge('Active', '#1d7a4f', '#e7f5ee')
                     : badge('Inactive', 'var(--taupe, #7a7670)', '#f0ede6')}
@@ -138,7 +138,7 @@ export default function Locations() {
                   {loc.is_active && loc.billing_synced === false &&
                     badge('Billing updating…', 'var(--taupe, #7a7670)', '#f0ede6')}
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--taupe, #7a7670)' }}>
+                <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)' }}>
                   {TYPE_LABELS[loc.business_type] || loc.business_type || '—'}
                   {loc.created_at && <> · added {new Date(loc.created_at).toLocaleDateString()}</>}
                 </div>
@@ -163,7 +163,7 @@ export default function Locations() {
 
         {/* Footer note */}
         {locations && locations.length > 0 && (
-          <p style={{ fontSize: '0.78rem', color: 'var(--taupe, #7a7670)', marginTop: 18, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 18, lineHeight: 1.6 }}>
             Deactivating a location stops review monitoring and automatically reduces your
             subscription with a prorated credit. You can reactivate at any time.
           </p>
