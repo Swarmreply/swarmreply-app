@@ -240,11 +240,73 @@ function ChannelChip({ active, disabled, label, sub, onClick }) {
   );
 }
 
+function ContactPicker({ contacts, selected, setSelected, search, setSearch }) {
+  const linkBtn = { border: 'none', background: 'none', color: '#7a7670', fontWeight: 700, fontSize: '.78rem', fontFamily: 'inherit', cursor: 'pointer', padding: 0 };
+  const q = search.trim().toLowerCase();
+  const filtered = q
+    ? contacts.filter((c) => (c.name || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q))
+    : contacts;
+  const sel = new Set(selected.map((e) => e.toLowerCase()));
+
+  function toggle(email) {
+    const e = (email || '').toLowerCase();
+    if (sel.has(e)) setSelected(selected.filter((x) => x.toLowerCase() !== e));
+    else setSelected([...selected, email]);
+  }
+  function selectShown() {
+    const seen = new Set(); const out = [];
+    for (const e of [...selected, ...filtered.filter((c) => !c.opted_out).map((c) => c.email)]) {
+      const k = (e || '').toLowerCase();
+      if (e && !seen.has(k)) { seen.add(k); out.push(e); }
+    }
+    setSelected(out);
+  }
+
+  return (
+    <div style={{ marginTop: 14 }}>
+      <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email…" style={{ ...input, background: 'white' }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '10px 2px 8px' }}>
+        <span style={{ fontSize: '.78rem', color: '#7a7670', fontWeight: 600 }}>{selected.length} selected{contacts.length ? ` of ${contacts.length}` : ''}</span>
+        <span>
+          <button onClick={selectShown} style={linkBtn}>Select{q ? ' shown' : ' all'}</button>
+          <span style={{ color: '#d4cfc5', margin: '0 8px' }}>·</span>
+          <button onClick={() => setSelected([])} style={linkBtn}>Clear</button>
+        </span>
+      </div>
+      {contacts.length === 0 ? (
+        <div style={{ fontSize: '.83rem', color: '#a8a39a', padding: '14px 2px' }}>No contacts with an email yet. Add some in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Import</a>.</div>
+      ) : (
+        <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid #f0eeea', borderRadius: 10 }}>
+          {filtered.length === 0 && <div style={{ fontSize: '.83rem', color: '#a8a39a', padding: 16 }}>No matches.</div>}
+          {filtered.map((c) => {
+            const checked = sel.has((c.email || '').toLowerCase());
+            const disabled = !!c.opted_out;
+            return (
+              <div key={c.id || c.email} onClick={disabled ? undefined : () => toggle(c.email)} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 13px', borderTop: '1px solid #f5f3ef', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? .5 : 1 }}>
+                <span style={{ width: 17, height: 17, flexShrink: 0, borderRadius: 5, border: '1.5px solid', borderColor: checked ? '#f5c842' : '#d4cfc5', background: checked ? '#f5c842' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', color: '#1a1408', fontWeight: 900 }}>{checked ? '\u2713' : ''}</span>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: '.85rem', color: '#1a1a18', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name || c.email}</div>
+                  {c.name && <div style={{ fontSize: '.74rem', color: '#a8a39a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</div>}
+                </div>
+                {disabled && <span style={{ fontSize: '.66rem', fontWeight: 700, color: '#a8a39a', flexShrink: 0, letterSpacing: '.04em' }}>OPTED OUT</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SendSurvey({ onBack }) {
   const [surveys, setSurveys] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [segments, setSegments] = useState([]);
   const [segment, setSegment] = useState('all');
+  const [contacts, setContacts] = useState([]);
+  const [audienceMode, setAudienceMode] = useState('segment');
+  const [selectedEmails, setSelectedEmails] = useState([]);
+  const [contactSearch, setContactSearch] = useState('');
   const [channels, setChannels] = useState({ email: true, text: false });
   const [brand, setBrand] = useState({ brandColor: '#f5c842', brandLogo: '' });
   const [loading, setLoading] = useState(true);
@@ -279,6 +341,7 @@ function SendSurvey({ onBack }) {
       const def = list.find((t) => t.is_default) || list[0];
       if (def) setSelectedId(def.id);
       setSegments(ct.data.segments || []);
+      setContacts((ct.data.contacts || []).filter((c) => c.email));
       const t = tp.data.template || tp.data || {};
       setBrand({ brandColor: t.brandColor || '#f5c842', brandLogo: t.brandLogo || '' });
     }).finally(() => setLoading(false));
@@ -292,6 +355,7 @@ function SendSurvey({ onBack }) {
 
   async function send() {
     setSending(true); setErr(''); setResult(null);
+    if (audienceMode === 'contacts' && selectedEmails.length === 0) { setErr('Pick at least one person to send to.'); setSending(false); return; }
     let sendAt = null;
     if (when === 'later') {
       if (!schedDate || !schedTime) { setErr('Pick a date and time to schedule.'); setSending(false); return; }
@@ -301,7 +365,9 @@ function SendSurvey({ onBack }) {
       sendAt = dt.toISOString();
     }
     try {
-      const body = { segment, surveyTemplateId: selectedId };
+      const body = { surveyTemplateId: selectedId };
+      if (audienceMode === 'contacts') body.contactEmails = selectedEmails;
+      else body.segment = segment;
       if (sendAt) body.sendAt = sendAt;
       const r = await axios.post(`${API}/campaigns/survey-send`, body, { headers: authHeaders() });
       setResult(r.data);
@@ -346,10 +412,20 @@ function SendSurvey({ onBack }) {
 
             <Card style={{ padding: 24, marginBottom: 16 }}>
               <SectionLabel>Send to</SectionLabel>
-              <select value={segment} onChange={(e) => setSegment(e.target.value)} style={selStyle}>
-                {segOptions.map((s) => <option key={s.id || s.label} value={s.id || s.label}>{(s.label || s.id) + (s.count != null ? ` (${s.count})` : '')}</option>)}
-              </select>
-              <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '10px 0 0' }}>Contacts are managed in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Import</a>. Anyone opted out is skipped automatically.</p>
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                <ChannelChip active={audienceMode === 'segment'} label="A segment" sub="Everyone in a group" onClick={() => setAudienceMode('segment')} />
+                <ChannelChip active={audienceMode === 'contacts'} label="Specific people" sub="Hand-pick contacts" onClick={() => setAudienceMode('contacts')} />
+              </div>
+              {audienceMode === 'segment' ? (
+                <>
+                  <select value={segment} onChange={(e) => setSegment(e.target.value)} style={{ ...selStyle, marginTop: 14 }}>
+                    {segOptions.map((s) => <option key={s.id || s.label} value={s.id || s.label}>{(s.label || s.id) + (s.count != null ? ` (${s.count})` : '')}</option>)}
+                  </select>
+                  <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '10px 0 0' }}>Contacts are managed in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Import</a>. Anyone opted out is skipped automatically.</p>
+                </>
+              ) : (
+                <ContactPicker contacts={contacts} selected={selectedEmails} setSelected={setSelectedEmails} search={contactSearch} setSearch={setContactSearch} />
+              )}
             </Card>
 
             <Card style={{ padding: 24, marginBottom: 16 }}>
@@ -417,7 +493,7 @@ function SendSurvey({ onBack }) {
             {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <Button variant="gold" onClick={send} disabled={sending || !selectedId || !channels.email}>{sending ? (when === 'later' ? 'Scheduling…' : 'Sending…') : (when === 'later' ? 'Schedule survey' : 'Send survey')}</Button>
+              <Button variant="gold" onClick={send} disabled={sending || !selectedId || !channels.email || (audienceMode === 'contacts' && selectedEmails.length === 0)}>{sending ? (when === 'later' ? 'Scheduling…' : 'Sending…') : (when === 'later' ? 'Schedule survey' : 'Send survey')}</Button>
               {!channels.email && <span style={{ fontSize: '.8rem', color: '#a8a39a' }}>Turn on a channel to send.</span>}
             </div>
             <p style={{ fontSize: '.78rem', color: '#a8a39a', lineHeight: 1.6, marginTop: 18 }}>Survey emails count toward your 5,000-per-location monthly email allowance, shared with review requests.</p>
@@ -431,7 +507,7 @@ function SendSurvey({ onBack }) {
               {scheduled.map((s) => (
                 <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, border: '1px solid #f0eeea', borderRadius: 10, padding: '11px 14px' }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: '.88rem', color: '#1a1a18', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.survey_name || 'Default survey'} <span style={{ color: '#a8a39a', fontWeight: 500 }}>{'\u2192'} {s.segment === 'all' ? 'All contacts' : s.segment}</span></div>
+                    <div style={{ fontWeight: 600, fontSize: '.88rem', color: '#1a1a18', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.survey_name || 'Default survey'} <span style={{ color: '#a8a39a', fontWeight: 500 }}>{'\u2192'} {Array.isArray(s.contact_emails) && s.contact_emails.length ? `${s.contact_emails.length} ${s.contact_emails.length === 1 ? 'person' : 'people'}` : (s.segment === 'all' ? 'All contacts' : s.segment)}</span></div>
                     <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2 }}>{new Date(s.send_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div>
                   </div>
                   <button onClick={() => cancelScheduled(s.id)} style={{ flexShrink: 0, padding: '7px 13px', borderRadius: 8, border: '1.5px solid #e4e0d8', background: 'white', color: '#7a7670', fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer' }}>Cancel</button>
