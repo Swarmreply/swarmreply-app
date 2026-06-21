@@ -324,10 +324,10 @@ export default function Dashboard() {
         })()}
 
         {/* Stats grid */}
-        <div className="grid-responsive-4" style={{ marginBottom: 28 }}>
+        <div className="grid-responsive-5" style={{ marginBottom: 28 }}>
           {loading ? (
             <>
-              <StatSkeleton /><StatSkeleton /><StatSkeleton /><StatSkeleton />
+              <StatSkeleton /><StatSkeleton /><StatSkeleton /><StatSkeleton /><StatSkeleton />
             </>
           ) : (
             <>
@@ -370,6 +370,12 @@ export default function Dashboard() {
             })()}
             subColor={stats?.nps_score == null ? '#7a7670' : stats.nps_score >= 0 ? '#1a6b45' : '#c0392b'}
             dest="/dashboard/grow"
+          />
+          <StatCard
+            label="Survey Responses"
+            value={stats?.responses_this_week ?? 0}
+            sub="Last 7 days"
+            dest="/dashboard/pulse?report=responses"
           />
             </>
           )}
