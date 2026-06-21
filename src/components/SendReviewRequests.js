@@ -5,6 +5,7 @@
 // then send email/SMS review requests directly
 // ============================================
 
+import { EmptyState } from './ui';
 import { useState, useEffect } from 'react';
 import SmsGateBanner from './SmsGateBanner';
 import { useSmsGate } from '../hooks/useSmsGate';
@@ -418,9 +419,7 @@ export default function SendReviewRequests({ location, templates }) {
           borderRadius: '0 8px 8px 8px', overflow: 'hidden'
         }}>
           {history.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>
-              No sends yet — start sending review requests to build your history
-            </div>
+            <EmptyState compact title="No sends yet" body="Start sending review requests to build your history." />
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
