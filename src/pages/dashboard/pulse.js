@@ -568,14 +568,23 @@ function ReportFunnel({ d }) {
 // ============================================================
 // REPORT 8 — NPS & Loyalty
 // ============================================================
-function ReportNps({ d }) {
+function ReportNps({ d, range }) {
   const n = d.nps;
+  const [questions, setQuestions] = useState([]);
+  useEffect(() => {
+    let active = true;
+    const days = ({ '30d': 30, '90d': 90, '12m': 365, all: 3650 })[range] || 90;
+    axios.get(`${API}/reports/survey-questions?days=${days}`, { headers: authHeaders() })
+      .then((r) => { if (active) setQuestions(r.data.questions || []); })
+      .catch(() => {});
+    return () => { active = false; };
+  }, [range]);
   if (!n.total) return <NoData icon="💛" title="No survey responses yet" body="When customers complete NPS surveys, loyalty and the reasons behind it show here." />;
   const npsColor = n.score == null ? C.taupe : n.score >= 50 ? C.green : n.score >= 0 ? C.amber : C.red;
   return (
     <div className="rep-fade">
       <Insight>
-        Your NPS is <strong>{n.score}</strong> from {fmtInt(n.total)} responses. <strong>{n.wouldReturnPct}%</strong> say they'd return{n.leftReviewPct ? `, and ${n.leftReviewPct}% went on to leave a review.` : '.'}
+        Your NPS is <strong>{n.score}</strong> from {fmtInt(n.total)} responses. <strong>{n.wouldReturnPct}%</strong> say they'd return.
       </Insight>
 
       <div className="rep-card" style={{ display: 'flex', gap: 28, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
@@ -602,7 +611,6 @@ function ReportNps({ d }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 14, marginBottom: 20 }}>
         <StatTile label="Would return" value={fmtPct(n.wouldReturnPct)} />
-        <StatTile label="Left a review" value={fmtPct(n.leftReviewPct)} />
         <StatTile label="NPS change" value={n.scoreDelta == null ? '—' : (n.scoreDelta > 0 ? `+${n.scoreDelta}` : n.scoreDelta)} delta={<Delta value={n.scoreDelta} />} />
       </div>
 
@@ -610,6 +618,21 @@ function ReportNps({ d }) {
         <div className="rep-card">
           <SectionTitle>Top reasons detractors gave</SectionTitle>
           <HBars rows={n.reasons.map((r) => ({ label: r.reason, value: r.count }))} color={C.red} />
+        </div>
+      )}
+
+      {questions.length > 0 && (
+        <div className="rep-card" style={{ marginTop: 20 }}>
+          <SectionTitle>Survey question results</SectionTitle>
+          {questions.map((qd, qi) => (
+            <div key={qi} style={{ marginBottom: qi < questions.length - 1 ? 22 : 0, paddingBottom: qi < questions.length - 1 ? 22 : 0, borderBottom: qi < questions.length - 1 ? `1px solid ${C.line}` : 'none' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
+                <div style={{ fontSize: '.88rem', fontWeight: 700, color: C.ink }}>{qd.question}</div>
+                {qd.avg != null && <div style={{ fontSize: '.78rem', color: C.taupe, whiteSpace: 'nowrap' }}>avg <strong style={{ color: C.ink }}>{qd.avg}</strong></div>}
+              </div>
+              <HBars rows={qd.options.map((o) => ({ label: String(o.value), value: o.count }))} color={['rating', 'star', 'smiley', 'nps'].includes(qd.type) ? C.honey : C.green} />
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -826,7 +849,7 @@ export default function Pulse() {
             <Eyebrow>Report</Eyebrow>
             <h2 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 700, color: C.ink, margin: '4px 0 0', letterSpacing: '-.01em' }}>{active.name}</h2>
           </div>
-          {loading || !data ? <LoadingState /> : <ActiveComp d={data} />}
+          {loading || !data ? <LoadingState /> : <ActiveComp d={data} range={range} />}
         </main>
       </div>
     </DashboardLayout>
