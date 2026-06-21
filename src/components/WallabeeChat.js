@@ -13,7 +13,7 @@ import { useState, useEffect, useRef } from 'react';
 import { sendSupportRequest } from '../utils/api';
 
 const HELP_BASE = 'https://swarmreply.com/help';
-const GOLD = 'linear-gradient(135deg,#f5c842,#d4a515)';
+const GOLD = 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))';
 
 // Help Center catalog — mirrors files/help.html on the website repo.
 // If you add articles there, add them here too so Wallabee can find them.
@@ -269,7 +269,7 @@ export default function WallabeeChat({ customer }) {
   // ── styles ──
   const beeAvatar = (size) => (
     <span style={{ width: size, height: size, borderRadius: '50%', background: 'white',
-      border: '1.5px solid #e4e0d8', display: 'inline-flex', alignItems: 'center',
+      border: '1.5px solid var(--line, #e4e0d8)', display: 'inline-flex', alignItems: 'center',
       justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
       <img src="/bee-logo.png" alt="Wallabee" style={{ width: size - 8, height: size - 8, objectFit: 'contain' }} />
     </span>
@@ -279,13 +279,13 @@ export default function WallabeeChat({ customer }) {
     maxWidth: '82%', padding: '10px 14px', borderRadius: 14, fontSize: '.875rem',
     lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
     ...(who === 'bee'
-      ? { background: 'white', border: '1.5px solid #e4e0d8', color: '#0a0a0a', borderTopLeftRadius: 4 }
-      : { background: '#0a0a0a', color: 'white', borderTopRightRadius: 4, marginLeft: 'auto' }),
+      ? { background: 'white', border: '1.5px solid var(--line, #e4e0d8)', color: 'var(--ink, #0a0a0a)', borderTopLeftRadius: 4 }
+      : { background: 'var(--ink, #0a0a0a)', color: 'white', borderTopRightRadius: 4, marginLeft: 'auto' }),
   });
 
   const inp = {
     width: '100%', boxSizing: 'border-box', padding: '10px 13px',
-    border: '1.5px solid #e4e0d8', borderRadius: 11, fontFamily: 'inherit',
+    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 11, fontFamily: 'inherit',
     fontSize: '.85rem', background: 'white', outline: 'none',
   };
 
@@ -296,7 +296,7 @@ export default function WallabeeChat({ customer }) {
         <div className="wallabee-panel" style={{
           position: 'fixed', bottom: 96, right: 20, zIndex: 9000,
           width: 'min(360px, calc(100vw - 32px))', height: 'min(540px, calc(100vh - 140px))',
-          background: '#f8f7f4', borderRadius: 18, border: '1.5px solid #e4e0d8',
+          background: 'var(--cream, #f8f7f4)', borderRadius: 18, border: '1.5px solid var(--line, #e4e0d8)',
           boxShadow: '0 12px 48px rgba(0,0,0,.18)', display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
         }}>
@@ -304,11 +304,11 @@ export default function WallabeeChat({ customer }) {
           <div style={{ background: GOLD, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 11 }}>
             {beeAvatar(40)}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: '1.05rem', color: '#0a0a0a' }}>Wallabee</div>
+              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: '1.05rem', color: 'var(--ink, #0a0a0a)' }}>Wallabee</div>
               <div style={{ fontSize: '.7rem', fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'rgba(10,10,10,.65)' }}>SwarmReply support bee</div>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close chat"
-              style={{ background: 'rgba(10,10,10,.12)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: '.85rem', fontWeight: 700, color: '#0a0a0a' }}>
+              style={{ background: 'rgba(10,10,10,.12)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: '.85rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>
               ✕
             </button>
           </div>
@@ -321,12 +321,12 @@ export default function WallabeeChat({ customer }) {
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: '88%' }}>
                     {m.articles.map(a => (
                       <a key={a.id} href={a.u ? `https://swarmreply.com${a.u}` : `${HELP_BASE}#${a.id}`} target="_blank" rel="noreferrer"
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 12, padding: '10px 13px', textDecoration: 'none' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, padding: '10px 13px', textDecoration: 'none' }}>
                         <span style={{ flex: 1 }}>
-                          <span style={{ display: 'block', fontSize: '.83rem', fontWeight: 600, color: '#0a0a0a' }}>{a.t}</span>
-                          <span style={{ display: 'block', fontSize: '.7rem', color: '#7a7670', marginTop: 1 }}>{a.c}</span>
+                          <span style={{ display: 'block', fontSize: '.83rem', fontWeight: 600, color: 'var(--ink, #0a0a0a)' }}>{a.t}</span>
+                          <span style={{ display: 'block', fontSize: '.7rem', color: 'var(--taupe, #7a7670)', marginTop: 1 }}>{a.c}</span>
                         </span>
-                        <span style={{ fontSize: '.75rem', color: '#7a7670' }}>↗</span>
+                        <span style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>↗</span>
                       </a>
                     ))}
                   </div>
@@ -338,7 +338,7 @@ export default function WallabeeChat({ customer }) {
                   <div key={i} style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                     {m.chips.map(c => (
                       <button key={c} onClick={() => chip(c)}
-                        style={{ padding: '8px 14px', borderRadius: 50, border: '1.5px solid #e4e0d8', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.8rem', fontWeight: 600, color: '#0a0a0a' }}>
+                        style={{ padding: '8px 14px', borderRadius: 50, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.8rem', fontWeight: 600, color: 'var(--ink, #0a0a0a)' }}>
                         {c}
                       </button>
                     ))}
@@ -366,14 +366,14 @@ export default function WallabeeChat({ customer }) {
             {typing && (
               <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
                 {beeAvatar(26)}
-                <div style={{ ...bubble('bee'), color: '#7a7670', fontStyle: 'italic' }}>Wallabee is buzzing…</div>
+                <div style={{ ...bubble('bee'), color: 'var(--taupe, #7a7670)', fontStyle: 'italic' }}>Wallabee is buzzing…</div>
               </div>
             )}
 
             {showForm && (
-              <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: 14 }}>
-                <div style={{ fontSize: '.72rem', color: '#7a7670', marginBottom: 10 }}>
-                  Sending as <strong style={{ color: '#0a0a0a' }}>{customer?.email}</strong> — the team will reply there.
+              <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: 14 }}>
+                <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>
+                  Sending as <strong style={{ color: 'var(--ink, #0a0a0a)' }}>{customer?.email}</strong> — the team will reply there.
                 </div>
                 <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Subject" maxLength={200}
                   style={{ ...inp, marginBottom: 9 }} />
@@ -383,11 +383,11 @@ export default function WallabeeChat({ customer }) {
                 {formErr && <div style={{ marginTop: 8, fontSize: '.78rem', color: '#a4282a' }}>{formErr}</div>}
                 <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                   <button onClick={sendToTeam} disabled={sending}
-                    style={{ flex: 1, padding: '10px 0', borderRadius: 50, border: 'none', background: '#0a0a0a', color: 'white', cursor: sending ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: '.82rem', fontWeight: 700, opacity: sending ? 0.6 : 1 }}>
+                    style={{ flex: 1, padding: '10px 0', borderRadius: 50, border: 'none', background: 'var(--ink, #0a0a0a)', color: 'white', cursor: sending ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: '.82rem', fontWeight: 700, opacity: sending ? 0.6 : 1 }}>
                     {sending ? 'Sending…' : 'Send to our team'}
                   </button>
                   <button onClick={() => setShowForm(false)}
-                    style={{ padding: '10px 14px', borderRadius: 50, border: '1.5px solid #e4e0d8', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.82rem', fontWeight: 600 }}>
+                    style={{ padding: '10px 14px', borderRadius: 50, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.82rem', fontWeight: 600 }}>
                     Cancel
                   </button>
                 </div>
@@ -398,11 +398,11 @@ export default function WallabeeChat({ customer }) {
           </div>
 
           {/* Input */}
-          <div style={{ padding: '10px 12px', background: 'white', borderTop: '1px solid #e4e0d8', display: 'flex', gap: 8 }}>
+          <div style={{ padding: '10px 12px', background: 'white', borderTop: '1px solid var(--line, #e4e0d8)', display: 'flex', gap: 8 }}>
             <input value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') ask(input); }}
               placeholder="Ask Wallabee anything…"
-              style={{ ...inp, border: 'none', background: '#f8f7f4', borderRadius: 50, padding: '11px 16px' }} />
+              style={{ ...inp, border: 'none', background: 'var(--cream, #f8f7f4)', borderRadius: 50, padding: '11px 16px' }} />
             <button onClick={() => ask(input)} aria-label="Send"
               style={{ width: 42, height: 42, borderRadius: '50%', border: 'none', background: GOLD, cursor: 'pointer', fontSize: '1rem', flexShrink: 0 }}>
               ↑
@@ -424,15 +424,15 @@ export default function WallabeeChat({ customer }) {
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>
         {open ? (
           <>
-            <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(10,10,10,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 700, color: '#0a0a0a' }}>✕</span>
-            <span style={{ fontSize: '.85rem', fontWeight: 700, color: '#0a0a0a' }}>Close</span>
+            <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(10,10,10,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>✕</span>
+            <span style={{ fontSize: '.85rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>Close</span>
           </>
         ) : (
           <>
             <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img src="/bee-logo.png" alt="" style={{ width: 26, height: 26, objectFit: 'contain' }} />
             </span>
-            <span style={{ fontSize: '.85rem', fontWeight: 700, color: '#0a0a0a' }}>Support</span>
+            <span style={{ fontSize: '.85rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>Support</span>
           </>
         )}
       </button>

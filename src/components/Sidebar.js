@@ -65,7 +65,7 @@ export default function Sidebar({ customer }) {
   const goldHover = {
     background: 'linear-gradient(135deg,rgba(245,200,66,.22),rgba(245,200,66,.10))',
     boxShadow: 'inset 0 0 0 1px rgba(245,200,66,.35)',
-    color: '#f5c842',
+    color: 'var(--honey, #f5c842)',
   };
 
   const isActive = (href) =>
@@ -75,7 +75,7 @@ export default function Sidebar({ customer }) {
 
   return (
     <aside style={{
-      background: '#0a0a0a', display: 'flex', flexDirection: 'column',
+      background: 'var(--ink, #0a0a0a)', display: 'flex', flexDirection: 'column',
       position: 'fixed', top: 0, left: 0, bottom: 0, width: 220, zIndex: 100,
       overflowY: 'auto'
     }}>
@@ -96,7 +96,7 @@ export default function Sidebar({ customer }) {
       <div style={{ padding: '0 14px 14px' }}>
         <button onClick={() => setSendOpen(true)} className="sr-btn sr-btn-gold" style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%',
-          background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408',
+          background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408',
           border: 'none', borderRadius: 50, padding: '10px 14px', fontSize: '.82rem',
           fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit'
         }}>
@@ -135,12 +135,12 @@ export default function Sidebar({ customer }) {
                 const liveCount = item.liveBadge ? (parseInt(liveStats?.[item.liveBadge]) || 0) : null;
                 const badge = item.liveBadge ? liveCount : item.badge;
                 return badge ? (
-                <span style={{ background: '#c0392b', color: 'white', fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 50, minWidth: 18, textAlign: 'center' }}>
+                <span style={{ background: 'var(--danger, #c0392b)', color: 'white', fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 50, minWidth: 18, textAlign: 'center' }}>
                   {badge}
                 </span>
                 ) : null;
               })() || (item.isNew ? (
-                <span style={{ background: '#f5c842', color: '#0a0a0a', fontSize: '0.55rem', fontWeight: 800, padding: '2px 6px', borderRadius: 50, letterSpacing: '0.03em' }}>
+                <span style={{ background: 'var(--honey, #f5c842)', color: 'var(--ink, #0a0a0a)', fontSize: '0.55rem', fontWeight: 800, padding: '2px 6px', borderRadius: 50, letterSpacing: '0.03em' }}>
                   NEW
                 </span>
               ) : null)}
@@ -161,7 +161,7 @@ export default function Sidebar({ customer }) {
             const name = member?.name || customer?.name;
             return (
               <>
-                <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#f5c842', letterSpacing: '.06em', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--honey, #f5c842)', letterSpacing: '.06em', textTransform: 'uppercase' }}>
                   {roleLabel}
                 </div>
                 {(name || customer?.email) && (

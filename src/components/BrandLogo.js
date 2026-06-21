@@ -22,7 +22,7 @@ const BRANDS = {
   facebook:       { bg: '#1877F2', fg: '#fff', label: 'f', svg: null },
   stripe:         { bg: '#635BFF', fg: '#fff', label: 'S', svg: null },
   stripe_trigger: { bg: '#635BFF', fg: '#fff', label: 'S', svg: null },
-  square:         { bg: '#0A0A0A', fg: '#fff', shape: 'square', svg: null },
+  square:         { bg: 'var(--ink, #0a0a0a)', fg: '#fff', shape: 'square', svg: null },
   hubspot:        { bg: '#FF7A59', fg: '#fff', label: 'H', svg: null },
   shopify:        { bg: '#5A8E2F', fg: '#fff', label: 'S', svg: null },
   mindbody:       { bg: '#00B0B9', fg: '#fff', label: 'M', svg: null },
@@ -32,7 +32,7 @@ const BRANDS = {
   zapier:         { bg: '#FF4F00', fg: '#fff', label: 'Z', svg: null },
 };
 
-export default function BrandLogo({ provider, name = '', size = 44, fallbackColor = '#7a7670' }) {
+export default function BrandLogo({ provider, name = '', size = 44, fallbackColor = 'var(--taupe, #7a7670)' }) {
   const b = BRANDS[provider] || {
     bg: fallbackColor, fg: '#fff', label: (name.trim()[0] || '?').toUpperCase(), svg: null,
   };

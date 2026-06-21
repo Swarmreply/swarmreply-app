@@ -51,7 +51,7 @@ function downscale(file) {
   });
 }
 
-export default function LogoUploader({ value, position = 'left', onChange, brandColor = '#f5c842' }) {
+export default function LogoUploader({ value, position = 'left', onChange, brandColor = 'var(--honey, #f5c842)' }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [dragging, setDragging] = useState(false);
@@ -83,7 +83,7 @@ export default function LogoUploader({ value, position = 'left', onChange, brand
         onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files?.[0]); }}
         onClick={() => inputRef.current && inputRef.current.click()}
         style={{
-          border: `2px dashed ${dragging ? '#d4a515' : '#e4e0d8'}`,
+          border: `2px dashed ${dragging ? 'var(--amber, #d4a515)' : 'var(--line, #e4e0d8)'}`,
           background: dragging ? '#fffaf0' : '#faf9f6',
           borderRadius: 12, padding: value ? 14 : 26, textAlign: 'center',
           cursor: 'pointer', transition: 'all .15s',
@@ -92,9 +92,9 @@ export default function LogoUploader({ value, position = 'left', onChange, brand
         {value ? (
           <img src={value} alt="Your logo" style={{ maxHeight: 56, maxWidth: 200, objectFit: 'contain' }} />
         ) : (
-          <div style={{ color: '#7a7670' }}>
+          <div style={{ color: 'var(--taupe, #7a7670)' }}>
             <div style={{ fontSize: '1.4rem', marginBottom: 4 }}>⬆</div>
-            <div style={{ fontSize: '.84rem', fontWeight: 600, color: '#1a1a18' }}>
+            <div style={{ fontSize: '.84rem', fontWeight: 600, color: 'var(--tx, #1a1a18)' }}>
               {busy ? 'Uploading…' : 'Drag a logo here, or click to choose'}
             </div>
             <div style={{ fontSize: '.7rem', marginTop: 3 }}>PNG, JPG, WEBP, or SVG · up to 5 MB</div>
@@ -125,8 +125,8 @@ export default function LogoUploader({ value, position = 'left', onChange, brand
                 style={{
                   flex: 1, padding: '7px 0', borderRadius: 9, cursor: 'pointer', fontFamily: 'inherit',
                   fontSize: '.8rem', fontWeight: position === p.id ? 700 : 500,
-                  border: position === p.id ? '2px solid #0a0a0a' : '1.5px solid #e4e0d8',
-                  background: position === p.id ? '#f8f7f4' : 'white', color: '#1a1a18',
+                  border: position === p.id ? '2px solid var(--ink, #0a0a0a)' : '1.5px solid var(--line, #e4e0d8)',
+                  background: position === p.id ? 'var(--cream, #f8f7f4)' : 'white', color: 'var(--tx, #1a1a18)',
                 }}>{p.label}</button>
             ))}
           </div>
@@ -137,6 +137,6 @@ export default function LogoUploader({ value, position = 'left', onChange, brand
 }
 
 const ghostBtn = {
-  padding: '7px 15px', borderRadius: 50, background: 'white', color: '#1a1a18',
-  border: '1.5px solid #e4e0d8', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit',
+  padding: '7px 15px', borderRadius: 50, background: 'white', color: 'var(--tx, #1a1a18)',
+  border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit',
 };

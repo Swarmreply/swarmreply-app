@@ -28,7 +28,7 @@ export function Skeleton({ width = '100%', height = 16, radius = 8, style = {} }
 export function SkeletonCard() {
   return (
     <div style={{
-      background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14,
+      background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14,
       padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14,
     }}>
       <Skeleton width={44} height={44} radius={11} />

@@ -23,13 +23,13 @@ export default function EmptyState({ icon = null, title, description = '', actio
       <div style={{
         fontFamily: "'Playfair Display', serif",
         fontWeight: 700, fontSize: compact ? '1.02rem' : '1.2rem',
-        color: '#1a1a18', marginBottom: 6, letterSpacing: '-.01em'
+        color: 'var(--tx, #1a1a18)', marginBottom: 6, letterSpacing: '-.01em'
       }}>
         {title}
       </div>
       {description && (
         <div style={{
-          fontSize: '.85rem', color: '#7a7670', lineHeight: 1.6,
+          fontSize: '.85rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6,
           maxWidth: 380, margin: '0 auto',
         }}>{description}</div>
       )}

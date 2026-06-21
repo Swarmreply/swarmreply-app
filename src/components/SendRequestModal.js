@@ -51,9 +51,9 @@ export default function SendRequestModal({ open, onClose }) {
   }
 
   const field = {
-    width: '100%', border: '1.5px solid #e4e0d8', borderRadius: 12,
+    width: '100%', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12,
     padding: '12px 14px', fontSize: 16, fontFamily: 'inherit',
-    background: 'white', color: '#1a1a18', outline: 'none', boxSizing: 'border-box',
+    background: 'white', color: 'var(--tx, #1a1a18)', outline: 'none', boxSizing: 'border-box',
   };
   const label = {
     fontSize: '.72rem', fontWeight: 700, letterSpacing: '.06em',
@@ -76,7 +76,7 @@ export default function SendRequestModal({ open, onClose }) {
       }}>
         {/* Honey header */}
         <div style={{
-          background: 'linear-gradient(135deg,#f5c842,#d4a515)', padding: '18px 24px',
+          background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', padding: '18px 24px',
           display: 'flex', alignItems: 'center', gap: 12,
         }}>
           <img src="/bee-logo.png" alt="" style={{ width: 38, height: 38, objectFit: 'contain' }} />
@@ -99,20 +99,20 @@ export default function SendRequestModal({ open, onClose }) {
           /* ── Success ── */
           <div style={{ padding: '36px 28px', textAlign: 'center' }}>
             <img src="/bee-logo.png" alt="" style={{ width: 54, height: 54, objectFit: 'contain', marginBottom: 12 }} />
-            <div style={{ fontFamily: SERIF, fontSize: '1.3rem', fontWeight: 700, color: '#1a1a18', marginBottom: 6 }}>
+            <div style={{ fontFamily: SERIF, fontSize: '1.3rem', fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6 }}>
               Request sent!
             </div>
-            <p style={{ fontSize: '.875rem', color: '#7a7670', margin: '0 0 24px' }}>
-              On its way to <strong style={{ color: '#1a1a18' }}>{sentTo}</strong>
+            <p style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', margin: '0 0 24px' }}>
+              On its way to <strong style={{ color: 'var(--tx, #1a1a18)' }}>{sentTo}</strong>
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
               <button className="sr-btn" onClick={() => setSentTo(null)} style={{
                 padding: '10px 20px', borderRadius: 50, background: 'transparent',
-                border: '1.5px solid #e4e0d8', color: '#1a1a18', cursor: 'pointer',
+                border: '1.5px solid var(--line, #e4e0d8)', color: 'var(--tx, #1a1a18)', cursor: 'pointer',
                 fontSize: '.85rem', fontWeight: 700, fontFamily: 'inherit',
               }}>Send another</button>
               <button className="sr-btn" onClick={onClose} style={{
-                padding: '10px 24px', borderRadius: 50, background: '#1a1a18',
+                padding: '10px 24px', borderRadius: 50, background: 'var(--tx, #1a1a18)',
                 border: 'none', color: 'white', cursor: 'pointer',
                 fontSize: '.85rem', fontWeight: 700, fontFamily: 'inherit',
               }}>Done</button>
@@ -146,7 +146,7 @@ export default function SendRequestModal({ open, onClose }) {
 
             <button className="sr-btn sr-btn-gold" onClick={send} disabled={sending} style={{
               width: '100%', marginTop: 18, padding: '13px',
-              background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408',
+              background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408',
               border: 'none', borderRadius: 50, cursor: sending ? 'default' : 'pointer',
               fontSize: '.92rem', fontWeight: 700, fontFamily: 'inherit',
               opacity: sending ? .6 : 1,

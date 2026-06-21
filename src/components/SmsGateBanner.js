@@ -18,7 +18,7 @@ export default function SmsGateBanner({ feature = 'Text messaging', enabled = fa
         alignItems: 'flex-start',
         gap: 10,
         background: '#fff7e6',
-        border: '1px solid #f5c842',
+        border: '1px solid var(--honey, #f5c842)',
         borderRadius: 12,
         padding: '12px 16px',
         marginBottom: 16,

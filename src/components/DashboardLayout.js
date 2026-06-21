@@ -153,10 +153,10 @@ export default function DashboardLayout({ children, title }) {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#f8f7f4' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--cream, #f8f7f4)' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
-          <div style={{ color: '#7a7670', fontSize: '0.875rem' }}>Loading your swarm…</div>
+          <div style={{ color: 'var(--taupe, #7a7670)', fontSize: '0.875rem' }}>Loading your swarm…</div>
         </div>
       </div>
     );
@@ -167,18 +167,18 @@ export default function DashboardLayout({ children, title }) {
   // ── FULL LOCKOUT — grace period expired ──────────────────────────────────
   if (billing?.locked) {
     return (
-      <div style={{ minHeight: '100vh', background: '#f8f7f4', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
-        <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 20, padding: '48px 40px', maxWidth: 520, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,.08)' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '1.8rem' }}>💳</div>
-          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', fontWeight: 900, color: '#0a0a0a', marginBottom: 10 }}>Payment required</div>
-          <p style={{ fontSize: '.9rem', color: '#7a7670', lineHeight: 1.75, marginBottom: 28 }}>
+      <div style={{ minHeight: '100vh', background: 'var(--cream, #f8f7f4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
+        <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 20, padding: '48px 40px', maxWidth: 520, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,.08)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--danger-bg, #fee2e2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '1.8rem' }}>💳</div>
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)', marginBottom: 10 }}>Payment required</div>
+          <p style={{ fontSize: '.9rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.75, marginBottom: 28 }}>
             Your most recent payment didn't go through, so access is paused. Please update your payment method to restore your account.
           </p>
-          <button onClick={openBillingPortal} style={{ width: '100%', padding: '14px 0', borderRadius: 50, background: '#0a0a0a', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.95rem', fontWeight: 700, fontFamily: 'inherit', marginBottom: 12 }}>
+          <button onClick={openBillingPortal} style={{ width: '100%', padding: '14px 0', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.95rem', fontWeight: 700, fontFamily: 'inherit', marginBottom: 12 }}>
             Update payment method →
           </button>
-          <p style={{ fontSize: '.78rem', color: '#7a7670' }}>
-            Need help? Email <a href="mailto:hello@swarmreply.com" style={{ color: '#0a0a0a', fontWeight: 600 }}>hello@swarmreply.com</a>
+          <p style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
+            Need help? Email <a href="mailto:hello@swarmreply.com" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600 }}>hello@swarmreply.com</a>
           </p>
         </div>
       </div>
@@ -191,8 +191,8 @@ export default function DashboardLayout({ children, title }) {
       {typeof window !== 'undefined' && sessionStorage.getItem('impersonating') && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999,
-          background: 'linear-gradient(90deg,#f5c842,#d4a515)',
-          color: '#0a0a0a', padding: '8px 20px',
+          background: 'linear-gradient(90deg,var(--honey, #f5c842),var(--amber, #d4a515))',
+          color: 'var(--ink, #0a0a0a)', padding: '8px 20px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 12px rgba(0,0,0,.2)'
         }}>
@@ -206,7 +206,7 @@ export default function DashboardLayout({ children, title }) {
       {/* ── BILLING WARNING BANNER ── */}
       {billing?.bannerLevel === 'warn' && !dismissed && (
         <div style={{
-          background: '#c0392b', color: 'white',
+          background: 'var(--danger, #c0392b)', color: 'white',
           padding: '12px 20px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           gap: 16, flexWrap: 'wrap',
@@ -224,7 +224,7 @@ export default function DashboardLayout({ children, title }) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-            <button onClick={openBillingPortal} style={{ padding: '7px 18px', borderRadius: 50, background: 'white', color: '#c0392b', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit' }}>
+            <button onClick={openBillingPortal} style={{ padding: '7px 18px', borderRadius: 50, background: 'white', color: 'var(--danger, #c0392b)', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit' }}>
               Update card →
             </button>
             <button onClick={() => setDismissed(true)} style={{ padding: '7px 12px', borderRadius: 50, background: 'rgba(255,255,255,.15)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontFamily: 'inherit' }}>
@@ -244,13 +244,13 @@ export default function DashboardLayout({ children, title }) {
         <main className="dashboard-main">
           {title && (
             <div style={{
-              background: '#fff', borderBottom: '1px solid #e4e0d8',
+              background: '#fff', borderBottom: '1px solid var(--line, #e4e0d8)',
               padding: '15px 24px', position: 'sticky', top: 0, zIndex: 50,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
               <span className="topbar-title" style={{
                 fontFamily: "'Playfair Display', serif", fontSize: '1.3rem',
-                fontWeight: 700, color: '#1a1a18', letterSpacing: '-.01em', lineHeight: 1.2
+                fontWeight: 700, color: 'var(--tx, #1a1a18)', letterSpacing: '-.01em', lineHeight: 1.2
               }}>{title}</span>
             </div>
           )}

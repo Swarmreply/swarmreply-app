@@ -254,7 +254,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', fontWeight: 700, marginBottom: 10 }}>
                 Skip setup?
               </h3>
-              <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 20, lineHeight: 1.65 }}>
+              <p style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.65 }}>
                 You can always come back to these steps from your dashboard. Some features won't work until they're set up.
               </p>
               <div style={{ display: 'flex', gap: 10 }}>
@@ -289,12 +289,12 @@ export default function OnboardingWizard({ customer, onComplete }) {
               <span style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.5)', fontWeight: 600 }}>
                 {completedCount} of {totalSteps} steps complete
               </span>
-              <span style={{ fontSize: '.72rem', color: '#f5c842', fontWeight: 700 }}>{pct}%</span>
+              <span style={{ fontSize: '.72rem', color: 'var(--honey, #f5c842)', fontWeight: 700 }}>{pct}%</span>
             </div>
             <div style={{ height: 5, background: 'rgba(255,255,255,.1)', borderRadius: 50, overflow: 'hidden' }}>
               <div style={{
                 width: `${pct}%`, height: '100%',
-                background: '#f5c842', borderRadius: 50,
+                background: 'var(--honey, #f5c842)', borderRadius: 50,
                 transition: 'width .5s ease'
               }} />
             </div>
@@ -320,8 +320,8 @@ export default function OnboardingWizard({ customer, onComplete }) {
                     width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '.75rem', fontWeight: 700,
-                    background: done ? '#f5c842' : current ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.06)',
-                    color: done ? '#0a0a0a' : current ? '#fff' : 'rgba(255,255,255,.35)'
+                    background: done ? 'var(--honey, #f5c842)' : current ? 'rgba(255,255,255,.15)' : 'rgba(255,255,255,.06)',
+                    color: done ? 'var(--ink, #0a0a0a)' : current ? '#fff' : 'rgba(255,255,255,.35)'
                   }}>
                     {done ? '✓' : s.n}
                   </div>
@@ -335,7 +335,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
                     </div>
                   </div>
                   {done && (
-                    <div style={{ fontSize: '.7rem', color: '#f5c842', fontWeight: 700, flexShrink: 0 }}>Done</div>
+                    <div style={{ fontSize: '.7rem', color: 'var(--honey, #f5c842)', fontWeight: 700, flexShrink: 0 }}>Done</div>
                   )}
                 </div>
               );
@@ -363,21 +363,21 @@ export default function OnboardingWizard({ customer, onComplete }) {
               <div style={{ marginBottom: 28 }}>
                 <div style={{
                   width: 52, height: 52, borderRadius: 14,
-                  background: '#f8f7f4', border: '1.5px solid #e4e0d8',
+                  background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '1.4rem', marginBottom: 16
                 }}>
                   {step.icon}
                 </div>
                 <div style={{ fontSize: '.7rem', fontWeight: 700, letterSpacing: '.1em',
-                  textTransform: 'uppercase', color: '#7a7670', marginBottom: 5 }}>
+                  textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>
                   Step {step.n} of {totalSteps}
                 </div>
                 <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.6rem',
-                  fontWeight: 900, color: '#0a0a0a', marginBottom: 8, letterSpacing: '-.02em' }}>
+                  fontWeight: 900, color: 'var(--ink, #0a0a0a)', marginBottom: 8, letterSpacing: '-.02em' }}>
                   {step.title}
                 </h2>
-                <p style={{ fontSize: '.9rem', color: '#7a7670', lineHeight: 1.7 }}>
+                <p style={{ fontSize: '.9rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
                   {step.detail}
                 </p>
               </div>
@@ -419,7 +419,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               {step.n === 2 && (
                 <div>
                   <div style={{
-                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
+                    background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)',
                     borderRadius: 14, padding: '20px 22px', marginBottom: 16
                   }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -430,13 +430,13 @@ export default function OnboardingWizard({ customer, onComplete }) {
                         { icon: '✓', text: 'Disconnect any time from your Settings page' }
                       ].map(item => (
                         <div key={item.text} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                          <span style={{ color: '#1a6b45', fontWeight: 700, flexShrink: 0 }}>{item.icon}</span>
-                          <span style={{ fontSize: '.875rem', color: '#4a4a48', lineHeight: 1.5 }}>{item.text}</span>
+                          <span style={{ color: 'var(--green, #1a6b45)', fontWeight: 700, flexShrink: 0 }}>{item.icon}</span>
+                          <span style={{ fontSize: '.875rem', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.5 }}>{item.text}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div style={{ fontSize: '.78rem', color: '#7a7670', lineHeight: 1.6, marginBottom: 4 }}>
+                  <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6, marginBottom: 4 }}>
                     You'll be redirected to Google's login screen and asked to approve access.
                     You'll come back here automatically when it's done.
                   </div>
@@ -451,21 +451,21 @@ export default function OnboardingWizard({ customer, onComplete }) {
                       key={t.id}
                       onClick={() => setTone(t.id)}
                       style={{
-                        border: tone === t.id ? '2px solid #0a0a0a' : '1.5px solid #e4e0d8',
+                        border: tone === t.id ? '2px solid var(--ink, #0a0a0a)' : '1.5px solid var(--line, #e4e0d8)',
                         borderRadius: 12, padding: '14px 16px', cursor: 'pointer',
-                        background: tone === t.id ? '#f8f7f4' : '#fff',
+                        background: tone === t.id ? 'var(--cream, #f8f7f4)' : '#fff',
                         transition: 'all .15s',
                         display: 'flex', alignItems: 'center', gap: 12
                       }}
                     >
                       <div style={{
                         width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-                        border: tone === t.id ? '6px solid #0a0a0a' : '2px solid #e4e0d8',
+                        border: tone === t.id ? '6px solid var(--ink, #0a0a0a)' : '2px solid var(--line, #e4e0d8)',
                         transition: 'all .15s'
                       }} />
                       <div>
                         <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>{t.label}</div>
-                        <div style={{ fontSize: '.78rem', color: '#7a7670' }}>{t.desc}</div>
+                        <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>{t.desc}</div>
                       </div>
                     </div>
                   ))}
@@ -481,9 +481,9 @@ export default function OnboardingWizard({ customer, onComplete }) {
               {step.n === 4 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{
-                    background: '#f8f7f4', border: '1.5px solid #e4e0d8',
+                    background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)',
                     borderRadius: 12, padding: '14px 16px', marginBottom: 4,
-                    fontSize: '.82rem', color: '#7a7670', lineHeight: 1.65
+                    fontSize: '.82rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.65
                   }}>
                     💡 Think of your last 5-star customer. Send them a request right now — you'll probably hear back within an hour.
                   </div>
@@ -504,7 +504,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
                         style={fieldInput} placeholder="+1 555 000 0000" />
                     </div>
                   </div>
-                  <div style={{ fontSize: '.78rem', color: '#7a7670' }}>
+                  <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
                     Need at least one of email or phone.
                   </div>
                 </div>
@@ -514,10 +514,10 @@ export default function OnboardingWizard({ customer, onComplete }) {
               {step.n === 5 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{
-                    background: '#e8f5ef', border: '1px solid #bbf7d0',
+                    background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0',
                     borderRadius: 12, padding: '14px 16px', marginBottom: 4
                   }}>
-                    <div style={{ fontWeight: 600, fontSize: '.875rem', color: '#1a6b45', marginBottom: 6 }}>
+                    <div style={{ fontWeight: 600, fontSize: '.875rem', color: 'var(--green, #1a6b45)', marginBottom: 6 }}>
                       How it works
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -527,8 +527,8 @@ export default function OnboardingWizard({ customer, onComplete }) {
                         ['Score 1–6',  'Private feedback first, then invited to review']
                       ].map(([score, desc]) => (
                         <div key={score} style={{ display: 'flex', gap: 8, fontSize: '.8rem' }}>
-                          <span style={{ fontWeight: 700, color: '#1a6b45', flexShrink: 0 }}>{score}</span>
-                          <span style={{ color: '#4a4a48' }}>{desc}</span>
+                          <span style={{ fontWeight: 700, color: 'var(--green, #1a6b45)', flexShrink: 0 }}>{score}</span>
+                          <span style={{ color: 'var(--tx-2, #4a4a48)' }}>{desc}</span>
                         </div>
                       ))}
                     </div>
@@ -537,7 +537,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
                     <label style={fieldLabel}>Your Google review link *</label>
                     <input value={googleLink} onChange={e => setGoogleLink(e.target.value)}
                       style={fieldInput} placeholder="https://g.page/r/YOUR_ID/review" />
-                    <div style={{ fontSize: '.72rem', color: '#7a7670', marginTop: 4 }}>
+                    <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', marginTop: 4 }}>
                       Find it in Google Business Profile → Get more reviews → Share review form
                     </div>
                   </div>
@@ -568,13 +568,13 @@ export default function OnboardingWizard({ customer, onComplete }) {
               {(Array.isArray(status?.steps) ? status.steps : []).find(s => s.step === step.n)?.completed && (
                 <div style={{
                   marginTop: 14, display: 'flex', alignItems: 'center', gap: 7,
-                  fontSize: '.78rem', color: '#1a6b45', fontWeight: 600
+                  fontSize: '.78rem', color: 'var(--green, #1a6b45)', fontWeight: 600
                 }}>
                   <span>✓</span> This step is complete
                   {step.n < totalSteps && (
                     <button onClick={() => setActiveStep(step.n + 1)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer',
-                        color: '#0a0a0a', fontWeight: 700, fontSize: '.78rem',
+                        color: 'var(--ink, #0a0a0a)', fontWeight: 700, fontSize: '.78rem',
                         fontFamily: 'inherit', marginLeft: 6 }}>
                       Next step →
                     </button>
@@ -618,7 +618,7 @@ const wizardWrap = {
 
 const leftPanel = {
   width: 240, flexShrink: 0,
-  background: '#0a0a0a',
+  background: 'var(--ink, #0a0a0a)',
   padding: '28px 20px',
   display: 'flex', flexDirection: 'column',
   overflowY: 'auto'
@@ -646,13 +646,13 @@ const skipCard = {
 const fieldLabel = {
   display: 'block', fontSize: '.67rem', fontWeight: 700,
   letterSpacing: '.08em', textTransform: 'uppercase',
-  color: '#7a7670', marginBottom: 5
+  color: 'var(--taupe, #7a7670)', marginBottom: 5
 };
 
 const fieldInput = {
   width: '100%', padding: '10px 13px',
-  border: '1.5px solid #e4e0d8', borderRadius: 10,
-  fontSize: '.9rem', color: '#0a0a0a', outline: 'none',
+  border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10,
+  fontSize: '.9rem', color: 'var(--ink, #0a0a0a)', outline: 'none',
   fontFamily: 'inherit', background: '#fff',
   transition: 'border-color .15s', boxSizing: 'border-box',
   appearance: 'none'
@@ -660,7 +660,7 @@ const fieldInput = {
 
 const btnPrimary = {
   padding: '11px 24px', borderRadius: 50,
-  background: '#0a0a0a', color: '#fff',
+  background: 'var(--ink, #0a0a0a)', color: '#fff',
   border: 'none', cursor: 'pointer',
   fontSize: '.875rem', fontWeight: 700,
   fontFamily: 'inherit', transition: 'all .15s'
@@ -668,15 +668,15 @@ const btnPrimary = {
 
 const btnOutline = {
   padding: '10px 18px', borderRadius: 50,
-  background: 'transparent', color: '#7a7670',
-  border: '1.5px solid #e4e0d8', cursor: 'pointer',
+  background: 'transparent', color: 'var(--taupe, #7a7670)',
+  border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer',
   fontSize: '.82rem', fontWeight: 600,
   fontFamily: 'inherit', transition: 'all .15s'
 };
 
 const btnRed = {
   padding: '10px 18px', borderRadius: 50,
-  background: '#fee2e2', color: '#c0392b',
+  background: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)',
   border: '1px solid #fecaca', cursor: 'pointer',
   fontSize: '.82rem', fontWeight: 600,
   fontFamily: 'inherit'

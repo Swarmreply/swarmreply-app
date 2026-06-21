@@ -1,8 +1,8 @@
 // ============================================
 // src/components/ui.js
 // SwarmReply design kit — shared components
-// Brand: cream #f8f7f4 · ink #1a1a18 · muted #7a7670
-//        border #e4e0d8 · honey #f5c842 → #d4a515
+// Brand: cream var(--cream, #f8f7f4) · ink var(--tx, #1a1a18) · muted var(--taupe, #7a7670)
+//        border var(--line, #e4e0d8) · honey var(--honey, #f5c842) → var(--amber, #d4a515)
 //        Playfair Display (titles/numbers) · DM Sans (body)
 // ============================================
 
@@ -18,7 +18,7 @@ export function Card({ children, pad = 24, hover = false, style = {}, ...rest })
     <div
       className={`sr-card${hover ? ' sr-card-link' : ''}`}
       style={{
-        background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 16,
+        background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 16,
         padding: pad, ...style
       }}
       {...rest}
@@ -46,7 +46,7 @@ export function SectionLabel({ children, style = {} }) {
 export function PageHeader({ title, subtitle, action, sticky = true, children }) {
   return (
     <div style={{
-      background: 'white', borderBottom: '1px solid #e4e0d8',
+      background: 'white', borderBottom: '1px solid var(--line, #e4e0d8)',
       padding: '18px 32px', display: 'flex', alignItems: 'center',
       justifyContent: 'space-between', gap: 16,
       ...(sticky ? { position: 'sticky', top: 0, zIndex: 50 } : {})
@@ -54,12 +54,12 @@ export function PageHeader({ title, subtitle, action, sticky = true, children })
       <div style={{ minWidth: 0 }}>
         <h1 style={{
           fontFamily: SERIF, fontSize: '1.45rem', fontWeight: 700,
-          color: '#1a1a18', margin: 0, lineHeight: 1.2, letterSpacing: '-.01em'
+          color: 'var(--tx, #1a1a18)', margin: 0, lineHeight: 1.2, letterSpacing: '-.01em'
         }}>
           {title}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: '.85rem', color: '#7a7670', margin: '3px 0 0' }}>{subtitle}</p>
+          <p style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', margin: '3px 0 0' }}>{subtitle}</p>
         )}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
@@ -83,9 +83,9 @@ export function Button({ children, variant = 'gold', size = 'md', href, onClick,
     fontSize: size === 'sm' ? '.8rem' : '.875rem',
   };
   const variants = {
-    gold:  { background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408' },
-    dark:  { background: '#1a1a18', color: 'white' },
-    ghost: { background: 'transparent', color: '#1a1a18', boxShadow: 'inset 0 0 0 1.5px #e4e0d8' },
+    gold:  { background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408' },
+    dark:  { background: 'var(--tx, #1a1a18)', color: 'white' },
+    ghost: { background: 'transparent', color: 'var(--tx, #1a1a18)', boxShadow: 'inset 0 0 0 1.5px var(--line, #e4e0d8)' },
   };
   const cls = `sr-btn${variant === 'gold' ? ' sr-btn-gold' : ''}`;
   const styles = { ...base, ...variants[variant], ...style };
@@ -157,7 +157,7 @@ export function CountUp({ value, duration = 1100, style }) {
 
 // ── StatCard ─────────────────────────────────
 // Big serif number with eyebrow label. Optional sub line + accent bar + link.
-export function StatCard({ label, value, sub, subColor = '#7a7670', accent, valueColor = '#1a1a18', dest, loading = false }) {
+export function StatCard({ label, value, sub, subColor = 'var(--taupe, #7a7670)', accent, valueColor = 'var(--tx, #1a1a18)', dest, loading = false }) {
   const inner = (
     <>
       {accent && (
@@ -187,7 +187,7 @@ export function StatCard({ label, value, sub, subColor = '#7a7670', accent, valu
     </>
   );
   const cardStyle = {
-    background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 16,
+    background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 16,
     padding: '18px 22px', position: 'relative', overflow: 'hidden',
     display: 'block', textDecoration: 'none'
   };
@@ -204,13 +204,13 @@ const TONES = {
   amber: { bg: '#fdf3dc', fg: '#8a5d00' },
   blue:  { bg: '#e8f0fe', fg: '#1a4baa' },
   red:   { bg: '#fdecea', fg: '#b3261e' },
-  green: { bg: '#e8f5ef', fg: '#1a6b45' },
+  green: { bg: 'var(--green-bg, #e8f5ef)', fg: 'var(--green, #1a6b45)' },
 };
 export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, href, onDismiss }) {
   const t = TONES[tone] || TONES.amber;
   return (
     <div className="sr-queue-item" style={{
-      background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14,
+      background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14,
       padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10
     }}>
       <span style={{
@@ -221,10 +221,10 @@ export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, hr
         {icon}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '.9rem', fontWeight: 600, color: '#1a1a18' }}>{title}</div>
+        <div style={{ fontSize: '.9rem', fontWeight: 600, color: 'var(--tx, #1a1a18)' }}>{title}</div>
         {detail && (
           <div style={{
-            fontSize: '.78rem', color: '#7a7670', marginTop: 2,
+            fontSize: '.78rem', color: 'var(--taupe, #7a7670)', marginTop: 2,
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
           }}>
             {detail}
@@ -236,11 +236,11 @@ export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, hr
         <button onClick={onDismiss} aria-label="Clear notification" title="Clear"
           style={{
             flexShrink: 0, width: 28, height: 28, borderRadius: '50%', border: 'none',
-            background: 'transparent', color: '#a8a39a', cursor: 'pointer', fontSize: '1.1rem',
+            background: 'transparent', color: 'var(--mute, #a8a39a)', cursor: 'pointer', fontSize: '1.1rem',
             lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit'
           }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#f0eeea'; e.currentTarget.style.color = '#4a4a48'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a8a39a'; }}>
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--cream-2, #f0eeea)'; e.currentTarget.style.color = 'var(--tx-2, #4a4a48)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--mute, #a8a39a)'; }}>
           ✕
         </button>
       )}
@@ -259,12 +259,12 @@ export function EmptyState({ title, body, actionLabel, href, onAction, compact =
       />
       <div style={{
         fontFamily: SERIF, fontSize: compact ? '1rem' : '1.2rem',
-        fontWeight: 700, color: '#1a1a18', marginBottom: 6
+        fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6
       }}>
         {title}
       </div>
       {body && (
-        <p style={{ fontSize: '.85rem', color: '#7a7670', margin: '0 auto 18px', maxWidth: 360, lineHeight: 1.55 }}>
+        <p style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', margin: '0 auto 18px', maxWidth: 360, lineHeight: 1.55 }}>
           {body}
         </p>
       )}
