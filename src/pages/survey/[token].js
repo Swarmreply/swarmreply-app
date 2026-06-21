@@ -25,11 +25,11 @@ function ScoreButton({ value, selected, onClick, brandColor }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        width: 46, height: 46, borderRadius: 12,
+        width: 46, height: 46, borderRadius: 'var(--r-md, 16px)',
         border: `2px solid ${active ? brandColor : 'var(--line, #e4e0d8)'}`,
         background: active ? brandColor : 'white',
         color: active ? 'var(--ink, #0a0a0a)' : 'var(--tx-2, #4a4a48)',
-        fontSize: '1rem', fontWeight: active ? 700 : 500,
+        fontSize: 'var(--fs-lg, 1rem)', fontWeight: active ? 700 : 500,
         cursor: 'pointer', transition: 'all .15s', fontFamily: 'inherit',
         transform: active ? 'translateY(-2px) scale(1.08)' : 'none',
         boxShadow: active ? `0 6px 20px ${brandColor}55` : 'none',
@@ -121,16 +121,16 @@ export default function SurveyPage() {
 
   if (loading) return (
     <div style={{ minHeight:'100vh', background:'var(--cream, #f8f7f4)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ textAlign:'center', color:'#b0aca6', fontSize:'0.875rem', fontFamily:'sans-serif' }}>Loading...</div>
+      <div style={{ textAlign:'center', color:'#b0aca6', fontSize: 'var(--fs-base, 0.875rem)', fontFamily:'sans-serif' }}>Loading...</div>
     </div>
   );
 
   if (error || !survey) return (
     <div style={{ minHeight:'100vh', background:'var(--cream, #f8f7f4)', display:'flex', alignItems:'center', justifyContent:'center', padding:'40px 20px', fontFamily:'sans-serif' }}>
-      <div style={{ background:'white', borderRadius:20, padding:'44px 36px', border:'1px solid var(--line, #e4e0d8)', maxWidth:400, textAlign:'center' }}>
-        <div style={{ fontSize:'2.5rem', marginBottom:12 }}>🔗</div>
-        <div style={{ fontWeight:700, fontSize:'1.1rem', marginBottom:8 }}>Link not found</div>
-        <div style={{ color:'var(--taupe, #7a7670)', fontSize:'0.875rem', lineHeight:1.6 }}>{error || 'Survey not available.'}</div>
+      <div style={{ background:'white', borderRadius: 'var(--r-md, 16px)', padding:'44px 36px', border:'1px solid var(--line, #e4e0d8)', maxWidth:400, textAlign:'center' }}>
+        <div style={{ fontSize: 'var(--fs-4xl, 2.5rem)', marginBottom:12 }}>🔗</div>
+        <div style={{ fontWeight:700, fontSize: 'var(--fs-lg, 1rem)', marginBottom:8 }}>Link not found</div>
+        <div style={{ color:'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)', lineHeight:1.6 }}>{error || 'Survey not available.'}</div>
       </div>
     </div>
   );
@@ -150,7 +150,7 @@ export default function SurveyPage() {
   };
 
   const cardStyle = {
-    background: 'white', borderRadius: 24,
+    background: 'white', borderRadius: 'var(--r-lg, 24px)',
     border: '1px solid var(--line, #e4e0d8)',
     boxShadow: '0 20px 60px rgba(0,0,0,.07)',
     maxWidth: 500, width: '100%', overflow: 'hidden'
@@ -158,15 +158,15 @@ export default function SurveyPage() {
 
   const inputStyle = {
     width: '100%', padding: '14px 16px', border: '1.5px solid var(--line, #e4e0d8)',
-    borderRadius: 14, fontSize: '0.9rem', fontFamily: 'inherit',
+    borderRadius: 'var(--r-md, 16px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit',
     color: 'var(--tx, #1a1a18)', outline: 'none', resize: 'vertical',
     lineHeight: 1.6, transition: 'border-color .15s', boxSizing: 'border-box'
   };
 
   const submitBtnStyle = (disabled) => ({
     width: '100%', padding: '14px', background: disabled ? 'var(--mute-2, #c8c4bc)' : brand,
-    color: 'var(--ink, #0a0a0a)', border: 'none', borderRadius: 50,
-    fontSize: '0.95rem', fontWeight: 700,
+    color: 'var(--ink, #0a0a0a)', border: 'none', borderRadius: 'var(--r-pill, 999px)',
+    fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700,
     cursor: disabled ? 'not-allowed' : 'pointer',
     fontFamily: 'inherit', transition: 'all .15s'
   });
@@ -206,10 +206,10 @@ export default function SurveyPage() {
                   />
                 ) : (
                   <div style={{
-                    width: 52, height: 52, borderRadius: '50%',
+                    width: 52, height: 52, borderRadius: 'var(--r-full, 50%)',
                     background: brand, display: 'inline-flex',
                     alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1.35rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)',
+                    fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)',
                     marginBottom: 10
                   }}>
                     {survey.businessName?.[0]?.toUpperCase() || '★'}
@@ -217,7 +217,7 @@ export default function SurveyPage() {
                 )}
                 <div style={{
                   fontFamily: "'Playfair Display',serif",
-                  fontSize: '1rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)'
+                  fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)'
                 }}>
                   {survey.businessName}
                 </div>
@@ -225,14 +225,14 @@ export default function SurveyPage() {
 
               {/* Greeting */}
               {survey.firstName && (
-                <p style={{ textAlign:'center', fontSize:'1rem', color:'var(--ink, #0a0a0a)', fontWeight:500, margin:'0 0 4px' }}>
+                <p style={{ textAlign:'center', fontSize: 'var(--fs-lg, 1rem)', color:'var(--ink, #0a0a0a)', fontWeight:500, margin:'0 0 4px' }}>
                   Hi {survey.firstName} 👋
                 </p>
               )}
 
               {/* Question */}
               <p style={{
-                textAlign: 'center', fontSize: '1.05rem', color: 'var(--tx, #1a1a18)',
+                textAlign: 'center', fontSize: 'var(--fs-lg, 1rem)', color: 'var(--tx, #1a1a18)',
                 lineHeight: 1.55, fontWeight: 400, margin: '0 0 30px'
               }}>
                 {survey.questionText}
@@ -251,12 +251,12 @@ export default function SurveyPage() {
               </div>
 
               {/* Labels */}
-              <div style={{ display:'flex', justifyContent:'space-between', fontSize:'0.75rem', color:'#b0aca6', marginBottom: 20 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize: 'var(--fs-xs, 0.75rem)', color:'#b0aca6', marginBottom: 20 }}>
                 <span>{survey.lowLabel}</span>
                 <span>{survey.highLabel}</span>
               </div>
 
-              <p style={{ textAlign:'center', fontSize:'0.75rem', color:'var(--mute-2, #c8c4bc)', margin:0 }}>
+              <p style={{ textAlign:'center', fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--mute-2, #c8c4bc)', margin:0 }}>
                 Tap a number above — takes 10 seconds
               </p>
             </div>
@@ -269,22 +269,22 @@ export default function SurveyPage() {
             <div style={{ height: 5, background: brand }} />
             <div style={{ padding: '44px 32px 36px', textAlign: 'center' }}>
               <div style={{
-                width: 76, height: 76, borderRadius: '50%',
+                width: 76, height: 76, borderRadius: 'var(--r-full, 50%)',
                 background: brand, display: 'inline-flex',
                 alignItems: 'center', justifyContent: 'center', marginBottom: 20
               }}>
-                <span style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)' }}>{score}</span>
+                <span style={{ fontSize: 'var(--fs-3xl, 2rem)', fontWeight: 900, color: 'var(--ink, #0a0a0a)' }}>{score}</span>
               </div>
 
               <h2 style={{
                 fontFamily: "'Playfair Display',serif",
-                fontSize: '1.55rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
+                fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
                 marginBottom: 12, letterSpacing: '-0.02em'
               }}>
                 That's wonderful to hear! 🎉
               </h2>
 
-              <p style={{ fontSize: '0.975rem', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.75, fontWeight: 300, marginBottom: 32 }}>
+              <p style={{ fontSize: 'var(--fs-lg, 1rem)', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.75, fontWeight: 300, marginBottom: 32 }}>
                 {survey.promoterMessage}
               </p>
 
@@ -295,8 +295,8 @@ export default function SurveyPage() {
                 onClick={() => { setTimeout(() => doSubmit(score, scoreLabel, '', true), 300); }}
                 style={{
                   display: 'block', padding: '15px 24px', background: brand,
-                  color: 'var(--ink, #0a0a0a)', borderRadius: 50, fontWeight: 700,
-                  fontSize: '1rem', textDecoration: 'none', marginBottom: 14
+                  color: 'var(--ink, #0a0a0a)', borderRadius: 'var(--r-pill, 999px)', fontWeight: 700,
+                  fontSize: 'var(--fs-lg, 1rem)', textDecoration: 'none', marginBottom: 14
                 }}
               >
                 ⭐ Leave a Google review
@@ -304,7 +304,7 @@ export default function SurveyPage() {
 
               <button
                 onClick={() => doSubmit(score, scoreLabel, '', false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.82rem', color: '#b0aca6', fontFamily: 'inherit', padding: '8px' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', color: '#b0aca6', fontFamily: 'inherit', padding: '8px' }}
               >
                 No thanks, maybe later
               </button>
@@ -319,31 +319,31 @@ export default function SurveyPage() {
             <div style={{ padding: '40px 32px 36px' }}>
               <div style={{ textAlign: 'center', marginBottom: 24 }}>
                 <div style={{
-                  width: 64, height: 64, borderRadius: '50%',
+                  width: 64, height: 64, borderRadius: 'var(--r-full, 50%)',
                   background: scoreLabel === 'detractor' ? 'var(--danger-bg, #fee2e2)' : 'var(--cream, #f8f7f4)',
                   display: 'inline-flex', alignItems: 'center',
                   justifyContent: 'center', marginBottom: 16
                 }}>
                   <span style={{
-                    fontSize: '1.4rem', fontWeight: 900,
+                    fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900,
                     color: scoreLabel === 'detractor' ? 'var(--danger, #c0392b)' : 'var(--ink, #0a0a0a)'
                   }}>{score}</span>
                 </div>
 
                 <h2 style={{
                   fontFamily: "'Playfair Display',serif",
-                  fontSize: '1.35rem', fontWeight: 900,
+                  fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 900,
                   color: 'var(--ink, #0a0a0a)', marginBottom: 8
                 }}>
                   {scoreLabel === 'detractor' ? "We're sorry to hear that." : "Thank you for the feedback!"}
                 </h2>
 
-                <p style={{ fontSize: '0.9rem', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.7, fontWeight: 300, margin: 0 }}>
+                <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.7, fontWeight: 300, margin: 0 }}>
                   {scoreLabel === 'detractor' ? survey.detractorMessage : survey.passiveMessage}
                 </p>
               </div>
 
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: 'var(--ink, #0a0a0a)', marginBottom: 10 }}>
+              <label style={{ display: 'block', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600, color: 'var(--ink, #0a0a0a)', marginBottom: 10 }}>
                 {survey.followupQuestion}
               </label>
               <textarea
@@ -369,7 +369,7 @@ export default function SurveyPage() {
                 <button
                   onClick={() => doSubmit(score, scoreLabel, '', false)}
                   disabled={submitting}
-                  style={{ width:'100%', marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize:'0.82rem', color:'#b0aca6', fontFamily:'inherit', padding:'8px' }}
+                  style={{ width:'100%', marginTop:10, background:'none', border:'none', cursor:'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', color:'#b0aca6', fontFamily:'inherit', padding:'8px' }}
                 >
                   Skip
                 </button>
@@ -384,38 +384,38 @@ export default function SurveyPage() {
             <div style={{ height: 5, background: brand }} />
             <div style={{ padding: '52px 32px 44px', textAlign: 'center' }}>
               <div style={{
-                width: 76, height: 76, borderRadius: '50%',
+                width: 76, height: 76, borderRadius: 'var(--r-full, 50%)',
                 background: brand, display: 'inline-flex',
                 alignItems: 'center', justifyContent: 'center',
-                marginBottom: 20, fontSize: '1.8rem'
+                marginBottom: 20, fontSize: 'var(--fs-3xl, 2rem)'
               }}>
                 🐝
               </div>
               <h2 style={{
                 fontFamily: "'Playfair Display',serif",
-                fontSize: '1.8rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
+                fontSize: 'var(--fs-3xl, 2rem)', fontWeight: 900, color: 'var(--ink, #0a0a0a)',
                 marginBottom: 12, letterSpacing: '-0.03em', lineHeight: 1.1
               }}>
                 {survey.thankYouTitle || 'Thank you!'}
               </h2>
-              <p style={{ fontSize: '0.975rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.75, fontWeight: 300, maxWidth: 340, margin: '0 auto 20px' }}>
+              <p style={{ fontSize: 'var(--fs-lg, 1rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.75, fontWeight: 300, maxWidth: 340, margin: '0 auto 20px' }}>
                 {survey.thankYouMessage}
               </p>
               {score !== null && (
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
                   background: 'var(--cream, #f8f7f4)', border: '1px solid var(--line, #e4e0d8)',
-                  borderRadius: 50, padding: '7px 18px',
-                  fontSize: '0.82rem', color: 'var(--taupe, #7a7670)'
+                  borderRadius: 'var(--r-pill, 999px)', padding: '7px 18px',
+                  fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)'
                 }}>
-                  Your score: <strong style={{ color: 'var(--ink, #0a0a0a)', fontSize: '0.95rem' }}>{score}</strong>
+                  Your score: <strong style={{ color: 'var(--ink, #0a0a0a)', fontSize: 'var(--fs-lg, 1rem)' }}>{score}</strong>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        <p style={{ marginTop: 20, fontSize: '0.7rem', color: 'var(--mute-2, #c8c4bc)', textAlign: 'center' }}>
+        <p style={{ marginTop: 20, fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--mute-2, #c8c4bc)', textAlign: 'center' }}>
           Survey powered by{' '}
           <a href="https://swarmreply.com" style={{ color: 'var(--mute-2, #c8c4bc)' }}>SwarmReply</a>
         </p>
