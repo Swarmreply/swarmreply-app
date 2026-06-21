@@ -84,12 +84,12 @@ export default function Locations() {
               fontFamily: 'Playfair Display, serif',
               fontSize: '2rem', fontWeight: 700
             }}>Locations</h1>
-            <p style={{ color: '#7a7670', marginTop: 8 }}>
+            <p style={{ color: 'var(--taupe, #7a7670)', marginTop: 8 }}>
               Each active location is monitored by SwarmReply and billed on your subscription.
             </p>
           </div>
           <a href="/dashboard/locations/add" style={{
-            background: '#0a0a0a', color: 'white', textDecoration: 'none',
+            background: 'var(--ink, #0a0a0a)', color: 'white', textDecoration: 'none',
             borderRadius: 50, padding: '12px 22px', fontSize: '0.9rem',
             fontWeight: 600, fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap'
           }}>+ Add location</a>
@@ -97,15 +97,15 @@ export default function Locations() {
 
         {error && (
           <div style={{
-            background: '#fee2e2', border: '1px solid #fca5a5',
+            background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5',
             borderRadius: 10, padding: '12px 16px',
-            fontSize: '0.875rem', color: '#c0392b', marginBottom: 20
+            fontSize: '0.875rem', color: 'var(--danger, #c0392b)', marginBottom: 20
           }}>{error}</div>
         )}
 
         {/* Loading */}
         {locations === null && (
-          <div style={{ padding: 32, textAlign: 'center', color: '#7a7670', fontSize: '0.85rem' }}>
+          <div style={{ padding: 32, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '0.85rem' }}>
             Loading locations…
           </div>
         )}
@@ -113,7 +113,7 @@ export default function Locations() {
         {/* Empty state */}
         {locations && locations.length === 0 && !error && (
           <div style={{
-            background: 'white', border: '1.5px solid #e4e0d8',
+            background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
             borderRadius: 16, padding: 48, textAlign: 'center'
           }}>
             <img src="/bee-logo.png" alt="" style={{ width: 56, height: 56, objectFit: 'contain', marginBottom: 12, opacity: .92 }} />
@@ -121,11 +121,11 @@ export default function Locations() {
               fontFamily: 'Playfair Display, serif',
               fontSize: '1.3rem', fontWeight: 700, marginBottom: 8
             }}>No locations yet</h3>
-            <p style={{ color: '#7a7670', fontSize: '0.9rem', marginBottom: 24 }}>
+            <p style={{ color: 'var(--taupe, #7a7670)', fontSize: '0.9rem', marginBottom: 24 }}>
               Add your first business location to start collecting and replying to reviews.
             </p>
             <a href="/dashboard/locations/add" style={{
-              display: 'inline-block', background: '#0a0a0a', color: 'white',
+              display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
               textDecoration: 'none', borderRadius: 50, padding: '14px 28px',
               fontSize: '0.95rem', fontWeight: 600, fontFamily: 'DM Sans, sans-serif'
             }}>Add a location →</a>
@@ -135,7 +135,7 @@ export default function Locations() {
         {/* Location cards */}
         {locations && locations.map(loc => (
           <div key={loc.id} style={{
-            background: 'white', border: '1.5px solid #e4e0d8',
+            background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
             borderRadius: 14, padding: '20px 24px', marginBottom: 14,
             opacity: loc.is_active ? 1 : 0.65
           }}>
@@ -148,14 +148,14 @@ export default function Locations() {
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>{loc.business_name}</h3>
                   {loc.is_active
                     ? badge('Active', '#1d7a4f', '#e7f5ee')
-                    : badge('Inactive', '#7a7670', '#f0ede6')}
+                    : badge('Inactive', 'var(--taupe, #7a7670)', '#f0ede6')}
                   {loc.is_active && (loc.google_connected
                     ? badge('Google connected', '#1d7a4f', '#e7f5ee')
                     : badge('Setup incomplete', '#a16207', '#fef9c3'))}
                   {loc.is_active && loc.billing_synced === false &&
-                    badge('Billing updating…', '#7a7670', '#f0ede6')}
+                    badge('Billing updating…', 'var(--taupe, #7a7670)', '#f0ede6')}
                 </div>
-                <div style={{ fontSize: '0.8rem', color: '#7a7670' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--taupe, #7a7670)' }}>
                   {TYPE_LABELS[loc.business_type] || loc.business_type || '—'}
                   {loc.created_at && <> · added {new Date(loc.created_at).toLocaleDateString()}</>}
                 </div>
@@ -166,7 +166,7 @@ export default function Locations() {
                   <button
                     onClick={() => handleFinishSetup(loc)}
                     style={{
-                      background: '#0a0a0a', color: 'white', border: 'none',
+                      background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none',
                       borderRadius: 50, padding: '9px 18px', fontSize: '0.82rem',
                       fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
                     }}
@@ -176,8 +176,8 @@ export default function Locations() {
                   onClick={() => handleToggleActive(loc)}
                   disabled={busyId === loc.id}
                   style={{
-                    background: 'transparent', color: '#7a7670',
-                    border: '1.5px solid #e4e0d8', borderRadius: 50,
+                    background: 'transparent', color: 'var(--taupe, #7a7670)',
+                    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 50,
                     padding: '9px 18px', fontSize: '0.82rem', fontWeight: 600,
                     cursor: busyId === loc.id ? 'wait' : 'pointer',
                     fontFamily: 'DM Sans, sans-serif'
@@ -192,7 +192,7 @@ export default function Locations() {
 
         {/* Footer note */}
         {locations && locations.length > 0 && (
-          <p style={{ fontSize: '0.78rem', color: '#7a7670', marginTop: 18, lineHeight: 1.6 }}>
+          <p style={{ fontSize: '0.78rem', color: 'var(--taupe, #7a7670)', marginTop: 18, lineHeight: 1.6 }}>
             Deactivating a location stops review monitoring and automatically reduces your
             subscription with a prorated credit. You can reactivate at any time.
           </p>
