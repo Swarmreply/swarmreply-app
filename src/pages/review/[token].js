@@ -90,6 +90,7 @@ export default function ReviewPage({ preview }) {
       const ans = {
         blockId: block.blockId, type: block.type, question: block.question,
         text: value.text ?? null, number: value.number ?? null, options: value.options ?? null,
+        ...(value.contact ? { contact: value.contact } : {}),
       };
       next = [...answers, ans];
       setAnswers(next);
@@ -105,9 +106,19 @@ export default function ReviewPage({ preview }) {
     if (preview || submitted || !token) return;
     setSubmitted(true);
     try {
+      // Merge any contact-capture blocks into one write-back (last non-empty wins per field).
+      const cap = {};
+      (finalAnswers || []).forEach((a) => {
+        if (a && a.contact) {
+          if (a.contact.name) cap.name = a.contact.name;
+          if (a.contact.email) cap.email = a.contact.email;
+          if (a.contact.phone) cap.phone = a.contact.phone;
+        }
+      });
       await axios.post(API + '/review/' + token + '/submit', {
         score: finalScore, classification: finalClass, channel: 'email',
         templateId: survey.id || null,
+        ...(Object.keys(cap).length ? { contact: cap } : {}),
         answers: (finalAnswers || []).map((a) => ({
           blockId: a.blockId, type: a.type, question: a.question,
           text: a.text, number: a.number, options: a.options,
@@ -359,7 +370,7 @@ function BlockInput({ block, color, businessName, onAnswer }) {
         {fieldInput('email', 'Email', 'email')}
         {fieldInput('phone', 'Phone', 'tel')}
         <div style={{ marginTop: 6 }}>
-          <ContinueBtn color={color} onClick={() => onAnswer({ text: filled.join(' \u2022 ') || null })} />
+          <ContinueBtn color={color} onClick={() => onAnswer({ text: filled.join(' \u2022 ') || null, contact: { name: contact.name || null, email: contact.email || null, phone: contact.phone || null } })} />
         </div>
       </div>
     );
