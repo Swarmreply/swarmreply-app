@@ -14,7 +14,7 @@ function authHeaders() {
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 import DashboardLayout from '../../components/DashboardLayout';
-import { StatCard, Button as KitButton } from '../../components/ui';
+import { Card as KitCard, StatCard, Button as KitButton } from '../../components/ui';
 import EmptyState from '../../components/EmptyState';
 import { Skeleton } from '../../components/Skeleton';
 import { useRouter } from 'next/router';
@@ -27,7 +27,7 @@ const TABS = [
 ];
 
 function Card({ children, style = {} }) {
-  return <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, ...style }}>{children}</div>;
+  return <KitCard pad={0} style={style}>{children}</KitCard>;
 }
 
 

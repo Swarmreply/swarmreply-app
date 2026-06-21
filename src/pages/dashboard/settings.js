@@ -8,6 +8,7 @@ import { FEATURES } from '../../utils/featureFlags';
 import SetupProgressCard from '../../components/SetupProgressCard';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
+import { Card as KitCard } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import { getLocations, updateLocationSettings, getAccount, updateAccount, updateLocationProfile } from '../../utils/api';
 import { BUSINESS_TYPES } from '../../constants/businessTypes';
@@ -37,7 +38,7 @@ const TONES = [
 ];
 
 function Card({ children, style = {} }) {
-  return <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, ...style }}>{children}</div>;
+  return <KitCard pad={0} style={style}>{children}</KitCard>;
 }
 
 function Toggle({ on, onChange }) {
