@@ -16,6 +16,7 @@ import axios from 'axios';
 const API = process.env.NEXT_PUBLIC_API_URL;
 const TABS = [
   { id: 'list',       label: 'Campaigns'    },
+  { id: 'survey',     label: 'Send Survey'  },
   { id: 'social',     label: 'Social Posts', flag: 'socialPosting' },
   { id: 'contacts',   label: 'Contacts'    },
   { id: 'segments',   label: 'Segments'    },
@@ -550,6 +551,82 @@ function SocialPostsTab() {
   );
 }
 
+function SurveySendTab({ segments }) {
+  const [survey, setSurvey] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [segment, setSegment] = useState('all');
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState(null);
+  const [err, setErr] = useState('');
+
+  useEffect(() => {
+    axios.get(`${API}/survey-templates`, { headers: authHeaders() })
+      .then((r) => setSurvey((r.data.templates || [])[0] || null))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const segList = segments || [];
+
+  async function send() {
+    setSending(true); setErr(''); setResult(null);
+    try {
+      const r = await axios.post(`${API}/campaigns/survey-send`, { segment, surveyTemplateId: survey?.id }, { headers: authHeaders() });
+      setResult(r.data);
+    } catch (e) { setErr(e.response?.data?.error || e.message || 'Send failed'); }
+    setSending(false);
+  }
+
+  const lbl = { display: 'block', fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 };
+
+  return (
+    <div style={{ maxWidth: 620 }}>
+      <Card style={{ padding: 24, marginBottom: 16 }}>
+        <div style={{ fontWeight: 700, fontSize: '1rem', color: '#1a1a18', marginBottom: 6 }}>Send a feedback survey</div>
+        <p style={{ fontSize: '.85rem', color: '#7a7670', lineHeight: 1.6, margin: '0 0 20px' }}>
+          Email your survey to a group of contacts. Everyone who responds is also invited to leave a public review — no one is filtered out.
+        </p>
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#fcfbf9', border: '1px solid #ece9e3', borderRadius: 10, marginBottom: 18 }}>
+          <div>
+            <div style={{ fontSize: '.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', color: '#a8a39a', marginBottom: 2 }}>Survey</div>
+            <div style={{ fontSize: '.9rem', fontWeight: 700, color: '#1a1a18' }}>{loading ? 'Loading…' : (survey?.name || 'Post-visit feedback')}</div>
+          </div>
+          <a href="/dashboard/surveys" style={{ fontSize: '.8rem', fontWeight: 700, color: '#7a5a06', textDecoration: 'none' }}>Edit →</a>
+        </div>
+
+        <label style={lbl}>Send to</label>
+        <select value={segment} onChange={(e) => setSegment(e.target.value)} style={{ width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.9rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18', marginBottom: 6 }}>
+          {segList.length === 0 && <option value="all">All contacts</option>}
+          {segList.map((s) => (
+            <option key={s.id || s.label} value={s.id || s.label}>{s.label || s.id}{s.count != null ? ` (${s.count})` : ''}</option>
+          ))}
+        </select>
+        <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '0 0 20px' }}>Contacts are managed in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670' }}>Grow › Import</a>. Anyone opted out is skipped automatically.</p>
+
+        <button onClick={send} disabled={sending} style={{ padding: '11px 24px', borderRadius: 50, background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408', border: 'none', cursor: sending ? 'default' : 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: sending ? .6 : 1 }}>
+          {sending ? 'Sending…' : 'Send survey'}
+        </button>
+
+        {err && <div style={{ marginTop: 16, background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 10, padding: '10px 14px', fontSize: '.83rem', fontWeight: 600 }}>{err}</div>}
+        {result && (
+          <div style={{ marginTop: 16, background: '#dcfce7', border: '1px solid #bbf7d0', color: '#1a6b45', borderRadius: 10, padding: '12px 14px', fontSize: '.85rem' }}>
+            <strong>Sent to {result.sent} {result.sent === 1 ? 'contact' : 'contacts'}.</strong>
+            {result.skipped ? ` ${result.skipped} skipped (opted out).` : ''}
+            {result.failed ? ` ${result.failed} failed.` : ''}
+            {result.capped ? " Reached your monthly email limit — the rest weren't sent." : ''}
+            {result.audience === 0 ? ' No contacts with an email in that segment yet.' : ''}
+          </div>
+        )}
+      </Card>
+
+      <p style={{ fontSize: '.78rem', color: '#a8a39a', lineHeight: 1.6 }}>
+        Survey emails count toward your 5,000-per-location monthly email allowance, shared with review requests.
+      </p>
+    </div>
+  );
+}
+
 export default function Campaigns() {
   const { customer } = useAuth();
   const smsGate = useSmsGate();
@@ -724,6 +801,7 @@ export default function Campaigns() {
           </div>
         </div>
       )}
+      {tab === 'survey' && <SurveySendTab segments={segments} />}
       {tab === 'social' && <SocialPostsTab />}
     </DashboardLayout>
   );
