@@ -10,10 +10,10 @@ export default function EmptyState({ icon = null, title, description = '', actio
       padding: compact ? '32px 24px' : '56px 24px',
       background: 'white',
       border: '1.5px dashed #d8d3c9',
-      borderRadius: 16,
+      borderRadius: 'var(--r-md, 16px)',
     }}>
       {icon ? (
-        <div style={{ fontSize: 30, marginBottom: 12, opacity: 0.6, lineHeight: 1 }}>{icon}</div>
+        <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 12, opacity: 0.6, lineHeight: 1 }}>{icon}</div>
       ) : (
         <img src="/bee-logo.png" alt="" style={{
           width: compact ? 44 : 58, height: compact ? 44 : 58,
@@ -29,7 +29,7 @@ export default function EmptyState({ icon = null, title, description = '', actio
       </div>
       {description && (
         <div style={{
-          fontSize: '.85rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6,
+          fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.6,
           maxWidth: 380, margin: '0 auto',
         }}>{description}</div>
       )}

@@ -58,13 +58,13 @@ function MobileNav({ pathname, onMoreToggle, moreOpen }) {
       {/* More drawer */}
       <div className={`mobile-more-overlay${moreOpen ? ' open' : ''}`} onClick={onMoreToggle} />
       <div className={`mobile-more-drawer${moreOpen ? ' open' : ''}`}>
-        <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,.2)', borderRadius: 50, margin: '0 auto 18px' }} />
+        <div style={{ width: 36, height: 4, background: 'rgba(255,255,255,.2)', borderRadius: 'var(--r-pill, 999px)', margin: '0 auto 18px' }} />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
           {MORE_NAV.map(item => (
             <Link key={item.href} href={item.href} onClick={onMoreToggle}
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '14px 8px', borderRadius: 12, background: 'rgba(255,255,255,.07)', textDecoration: 'none' }}>
-              <span style={{ fontSize: '1.3rem' }}>{item.icon}</span>
-              <span style={{ fontSize: '.72rem', fontWeight: 600, color: 'rgba(255,255,255,.7)' }}>{item.label}</span>
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '14px 8px', borderRadius: 'var(--r-md, 16px)', background: 'rgba(255,255,255,.07)', textDecoration: 'none' }}>
+              <span style={{ fontSize: 'var(--fs-xl, 1.25rem)' }}>{item.icon}</span>
+              <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, color: 'rgba(255,255,255,.7)' }}>{item.label}</span>
             </Link>
           ))}
         </div>
@@ -155,8 +155,8 @@ export default function DashboardLayout({ children, title }) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--cream, #f8f7f4)' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
-          <div style={{ color: 'var(--taupe, #7a7670)', fontSize: '0.875rem' }}>Loading your swarm…</div>
+          <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 12 }}>🐝</div>
+          <div style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>Loading your swarm…</div>
         </div>
       </div>
     );
@@ -168,16 +168,16 @@ export default function DashboardLayout({ children, title }) {
   if (billing?.locked) {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--cream, #f8f7f4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
-        <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 20, padding: '48px 40px', maxWidth: 520, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,.08)' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--danger-bg, #fee2e2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '1.8rem' }}>💳</div>
-          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)', marginBottom: 10 }}>Payment required</div>
-          <p style={{ fontSize: '.9rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.75, marginBottom: 28 }}>
+        <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '48px 40px', maxWidth: 520, width: '100%', textAlign: 'center', boxShadow: '0 8px 40px rgba(0,0,0,.08)' }}>
+          <div style={{ width: 64, height: 64, borderRadius: 'var(--r-full, 50%)', background: 'var(--danger-bg, #fee2e2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 'var(--fs-3xl, 2rem)' }}>💳</div>
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900, color: 'var(--ink, #0a0a0a)', marginBottom: 10 }}>Payment required</div>
+          <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.75, marginBottom: 28 }}>
             Your most recent payment didn't go through, so access is paused. Please update your payment method to restore your account.
           </p>
-          <button onClick={openBillingPortal} style={{ width: '100%', padding: '14px 0', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.95rem', fontWeight: 700, fontFamily: 'inherit', marginBottom: 12 }}>
+          <button onClick={openBillingPortal} style={{ width: '100%', padding: '14px 0', borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, fontFamily: 'inherit', marginBottom: 12 }}>
             Update payment method →
           </button>
-          <p style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
+          <p style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
             Need help? Email <a href="mailto:hello@swarmreply.com" style={{ color: 'var(--ink, #0a0a0a)', fontWeight: 600 }}>hello@swarmreply.com</a>
           </p>
         </div>
@@ -194,11 +194,11 @@ export default function DashboardLayout({ children, title }) {
           background: 'linear-gradient(90deg,var(--honey, #f5c842),var(--amber, #d4a515))',
           color: 'var(--ink, #0a0a0a)', padding: '8px 20px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 12px rgba(0,0,0,.2)'
+          fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, boxShadow: '0 2px 12px rgba(0,0,0,.2)'
         }}>
           <span>⚡ ADMIN VIEW — Logged in as: {sessionStorage.getItem('impersonating')} — All actions are real</span>
           <button onClick={() => { sessionStorage.removeItem('impersonating'); localStorage.removeItem('swarmreply_token'); window.close(); }}
-            style={{ background: 'rgba(0,0,0,.15)', border: 'none', borderRadius: 6, padding: '3px 10px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem' }}>
+            style={{ background: 'rgba(0,0,0,.15)', border: 'none', borderRadius: 'var(--r-xs, 8px)', padding: '3px 10px', cursor: 'pointer', fontWeight: 700, fontSize: 'var(--fs-xs, 0.75rem)' }}>
             Exit ✕
           </button>
         </div>
@@ -213,10 +213,10 @@ export default function DashboardLayout({ children, title }) {
           position: 'sticky', top: 0, zIndex: 200,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-            <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>⚠️</span>
+            <span style={{ fontSize: 'var(--fs-lg, 1rem)', flexShrink: 0 }}>⚠️</span>
             <div>
-              <span style={{ fontWeight: 700, fontSize: '.875rem' }}>Payment failed — action required. </span>
-              <span style={{ fontSize: '.875rem', opacity: .9 }}>
+              <span style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)' }}>Payment failed — action required. </span>
+              <span style={{ fontSize: 'var(--fs-base, 0.875rem)', opacity: .9 }}>
                 {billing.graceDaysLeft > 0
                   ? `Your account will be locked in ${billing.graceDaysLeft} day${billing.graceDaysLeft === 1 ? '' : 's'} if not resolved.`
                   : 'Please update your payment method immediately to avoid losing access.'}
@@ -224,10 +224,10 @@ export default function DashboardLayout({ children, title }) {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-            <button onClick={openBillingPortal} style={{ padding: '7px 18px', borderRadius: 50, background: 'white', color: 'var(--danger, #c0392b)', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit' }}>
+            <button onClick={openBillingPortal} style={{ padding: '7px 18px', borderRadius: 'var(--r-pill, 999px)', background: 'white', color: 'var(--danger, #c0392b)', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit' }}>
               Update card →
             </button>
-            <button onClick={() => setDismissed(true)} style={{ padding: '7px 12px', borderRadius: 50, background: 'rgba(255,255,255,.15)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontFamily: 'inherit' }}>
+            <button onClick={() => setDismissed(true)} style={{ padding: '7px 12px', borderRadius: 'var(--r-pill, 999px)', background: 'rgba(255,255,255,.15)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit' }}>
               Dismiss
             </button>
           </div>
@@ -249,7 +249,7 @@ export default function DashboardLayout({ children, title }) {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
               <span className="topbar-title" style={{
-                fontFamily: "'Playfair Display', serif", fontSize: '1.3rem',
+                fontFamily: "'Playfair Display', serif", fontSize: 'var(--fs-xl, 1.25rem)',
                 fontWeight: 700, color: 'var(--tx, #1a1a18)', letterSpacing: '-.01em', lineHeight: 1.2
               }}>{title}</span>
             </div>

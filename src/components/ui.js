@@ -18,7 +18,7 @@ export function Card({ children, pad = 24, hover = false, style = {}, ...rest })
     <div
       className={`sr-card${hover ? ' sr-card-link' : ''}`}
       style={{
-        background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 16,
+        background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)',
         padding: pad, ...style
       }}
       {...rest}
@@ -33,7 +33,7 @@ export function Card({ children, pad = 24, hover = false, style = {}, ...rest })
 export function SectionLabel({ children, style = {} }) {
   return (
     <div style={{
-      fontSize: '.7rem', fontWeight: 700, letterSpacing: '.09em',
+      fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.09em',
       textTransform: 'uppercase', color: '#a39e93', marginBottom: 12, ...style
     }}>
       {children}
@@ -53,13 +53,13 @@ export function PageHeader({ title, subtitle, action, sticky = true, children })
     }}>
       <div style={{ minWidth: 0 }}>
         <h1 style={{
-          fontFamily: SERIF, fontSize: '1.45rem', fontWeight: 700,
+          fontFamily: SERIF, fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 700,
           color: 'var(--tx, #1a1a18)', margin: 0, lineHeight: 1.2, letterSpacing: '-.01em'
         }}>
           {title}
         </h1>
         {subtitle && (
-          <p style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', margin: '3px 0 0' }}>{subtitle}</p>
+          <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', margin: '3px 0 0' }}>{subtitle}</p>
         )}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
@@ -76,7 +76,7 @@ export function PageHeader({ title, subtitle, action, sticky = true, children })
 export function Button({ children, variant = 'gold', size = 'md', href, onClick, disabled, style = {}, ...rest }) {
   const base = {
     display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-    borderRadius: 50, fontWeight: 700, fontFamily: 'inherit', cursor: disabled ? 'default' : 'pointer',
+    borderRadius: 'var(--r-pill, 999px)', fontWeight: 700, fontFamily: 'inherit', cursor: disabled ? 'default' : 'pointer',
     border: 'none', textDecoration: 'none', whiteSpace: 'nowrap',
     opacity: disabled ? .55 : 1,
     padding: size === 'sm' ? '8px 16px' : '11px 22px',
@@ -168,26 +168,26 @@ export function StatCard({ label, value, sub, subColor = 'var(--taupe, #7a7670)'
         }} />
       )}
       <div style={{
-        fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em',
+        fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em',
         textTransform: 'uppercase', color: '#a39e93', marginBottom: 10
       }}>
         {label}
       </div>
       <div style={{
-        fontFamily: SERIF, fontSize: '1.9rem', fontWeight: 700,
+        fontFamily: SERIF, fontSize: 'var(--fs-3xl, 2rem)', fontWeight: 700,
         color: valueColor, lineHeight: 1.05, letterSpacing: '-.01em'
       }}>
         {loading ? '·' : <CountUp value={value} />}
       </div>
       {sub && (
-        <div style={{ fontSize: '.78rem', color: subColor, marginTop: 8, fontWeight: 500 }}>
+        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: subColor, marginTop: 8, fontWeight: 500 }}>
           {sub}
         </div>
       )}
     </>
   );
   const cardStyle = {
-    background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 16,
+    background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)',
     padding: '18px 22px', position: 'relative', overflow: 'hidden',
     display: 'block', textDecoration: 'none'
   };
@@ -210,21 +210,21 @@ export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, hr
   const t = TONES[tone] || TONES.amber;
   return (
     <div className="sr-queue-item" style={{
-      background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14,
+      background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)',
       padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10
     }}>
       <span style={{
-        width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+        width: 38, height: 38, borderRadius: 'var(--r-full, 50%)', flexShrink: 0,
         background: t.bg, color: t.fg, display: 'flex',
-        alignItems: 'center', justifyContent: 'center', fontSize: '1.05rem'
+        alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-lg, 1rem)'
       }}>
         {icon}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: '.9rem', fontWeight: 600, color: 'var(--tx, #1a1a18)' }}>{title}</div>
+        <div style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600, color: 'var(--tx, #1a1a18)' }}>{title}</div>
         {detail && (
           <div style={{
-            fontSize: '.78rem', color: 'var(--taupe, #7a7670)', marginTop: 2,
+            fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 2,
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
           }}>
             {detail}
@@ -235,8 +235,8 @@ export function QueueItem({ icon, tone = 'amber', title, detail, actionLabel, hr
       {onDismiss && (
         <button onClick={onDismiss} aria-label="Clear notification" title="Clear"
           style={{
-            flexShrink: 0, width: 28, height: 28, borderRadius: '50%', border: 'none',
-            background: 'transparent', color: 'var(--mute, #a8a39a)', cursor: 'pointer', fontSize: '1.1rem',
+            flexShrink: 0, width: 28, height: 28, borderRadius: 'var(--r-full, 50%)', border: 'none',
+            background: 'transparent', color: 'var(--mute, #a8a39a)', cursor: 'pointer', fontSize: 'var(--fs-lg, 1rem)',
             lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit'
           }}
           onMouseEnter={e => { e.currentTarget.style.background = 'var(--cream-2, #f0eeea)'; e.currentTarget.style.color = 'var(--tx-2, #4a4a48)'; }}
@@ -264,7 +264,7 @@ export function EmptyState({ title, body, actionLabel, href, onAction, compact =
         {title}
       </div>
       {body && (
-        <p style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', margin: '0 auto 18px', maxWidth: 360, lineHeight: 1.55 }}>
+        <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', margin: '0 auto 18px', maxWidth: 360, lineHeight: 1.55 }}>
           {body}
         </p>
       )}

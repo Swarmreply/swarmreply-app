@@ -23,22 +23,22 @@ function authHeaders() {
 
 // ── Shared bits ───────────────────────────────────────────────────────────────
 const fieldStyle = {
-  width: '100%', padding: '11px 14px', borderRadius: 11, border: '1.5px solid var(--line, #e4e0d8)',
-  fontSize: '.9rem', fontFamily: 'inherit', color: 'var(--tx, #1a1a18)', background: '#fff', boxSizing: 'border-box',
+  width: '100%', padding: '11px 14px', borderRadius: 'var(--r-md, 16px)', border: '1.5px solid var(--line, #e4e0d8)',
+  fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', color: 'var(--tx, #1a1a18)', background: '#fff', boxSizing: 'border-box',
   outline: 'none', transition: 'border-color .15s',
 };
 const labelStyle = {
-  display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em',
+  display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em',
   textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5,
 };
 const primaryBtn = {
-  background: 'var(--honey, #f5c842)', color: 'var(--ink, #0a0a0a)', border: 'none', borderRadius: 50,
-  padding: '12px 24px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.9rem',
+  background: 'var(--honey, #f5c842)', color: 'var(--ink, #0a0a0a)', border: 'none', borderRadius: 'var(--r-pill, 999px)',
+  padding: '12px 24px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: 'var(--fs-base, 0.875rem)',
   transition: 'all .18s',
 };
 const suggestBtn = {
-  background: '#fdf6e3', color: 'var(--amber-tx, #92690a)', border: '1px solid #f5e4b8', borderRadius: 50,
-  padding: '4px 11px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: '.74rem',
+  background: '#fdf6e3', color: 'var(--amber-tx, #92690a)', border: '1px solid #f5e4b8', borderRadius: 'var(--r-pill, 999px)',
+  padding: '4px 11px', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit', fontSize: 'var(--fs-xs, 0.75rem)',
 };
 
 function HelpBox({ title = 'Where do I find this?', children }) {
@@ -47,12 +47,12 @@ function HelpBox({ title = 'Where do I find this?', children }) {
     <div style={{ marginTop: 12 }}>
       <button onClick={() => setOpen(o => !o)} style={{
         background: 'transparent', border: 'none', color: '#1a4baa', cursor: 'pointer',
-        fontSize: '.8rem', fontWeight: 600, fontFamily: 'inherit', padding: 0,
+        fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, fontFamily: 'inherit', padding: 0,
       }}>
         {open ? '▾' : '▸'} {title}
       </button>
       {open && (
-        <div style={{ marginTop: 8, background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, padding: '12px 14px', fontSize: '.82rem', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.6 }}>
+        <div style={{ marginTop: 8, background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', padding: '12px 14px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.6 }}>
           {children}
         </div>
       )}
@@ -68,7 +68,7 @@ function Note({ children, tone = 'info' }) {
     error:   { bg: '#fdecea', bd: '#f3c9c3', fg: 'var(--danger, #c0392b)' },
   }[tone];
   return (
-    <div style={{ background: palette.bg, border: `1px solid ${palette.bd}`, color: palette.fg, borderRadius: 8, padding: '9px 12px', fontSize: '.8rem', lineHeight: 1.5, marginTop: 10 }}>
+    <div style={{ background: palette.bg, border: `1px solid ${palette.bd}`, color: palette.fg, borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', lineHeight: 1.5, marginTop: 10 }}>
       {children}
     </div>
   );
@@ -132,7 +132,7 @@ function BusinessDetailsPanel({ customer, onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.5 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.5 }}>
         We pre-filled what we know from your signup — just confirm your business name is right.
       </p>
       <div style={{ marginBottom: 12 }}>
@@ -141,7 +141,7 @@ function BusinessDetailsPanel({ customer, onDone }) {
                disabled={loading} placeholder={loading ? 'Loading…' : "e.g. Bella's Kitchen"} />
       </div>
       {businessType && (
-        <p style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', margin: '0 0 12px' }}>
+        <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 12px' }}>
           Business type: <strong style={{ color: 'var(--ink, #0a0a0a)' }}>{businessType}</strong>
           {' '}— you can change this anytime in Settings → Account.
         </p>
@@ -165,7 +165,7 @@ function ConnectGooglePanel() {
   const router = useRouter();
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 6px', lineHeight: 1.55 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 6px', lineHeight: 1.55 }}>
         Connecting your Google Business Profile lets SwarmReply read your reviews and post
         replies automatically — the core of how it works.
       </p>
@@ -228,7 +228,7 @@ function ReviewLinkPanel({ onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.5 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.5 }}>
         These are the links where happy customers leave you public reviews. Google is required;
         Yelp and Facebook are optional — add any you use and we’ll route reviewers to them.
       </p>
@@ -314,7 +314,7 @@ function TestRequestPanel({ customer, onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.5 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.5 }}>
         Add your branding, then send a real request to <strong>yourself</strong> so you see exactly what customers get.
       </p>
 
@@ -324,7 +324,7 @@ function TestRequestPanel({ customer, onDone }) {
           <label style={labelStyle}>Brand color</label>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)}
-              style={{ width: 42, height: 42, border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 11, background: '#fff', cursor: 'pointer', padding: 2 }} />
+              style={{ width: 42, height: 42, border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', background: '#fff', cursor: 'pointer', padding: 2 }} />
             <input value={brandColor} onChange={e => setBrandColor(e.target.value)} style={{ ...fieldStyle, width: 110 }} placeholder="var(--honey, #f5c842)" />
           </div>
         </div>
@@ -342,26 +342,26 @@ function TestRequestPanel({ customer, onDone }) {
       {/* Live preview — exactly how the email arrives, matching Grow › Email preview */}
       <div style={{ marginBottom: 14 }}>
         <label style={labelStyle}>Preview</label>
-        <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, overflow: 'hidden', fontFamily: 'sans-serif' }}>
+        <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', overflow: 'hidden', fontFamily: 'sans-serif' }}>
           {/* Banner */}
           <div style={{ background: brandColor, padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[brandLogoPosition] || 'flex-start' }}>
             {brandLogo.trim()
               ? <img src={brandLogo.trim()} alt="" style={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain' }} onError={e => { e.target.style.display = 'none'; }} />
-              : <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--ink, #0a0a0a)', letterSpacing: '-.01em' }}>{businessName}</div>}
+              : <div style={{ fontWeight: 800, fontSize: 'var(--fs-lg, 1rem)', color: 'var(--ink, #0a0a0a)', letterSpacing: '-.01em' }}>{businessName}</div>}
           </div>
           {/* Body */}
           <div style={{ padding: '22px', background: 'white' }}>
-            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--ink, #0a0a0a)', marginBottom: 12 }}>{subjectPreview}</div>
-            <div style={{ fontSize: '.86rem', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap' }}>{bodyPreview}</div>
+            <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', color: 'var(--ink, #0a0a0a)', marginBottom: 12 }}>{subjectPreview}</div>
+            <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap' }}>{bodyPreview}</div>
             <div style={{ textAlign: 'center' }}>
-              <span style={{ display: 'inline-block', background: brandColor, color: 'var(--ink, #0a0a0a)', padding: '13px 26px', borderRadius: 50, fontWeight: 700, fontSize: '.88rem' }}>
+              <span style={{ display: 'inline-block', background: brandColor, color: 'var(--ink, #0a0a0a)', padding: '13px 26px', borderRadius: 'var(--r-pill, 999px)', fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)' }}>
                 {buttonText}
               </span>
             </div>
           </div>
           {/* Footer */}
           <div style={{ background: brandColor, padding: '13px 22px', opacity: .85 }}>
-            <div style={{ fontSize: '.7rem', color: 'var(--ink, #0a0a0a)', opacity: .7, textAlign: 'center' }}>Sent by SwarmReply on behalf of {businessName}</div>
+            <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--ink, #0a0a0a)', opacity: .7, textAlign: 'center' }}>Sent by SwarmReply on behalf of {businessName}</div>
           </div>
         </div>
       </div>
@@ -440,15 +440,15 @@ function KeywordsPanel({ onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 12px', lineHeight: 1.5 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 12px', lineHeight: 1.5 }}>
         Track where you rank on Google for the searches your customers actually use. Add up to {MAX_KEYWORDS}.
       </p>
       {list.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 12 }}>
           {list.map(k => (
-            <span key={k.id} style={{ background: 'var(--cream-2, #f0eeea)', borderRadius: 50, padding: '4px 10px', fontSize: '.78rem', color: 'var(--ink, #0a0a0a)', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span key={k.id} style={{ background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-pill, 999px)', padding: '4px 10px', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--ink, #0a0a0a)', display: 'flex', alignItems: 'center', gap: 6 }}>
               {k.keyword || k.term}
-              <button onClick={() => remove(k.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--taupe, #7a7670)', fontSize: '.9rem', lineHeight: 1, padding: 0 }}>×</button>
+              <button onClick={() => remove(k.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)', lineHeight: 1, padding: 0 }}>×</button>
             </span>
           ))}
         </div>
@@ -520,7 +520,7 @@ function AiCriteriaPanel({ onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 12px', lineHeight: 1.5 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 12px', lineHeight: 1.5 }}>
         These are the <strong>questions</strong> customers ask AI assistants like ChatGPT. We check whether
         your business gets recommended. Up to 15, one per line.
       </p>
@@ -586,7 +586,7 @@ function AutoReplyTonePanel({ customer, onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 12px', lineHeight: 1.5 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 12px', lineHeight: 1.5 }}>
         Set how your automatic review replies should sound. You can fine-tune this anytime in Settings.
       </p>
       <label style={labelStyle}>Reply tone</label>
@@ -595,7 +595,7 @@ function AutoReplyTonePanel({ customer, onDone }) {
           <button key={t.id} onClick={() => setTone(t.id)} style={{
             border: `1px solid ${tone === t.id ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)'}`,
             background: tone === t.id ? 'var(--ink, #0a0a0a)' : 'white', color: tone === t.id ? 'white' : 'var(--ink, #0a0a0a)',
-            borderRadius: 8, padding: '8px 14px', cursor: 'pointer', fontSize: '.82rem', fontWeight: 600, fontFamily: 'inherit',
+            borderRadius: 'var(--r-xs, 8px)', padding: '8px 14px', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, fontFamily: 'inherit',
           }}>{t.label}</button>
         ))}
       </div>
@@ -641,7 +641,7 @@ function ConnectIntegrationPanel({ onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 8px', lineHeight: 1.55 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 8px', lineHeight: 1.55 }}>
         Connect a CRM or scheduling tool you already use, and SwarmReply will automatically ask for a
         review after each completed job — no manual sending. Don’t use one? You can skip this.
       </p>
@@ -651,8 +651,8 @@ function ConnectIntegrationPanel({ onDone }) {
           Browse integrations →
         </button>
         <button onClick={skip} disabled={skipping} style={{
-          background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 50,
-          padding: '12px 22px', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: '.88rem',
+          background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-pill, 999px)',
+          padding: '12px 22px', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'var(--fs-base, 0.875rem)',
           opacity: skipping ? .6 : 1,
         }}>
           {skipping ? 'Saving…' : "I'll integrate another day"}
@@ -702,7 +702,7 @@ function ListingsPanel({ onDone }) {
     } finally { setPushing(false); }
   }
 
-  if (loading) return <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)' }}>Loading your business info…</p>;
+  if (loading) return <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)' }}>Loading your business info…</p>;
 
   if (done) return (
     <Note tone="success">
@@ -713,26 +713,26 @@ function ListingsPanel({ onDone }) {
 
   return (
     <div>
-      <p style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.55 }}>
+      <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 14px', lineHeight: 1.55 }}>
         One source of truth, live everywhere customers search. SwarmReply pushes your business info
         straight to Google — the listing that matters most — then watches Facebook and Foursquare
         for inconsistencies (Foursquare feeds Apple Maps, Uber & more). No copy-paste, no portals.
       </p>
 
       {data?.location && (
-        <div style={{ background: '#faf9f6', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, padding: '14px 16px', marginBottom: 14 }}>
+        <div style={{ background: '#faf9f6', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '14px 16px', marginBottom: 14 }}>
           {[
             ['Business', data.location.businessName],
             ['Phone', data.location.phone],
             ['Website', data.location.website],
             ['Address', [data.location.addressLine1, data.location.city, data.location.state, data.location.zip].filter(Boolean).join(', ')],
           ].filter(([, v]) => v).map(([k, v]) => (
-            <div key={k} style={{ fontSize: '.8rem', padding: '3px 0' }}>
+            <div key={k} style={{ fontSize: 'var(--fs-sm, 0.8125rem)', padding: '3px 0' }}>
               <span style={{ color: '#a39e93', fontWeight: 700 }}>{k}: </span>{v}
             </div>
           ))}
           <button onClick={() => router.push('/dashboard/listings')}
-            style={{ background: 'none', border: 'none', color: '#1a4baa', fontSize: '.76rem', cursor: 'pointer', padding: '6px 0 0', fontFamily: 'inherit' }}>
+            style={{ background: 'none', border: 'none', color: '#1a4baa', fontSize: 'var(--fs-xs, 0.75rem)', cursor: 'pointer', padding: '6px 0 0', fontFamily: 'inherit' }}>
             Edit business info →
           </button>
         </div>

@@ -51,12 +51,12 @@ export default function SendRequestModal({ open, onClose }) {
   }
 
   const field = {
-    width: '100%', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12,
-    padding: '12px 14px', fontSize: 16, fontFamily: 'inherit',
+    width: '100%', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)',
+    padding: '12px 14px', fontSize: 'var(--fs-lg, 1rem)', fontFamily: 'inherit',
     background: 'white', color: 'var(--tx, #1a1a18)', outline: 'none', boxSizing: 'border-box',
   };
   const label = {
-    fontSize: '.72rem', fontWeight: 700, letterSpacing: '.06em',
+    fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, letterSpacing: '.06em',
     textTransform: 'uppercase', color: '#a39e93', display: 'block', marginBottom: 6,
   };
 
@@ -71,7 +71,7 @@ export default function SendRequestModal({ open, onClose }) {
       role="dialog" aria-modal="true" aria-label="Send a review request"
     >
       <div className="sr-fade-in" style={{
-        background: '#faf9f6', borderRadius: 20, width: 'min(440px, 100%)',
+        background: '#faf9f6', borderRadius: 'var(--r-md, 16px)', width: 'min(440px, 100%)',
         boxShadow: '0 30px 80px rgba(0,0,0,.3)', overflow: 'hidden',
       }}>
         {/* Honey header */}
@@ -81,17 +81,17 @@ export default function SendRequestModal({ open, onClose }) {
         }}>
           <img src="/bee-logo.png" alt="" style={{ width: 38, height: 38, objectFit: 'contain' }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.15rem', color: '#1a1408' }}>
+            <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'var(--fs-xl, 1.25rem)', color: '#1a1408' }}>
               Send a review request
             </div>
-            <div style={{ fontSize: '.74rem', color: 'rgba(26,20,8,.7)', fontWeight: 600 }}>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'rgba(26,20,8,.7)', fontWeight: 600 }}>
               A friendly, branded invite — sent instantly
             </div>
           </div>
           <button onClick={onClose} aria-label="Close" style={{
-            background: 'rgba(10,10,8,.12)', border: 'none', borderRadius: '50%',
+            background: 'rgba(10,10,8,.12)', border: 'none', borderRadius: 'var(--r-full, 50%)',
             width: 32, height: 32, cursor: 'pointer', color: '#1a1408',
-            fontSize: '.95rem', lineHeight: 1, flexShrink: 0,
+            fontSize: 'var(--fs-lg, 1rem)', lineHeight: 1, flexShrink: 0,
           }}>✕</button>
         </div>
 
@@ -99,22 +99,22 @@ export default function SendRequestModal({ open, onClose }) {
           /* ── Success ── */
           <div style={{ padding: '36px 28px', textAlign: 'center' }}>
             <img src="/bee-logo.png" alt="" style={{ width: 54, height: 54, objectFit: 'contain', marginBottom: 12 }} />
-            <div style={{ fontFamily: SERIF, fontSize: '1.3rem', fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6 }}>
+            <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6 }}>
               Request sent!
             </div>
-            <p style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', margin: '0 0 24px' }}>
+            <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 24px' }}>
               On its way to <strong style={{ color: 'var(--tx, #1a1a18)' }}>{sentTo}</strong>
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
               <button className="sr-btn" onClick={() => setSentTo(null)} style={{
-                padding: '10px 20px', borderRadius: 50, background: 'transparent',
+                padding: '10px 20px', borderRadius: 'var(--r-pill, 999px)', background: 'transparent',
                 border: '1.5px solid var(--line, #e4e0d8)', color: 'var(--tx, #1a1a18)', cursor: 'pointer',
-                fontSize: '.85rem', fontWeight: 700, fontFamily: 'inherit',
+                fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit',
               }}>Send another</button>
               <button className="sr-btn" onClick={onClose} style={{
-                padding: '10px 24px', borderRadius: 50, background: 'var(--tx, #1a1a18)',
+                padding: '10px 24px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--tx, #1a1a18)',
                 border: 'none', color: 'white', cursor: 'pointer',
-                fontSize: '.85rem', fontWeight: 700, fontFamily: 'inherit',
+                fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit',
               }}>Done</button>
             </div>
           </div>
@@ -141,14 +141,14 @@ export default function SendRequestModal({ open, onClose }) {
             </div>
 
             {error && (
-              <div style={{ fontSize: '.8rem', color: '#b3261e', fontWeight: 600, margin: '10px 0 0' }}>{error}</div>
+              <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: '#b3261e', fontWeight: 600, margin: '10px 0 0' }}>{error}</div>
             )}
 
             <button className="sr-btn sr-btn-gold" onClick={send} disabled={sending} style={{
               width: '100%', marginTop: 18, padding: '13px',
               background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408',
-              border: 'none', borderRadius: 50, cursor: sending ? 'default' : 'pointer',
-              fontSize: '.92rem', fontWeight: 700, fontFamily: 'inherit',
+              border: 'none', borderRadius: 'var(--r-pill, 999px)', cursor: sending ? 'default' : 'pointer',
+              fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit',
               opacity: sending ? .6 : 1,
             }}>
               {sending ? 'Sending…' : '⚡ Send request'}

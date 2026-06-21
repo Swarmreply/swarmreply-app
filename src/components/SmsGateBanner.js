@@ -19,16 +19,16 @@ export default function SmsGateBanner({ feature = 'Text messaging', enabled = fa
         gap: 10,
         background: '#fff7e6',
         border: '1px solid var(--honey, #f5c842)',
-        borderRadius: 12,
+        borderRadius: 'var(--r-md, 16px)',
         padding: '12px 16px',
         marginBottom: 16,
-        fontSize: '.85rem',
+        fontSize: 'var(--fs-base, 0.875rem)',
         color: '#6b5a14',
         lineHeight: 1.55,
         ...style
       }}
     >
-      <span style={{ fontSize: '1.05rem', lineHeight: 1.2 }} aria-hidden="true">⏳</span>
+      <span style={{ fontSize: 'var(--fs-lg, 1rem)', lineHeight: 1.2 }} aria-hidden="true">⏳</span>
       <span>
         <strong>{feature} goes live {when}.</strong>{' '}
         We&rsquo;re finishing carrier registration (A2P 10DLC) so your texts deliver reliably.

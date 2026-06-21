@@ -268,7 +268,7 @@ export default function WallabeeChat({ customer }) {
 
   // ── styles ──
   const beeAvatar = (size) => (
-    <span style={{ width: size, height: size, borderRadius: '50%', background: 'white',
+    <span style={{ width: size, height: size, borderRadius: 'var(--r-full, 50%)', background: 'white',
       border: '1.5px solid var(--line, #e4e0d8)', display: 'inline-flex', alignItems: 'center',
       justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
       <img src="/bee-logo.png" alt="Wallabee" style={{ width: size - 8, height: size - 8, objectFit: 'contain' }} />
@@ -276,7 +276,7 @@ export default function WallabeeChat({ customer }) {
   );
 
   const bubble = (who) => ({
-    maxWidth: '82%', padding: '10px 14px', borderRadius: 14, fontSize: '.875rem',
+    maxWidth: '82%', padding: '10px 14px', borderRadius: 'var(--r-md, 16px)', fontSize: 'var(--fs-base, 0.875rem)',
     lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
     ...(who === 'bee'
       ? { background: 'white', border: '1.5px solid var(--line, #e4e0d8)', color: 'var(--ink, #0a0a0a)', borderTopLeftRadius: 4 }
@@ -285,8 +285,8 @@ export default function WallabeeChat({ customer }) {
 
   const inp = {
     width: '100%', boxSizing: 'border-box', padding: '10px 13px',
-    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 11, fontFamily: 'inherit',
-    fontSize: '.85rem', background: 'white', outline: 'none',
+    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', fontFamily: 'inherit',
+    fontSize: 'var(--fs-base, 0.875rem)', background: 'white', outline: 'none',
   };
 
   return (
@@ -296,7 +296,7 @@ export default function WallabeeChat({ customer }) {
         <div className="wallabee-panel" style={{
           position: 'fixed', bottom: 96, right: 20, zIndex: 9000,
           width: 'min(360px, calc(100vw - 32px))', height: 'min(540px, calc(100vh - 140px))',
-          background: 'var(--cream, #f8f7f4)', borderRadius: 18, border: '1.5px solid var(--line, #e4e0d8)',
+          background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-md, 16px)', border: '1.5px solid var(--line, #e4e0d8)',
           boxShadow: '0 12px 48px rgba(0,0,0,.18)', display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
         }}>
@@ -304,11 +304,11 @@ export default function WallabeeChat({ customer }) {
           <div style={{ background: GOLD, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 11 }}>
             {beeAvatar(40)}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: '1.05rem', color: 'var(--ink, #0a0a0a)' }}>Wallabee</div>
-              <div style={{ fontSize: '.7rem', fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'rgba(10,10,10,.65)' }}>SwarmReply support bee</div>
+              <div style={{ fontFamily: "'Playfair Display',serif", fontWeight: 900, fontSize: 'var(--fs-lg, 1rem)', color: 'var(--ink, #0a0a0a)' }}>Wallabee</div>
+              <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.05em', textTransform: 'uppercase', color: 'rgba(10,10,10,.65)' }}>SwarmReply support bee</div>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close chat"
-              style={{ background: 'rgba(10,10,10,.12)', border: 'none', borderRadius: '50%', width: 30, height: 30, cursor: 'pointer', fontSize: '.85rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>
+              style={{ background: 'rgba(10,10,10,.12)', border: 'none', borderRadius: 'var(--r-full, 50%)', width: 30, height: 30, cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>
               ✕
             </button>
           </div>
@@ -321,12 +321,12 @@ export default function WallabeeChat({ customer }) {
                   <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: '88%' }}>
                     {m.articles.map(a => (
                       <a key={a.id} href={a.u ? `https://swarmreply.com${a.u}` : `${HELP_BASE}#${a.id}`} target="_blank" rel="noreferrer"
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, padding: '10px 13px', textDecoration: 'none' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '10px 13px', textDecoration: 'none' }}>
                         <span style={{ flex: 1 }}>
-                          <span style={{ display: 'block', fontSize: '.83rem', fontWeight: 600, color: 'var(--ink, #0a0a0a)' }}>{a.t}</span>
-                          <span style={{ display: 'block', fontSize: '.7rem', color: 'var(--taupe, #7a7670)', marginTop: 1 }}>{a.c}</span>
+                          <span style={{ display: 'block', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, color: 'var(--ink, #0a0a0a)' }}>{a.t}</span>
+                          <span style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--taupe, #7a7670)', marginTop: 1 }}>{a.c}</span>
                         </span>
-                        <span style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>↗</span>
+                        <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>↗</span>
                       </a>
                     ))}
                   </div>
@@ -338,7 +338,7 @@ export default function WallabeeChat({ customer }) {
                   <div key={i} style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                     {m.chips.map(c => (
                       <button key={c} onClick={() => chip(c)}
-                        style={{ padding: '8px 14px', borderRadius: 50, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.8rem', fontWeight: 600, color: 'var(--ink, #0a0a0a)' }}>
+                        style={{ padding: '8px 14px', borderRadius: 'var(--r-pill, 999px)', border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, color: 'var(--ink, #0a0a0a)' }}>
                         {c}
                       </button>
                     ))}
@@ -353,7 +353,7 @@ export default function WallabeeChat({ customer }) {
                     {m.mailto && (
                       <div style={{ marginTop: 10 }}>
                         <a href="https://swarmreply.com/contact.html" target="_blank" rel="noopener"
-                          style={{ display: 'inline-block', background: GOLD, color: '#1a1408', fontWeight: 700, fontSize: '.8rem', padding: '8px 16px', borderRadius: 50, textDecoration: 'none' }}>
+                          style={{ display: 'inline-block', background: GOLD, color: '#1a1408', fontWeight: 700, fontSize: 'var(--fs-sm, 0.8125rem)', padding: '8px 16px', borderRadius: 'var(--r-pill, 999px)', textDecoration: 'none' }}>
                           Email our team →
                         </a>
                       </div>
@@ -371,8 +371,8 @@ export default function WallabeeChat({ customer }) {
             )}
 
             {showForm && (
-              <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: 14 }}>
-                <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>
+              <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: 14 }}>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>
                   Sending as <strong style={{ color: 'var(--ink, #0a0a0a)' }}>{customer?.email}</strong> — the team will reply there.
                 </div>
                 <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Subject" maxLength={200}
@@ -380,14 +380,14 @@ export default function WallabeeChat({ customer }) {
                 <textarea rows={3} value={body} onChange={e => setBody(e.target.value)} maxLength={5000}
                   placeholder="Tell us what's going on — the more detail, the faster we can help."
                   style={{ ...inp, resize: 'vertical' }} />
-                {formErr && <div style={{ marginTop: 8, fontSize: '.78rem', color: '#a4282a' }}>{formErr}</div>}
+                {formErr && <div style={{ marginTop: 8, fontSize: 'var(--fs-xs, 0.75rem)', color: '#a4282a' }}>{formErr}</div>}
                 <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                   <button onClick={sendToTeam} disabled={sending}
-                    style={{ flex: 1, padding: '10px 0', borderRadius: 50, border: 'none', background: 'var(--ink, #0a0a0a)', color: 'white', cursor: sending ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: '.82rem', fontWeight: 700, opacity: sending ? 0.6 : 1 }}>
+                    style={{ flex: 1, padding: '10px 0', borderRadius: 'var(--r-pill, 999px)', border: 'none', background: 'var(--ink, #0a0a0a)', color: 'white', cursor: sending ? 'default' : 'pointer', fontFamily: 'inherit', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, opacity: sending ? 0.6 : 1 }}>
                     {sending ? 'Sending…' : 'Send to our team'}
                   </button>
                   <button onClick={() => setShowForm(false)}
-                    style={{ padding: '10px 14px', borderRadius: 50, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.82rem', fontWeight: 600 }}>
+                    style={{ padding: '10px 14px', borderRadius: 'var(--r-pill, 999px)', border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600 }}>
                     Cancel
                   </button>
                 </div>
@@ -402,9 +402,9 @@ export default function WallabeeChat({ customer }) {
             <input value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') ask(input); }}
               placeholder="Ask Wallabee anything…"
-              style={{ ...inp, border: 'none', background: 'var(--cream, #f8f7f4)', borderRadius: 50, padding: '11px 16px' }} />
+              style={{ ...inp, border: 'none', background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-pill, 999px)', padding: '11px 16px' }} />
             <button onClick={() => ask(input)} aria-label="Send"
-              style={{ width: 42, height: 42, borderRadius: '50%', border: 'none', background: GOLD, cursor: 'pointer', fontSize: '1rem', flexShrink: 0 }}>
+              style={{ width: 42, height: 42, borderRadius: 'var(--r-full, 50%)', border: 'none', background: GOLD, cursor: 'pointer', fontSize: 'var(--fs-lg, 1rem)', flexShrink: 0 }}>
               ↑
             </button>
           </div>
@@ -416,7 +416,7 @@ export default function WallabeeChat({ customer }) {
         style={{
           position: 'fixed', bottom: 24, right: 20, zIndex: 9000,
           display: 'flex', alignItems: 'center', gap: 9,
-          padding: '9px 18px 9px 11px', borderRadius: 50, border: 'none', cursor: 'pointer',
+          padding: '9px 18px 9px 11px', borderRadius: 'var(--r-pill, 999px)', border: 'none', cursor: 'pointer',
           background: GOLD, boxShadow: '0 6px 24px rgba(212,165,21,.45)',
           fontFamily: 'inherit', transition: 'transform .15s ease',
         }}
@@ -424,15 +424,15 @@ export default function WallabeeChat({ customer }) {
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}>
         {open ? (
           <>
-            <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(10,10,10,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>✕</span>
-            <span style={{ fontSize: '.85rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>Close</span>
+            <span style={{ width: 34, height: 34, borderRadius: 'var(--r-full, 50%)', background: 'rgba(10,10,10,.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>✕</span>
+            <span style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>Close</span>
           </>
         ) : (
           <>
-            <span style={{ width: 34, height: 34, borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ width: 34, height: 34, borderRadius: 'var(--r-full, 50%)', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <img src="/bee-logo.png" alt="" style={{ width: 26, height: 26, objectFit: 'contain' }} />
             </span>
-            <span style={{ fontSize: '.85rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>Support</span>
+            <span style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)' }}>Support</span>
           </>
         )}
       </button>

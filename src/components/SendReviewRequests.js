@@ -165,8 +165,8 @@ export default function SendReviewRequests({ location, templates }) {
 
   const inputStyle = {
     width: '100%', padding: '10px 14px',
-    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 8,
-    fontSize: '0.875rem', outline: 'none',
+    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)',
+    fontSize: 'var(--fs-base, 0.875rem)', outline: 'none',
     fontFamily: 'DM Sans, sans-serif', background: 'white'
   };
 
@@ -177,20 +177,20 @@ export default function SendReviewRequests({ location, templates }) {
       {dailyStats && (
         <div style={{
           background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)',
-          borderRadius: 12, padding: '12px 20px', marginBottom: 24,
+          borderRadius: 'var(--r-md, 16px)', padding: '12px 20px', marginBottom: 24,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: 8
         }}>
-          <div style={{ fontSize: '0.825rem', color: 'var(--taupe, #7a7670)' }}>
+          <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)' }}>
             <strong style={{ color: 'var(--ink, #0a0a0a)' }}>{dailyStats.sent_today || 0}</strong> sent today ·
             <strong style={{ color: 'var(--ink, #0a0a0a)' }}> {Math.max(0, parseInt(dailyStats.remaining_today || 100))}</strong> remaining (100/day limit)
           </div>
           <div style={{
             width: 200, height: 6, background: 'var(--line, #e4e0d8)',
-            borderRadius: 50, overflow: 'hidden'
+            borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden'
           }}>
             <div style={{
-              height: '100%', borderRadius: 50, background: 'var(--ink, #0a0a0a)',
+              height: '100%', borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)',
               width: `${Math.min(100, ((dailyStats.sent_today || 0) / 100) * 100)}%`,
               transition: 'width 0.3s'
             }} />
@@ -205,7 +205,7 @@ export default function SendReviewRequests({ location, templates }) {
           { id: 'history', label: `Send history (${history.length})` }
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-            padding: '8px 18px', fontSize: '0.8rem', fontWeight: 500,
+            padding: '8px 18px', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 500,
             border: '1.5px solid var(--line, #e4e0d8)',
             borderBottom: activeTab === tab.id ? '1px solid white' : '1px solid var(--line, #e4e0d8)',
             borderRadius: '8px 8px 0 0',
@@ -228,18 +228,18 @@ export default function SendReviewRequests({ location, templates }) {
 
             {/* Left — add contacts */}
             <div>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: 16 }}>
+              <h3 style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600, marginBottom: 16 }}>
                 Add contacts
               </h3>
 
               {/* Paste / CSV */}
               <div style={{ marginBottom: 20 }}>
                 <label style={{
-                  fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em',
+                  fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, letterSpacing: '0.08em',
                   textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 6, display: 'block'
                 }}>Paste list (one per line)</label>
-                <p style={{ fontSize: '0.78rem', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>
-                  Format: <code style={{ background: 'var(--cream-2, #f0eeea)', padding: '1px 6px', borderRadius: 4 }}>Name, email@example.com</code> or <code style={{ background: 'var(--cream-2, #f0eeea)', padding: '1px 6px', borderRadius: 4 }}>Name, +15551234567</code>
+                <p style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>
+                  Format: <code style={{ background: 'var(--cream-2, #f0eeea)', padding: '1px 6px', borderRadius: 'var(--r-xs, 8px)' }}>Name, email@example.com</code> or <code style={{ background: 'var(--cream-2, #f0eeea)', padding: '1px 6px', borderRadius: 'var(--r-xs, 8px)' }}>Name, +15551234567</code>
                 </p>
                 <textarea
                   style={{ ...inputStyle, minHeight: 100, resize: 'vertical', marginBottom: 8 }}
@@ -249,15 +249,15 @@ export default function SendReviewRequests({ location, templates }) {
                 />
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button onClick={handleParsePaste} disabled={!pasteText.trim()} style={{
-                    flex: 1, padding: '9px', borderRadius: 8,
+                    flex: 1, padding: '9px', borderRadius: 'var(--r-xs, 8px)',
                     background: pasteText.trim() ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)',
-                    color: 'white', border: 'none', fontSize: '0.825rem',
+                    color: 'white', border: 'none', fontSize: 'var(--fs-sm, 0.8125rem)',
                     fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
                   }}>Add from paste</button>
                   <label style={{
-                    flex: 1, padding: '9px', borderRadius: 8,
+                    flex: 1, padding: '9px', borderRadius: 'var(--r-xs, 8px)',
                     border: '1.5px solid var(--line, #e4e0d8)', background: 'var(--cream, #f8f7f4)',
-                    fontSize: '0.825rem', fontWeight: 500, cursor: 'pointer',
+                    fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 500, cursor: 'pointer',
                     textAlign: 'center', color: 'var(--taupe, #7a7670)'
                   }}>
                     Upload CSV
@@ -268,10 +268,10 @@ export default function SendReviewRequests({ location, templates }) {
 
               {/* Manual add */}
               <div style={{
-                background: 'var(--cream, #f8f7f4)', borderRadius: 10, padding: 16, marginBottom: 20
+                background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-sm, 10px)', padding: 16, marginBottom: 20
               }}>
                 <label style={{
-                  fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em',
+                  fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, letterSpacing: '0.08em',
                   textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 10, display: 'block'
                 }}>Add one manually</label>
                 <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
@@ -282,16 +282,16 @@ export default function SendReviewRequests({ location, templates }) {
                   <input style={{ ...inputStyle, flex: 1 }} type="tel" placeholder="Phone (SMS)" value={manualForm.phone} onChange={e => setManualForm({ ...manualForm, phone: e.target.value })} />
                 </div>
                 <button onClick={addManualContact} style={{
-                  width: '100%', padding: '8px', borderRadius: 8,
+                  width: '100%', padding: '8px', borderRadius: 'var(--r-xs, 8px)',
                   border: '1.5px solid var(--line, #e4e0d8)', background: 'white',
-                  fontSize: '0.825rem', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
+                  fontSize: 'var(--fs-sm, 0.8125rem)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
                 }}>+ Add contact</button>
               </div>
 
               {/* Template selector */}
               <div>
                 <label style={{
-                  fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.08em',
+                  fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, letterSpacing: '0.08em',
                   textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 8, display: 'block'
                 }}>Template to send</label>
                 <select
@@ -312,8 +312,8 @@ export default function SendReviewRequests({ location, templates }) {
                 </select>
                 {selectedTpl && (
                   <div style={{
-                    background: 'var(--cream, #f8f7f4)', borderRadius: 8, padding: '10px 12px',
-                    marginTop: 8, fontSize: '0.78rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6
+                    background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-xs, 8px)', padding: '10px 12px',
+                    marginTop: 8, fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.6
                   }}>
                     {selectedTpl.body.substring(0, 100)}...
                   </div>
@@ -324,13 +324,13 @@ export default function SendReviewRequests({ location, templates }) {
             {/* Right — contact list + send */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <h3 style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                <h3 style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600 }}>
                   Ready to send ({contacts.length})
                 </h3>
                 {contacts.length > 0 && (
                   <button onClick={() => setContacts([])} style={{
                     background: 'none', border: 'none', color: 'var(--danger, #c0392b)',
-                    fontSize: '0.78rem', cursor: 'pointer', padding: 0,
+                    fontSize: 'var(--fs-xs, 0.75rem)', cursor: 'pointer', padding: 0,
                     fontFamily: 'DM Sans, sans-serif'
                   }}>Clear all</button>
                 )}
@@ -338,8 +338,8 @@ export default function SendReviewRequests({ location, templates }) {
 
               {contacts.length === 0 ? (
                 <div style={{
-                  background: 'var(--cream, #f8f7f4)', borderRadius: 10, padding: 32,
-                  textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '0.875rem',
+                  background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-sm, 10px)', padding: 32,
+                  textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)',
                   marginBottom: 16
                 }}>
                   Add contacts on the left to get started
@@ -347,25 +347,25 @@ export default function SendReviewRequests({ location, templates }) {
               ) : (
                 <div style={{
                   maxHeight: 300, overflowY: 'auto',
-                  border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10,
+                  border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)',
                   marginBottom: 16
                 }}>
                   {contacts.map((c, i) => (
                     <div key={i} style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: '10px 14px', borderBottom: '1px solid var(--line, #e4e0d8)',
-                      fontSize: '0.825rem'
+                      fontSize: 'var(--fs-sm, 0.8125rem)'
                     }}>
                       <div>
                         <div style={{ fontWeight: 500 }}>{c.name}</div>
-                        <div style={{ color: 'var(--taupe, #7a7670)', fontSize: '0.78rem' }}>
+                        <div style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-xs, 0.75rem)' }}>
                           {c.email || c.phone}
                           {c.email && c.phone && ` · ${c.phone}`}
                         </div>
                       </div>
                       <button onClick={() => removeContact(i)} style={{
                         background: 'none', border: 'none', color: 'var(--danger, #c0392b)',
-                        cursor: 'pointer', fontSize: '1rem', padding: '0 4px'
+                        cursor: 'pointer', fontSize: 'var(--fs-lg, 1rem)', padding: '0 4px'
                       }}>×</button>
                     </div>
                   ))}
@@ -377,12 +377,12 @@ export default function SendReviewRequests({ location, templates }) {
                 <div style={{
                   background: results.failed === 0 ? '#f0fdf4' : '#fffbeb',
                   border: `1px solid ${results.failed === 0 ? '#bbf7d0' : '#fcd34d'}`,
-                  borderRadius: 10, padding: '14px 16px', marginBottom: 16
+                  borderRadius: 'var(--r-sm, 10px)', padding: '14px 16px', marginBottom: 16
                 }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: 6 }}>
+                  <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 6 }}>
                     {results.failed === 0 ? '✓ All sent!' : 'Sending complete'}
                   </div>
-                  <div style={{ fontSize: '0.825rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
+                  <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
                     ✓ Sent: {results.sent} · ⟳ Skipped (already sent): {results.skipped} · ✗ Failed: {results.failed}
                   </div>
                 </div>
@@ -392,9 +392,9 @@ export default function SendReviewRequests({ location, templates }) {
                 onClick={handleSend}
                 disabled={sending || contacts.length === 0 || !selectedTemplate || smsBlocked}
                 style={{
-                  width: '100%', padding: 14, borderRadius: 50,
+                  width: '100%', padding: 14, borderRadius: 'var(--r-pill, 999px)',
                   background: sending || contacts.length === 0 ? 'var(--mute-2, #c8c4bc)' : 'var(--ink, #0a0a0a)',
-                  color: 'white', border: 'none', fontSize: '0.9rem',
+                  color: 'white', border: 'none', fontSize: 'var(--fs-base, 0.875rem)',
                   fontWeight: 600, cursor: contacts.length === 0 ? 'not-allowed' : 'pointer',
                   fontFamily: 'DM Sans, sans-serif'
                 }}
@@ -402,7 +402,7 @@ export default function SendReviewRequests({ location, templates }) {
                 {smsBlocked ? 'Text sending unavailable until SMS goes live' : sending ? 'Sending...' : `Send to ${contacts.length} contact${contacts.length !== 1 ? 's' : ''} →`}
               </button>
 
-              <p style={{ fontSize: '0.75rem', color: 'var(--taupe, #7a7670)', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
+              <p style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
                 We automatically skip contacts sent to in the last 30 days.
                 Max 100 sends per day.
               </p>
@@ -418,7 +418,7 @@ export default function SendReviewRequests({ location, templates }) {
           borderRadius: '0 8px 8px 8px', overflow: 'hidden'
         }}>
           {history.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '0.875rem' }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>
               No sends yet — start sending review requests to build your history
             </div>
           ) : (
@@ -427,7 +427,7 @@ export default function SendReviewRequests({ location, templates }) {
                 <tr style={{ background: 'var(--cream, #f8f7f4)', borderBottom: '1px solid var(--line, #e4e0d8)' }}>
                   {['Contact', 'Channel', 'Status', 'Sent'].map(h => (
                     <th key={h} style={{
-                      padding: '10px 16px', fontSize: '0.72rem', fontWeight: 700,
+                      padding: '10px 16px', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700,
                       letterSpacing: '0.06em', textTransform: 'uppercase',
                       color: 'var(--taupe, #7a7670)', textAlign: 'left'
                     }}>{h}</th>
@@ -438,30 +438,30 @@ export default function SendReviewRequests({ location, templates }) {
                 {history.map((send, i) => (
                   <tr key={send.id} style={{ borderBottom: '1px solid var(--line, #e4e0d8)' }}>
                     <td style={{ padding: '12px 16px' }}>
-                      <div style={{ fontWeight: 500, fontSize: '0.875rem' }}>{send.contact_name}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--taupe, #7a7670)' }}>
+                      <div style={{ fontWeight: 500, fontSize: 'var(--fs-base, 0.875rem)' }}>{send.contact_name}</div>
+                      <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
                         {send.contact_email || send.contact_phone}
                       </div>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
-                        fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase',
-                        padding: '2px 10px', borderRadius: 50,
+                        fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, textTransform: 'uppercase',
+                        padding: '2px 10px', borderRadius: 'var(--r-pill, 999px)',
                         background: send.channel === 'email' ? 'var(--green-bg, #e8f5ef)' : '#e8f0fe',
                         color: send.channel === 'email' ? 'var(--green, #1a6b45)' : '#1a4baa'
                       }}>{send.channel}</span>
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
-                        fontSize: '0.72rem', fontWeight: 700,
-                        padding: '2px 10px', borderRadius: 50,
+                        fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700,
+                        padding: '2px 10px', borderRadius: 'var(--r-pill, 999px)',
                         background: send.status === 'sent' ? 'var(--green-bg, #e8f5ef)' : 'var(--danger-bg, #fee2e2)',
                         color: send.status === 'sent' ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)'
                       }}>
                         {send.status === 'sent' ? '✓ Sent' : '✗ Failed'}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', fontSize: '0.8rem', color: 'var(--taupe, #7a7670)' }}>
+                    <td style={{ padding: '12px 16px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)' }}>
                       {new Date(send.created_at).toLocaleDateString()}
                     </td>
                   </tr>
