@@ -673,6 +673,8 @@ function Select({ value, onChange, options }) {
 
 function ReportResponses() {
   const router = useRouter();
+  const [survey, setSurvey] = useState('all');
+  const [surveyList, setSurveyList] = useState([]);
   const [cls, setCls] = useState('all');
   const [channel, setChannel] = useState('all');
   const [q, setQ] = useState('');
@@ -680,6 +682,11 @@ function ReportResponses() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(null);
+
+  useEffect(() => {
+    axios.get(`${API}/survey-templates`, { headers: authHeaders() })
+      .then((r) => setSurveyList(r.data.templates || [])).catch(() => {});
+  }, []);
 
   // Honor /dashboard/pulse?cls=detractor deep links (e.g. from the Home queue).
   useEffect(() => {
@@ -690,6 +697,7 @@ function ReportResponses() {
   useEffect(() => {
     let active = true; setLoading(true);
     const p = new URLSearchParams({ days: String(days) });
+    if (survey !== 'all') p.set('templateId', survey);
     if (cls !== 'all') p.set('classification', cls);
     if (channel !== 'all') p.set('channel', channel);
     if (q.trim()) p.set('q', q.trim());
@@ -698,7 +706,7 @@ function ReportResponses() {
       .catch(() => { if (active) setRows([]); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [cls, channel, q, days]);
+  }, [survey, cls, channel, q, days]);
 
   function exportCsv() {
     const questions = [];
@@ -727,6 +735,12 @@ function ReportResponses() {
   return (
     <div className="rep-fade">
       <div className="rep-card" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
+        {surveyList.length > 1 && (
+          <Select value={survey} onChange={setSurvey} options={[
+            { value: 'all', label: 'All surveys' },
+            ...surveyList.map((s) => ({ value: s.id, label: (s.name || 'Untitled') + (((s.config && s.config.type) === 'custom') ? ' (Custom)' : '') })),
+          ]} />
+        )}
         <Select value={cls} onChange={setCls} options={[
           { value: 'all', label: 'All sentiment' }, { value: 'promoter', label: 'Promoters' },
           { value: 'passive', label: 'Passives' }, { value: 'detractor', label: 'Detractors' },
