@@ -756,7 +756,7 @@ function AccountTab() {
   const isAdmin = ['admin', 'owner'].includes(customer?.role);
   const [name, setName]   = useState('');
   const [email, setEmail] = useState('');
-  const [prefs, setPrefs] = useState({ negative: true, all_reviews: false, weekly_digest: true });
+  const [prefs, setPrefs] = useState({ negative: true, all_reviews: false, weekly_digest: true, monthly_report: true });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [msg, setMsg]         = useState(null);
@@ -775,7 +775,7 @@ function AccountTab() {
       const a = await getAccount();
       setName(a.name || '');
       setEmail(a.email || '');
-      if (a.notificationPrefs) setPrefs({ negative: true, all_reviews: false, weekly_digest: true, ...a.notificationPrefs });
+      if (a.notificationPrefs) setPrefs({ negative: true, all_reviews: false, weekly_digest: true, monthly_report: true, ...a.notificationPrefs });
     } catch (e) { /* leave blanks */ }
     try {
       const locs = await getLocations(customer.id).catch(() => []);
@@ -808,9 +808,10 @@ function AccountTab() {
   }
 
   const ALERTS = [
-    ['negative',      'Negative review alerts (1–2★)'],
-    ['all_reviews',   'All new review alerts'],
-    ['weekly_digest', 'Weekly digest email'],
+    ['negative',       'Negative review alerts (1–2★)'],
+    ['all_reviews',    'All new review alerts'],
+    ['weekly_digest',  'Weekly digest email'],
+    ['monthly_report', 'Monthly reputation report'],
   ];
 
   return (

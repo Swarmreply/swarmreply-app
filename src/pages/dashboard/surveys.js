@@ -140,6 +140,12 @@ export default function SurveysPage() {
     catch (e) { alert('Could not delete: ' + (e.response?.data?.error || e.message)); }
   }
 
+  async function makeDefault(t) {
+    if (!t.id) return;
+    try { await axios.post(`${API}/survey-templates/${t.id}/default`, {}, { headers: authHeaders() }); loadList(); setFlash(`"${t.name}" is now the default`); }
+    catch (e) { alert('Could not set default: ' + (e.response?.data?.error || e.message)); }
+  }
+
   if (view === 'edit') {
     return <Editor template={selected} onBack={(savedName) => { setView('list'); loadList(); if (savedName) setFlash(`"${savedName}" saved`); }} />;
   }
@@ -189,7 +195,7 @@ export default function SurveysPage() {
                 <Card style={{ textAlign: 'center', color: '#7a7670', padding: 32, fontSize: '.88rem' }}>No surveys match {'\u201C'}{q}{'\u201D'}.</Card>
               ) : (
                 <div style={{ maxHeight: '62vh', overflowY: 'auto', paddingRight: 2 }}>
-                  {filtered.map((t) => <SurveyRow key={t.id} t={t} locName={locName} onEdit={() => openEdit(t)} onDelete={() => remove(t)} />)}
+                  {filtered.map((t) => <SurveyRow key={t.id} t={t} locName={locName} onEdit={() => openEdit(t)} onDelete={() => remove(t)} onMakeDefault={() => makeDefault(t)} />)}
                 </div>
               )}
             </>
@@ -200,7 +206,7 @@ export default function SurveysPage() {
   );
 }
 
-function SurveyRow({ t, locName, onEdit, onDelete }) {
+function SurveyRow({ t, locName, onEdit, onDelete, onMakeDefault }) {
   const type = (t.config && t.config.type) || 'nps';
   const isCustom = type === 'custom';
   const tc = isCustom ? { bg: '#ede9fe', fg: '#6d28d9' } : { bg: '#dcfce7', fg: '#1a6b45' };
@@ -217,6 +223,7 @@ function SurveyRow({ t, locName, onEdit, onDelete }) {
           {isCustom ? 'Standalone survey' : 'Scored · Promoter / Passive / Detractor'}{t.is_default ? ' · sent with review requests' : ''}
         </div>
       </div>
+      {!t.is_default && t.scope !== 'location' && <Button variant="ghost" onClick={onMakeDefault}>Make default</Button>}
       <Button variant="ghost" onClick={onEdit}>Edit</Button>
       {!t.is_default && <button onClick={onDelete} title="Delete survey" style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #f0d0d0', background: 'white', color: '#c0392b', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, fontFamily: 'inherit' }}>{'\u00D7'}</button>}
     </Card>
