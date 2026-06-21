@@ -42,9 +42,9 @@ const SCALE_OPTIONS = [
   { type: 'smiley', label: 'Smileys (1\u20135)', max: 5 },
 ];
 const PATHS = [
-  { key: 'promoter', label: 'Promoters', desc: 'Your happiest customers', tone: '#1a6b45', bg: '#dcfce7', bd: '#bbf7d0' },
-  { key: 'passive', label: 'Passives', desc: 'Satisfied, not wowed', tone: '#92690a', bg: '#fef9c3', bd: '#fde68a' },
-  { key: 'detractor', label: 'Detractors', desc: 'Unhappy customers', tone: '#c0392b', bg: '#fee2e2', bd: '#fca5a5' },
+  { key: 'promoter', label: 'Promoters', desc: 'Your happiest customers', tone: 'var(--green, #1a6b45)', bg: '#dcfce7', bd: '#bbf7d0' },
+  { key: 'passive', label: 'Passives', desc: 'Satisfied, not wowed', tone: 'var(--amber-tx, #92690a)', bg: '#fef9c3', bd: '#fde68a' },
+  { key: 'detractor', label: 'Detractors', desc: 'Unhappy customers', tone: 'var(--danger, #c0392b)', bg: 'var(--danger-bg, #fee2e2)', bd: '#fca5a5' },
 ];
 
 let _bid = 0;
@@ -61,7 +61,7 @@ function blankConfig() {
     },
     paths: { promoter: [], passive: [], detractor: [] },
     messages: { promoter: '', detractorOpening: "We're sorry your experience didn't meet expectations." },
-    brand: { color: '#f5c842' },
+    brand: { color: 'var(--honey, #f5c842)' },
   };
 }
 
@@ -71,12 +71,12 @@ function blankCustomConfig() {
     questions: [],
     reviewInvite: true,
     messages: { intro: '', thankYou: 'Thanks for your feedback!' },
-    brand: { color: '#f5c842' },
+    brand: { color: 'var(--honey, #f5c842)' },
   };
 }
 
-const label = { display: 'block', fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 };
-const input = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', color: '#1a1a18' };
+const label = { display: 'block', fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 };
+const input = { width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', color: 'var(--tx, #1a1a18)' };
 
 function mergeConfig(c0) {
   const c = c0 || {};
@@ -159,7 +159,7 @@ export default function SurveysPage() {
       <DashboardLayout>
         <PageHeader title="New survey" subtitle="Pick a starting point — you can change the questions either way." action={<Button variant="ghost" onClick={() => setView('list')}>{'\u2190'} All surveys</Button>} />
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-          <TypeCard title="NPS survey" tone="#1a6b45" bg="#dcfce7" desc="A scored 0–10 question that sorts customers into Promoters, Passives, and Detractors, each with its own follow-up. Best for measuring loyalty." foot="Scoring question · branching follow-ups" onClick={() => create('nps')} />
+          <TypeCard title="NPS survey" tone="var(--green, #1a6b45)" bg="#dcfce7" desc="A scored 0–10 question that sorts customers into Promoters, Passives, and Detractors, each with its own follow-up. Best for measuring loyalty." foot="Scoring question · branching follow-ups" onClick={() => create('nps')} />
           <TypeCard title="Custom survey" tone="#6d28d9" bg="#ede9fe" desc="Build from scratch — a simple ordered list of questions, no score required. Best for feedback forms, intake, or anything you design." foot="Linear questions · no branching" onClick={() => create('custom')} />
         </div>
       </DashboardLayout>
@@ -175,14 +175,14 @@ export default function SurveysPage() {
       />
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px' }}>
         {flash && <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: 12, padding: '11px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}><span>{'\u2713'}</span>{flash}</div>}
-        {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
+        {err && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', color: 'var(--danger, #c0392b)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
         {loading ? (
-          <Card style={{ textAlign: 'center', color: '#7a7670', padding: 48 }}>Loading your surveys…</Card>
+          <Card style={{ textAlign: 'center', color: 'var(--taupe, #7a7670)', padding: 48 }}>Loading your surveys…</Card>
         ) : templates.length === 0 ? (
           <Card style={{ textAlign: 'center', padding: 48 }}>
             <div style={{ fontSize: '2rem', marginBottom: 10 }}>📝</div>
-            <div style={{ fontWeight: 700, color: '#1a1a18', marginBottom: 6 }}>No surveys yet</div>
-            <p style={{ fontSize: '.85rem', color: '#7a7670', margin: '0 0 16px' }}>Create your first survey to start collecting feedback.</p>
+            <div style={{ fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6 }}>No surveys yet</div>
+            <p style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', margin: '0 0 16px' }}>Create your first survey to start collecting feedback.</p>
             <Button variant="gold" onClick={createNew}>New survey</Button>
           </Card>
         ) : (() => {
@@ -192,7 +192,7 @@ export default function SurveysPage() {
             <>
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search surveys by name…" style={{ ...input, marginBottom: 14 }} />
               {filtered.length === 0 ? (
-                <Card style={{ textAlign: 'center', color: '#7a7670', padding: 32, fontSize: '.88rem' }}>No surveys match {'\u201C'}{q}{'\u201D'}.</Card>
+                <Card style={{ textAlign: 'center', color: 'var(--taupe, #7a7670)', padding: 32, fontSize: '.88rem' }}>No surveys match {'\u201C'}{q}{'\u201D'}.</Card>
               ) : (
                 <div style={{ maxHeight: '62vh', overflowY: 'auto', paddingRight: 2 }}>
                   {filtered.map((t) => <SurveyRow key={t.id} t={t} locName={locName} onEdit={() => openEdit(t)} onDelete={() => remove(t)} onMakeDefault={() => makeDefault(t)} />)}
@@ -209,41 +209,41 @@ export default function SurveysPage() {
 function SurveyRow({ t, locName, onEdit, onDelete, onMakeDefault }) {
   const type = (t.config && t.config.type) || 'nps';
   const isCustom = type === 'custom';
-  const tc = isCustom ? { bg: '#ede9fe', fg: '#6d28d9' } : { bg: '#dcfce7', fg: '#1a6b45' };
+  const tc = isCustom ? { bg: '#ede9fe', fg: '#6d28d9' } : { bg: '#dcfce7', fg: 'var(--green, #1a6b45)' };
   return (
     <Card style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14 }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontWeight: 700, color: '#1a1a18', fontSize: '.98rem' }}>{t.name || 'Untitled survey'}</span>
+          <span style={{ fontWeight: 700, color: 'var(--tx, #1a1a18)', fontSize: '.98rem' }}>{t.name || 'Untitled survey'}</span>
           <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: tc.fg, background: tc.bg, borderRadius: 50, padding: '2px 8px' }}>{isCustom ? 'Custom' : 'NPS'}</span>
-          {t.is_default && <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: '#92690a', background: '#fef9c3', borderRadius: 50, padding: '2px 8px' }}>Default</span>}
+          {t.is_default && <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: 'var(--amber-tx, #92690a)', background: '#fef9c3', borderRadius: 50, padding: '2px 8px' }}>Default</span>}
           {t.scope === 'location' && t.location_id && <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: '#3730a3', background: '#eef2ff', borderRadius: 50, padding: '2px 8px' }}>{locName ? locName(t.location_id) : 'Location'}</span>}
         </div>
-        <div style={{ fontSize: '.76rem', color: '#a8a39a', marginTop: 3 }}>
+        <div style={{ fontSize: '.76rem', color: 'var(--mute, #a8a39a)', marginTop: 3 }}>
           {isCustom ? 'Standalone survey' : 'Scored · Promoter / Passive / Detractor'}{t.is_default ? ' · sent with review requests' : ''}
         </div>
       </div>
       {!t.is_default && t.scope !== 'location' && <Button variant="ghost" onClick={onMakeDefault}>Make default</Button>}
       <Button variant="ghost" onClick={onEdit}>Edit</Button>
-      {!t.is_default && <button onClick={onDelete} title="Delete survey" style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #f0d0d0', background: 'white', color: '#c0392b', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, fontFamily: 'inherit' }}>{'\u00D7'}</button>}
+      {!t.is_default && <button onClick={onDelete} title="Delete survey" style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #f0d0d0', background: 'white', color: 'var(--danger, #c0392b)', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, fontFamily: 'inherit' }}>{'\u00D7'}</button>}
     </Card>
   );
 }
 
 function TypeCard({ title, desc, foot, tone, bg, onClick }) {
   return (
-    <button onClick={onClick} style={{ textAlign: 'left', background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 16, padding: 22, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: 10, transition: 'border-color .15s' }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = tone; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e4e0d8'; }}>
+    <button onClick={onClick} style={{ textAlign: 'left', background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 16, padding: 22, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', flexDirection: 'column', gap: 10, transition: 'border-color .15s' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = tone; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--line, #e4e0d8)'; }}>
       <span style={{ alignSelf: 'flex-start', fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: tone, background: bg, borderRadius: 50, padding: '3px 10px' }}>{title}</span>
-      <p style={{ fontSize: '.86rem', color: '#4a4a48', margin: 0, lineHeight: 1.6 }}>{desc}</p>
-      <span style={{ fontSize: '.74rem', color: '#a8a39a', marginTop: 'auto' }}>{foot}</span>
+      <p style={{ fontSize: '.86rem', color: 'var(--tx-2, #4a4a48)', margin: 0, lineHeight: 1.6 }}>{desc}</p>
+      <span style={{ fontSize: '.74rem', color: 'var(--mute, #a8a39a)', marginTop: 'auto' }}>{foot}</span>
     </button>
   );
 }
 
 function Toggle({ on, onChange }) {
   return (
-    <button onClick={() => onChange(!on)} aria-pressed={on} style={{ width: 46, height: 27, borderRadius: 50, border: 'none', cursor: 'pointer', background: on ? '#1a6b45' : '#d4cfc5', position: 'relative', flexShrink: 0, transition: 'background .15s', padding: 0 }}>
+    <button onClick={() => onChange(!on)} aria-pressed={on} style={{ width: 46, height: 27, borderRadius: 50, border: 'none', cursor: 'pointer', background: on ? 'var(--green, #1a6b45)' : '#d4cfc5', position: 'relative', flexShrink: 0, transition: 'background .15s', padding: 0 }}>
       <span style={{ position: 'absolute', top: 3, left: on ? 22 : 3, width: 21, height: 21, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 2px rgba(0,0,0,.2)' }} />
     </button>
   );
@@ -253,20 +253,20 @@ function ChannelChip({ active, disabled, label, sub, onClick }) {
   return (
     <button onClick={disabled ? undefined : onClick} disabled={disabled} style={{
       flex: 1, padding: '13px 16px', borderRadius: 12, border: '1.5px solid',
-      borderColor: active ? '#f5c842' : '#e4e0d8', background: active ? '#fffbe9' : disabled ? '#faf9f7' : 'white',
+      borderColor: active ? 'var(--honey, #f5c842)' : 'var(--line, #e4e0d8)', background: active ? '#fffbe9' : disabled ? '#faf9f7' : 'white',
       cursor: disabled ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left', opacity: disabled ? .65 : 1,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontWeight: 700, fontSize: '.92rem', color: '#1a1a18' }}>{label}</span>
-        <span style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid', borderColor: active ? '#f5c842' : '#d4cfc5', background: active ? '#f5c842' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{active && <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1a1408' }} />}</span>
+        <span style={{ fontWeight: 700, fontSize: '.92rem', color: 'var(--tx, #1a1a18)' }}>{label}</span>
+        <span style={{ width: 18, height: 18, borderRadius: '50%', border: '2px solid', borderColor: active ? 'var(--honey, #f5c842)' : '#d4cfc5', background: active ? 'var(--honey, #f5c842)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{active && <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#1a1408' }} />}</span>
       </div>
-      <div style={{ fontSize: '.74rem', color: active ? '#7a5a06' : '#a8a39a', marginTop: 4, fontWeight: 600 }}>{sub}</div>
+      <div style={{ fontSize: '.74rem', color: active ? '#7a5a06' : 'var(--mute, #a8a39a)', marginTop: 4, fontWeight: 600 }}>{sub}</div>
     </button>
   );
 }
 
 function ContactPicker({ contacts, selected, setSelected, search, setSearch }) {
-  const linkBtn = { border: 'none', background: 'none', color: '#7a7670', fontWeight: 700, fontSize: '.78rem', fontFamily: 'inherit', cursor: 'pointer', padding: 0 };
+  const linkBtn = { border: 'none', background: 'none', color: 'var(--taupe, #7a7670)', fontWeight: 700, fontSize: '.78rem', fontFamily: 'inherit', cursor: 'pointer', padding: 0 };
   const q = search.trim().toLowerCase();
   const filtered = q
     ? contacts.filter((c) => (c.name || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q))
@@ -291,7 +291,7 @@ function ContactPicker({ contacts, selected, setSelected, search, setSearch }) {
     <div style={{ marginTop: 14 }}>
       <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email…" style={{ ...input, background: 'white' }} />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '10px 2px 8px' }}>
-        <span style={{ fontSize: '.78rem', color: '#7a7670', fontWeight: 600 }}>{selected.length} selected{contacts.length ? ` of ${contacts.length}` : ''}</span>
+        <span style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', fontWeight: 600 }}>{selected.length} selected{contacts.length ? ` of ${contacts.length}` : ''}</span>
         <span>
           <button onClick={selectShown} style={linkBtn}>Select{q ? ' shown' : ' all'}</button>
           <span style={{ color: '#d4cfc5', margin: '0 8px' }}>·</span>
@@ -299,21 +299,21 @@ function ContactPicker({ contacts, selected, setSelected, search, setSearch }) {
         </span>
       </div>
       {contacts.length === 0 ? (
-        <div style={{ fontSize: '.83rem', color: '#a8a39a', padding: '14px 2px' }}>No contacts with an email yet. Add some in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Import</a>.</div>
+        <div style={{ fontSize: '.83rem', color: 'var(--mute, #a8a39a)', padding: '14px 2px' }}>No contacts with an email yet. Add some in <a href="/dashboard/grow?tab=import" style={{ color: 'var(--taupe, #7a7670)', fontWeight: 600 }}>Grow › Import</a>.</div>
       ) : (
-        <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid #f0eeea', borderRadius: 10 }}>
-          {filtered.length === 0 && <div style={{ fontSize: '.83rem', color: '#a8a39a', padding: 16 }}>No matches.</div>}
+        <div style={{ maxHeight: 280, overflowY: 'auto', border: '1px solid var(--cream-2, #f0eeea)', borderRadius: 10 }}>
+          {filtered.length === 0 && <div style={{ fontSize: '.83rem', color: 'var(--mute, #a8a39a)', padding: 16 }}>No matches.</div>}
           {filtered.map((c) => {
             const checked = sel.has((c.email || '').toLowerCase());
             const disabled = !!c.opted_out;
             return (
               <div key={c.id || c.email} onClick={disabled ? undefined : () => toggle(c.email)} style={{ display: 'flex', alignItems: 'center', gap: 11, padding: '9px 13px', borderTop: '1px solid #f5f3ef', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? .5 : 1 }}>
-                <span style={{ width: 17, height: 17, flexShrink: 0, borderRadius: 5, border: '1.5px solid', borderColor: checked ? '#f5c842' : '#d4cfc5', background: checked ? '#f5c842' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', color: '#1a1408', fontWeight: 900 }}>{checked ? '\u2713' : ''}</span>
+                <span style={{ width: 17, height: 17, flexShrink: 0, borderRadius: 5, border: '1.5px solid', borderColor: checked ? 'var(--honey, #f5c842)' : '#d4cfc5', background: checked ? 'var(--honey, #f5c842)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', color: '#1a1408', fontWeight: 900 }}>{checked ? '\u2713' : ''}</span>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: '.85rem', color: '#1a1a18', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name || c.email}</div>
-                  {c.name && <div style={{ fontSize: '.74rem', color: '#a8a39a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</div>}
+                  <div style={{ fontSize: '.85rem', color: 'var(--tx, #1a1a18)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name || c.email}</div>
+                  {c.name && <div style={{ fontSize: '.74rem', color: 'var(--mute, #a8a39a)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</div>}
                 </div>
-                {disabled && <span style={{ fontSize: '.66rem', fontWeight: 700, color: '#a8a39a', flexShrink: 0, letterSpacing: '.04em' }}>OPTED OUT</span>}
+                {disabled && <span style={{ fontSize: '.66rem', fontWeight: 700, color: 'var(--mute, #a8a39a)', flexShrink: 0, letterSpacing: '.04em' }}>OPTED OUT</span>}
               </div>
             );
           })}
@@ -333,7 +333,7 @@ function SendSurvey({ onBack }) {
   const [selectedEmails, setSelectedEmails] = useState([]);
   const [contactSearch, setContactSearch] = useState('');
   const [channels, setChannels] = useState({ email: true, text: false });
-  const [brand, setBrand] = useState({ brandColor: '#f5c842', brandLogo: '' });
+  const [brand, setBrand] = useState({ brandColor: 'var(--honey, #f5c842)', brandLogo: '' });
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null);
@@ -368,12 +368,12 @@ function SendSurvey({ onBack }) {
       setSegments(ct.data.segments || []);
       setContacts((ct.data.contacts || []).filter((c) => c.email));
       const t = tp.data.template || tp.data || {};
-      setBrand({ brandColor: t.brandColor || '#f5c842', brandLogo: t.brandLogo || '' });
+      setBrand({ brandColor: t.brandColor || 'var(--honey, #f5c842)', brandLogo: t.brandLogo || '' });
     }).finally(() => setLoading(false));
   }, []);
 
   const segOptions = segments.length ? segments : [{ id: 'all', label: 'All contacts' }];
-  const brandColor = brand.brandColor || '#f5c842';
+  const brandColor = brand.brandColor || 'var(--honey, #f5c842)';
   const sampleName = 'Alex';
   const bizName = 'Your Business';
   const selStyle = { ...input, background: 'white', marginTop: 6 };
@@ -412,8 +412,8 @@ function SendSurvey({ onBack }) {
         {result ? (
           <Card style={{ padding: 28, textAlign: 'center' }}>
             <div style={{ fontSize: '2rem', marginBottom: 8 }}>{result.scheduled ? '\u23F0' : '\u2713'}</div>
-            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#1a1a18', marginBottom: 8 }}>{result.scheduled ? 'Survey scheduled' : 'Survey sent'}</div>
-            <p style={{ fontSize: '.88rem', color: '#4a4a48', lineHeight: 1.6, margin: '0 0 20px' }}>
+            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--tx, #1a1a18)', marginBottom: 8 }}>{result.scheduled ? 'Survey scheduled' : 'Survey sent'}</div>
+            <p style={{ fontSize: '.88rem', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.6, margin: '0 0 20px' }}>
               {result.scheduled
                 ? `It'll send ${result.sendAt ? new Date(result.sendAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'at the scheduled time'}. You can cancel it below any time before then.`
                 : <>{result.audience === 0 ? 'No contacts with an email in that segment yet.' : `Sent to ${result.sent} ${result.sent === 1 ? 'contact' : 'contacts'}.`}{result.skipped ? ` ${result.skipped} skipped (opted out).` : ''}{result.failed ? ` ${result.failed} failed.` : ''}{result.capped ? " Reached your monthly email limit — the rest weren't sent." : ''}</>}
@@ -432,7 +432,7 @@ function SendSurvey({ onBack }) {
                 {!loading && surveys.length === 0 && <option value="">No surveys yet</option>}
                 {surveys.map((t) => <option key={t.id} value={t.id}>{(t.name || 'Untitled survey') + ((t.config && t.config.type === 'custom') ? ' (Custom)' : ' (NPS)') + (t.is_default ? ' — default' : '')}</option>)}
               </select>
-              {!loading && surveys.length === 0 && <p style={{ fontSize: '.8rem', color: '#a8a39a', margin: '10px 0 0' }}>Create a survey first, then come back to send it.</p>}
+              {!loading && surveys.length === 0 && <p style={{ fontSize: '.8rem', color: 'var(--mute, #a8a39a)', margin: '10px 0 0' }}>Create a survey first, then come back to send it.</p>}
             </Card>
 
             <Card style={{ padding: 24, marginBottom: 16 }}>
@@ -446,7 +446,7 @@ function SendSurvey({ onBack }) {
                   <select value={segment} onChange={(e) => setSegment(e.target.value)} style={{ ...selStyle, marginTop: 14 }}>
                     {segOptions.map((s) => <option key={s.id || s.label} value={s.id || s.label}>{(s.label || s.id) + (s.count != null ? ` (${s.count})` : '')}</option>)}
                   </select>
-                  <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '10px 0 0' }}>Contacts are managed in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Import</a>. Anyone opted out is skipped automatically.</p>
+                  <p style={{ fontSize: '.78rem', color: 'var(--mute, #a8a39a)', margin: '10px 0 0' }}>Contacts are managed in <a href="/dashboard/grow?tab=import" style={{ color: 'var(--taupe, #7a7670)', fontWeight: 600 }}>Grow › Import</a>. Anyone opted out is skipped automatically.</p>
                 </>
               ) : (
                 <ContactPicker contacts={contacts} selected={selectedEmails} setSelected={setSelectedEmails} search={contactSearch} setSearch={setContactSearch} />
@@ -459,37 +459,37 @@ function SendSurvey({ onBack }) {
                 <ChannelChip active={channels.email} label="Email" sub="Ready to send" onClick={() => setChannels((c) => ({ ...c, email: !c.email }))} />
                 <ChannelChip active={false} disabled label="Text" sub="Coming soon" onClick={() => {}} />
               </div>
-              <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '12px 0 0' }}>Text (SMS) unlocks once your carrier registration is approved.</p>
+              <p style={{ fontSize: '.78rem', color: 'var(--mute, #a8a39a)', margin: '12px 0 0' }}>Text (SMS) unlocks once your carrier registration is approved.</p>
             </Card>
 
             <Card style={{ padding: 24, marginBottom: 16 }}>
               <SectionLabel>Email preview</SectionLabel>
-              <div style={{ marginTop: 10, border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
+              <div style={{ marginTop: 10, border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
                 <div style={{ background: brandColor, padding: '20px 32px' }}>
                   {brand.brandLogo
                     ? <img src={brand.brandLogo} alt={bizName} style={{ maxHeight: 52, maxWidth: 180, objectFit: 'contain', display: 'block' }} />
-                    : <div style={{ fontWeight: 800, fontSize: '1.1rem', color: '#0a0a0a' }}>{bizName}</div>}
+                    : <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--ink, #0a0a0a)' }}>{bizName}</div>}
                 </div>
                 <div style={{ padding: 32, background: 'white' }}>
-                  <h2 style={{ margin: '0 0 16px', fontSize: '1.2rem', color: '#0a0a0a' }}>How was your experience, {sampleName}?</h2>
-                  <div style={{ fontSize: '.9rem', lineHeight: 1.75, color: '#3a3a38', marginBottom: 26 }}>We'd love your honest feedback about your experience with {bizName}. It takes about 30 seconds and helps us do better.</div>
-                  <div style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', background: brandColor, color: '#0a0a0a', padding: '14px 30px', borderRadius: 50, fontWeight: 700, fontSize: '.92rem' }}>Start the survey →</span></div>
+                  <h2 style={{ margin: '0 0 16px', fontSize: '1.2rem', color: 'var(--ink, #0a0a0a)' }}>How was your experience, {sampleName}?</h2>
+                  <div style={{ fontSize: '.9rem', lineHeight: 1.75, color: 'var(--tx-3, #3a3a38)', marginBottom: 26 }}>We'd love your honest feedback about your experience with {bizName}. It takes about 30 seconds and helps us do better.</div>
+                  <div style={{ textAlign: 'center' }}><span style={{ display: 'inline-block', background: brandColor, color: 'var(--ink, #0a0a0a)', padding: '14px 30px', borderRadius: 50, fontWeight: 700, fontSize: '.92rem' }}>Start the survey →</span></div>
                 </div>
                 <div style={{ background: brandColor, padding: '14px 32px', textAlign: 'center' }}>
-                  <span style={{ fontSize: '.72rem', color: '#0a0a0a', opacity: .65 }}>Sent by {bizName} via SwarmReply</span>
+                  <span style={{ fontSize: '.72rem', color: 'var(--ink, #0a0a0a)', opacity: .65 }}>Sent by {bizName} via SwarmReply</span>
                 </div>
               </div>
-              <p style={{ fontSize: '.76rem', color: '#a8a39a', margin: '10px 0 0' }}>Your logo and brand color come from <a href="/dashboard/grow?tab=templates" style={{ color: '#7a7670', fontWeight: 600 }}>Grow › Request Templates</a>.</p>
+              <p style={{ fontSize: '.76rem', color: 'var(--mute, #a8a39a)', margin: '10px 0 0' }}>Your logo and brand color come from <a href="/dashboard/grow?tab=templates" style={{ color: 'var(--taupe, #7a7670)', fontWeight: 600 }}>Grow › Request Templates</a>.</p>
             </Card>
 
             <Card style={{ padding: 24, marginBottom: 16, opacity: .9 }}>
               <SectionLabel>Text preview</SectionLabel>
               <div style={{ marginTop: 10 }}>
-                <div style={{ background: '#e7ebf0', color: '#1a1a18', padding: '11px 15px', borderRadius: 16, borderBottomLeftRadius: 4, fontSize: '.85rem', lineHeight: 1.5, display: 'inline-block', maxWidth: 340 }}>
+                <div style={{ background: '#e7ebf0', color: 'var(--tx, #1a1a18)', padding: '11px 15px', borderRadius: 16, borderBottomLeftRadius: 4, fontSize: '.85rem', lineHeight: 1.5, display: 'inline-block', maxWidth: 340 }}>
                   Hi {sampleName}, {bizName} would love your quick feedback — it takes 30 seconds: app.swarmreply.com/r/…
                 </div>
               </div>
-              <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '12px 0 0' }}>Preview only — texting turns on once SMS is approved.</p>
+              <p style={{ fontSize: '.78rem', color: 'var(--mute, #a8a39a)', margin: '12px 0 0' }}>Preview only — texting turns on once SMS is approved.</p>
             </Card>
 
             <Card style={{ padding: 24, marginBottom: 16 }}>
@@ -502,24 +502,24 @@ function SendSurvey({ onBack }) {
                 <>
                   <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
                     <div style={{ flex: 1, minWidth: 150 }}>
-                      <label style={{ fontSize: '.74rem', fontWeight: 700, color: '#7a7670', display: 'block', marginBottom: 4 }}>Date</label>
+                      <label style={{ fontSize: '.74rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', display: 'block', marginBottom: 4 }}>Date</label>
                       <input type="date" value={schedDate} min={new Date().toISOString().slice(0, 10)} onChange={(e) => setSchedDate(e.target.value)} style={{ ...input, background: 'white' }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 120 }}>
-                      <label style={{ fontSize: '.74rem', fontWeight: 700, color: '#7a7670', display: 'block', marginBottom: 4 }}>Time</label>
+                      <label style={{ fontSize: '.74rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', display: 'block', marginBottom: 4 }}>Time</label>
                       <input type="time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} style={{ ...input, background: 'white' }} />
                     </div>
                   </div>
-                  <p style={{ fontSize: '.78rem', color: '#a8a39a', margin: '12px 0 0' }}>Uses this device's clock. It'll appear under Scheduled sends below until it goes out — you can cancel it any time before then.</p>
+                  <p style={{ fontSize: '.78rem', color: 'var(--mute, #a8a39a)', margin: '12px 0 0' }}>Uses this device's clock. It'll appear under Scheduled sends below until it goes out — you can cancel it any time before then.</p>
                 </>
               )}
             </Card>
 
-            {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
+            {err && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', color: 'var(--danger, #c0392b)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <Button variant="gold" onClick={send} disabled={sending || !selectedId || !channels.email || (audienceMode === 'contacts' && selectedEmails.length === 0)}>{sending ? (when === 'later' ? 'Scheduling…' : 'Sending…') : (when === 'later' ? 'Schedule survey' : 'Send survey')}</Button>
-              {!channels.email && <span style={{ fontSize: '.8rem', color: '#a8a39a' }}>Turn on a channel to send.</span>}
+              {!channels.email && <span style={{ fontSize: '.8rem', color: 'var(--mute, #a8a39a)' }}>Turn on a channel to send.</span>}
             </div>
           </>
         )}
@@ -529,10 +529,10 @@ function SendSurvey({ onBack }) {
             <SectionLabel>Scheduled sends</SectionLabel>
             <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
               {scheduled.map((s) => (
-                <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, border: '1px solid #f0eeea', borderRadius: 10, padding: '11px 14px' }}>
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, border: '1px solid var(--cream-2, #f0eeea)', borderRadius: 10, padding: '11px 14px' }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: '.88rem', color: '#1a1a18', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.survey_name || 'Default survey'} <span style={{ color: '#a8a39a', fontWeight: 500 }}>{'\u2192'} {Array.isArray(s.contact_emails) && s.contact_emails.length === 1 ? s.contact_emails[0] : (Array.isArray(s.contact_emails) && s.contact_emails.length ? `${s.contact_emails.length} people` : (s.segment === 'all' ? 'All contacts' : s.segment))}</span></div>
-                    <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                    <div style={{ fontWeight: 600, fontSize: '.88rem', color: 'var(--tx, #1a1a18)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.survey_name || 'Default survey'} <span style={{ color: 'var(--mute, #a8a39a)', fontWeight: 500 }}>{'\u2192'} {Array.isArray(s.contact_emails) && s.contact_emails.length === 1 ? s.contact_emails[0] : (Array.isArray(s.contact_emails) && s.contact_emails.length ? `${s.contact_emails.length} people` : (s.segment === 'all' ? 'All contacts' : s.segment))}</span></div>
+                    <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
                       <span>{new Date(s.send_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
                       {s.source && s.source !== 'manual' && (
                         <span style={{ fontSize: '.66rem', fontWeight: 700, background: '#fff6dc', color: '#8a6d1a', padding: '1px 8px', borderRadius: 50, whiteSpace: 'nowrap' }}>
@@ -541,7 +541,7 @@ function SendSurvey({ onBack }) {
                       )}
                     </div>
                   </div>
-                  <button onClick={() => cancelScheduled(s.id)} style={{ flexShrink: 0, padding: '7px 13px', borderRadius: 8, border: '1.5px solid #e4e0d8', background: 'white', color: '#7a7670', fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer' }}>Cancel</button>
+                  <button onClick={() => cancelScheduled(s.id)} style={{ flexShrink: 0, padding: '7px 13px', borderRadius: 8, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', color: 'var(--taupe, #7a7670)', fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer' }}>Cancel</button>
                 </div>
               ))}
             </div>
@@ -644,15 +644,15 @@ function Editor({ template, onBack }) {
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px' }}>
         {(
           <>
-            {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
+            {err && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', color: 'var(--danger, #c0392b)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
 
             {/* Name */}
             <Card style={{ marginBottom: 16 }}>
               <label style={label}>Survey name</label>
               <input value={name} onChange={(e) => setName(e.target.value)} style={input} placeholder="e.g. Post-visit feedback" />
-              <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '8px 0 0' }}>Just for you — customers never see this.</p>
+              <p style={{ fontSize: '.75rem', color: 'var(--mute, #a8a39a)', margin: '8px 0 0' }}>Just for you — customers never see this.</p>
               {locations.length > 1 && (
-                <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0eeea' }}>
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--cream-2, #f0eeea)' }}>
                   <label style={label}>Applies to</label>
                   <select
                     value={scope === 'location' ? (locationId || '') : 'account'}
@@ -663,7 +663,7 @@ function Editor({ template, onBack }) {
                     <option value="account">All locations</option>
                     {locations.map((l, i) => <option key={l.id} value={l.id}>{l.business_name || `Location ${i + 1}`}</option>)}
                   </select>
-                  <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '8px 0 0', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: '.75rem', color: 'var(--mute, #a8a39a)', margin: '8px 0 0', lineHeight: 1.5 }}>
                     {template && template.is_default
                       ? 'This is your default survey — used across all locations. Set another survey as the default to free it up for a specific location.'
                       : 'Assign this survey to one location, or keep it available across all locations. Governs automated and integration-triggered sends; manual sends use the survey you pick when sending.'}
@@ -676,7 +676,7 @@ function Editor({ template, onBack }) {
             {/* Scoring question */}
             <Card style={{ marginBottom: 16 }}>
               <SectionLabel>The scoring question</SectionLabel>
-              <p style={{ fontSize: '.82rem', color: '#7a7670', margin: '4px 0 16px', lineHeight: 1.55 }}>
+              <p style={{ fontSize: '.82rem', color: 'var(--taupe, #7a7670)', margin: '4px 0 16px', lineHeight: 1.55 }}>
                 Everyone answers this first. Their score decides which follow-up questions they see.
               </p>
 
@@ -685,7 +685,7 @@ function Editor({ template, onBack }) {
                 {SCALE_OPTIONS.map((o) => {
                   const on = (cfg.classifier.type === 'nps' ? 'nps' : cfg.classifier.type) === o.type;
                   return (
-                    <button key={o.type} onClick={() => setScale(o.type)} style={{ padding: '9px 16px', borderRadius: 50, border: '1.5px solid', borderColor: on ? '#f5c842' : '#e4e0d8', background: on ? '#fffbe9' : 'white', fontWeight: 700, fontSize: '.82rem', color: on ? '#7a5a06' : '#7a7670', cursor: 'pointer', fontFamily: 'inherit' }}>{o.label}</button>
+                    <button key={o.type} onClick={() => setScale(o.type)} style={{ padding: '9px 16px', borderRadius: 50, border: '1.5px solid', borderColor: on ? 'var(--honey, #f5c842)' : 'var(--line, #e4e0d8)', background: on ? '#fffbe9' : 'white', fontWeight: 700, fontSize: '.82rem', color: on ? '#7a5a06' : 'var(--taupe, #7a7670)', cursor: 'pointer', fontFamily: 'inherit' }}>{o.label}</button>
                   );
                 })}
               </div>
@@ -696,10 +696,10 @@ function Editor({ template, onBack }) {
               {/* Threshold band */}
               <div style={{ marginTop: 22 }}>
                 <label style={label}>Who counts as a promoter, passive, or detractor</label>
-                <div style={{ display: 'flex', height: 38, borderRadius: 10, overflow: 'hidden', border: '1px solid #e4e0d8', marginBottom: 14 }}>
-                  <Band tone="#c0392b" bg="#fee2e2" text={`Detractor 0\u2013${th.detractor}`} flex={th.detractor + 1} />
-                  {th.promoter - th.detractor > 1 && <Band tone="#92690a" bg="#fef9c3" text={`Passive ${th.detractor + 1}\u2013${th.promoter - 1}`} flex={th.promoter - th.detractor - 1} />}
-                  <Band tone="#1a6b45" bg="#dcfce7" text={`Promoter ${th.promoter}\u2013${scaleMax}`} flex={scaleMax - th.promoter + 1} />
+                <div style={{ display: 'flex', height: 38, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--line, #e4e0d8)', marginBottom: 14 }}>
+                  <Band tone="var(--danger, #c0392b)" bg="var(--danger-bg, #fee2e2)" text={`Detractor 0\u2013${th.detractor}`} flex={th.detractor + 1} />
+                  {th.promoter - th.detractor > 1 && <Band tone="var(--amber-tx, #92690a)" bg="#fef9c3" text={`Passive ${th.detractor + 1}\u2013${th.promoter - 1}`} flex={th.promoter - th.detractor - 1} />}
+                  <Band tone="var(--green, #1a6b45)" bg="#dcfce7" text={`Promoter ${th.promoter}\u2013${scaleMax}`} flex={scaleMax - th.promoter + 1} />
                 </div>
                 <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
                   <Stepper title="Detractor is at or below" value={th.detractor} min={0} max={th.promoter - 1} onChange={(v) => setThreshold('detractor', v)} />
@@ -728,7 +728,7 @@ function Editor({ template, onBack }) {
             {cfg.type === 'custom' && (<>
               <Card style={{ marginBottom: 16 }}>
                 <SectionLabel>Opening message</SectionLabel>
-                <p style={{ fontSize: '.82rem', color: '#7a7670', margin: '4px 0 12px', lineHeight: 1.55 }}>An optional welcome shown before the first question.</p>
+                <p style={{ fontSize: '.82rem', color: 'var(--taupe, #7a7670)', margin: '4px 0 12px', lineHeight: 1.55 }}>An optional welcome shown before the first question.</p>
                 <input value={cfg.messages.intro || ''} onChange={(e) => updateMessage('intro', e.target.value)} style={input} placeholder="e.g. We'd love your feedback — it only takes a minute." />
               </Card>
 
@@ -746,7 +746,7 @@ function Editor({ template, onBack }) {
               <Card style={{ marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                 <div style={{ flex: 1 }}>
                   <SectionLabel>Invite a public review at the end</SectionLabel>
-                  <p style={{ fontSize: '.82rem', color: '#7a7670', margin: '4px 0 0', lineHeight: 1.55 }}>
+                  <p style={{ fontSize: '.82rem', color: 'var(--taupe, #7a7670)', margin: '4px 0 0', lineHeight: 1.55 }}>
                     When on, everyone who finishes sees a neutral invitation to leave a public review — shown to every respondent, never gated on answers. Turn off for purely internal feedback.
                   </p>
                 </div>
@@ -769,13 +769,13 @@ function Band({ tone, bg, text, flex }) {
 }
 
 function Stepper({ title, value, min, max, onChange }) {
-  const btn = { width: 32, height: 32, borderRadius: 8, border: '1.5px solid #e4e0d8', background: 'white', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, color: '#7a7670', lineHeight: 1, fontFamily: 'inherit' };
+  const btn = { width: 32, height: 32, borderRadius: 8, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', lineHeight: 1, fontFamily: 'inherit' };
   return (
     <div>
-      <div style={{ fontSize: '.72rem', color: '#7a7670', fontWeight: 600, marginBottom: 6 }}>{title}</div>
+      <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', fontWeight: 600, marginBottom: 6 }}>{title}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <button style={btn} onClick={() => onChange(Math.max(min, value - 1))} disabled={value <= min}>{'\u2212'}</button>
-        <span style={{ minWidth: 26, textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: '#1a1a18' }}>{value}</span>
+        <span style={{ minWidth: 26, textAlign: 'center', fontWeight: 800, fontSize: '1.05rem', color: 'var(--tx, #1a1a18)' }}>{value}</span>
         <button style={btn} onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max}>+</button>
       </div>
     </div>
@@ -788,7 +788,7 @@ function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUp
     <Card style={{ marginBottom: 16, borderColor: path.bd }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
         <span style={{ fontSize: '.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: path.tone, background: path.bg, border: `1px solid ${path.bd}`, borderRadius: 50, padding: '4px 11px' }}>{path.label}</span>
-        <span style={{ fontSize: '.8rem', color: '#a8a39a' }}>{path.desc}</span>
+        <span style={{ fontSize: '.8rem', color: 'var(--mute, #a8a39a)' }}>{path.desc}</span>
       </div>
 
       {showMessage && (
@@ -799,7 +799,7 @@ function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUp
       )}
 
       {blocks.length === 0 ? (
-        <p style={{ fontSize: '.82rem', color: '#a8a39a', margin: '0 0 12px', fontStyle: 'italic' }}>No follow-up questions — this group goes straight to the public review invite.</p>
+        <p style={{ fontSize: '.82rem', color: 'var(--mute, #a8a39a)', margin: '0 0 12px', fontStyle: 'italic' }}>No follow-up questions — this group goes straight to the public review invite.</p>
       ) : (
         blocks.map((b, i) => (
           <BlockCard key={b.blockId || i} block={b} idx={i} total={blocks.length}
@@ -809,20 +809,20 @@ function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUp
       )}
 
       {adding ? (
-        <div style={{ border: '1.5px dashed #e4e0d8', borderRadius: 12, padding: 12, marginTop: 6 }}>
-          <div style={{ fontSize: '.72rem', fontWeight: 700, color: '#7a7670', marginBottom: 10 }}>Choose a question type</div>
+        <div style={{ border: '1.5px dashed var(--line, #e4e0d8)', borderRadius: 12, padding: 12, marginTop: 6 }}>
+          <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>Choose a question type</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: 8 }}>
             {BLOCK_TYPES.filter((t) => allowConditions || t.type !== 'end').map((t) => (
-              <button key={t.type} onClick={() => { onAdd(t.type); setAdding(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, border: '1.5px solid #e4e0d8', background: 'white', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+              <button key={t.type} onClick={() => { onAdd(t.type); setAdding(false); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 10, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
                 <span style={{ fontSize: '1.1rem' }}>{t.icon}</span>
-                <span><span style={{ display: 'block', fontWeight: 700, fontSize: '.82rem', color: '#1a1a18' }}>{t.label}</span><span style={{ fontSize: '.7rem', color: '#a8a39a' }}>{t.hint}</span></span>
+                <span><span style={{ display: 'block', fontWeight: 700, fontSize: '.82rem', color: 'var(--tx, #1a1a18)' }}>{t.label}</span><span style={{ fontSize: '.7rem', color: 'var(--mute, #a8a39a)' }}>{t.hint}</span></span>
               </button>
             ))}
           </div>
-          <button onClick={() => setAdding(false)} style={{ marginTop: 10, background: 'none', border: 'none', color: '#a8a39a', fontSize: '.78rem', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+          <button onClick={() => setAdding(false)} style={{ marginTop: 10, background: 'none', border: 'none', color: 'var(--mute, #a8a39a)', fontSize: '.78rem', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
         </div>
       ) : (
-        <button onClick={() => setAdding(true)} style={{ width: '100%', padding: 11, borderRadius: 10, border: '1.5px dashed #d8d4cc', background: 'transparent', color: '#7a7670', fontWeight: 700, fontSize: '.82rem', cursor: 'pointer', fontFamily: 'inherit', marginTop: 6 }}>+ Add a question</button>
+        <button onClick={() => setAdding(true)} style={{ width: '100%', padding: 11, borderRadius: 10, border: '1.5px dashed #d8d4cc', background: 'transparent', color: 'var(--taupe, #7a7670)', fontWeight: 700, fontSize: '.82rem', cursor: 'pointer', fontFamily: 'inherit', marginTop: 6 }}>+ Add a question</button>
       )}
     </Card>
   );
@@ -839,21 +839,21 @@ function BlockCard({ block, idx, total, priorSourceBlocks, onUpdate, onRemove, o
   function setOpt(i, v) { const o = [...(block.options || [])]; o[i] = v; onUpdate({ options: o }); }
   function addOpt() { onUpdate({ options: [...(block.options || []), ''] }); }
   function rmOpt(i) { const o = [...(block.options || [])]; o.splice(i, 1); onUpdate({ options: o }); }
-  const mini = { width: 26, height: 26, borderRadius: 7, border: '1.5px solid #e4e0d8', background: 'white', cursor: 'pointer', color: '#a8a39a', fontSize: '.85rem', lineHeight: 1, fontFamily: 'inherit' };
+  const mini = { width: 26, height: 26, borderRadius: 7, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', cursor: 'pointer', color: 'var(--mute, #a8a39a)', fontSize: '.85rem', lineHeight: 1, fontFamily: 'inherit' };
 
   return (
     <div style={{ border: '1px solid #ece9e3', borderRadius: 12, padding: 14, marginBottom: 10, background: '#fcfbf9' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: '.95rem' }}>{meta.icon}</span>
-        <span style={{ fontSize: '.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: '#7a7670' }}>{meta.label}</span>
+        <span style={{ fontSize: '.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: 'var(--taupe, #7a7670)' }}>{meta.label}</span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 5 }}>
           <button style={mini} onClick={() => onMove(-1)} disabled={idx === 0} title="Move up">{'\u2191'}</button>
           <button style={mini} onClick={() => onMove(1)} disabled={idx === total - 1} title="Move down">{'\u2193'}</button>
-          <button style={{ ...mini, color: '#c0392b' }} onClick={onRemove} title="Remove">{'\u00D7'}</button>
+          <button style={{ ...mini, color: 'var(--danger, #c0392b)' }} onClick={onRemove} title="Remove">{'\u00D7'}</button>
         </div>
       </div>
       {isEnd ? (
-        <p style={{ fontSize: '.8rem', color: '#7a7670', margin: '0 0 2px', lineHeight: 1.55 }}>The survey ends here for customers who meet the condition below — they go straight to the review invite. Everyone else keeps going.</p>
+        <p style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', margin: '0 0 2px', lineHeight: 1.55 }}>The survey ends here for customers who meet the condition below — they go straight to the review invite. Everyone else keeps going.</p>
       ) : (
         <input value={block.question || ''} onChange={(e) => onUpdate({ question: e.target.value })} style={input} placeholder={isSection ? 'Section heading' : isContact ? 'Prompt (e.g. "Your contact details")' : 'Type your question…'} />
       )}
@@ -862,7 +862,7 @@ function BlockCard({ block, idx, total, priorSourceBlocks, onUpdate, onRemove, o
       )}
       {hasOptions && (
         <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: '.7rem', fontWeight: 700, color: '#a8a39a', marginBottom: 6 }}>Options</div>
+          <div style={{ fontSize: '.7rem', fontWeight: 700, color: 'var(--mute, #a8a39a)', marginBottom: 6 }}>Options</div>
           {(block.options || []).map((o, i) => (
             <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
               <input value={o} onChange={(e) => setOpt(i, e.target.value)} style={{ ...input, padding: '7px 11px' }} placeholder={`Option ${i + 1}`} />
@@ -871,7 +871,7 @@ function BlockCard({ block, idx, total, priorSourceBlocks, onUpdate, onRemove, o
           ))}
           <button onClick={addOpt} style={{ background: 'none', border: 'none', color: '#7a5a06', fontSize: '.78rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>+ Add option</button>
           {isMC && (
-            <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8, fontSize: '.78rem', color: '#7a7670', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 8, fontSize: '.78rem', color: 'var(--taupe, #7a7670)', cursor: 'pointer' }}>
               <input type="checkbox" checked={!!block.multiple} onChange={(e) => onUpdate({ multiple: e.target.checked })} /> Allow multiple selections
             </label>
           )}
@@ -879,11 +879,11 @@ function BlockCard({ block, idx, total, priorSourceBlocks, onUpdate, onRemove, o
       )}
       {isContact && (
         <div style={{ marginTop: 10 }}>
-          <div style={{ fontSize: '.7rem', fontWeight: 700, color: '#a8a39a', marginBottom: 6 }}>Fields to collect</div>
+          <div style={{ fontSize: '.7rem', fontWeight: 700, color: 'var(--mute, #a8a39a)', marginBottom: 6 }}>Fields to collect</div>
           {[['name', 'Name'], ['email', 'Email'], ['phone', 'Phone']].map(([k, lbl]) => {
             const fields = block.fields || ['name', 'email', 'phone'];
             return (
-              <label key={k} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5, fontSize: '.8rem', color: '#7a7670', cursor: 'pointer' }}>
+              <label key={k} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5, fontSize: '.8rem', color: 'var(--taupe, #7a7670)', cursor: 'pointer' }}>
                 <input type="checkbox" checked={fields.includes(k)} onChange={(e) => { const f = new Set(block.fields || ['name', 'email', 'phone']); if (e.target.checked) f.add(k); else f.delete(k); onUpdate({ fields: Array.from(f) }); }} /> {lbl}
               </label>
             );
@@ -896,7 +896,7 @@ function BlockCard({ block, idx, total, priorSourceBlocks, onUpdate, onRemove, o
 }
 
 const NUMERIC_TYPES = ['rating', 'star', 'smiley'];
-const condSelStyle = { border: '1.5px solid #e4e0d8', borderRadius: 8, padding: '6px 9px', fontSize: '.78rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18', maxWidth: 200 };
+const condSelStyle = { border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 8, padding: '6px 9px', fontSize: '.78rem', fontFamily: 'inherit', background: 'white', color: 'var(--tx, #1a1a18)', maxWidth: 200 };
 const srcLabel = (b) => (b.question || 'Untitled question').slice(0, 36);
 function defaultRule(b) {
   if (!b) return { blockId: '', op: 'is', values: [] };
@@ -913,7 +913,7 @@ function ConditionEditor({ condition, priorBlocks, onChange, forEnd }) {
 
   if (!priorBlocks.length) {
     return forEnd
-      ? <p style={{ fontSize: '.76rem', color: '#a8a39a', margin: '8px 0 0' }}>Add a choice or rating question before this block to choose when the survey ends.</p>
+      ? <p style={{ fontSize: '.76rem', color: 'var(--mute, #a8a39a)', margin: '8px 0 0' }}>Add a choice or rating question before this block to choose when the survey ends.</p>
       : null;
   }
 
@@ -949,7 +949,7 @@ function ConditionEditor({ condition, priorBlocks, onChange, forEnd }) {
       ))}
       <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
         <button onClick={addRule} style={{ background: 'none', border: 'none', color: '#6d28d9', fontSize: '.76rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>+ Add condition</button>
-        <button onClick={() => onChange(null)} style={{ background: 'none', border: 'none', color: '#a8a39a', fontSize: '.76rem', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Remove</button>
+        <button onClick={() => onChange(null)} style={{ background: 'none', border: 'none', color: 'var(--mute, #a8a39a)', fontSize: '.76rem', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Remove</button>
       </div>
     </div>
   );
@@ -985,18 +985,18 @@ function RuleRow({ rule, priorBlocks, onChange, onRemove }) {
             <option value="is_not">is not</option>
           </select>
         )}
-        <button onClick={onRemove} title="Remove condition" style={{ width: 24, height: 24, borderRadius: 6, border: '1.5px solid #e4e0d8', background: 'white', color: '#a8a39a', cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit', lineHeight: 1 }}>{'\u00D7'}</button>
+        <button onClick={onRemove} title="Remove condition" style={{ width: 24, height: 24, borderRadius: 6, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', color: 'var(--mute, #a8a39a)', cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit', lineHeight: 1 }}>{'\u00D7'}</button>
       </div>
       {!isNumeric && (
         options.length > 0 ? (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {options.map((o) => {
               const on = values.includes(o);
-              return <button key={o} onClick={() => toggle(o)} style={{ padding: '4px 10px', borderRadius: 50, border: '1.5px solid', borderColor: on ? '#6d28d9' : '#e4e0d8', background: on ? '#f5f3ff' : 'white', color: on ? '#6d28d9' : '#7a7670', fontSize: '.74rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{on ? '\u2713 ' : ''}{o}</button>;
+              return <button key={o} onClick={() => toggle(o)} style={{ padding: '4px 10px', borderRadius: 50, border: '1.5px solid', borderColor: on ? '#6d28d9' : 'var(--line, #e4e0d8)', background: on ? '#f5f3ff' : 'white', color: on ? '#6d28d9' : 'var(--taupe, #7a7670)', fontSize: '.74rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{on ? '\u2713 ' : ''}{o}</button>;
             })}
           </div>
         ) : (
-          <p style={{ fontSize: '.72rem', color: '#a8a39a', margin: 0 }}>Add options to that question to choose values.</p>
+          <p style={{ fontSize: '.72rem', color: 'var(--mute, #a8a39a)', margin: 0 }}>Add options to that question to choose values.</p>
         )
       )}
     </div>

@@ -22,10 +22,10 @@ function authHeaders() {
 
 const SERIF = "'Playfair Display', serif";
 const C = {
-  ink: '#0a0a0a', paper: '#faf8f3', page: '#ece8e1', line: '#e4e0d8',
-  honey: '#f5c842', amber: '#d4a515', green: '#1a6b45', red: '#c0392b',
-  amberSoft: '#fbf2d6', greenSoft: '#e8f5ef', redSoft: '#fbe9e7',
-  taupe: '#7a7670', faint: '#a39e93', card: '#ffffff', soft: '#f8f7f4',
+  ink: 'var(--ink, #0a0a0a)', paper: '#faf8f3', page: '#ece8e1', line: 'var(--line, #e4e0d8)',
+  honey: 'var(--honey, #f5c842)', amber: 'var(--amber, #d4a515)', green: 'var(--green, #1a6b45)', red: 'var(--danger, #c0392b)',
+  amberSoft: '#fbf2d6', greenSoft: 'var(--green-bg, #e8f5ef)', redSoft: '#fbe9e7',
+  taupe: 'var(--taupe, #7a7670)', faint: '#a39e93', card: 'var(--paper, #ffffff)', soft: 'var(--cream, #f8f7f4)',
 };
 
 const RANGES = [
@@ -172,7 +172,7 @@ function BouncyBars({ values, loading, color = C.ink, height = 168, fmt = (v) =>
 }
 
 // Horizontal labelled bars (distribution, themes, channels, reasons).
-function HBars({ rows, color = C.ink, max, trackBg = '#f0eeea' }) {
+function HBars({ rows, color = C.ink, max, trackBg = 'var(--cream-2, #f0eeea)' }) {
   const peak = max || Math.max(1, ...rows.map((r) => r.value));
   const [grown, setGrown] = useState(false);
   useEffect(() => { let a, b; a = requestAnimationFrame(() => { b = requestAnimationFrame(() => setGrown(true)); }); return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); }; }, [rows]);
@@ -221,7 +221,7 @@ function SegBar({ segments, height = 16 }) {
   const [grown, setGrown] = useState(false);
   useEffect(() => { let a, b; a = requestAnimationFrame(() => { b = requestAnimationFrame(() => setGrown(true)); }); return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); }; }, [segments]);
   return (
-    <div style={{ display: 'flex', height, borderRadius: 50, overflow: 'hidden', background: '#f0eeea' }}>
+    <div style={{ display: 'flex', height, borderRadius: 50, overflow: 'hidden', background: 'var(--cream-2, #f0eeea)' }}>
       {segments.map((s, i) => (
         <div key={i} title={`${s.label}: ${s.value}`} style={{ width: grown ? `${(s.value / total) * 100}%` : '0%', background: s.color, transition: `width .8s cubic-bezier(.3,1,.4,1) ${i * 0.1}s` }} />
       ))}
@@ -425,7 +425,7 @@ function ReportVelocity({ d }) {
           </div>
         )}
 
-        <div style={{ height: 14, background: '#f0eeea', borderRadius: 50, overflow: 'hidden' }}>
+        <div style={{ height: 14, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden' }}>
           <div className="rep-fill" style={{ width: `${goalPct}%`, height: '100%', background: goalPct >= 100 ? C.green : C.amber, borderRadius: 50, transition: 'width .8s cubic-bezier(.3,1.1,.4,1)' }} />
         </div>
       </div>
@@ -545,7 +545,7 @@ function ReportLocations({ d }) {
             {!single && <div style={{ fontFamily: SERIF, fontSize: '1.1rem', fontWeight: 700, color: i === 0 ? C.amber : C.faint, width: 22 }}>{i + 1}</div>}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, fontSize: '.86rem', color: C.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
-              <div style={{ height: 7, background: '#f0eeea', borderRadius: 50, overflow: 'hidden', marginTop: 7, maxWidth: 260 }}>
+              <div style={{ height: 7, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden', marginTop: 7, maxWidth: 260 }}>
                 <div className="rep-fill" style={{ width: `${(l.reviews / maxRev) * 100}%`, height: '100%', background: C.ink, borderRadius: 50, transition: `width .7s cubic-bezier(.3,1.1,.4,1) ${i * 0.05}s` }} />
               </div>
             </div>
@@ -595,7 +595,7 @@ function ReportFunnel({ d }) {
               <span style={{ fontSize: '.82rem', color: C.ink, fontWeight: 500 }}>{st.label}</span>
               <span style={{ fontSize: '.8rem', color: C.taupe }}><strong style={{ color: C.ink, fontFamily: SERIF, fontSize: '1rem' }}>{fmtInt(st.value)}</strong> · {st.pct}%</span>
             </div>
-            <div style={{ height: 13, background: '#f0eeea', borderRadius: 7, overflow: 'hidden' }}>
+            <div style={{ height: 13, background: 'var(--cream-2, #f0eeea)', borderRadius: 7, overflow: 'hidden' }}>
               <div className="rep-fill" style={{ width: `${st.pct}%`, height: '100%', background: st.color, borderRadius: 7, transition: `width .8s cubic-bezier(.34,1.4,.5,1) ${i * 0.12}s` }} />
             </div>
           </div>
@@ -853,7 +853,7 @@ function ReportResponses() {
         }} />
         <button onClick={exportCsv} disabled={!rows.length} style={{
           padding: '8px 16px', borderRadius: 9, border: 'none', cursor: rows.length ? 'pointer' : 'default',
-          background: rows.length ? 'linear-gradient(135deg,#f5c842,#d4a515)' : C.soft, color: rows.length ? '#1a1408' : C.faint,
+          background: rows.length ? 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))' : C.soft, color: rows.length ? '#1a1408' : C.faint,
           fontWeight: 700, fontSize: '.8rem', fontFamily: 'inherit',
         }}>Export CSV</button>
       </div>

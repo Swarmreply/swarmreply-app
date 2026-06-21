@@ -12,10 +12,10 @@ import axios from 'axios';
 const API = process.env.NEXT_PUBLIC_API_URL;
 
 const STATUS_LABELS = {
-  active:      { label: 'Active',          bg: '#e8f5ef', color: '#1a6b45' },
-  cancelling:  { label: 'Cancels soon',    bg: '#fef3cd', color: '#92690a' },
-  paused:      { label: 'Payment issue',   bg: '#fee2e2', color: '#c0392b' },
-  cancelled:   { label: 'Cancelled',       bg: '#f0eeea', color: '#7a7670' },
+  active:      { label: 'Active',          bg: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)' },
+  cancelling:  { label: 'Cancels soon',    bg: '#fef3cd', color: 'var(--amber-tx, #92690a)' },
+  paused:      { label: 'Payment issue',   bg: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)' },
+  cancelled:   { label: 'Cancelled',       bg: 'var(--cream-2, #f0eeea)', color: 'var(--taupe, #7a7670)' },
   trialing:    { label: 'Trial',           bg: '#e8f0fe', color: '#1a4baa' }
 };
 
@@ -171,7 +171,7 @@ export default function Billing() {
 
   if (loading) return (
     <DashboardLayout title="Billing">
-      <div style={{ padding: 48, textAlign: 'center', color: '#7a7670', fontSize: '.9rem' }}>
+      <div style={{ padding: 48, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '.9rem' }}>
         Loading billing information…
       </div>
     </DashboardLayout>
@@ -180,7 +180,7 @@ export default function Billing() {
   if (error) return (
     <DashboardLayout title="Billing">
       <div style={{ padding: 48, textAlign: 'center' }}>
-        <div style={{ color: '#c0392b', marginBottom: 12 }}>{error}</div>
+        <div style={{ color: 'var(--danger, #c0392b)', marginBottom: 12 }}>{error}</div>
         <button onClick={loadBilling} style={btnStyle('outline')}>Retry</button>
       </div>
     </DashboardLayout>
@@ -200,7 +200,7 @@ export default function Billing() {
       {toast && (
         <div style={{
           position: 'fixed', top: 80, right: 24, zIndex: 999,
-          background: toast.type === 'error' ? '#c0392b' : '#0a0a0a',
+          background: toast.type === 'error' ? 'var(--danger, #c0392b)' : 'var(--ink, #0a0a0a)',
           color: '#fff', padding: '12px 20px', borderRadius: 11,
           fontSize: '.875rem', fontWeight: 500, maxWidth: 380,
           boxShadow: '0 8px 32px rgba(0,0,0,.2)'
@@ -214,16 +214,16 @@ export default function Billing() {
         {/* ── PAYMENT ISSUE BANNER ── */}
         {hasPaymentIssue && (
           <div style={{
-            background: '#fee2e2', border: '1px solid #fecaca',
+            background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca',
             borderRadius: 13, padding: '16px 20px',
             display: 'flex', justifyContent: 'space-between',
             alignItems: 'center', marginBottom: 20
           }}>
             <div>
-              <div style={{ fontWeight: 700, color: '#c0392b', marginBottom: 4 }}>
+              <div style={{ fontWeight: 700, color: 'var(--danger, #c0392b)', marginBottom: 4 }}>
                 ⚠ Payment failed — update your card to keep your swarm running
               </div>
-              <div style={{ fontSize: '.82rem', color: '#c0392b', opacity: .8 }}>
+              <div style={{ fontSize: '.82rem', color: 'var(--danger, #c0392b)', opacity: .8 }}>
                 {account?.failureCount > 1
                   ? `${account.failureCount} failed attempts. Your account may be paused.`
                   : "We'll retry automatically. Update your card to avoid interruption."}
@@ -245,10 +245,10 @@ export default function Billing() {
             alignItems: 'center', marginBottom: 20
           }}>
             <div>
-              <div style={{ fontWeight: 700, color: '#92690a', marginBottom: 4 }}>
+              <div style={{ fontWeight: 700, color: 'var(--amber-tx, #92690a)', marginBottom: 4 }}>
                 Your subscription ends {formatDate(stripe?.cancelAt)}
               </div>
-              <div style={{ fontSize: '.82rem', color: '#92690a', opacity: .8 }}>
+              <div style={{ fontSize: '.82rem', color: 'var(--amber-tx, #92690a)', opacity: .8 }}>
                 You have full access until then. Changed your mind?
               </div>
             </div>
@@ -261,16 +261,16 @@ export default function Billing() {
         {/* ── PAUSED BANNER ── */}
         {isPaused && (
           <div style={{
-            background: '#e8f5ef', border: '1px solid #bbf7d0',
+            background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0',
             borderRadius: 13, padding: '16px 20px',
             display: 'flex', justifyContent: 'space-between',
             alignItems: 'center', marginBottom: 20
           }}>
             <div>
-              <div style={{ fontWeight: 700, color: '#1a6b45', marginBottom: 4 }}>
+              <div style={{ fontWeight: 700, color: 'var(--green, #1a6b45)', marginBottom: 4 }}>
                 Your subscription is paused{pausedUntil ? ` until ${formatDate(pausedUntil)}` : ''}
               </div>
-              <div style={{ fontSize: '.82rem', color: '#1a6b45', opacity: .85 }}>
+              <div style={{ fontSize: '.82rem', color: 'var(--green, #1a6b45)', opacity: .85 }}>
                 Billing is on hold and all your data is safe. Resume whenever you're ready.
               </div>
             </div>
@@ -288,16 +288,16 @@ export default function Billing() {
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
                 <span style={{
                   fontFamily: 'Playfair Display, serif',
-                  fontSize: '2rem', fontWeight: 900, color: '#0a0a0a'
+                  fontSize: '2rem', fontWeight: 900, color: 'var(--ink, #0a0a0a)'
                 }}>{plan?.name}</span>
                 <span style={{
-                  background: '#f5c842', color: '#0a0a0a',
+                  background: 'var(--honey, #f5c842)', color: 'var(--ink, #0a0a0a)',
                   padding: '2px 10px', borderRadius: 50, fontSize: '.72rem', fontWeight: 700
                 }}>
                   {statusInfo.label}
                 </span>
               </div>
-              <div style={{ fontSize: '1.1rem', color: '#7a7670', marginBottom: 16 }}>
+              <div style={{ fontSize: '1.1rem', color: 'var(--taupe, #7a7670)', marginBottom: 16 }}>
                 ${plan?.price}/month
                 {` · ${locationCount === 1 ? '1 location' : `${locationCount} locations`}`}
                 {billing?.billingCycle === 'annual' && ' · billed annually (10% off)'}
@@ -320,7 +320,7 @@ export default function Billing() {
                   <div style={{ fontWeight: 600, fontSize: '.9rem', textTransform: 'capitalize' }}>
                     {stripe.defaultPaymentMethod.brand} ···· {stripe.defaultPaymentMethod.last4}
                   </div>
-                  <div style={{ fontSize: '.72rem', color: '#7a7670', marginTop: 2 }}>
+                  <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>
                     Expires {stripe.defaultPaymentMethod.expMonth}/{stripe.defaultPaymentMethod.expYear}
                   </div>
                 </div>
@@ -332,29 +332,29 @@ export default function Billing() {
         {/* ── LOCATIONS & PRICING ── */}
         <div style={cardStyle}>
           <div style={sectionLabel}>Your locations & pricing</div>
-          <p style={{ fontSize: '.82rem', color: '#7a7670', marginTop: 8, marginBottom: 16, lineHeight: 1.6 }}>
+          <p style={{ fontSize: '.82rem', color: 'var(--taupe, #7a7670)', marginTop: 8, marginBottom: 16, lineHeight: 1.6 }}>
             Your price is based on how many active locations you have. It updates
             automatically when you add or remove a location — there is no plan to choose.
           </p>
 
           {/* Per-location breakdown */}
-          <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
+          <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, overflow: 'hidden', marginBottom: 16 }}>
             {pricing?.rows?.map((row, i) => (
               <div key={i} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 padding: '11px 16px', fontSize: '.85rem',
                 borderBottom: i < pricing.rows.length - 1 ? '1px solid #f0ede7' : 'none'
               }}>
-                <span style={{ color: '#1a1a18' }}>
+                <span style={{ color: 'var(--tx, #1a1a18)' }}>
                   {row.label}
-                  {row.qty > 1 && <span style={{ color: '#7a7670' }}>{` · ${row.qty} × $${row.rate}`}</span>}
+                  {row.qty > 1 && <span style={{ color: 'var(--taupe, #7a7670)' }}>{` · ${row.qty} × $${row.rate}`}</span>}
                 </span>
                 <span style={{ fontWeight: 600 }}>${row.qty * row.rate}/mo</span>
               </div>
             ))}
             <div style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '12px 16px', background: '#f8f7f4', fontSize: '.9rem', fontWeight: 700
+              padding: '12px 16px', background: 'var(--cream, #f8f7f4)', fontSize: '.9rem', fontWeight: 700
             }}>
               <span>Total{billing?.billingCycle === 'annual' ? ' (annual · 10% off)' : ''}</span>
               <span>${pricing?.monthly}/mo</span>
@@ -362,14 +362,14 @@ export default function Billing() {
           </div>
 
           <a href="/dashboard/locations/add" style={{
-            display: 'inline-block', background: '#0a0a0a', color: '#fff',
+            display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: '#fff',
             borderRadius: 50, padding: '9px 20px', fontSize: '.82rem', fontWeight: 700,
             textDecoration: 'none'
           }}>
             Add a location →
           </a>
 
-          <div style={{ fontSize: '.75rem', color: '#7a7670', marginTop: 14, lineHeight: 1.6 }}>
+          <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)', marginTop: 14, lineHeight: 1.6 }}>
             $99/mo each for your first two locations, $89/mo each for locations 3–25, and
             $79/mo each for 26–99. No contracts — cancel anytime.
           </div>
@@ -386,24 +386,24 @@ export default function Billing() {
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ background: '#f8f7f4' }}>
+                <tr style={{ background: 'var(--cream, #f8f7f4)' }}>
                   {['Date', 'Period', 'Plan', 'Amount', 'Status', ''].map(h => (
                     <th key={h} style={{
                       padding: '9px 14px', fontSize: '.67rem', fontWeight: 700,
                       letterSpacing: '.07em', textTransform: 'uppercase',
-                      color: '#7a7670', textAlign: 'left', borderBottom: '1px solid #e4e0d8'
+                      color: 'var(--taupe, #7a7670)', textAlign: 'left', borderBottom: '1px solid var(--line, #e4e0d8)'
                     }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {invoices.map(inv => (
-                  <tr key={inv.id} style={{ borderBottom: '1px solid #f0eeea' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#f8f7f4'}
+                  <tr key={inv.id} style={{ borderBottom: '1px solid var(--cream-2, #f0eeea)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--cream, #f8f7f4)'}
                     onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
                     <td style={tdStyle}>{formatDate(inv.date)}</td>
                     <td style={tdStyle}>
-                      <span style={{ fontSize: '.78rem', color: '#7a7670' }}>
+                      <span style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
                         {formatDate(inv.periodStart)} – {formatDate(inv.periodEnd)}
                       </span>
                     </td>
@@ -412,8 +412,8 @@ export default function Billing() {
                     <td style={tdStyle}>
                       <span style={{
                         padding: '2px 9px', borderRadius: 50, fontSize: '.67rem', fontWeight: 700,
-                        background: inv.status === 'paid' ? '#e8f5ef' : '#fee2e2',
-                        color:      inv.status === 'paid' ? '#1a6b45' : '#c0392b'
+                        background: inv.status === 'paid' ? 'var(--green-bg, #e8f5ef)' : 'var(--danger-bg, #fee2e2)',
+                        color:      inv.status === 'paid' ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)'
                       }}>
                         {inv.status === 'paid' ? '✓ Paid' : inv.status}
                       </span>
@@ -421,7 +421,7 @@ export default function Billing() {
                     <td style={{ ...tdStyle, textAlign: 'right' }}>
                       {inv.pdfUrl && (
                         <a href={inv.pdfUrl} target="_blank" rel="noopener noreferrer"
-                          style={{ fontSize: '.78rem', color: '#0a0a0a', fontWeight: 600, textDecoration: 'none' }}>
+                          style={{ fontSize: '.78rem', color: 'var(--ink, #0a0a0a)', fontWeight: 600, textDecoration: 'none' }}>
                           PDF ↗
                         </a>
                       )}
@@ -435,13 +435,13 @@ export default function Billing() {
 
         {/* ── DANGER ZONE ── */}
         <div style={{ ...cardStyle, border: '1px solid #fecaca' }}>
-          <div style={{ ...sectionLabel, color: '#c0392b' }}>Danger zone</div>
+          <div style={{ ...sectionLabel, color: 'var(--danger, #c0392b)' }}>Danger zone</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
             <div>
               <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>
                 {cancelAtEnd ? 'Cancellation scheduled' : isPaused ? 'Subscription paused' : 'Cancel subscription'}
               </div>
-              <div style={{ fontSize: '.8rem', color: '#7a7670', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6 }}>
                 {cancelAtEnd
                   ? `Your subscription ends ${formatDate(stripe?.cancelAt)}. You have full access until then — use the banner above to re-enable.`
                   : isPaused
@@ -469,7 +469,7 @@ export default function Billing() {
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', fontWeight: 700, marginBottom: 8 }}>
                   Before you go…
                 </div>
-                <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.65 }}>
+                <p style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', marginBottom: 16, lineHeight: 1.65 }}>
                   We'd love to keep you on board. Mind sharing what's prompting this? It helps us point
                   you to the best option.
                 </p>
@@ -501,15 +501,15 @@ export default function Billing() {
                 <div style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.3rem', fontWeight: 700, marginBottom: 8 }}>
                   {(SAVE_OFFERS[cancelReason] || DEFAULT_OFFER).headline}
                 </div>
-                <p style={{ fontSize: '.875rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.65 }}>
+                <p style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', marginBottom: 16, lineHeight: 1.65 }}>
                   {(SAVE_OFFERS[cancelReason] || DEFAULT_OFFER).body}
                 </p>
                 <button onClick={handlePause} disabled={pausing}
                   style={{ ...btnStyle('green'), width: '100%', justifyContent: 'center', padding: '12px 20px', marginBottom: 16 }}>
                   {pausing ? 'Pausing…' : 'Pause for 3 months instead'}
                 </button>
-                <div style={{ borderTop: '1px solid #e4e0d8', paddingTop: 14 }}>
-                  <p style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 12, lineHeight: 1.6 }}>
+                <div style={{ borderTop: '1px solid var(--line, #e4e0d8)', paddingTop: 14 }}>
+                  <p style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', marginBottom: 12, lineHeight: 1.6 }}>
                     Still want to cancel? You'll keep full access until <strong>{formatDate(stripe?.currentPeriodEnd)}</strong>.
                     After that, replies and scans stop — but your reviews, contacts, and history stay saved, so you
                     can return anytime. Prefer your data permanently removed? Email <strong>hello@swarmreply.com</strong>.
@@ -536,22 +536,22 @@ export default function Billing() {
 // ── STYLE HELPERS ─────────────────────────────────────────────────────────────
 
 const cardStyle = {
-  background: '#fff', border: '1.5px solid #e4e0d8', borderRadius: 16,
+  background: '#fff', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 16,
   padding: '22px 24px', marginBottom: 16
 };
 
 const sectionLabel = {
   fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em',
-  textTransform: 'uppercase', color: '#7a7670', marginBottom: 2
+  textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 2
 };
 
 const metaLabel = {
   fontSize: '.67rem', fontWeight: 700, letterSpacing: '.07em',
-  textTransform: 'uppercase', color: '#7a7670', marginBottom: 3
+  textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 3
 };
 
 const tdStyle = {
-  padding: '11px 14px', fontSize: '.85rem', color: '#1a1a18', verticalAlign: 'middle'
+  padding: '11px 14px', fontSize: '.85rem', color: 'var(--tx, #1a1a18)', verticalAlign: 'middle'
 };
 
 const modalOverlay = {
@@ -567,12 +567,12 @@ const modalCard = {
 
 const fieldLabel = {
   display: 'block', fontSize: '.67rem', fontWeight: 700,
-  letterSpacing: '.08em', textTransform: 'uppercase', color: '#7a7670', marginBottom: 5
+  letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5
 };
 
 const fieldStyle = {
-  width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8',
-  borderRadius: 10, fontSize: '.875rem', color: '#1a1a18',
+  width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)',
+  borderRadius: 10, fontSize: '.875rem', color: 'var(--tx, #1a1a18)',
   outline: 'none', fontFamily: 'inherit', background: '#fff',
   cursor: 'pointer', appearance: 'none'
 };
@@ -585,12 +585,12 @@ function btnStyle(variant) {
     alignItems: 'center', gap: 6, whiteSpace: 'nowrap'
   };
   const variants = {
-    primary: { background: '#0a0a0a', color: '#fff' },
-    gold:    { background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408' },
-    outline: { background: 'transparent', border: '1.5px solid #e4e0d8', color: '#1a1a18' },
-    red:     { background: '#fee2e2', color: '#c0392b', border: '1px solid #fecaca' },
-    amber:   { background: '#fef3cd', color: '#92690a', border: '1px solid #fde68a' },
-    green:   { background: '#e8f5ef', color: '#1a6b45', border: '1px solid #bbf7d0' }
+    primary: { background: 'var(--ink, #0a0a0a)', color: '#fff' },
+    gold:    { background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408' },
+    outline: { background: 'transparent', border: '1.5px solid var(--line, #e4e0d8)', color: 'var(--tx, #1a1a18)' },
+    red:     { background: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)', border: '1px solid #fecaca' },
+    amber:   { background: '#fef3cd', color: 'var(--amber-tx, #92690a)', border: '1px solid #fde68a' },
+    green:   { background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)', border: '1px solid #bbf7d0' }
   };
   return { ...base, ...variants[variant] };
 }

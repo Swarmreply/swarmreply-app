@@ -23,7 +23,7 @@ function greeting() {
 // Loading placeholder matching a stat card.
 function StatSkeleton() {
   return (
-    <div style={{ background: 'white', border: '1.5px solid #e4e0d8', borderRadius: 14, padding: '20px 24px' }}>
+    <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: '20px 24px' }}>
       <Skeleton width={90} height={11} style={{ marginBottom: 14 }} />
       <Skeleton width={70} height={26} radius={6} style={{ marginBottom: 10 }} />
       <Skeleton width={60} height={10} />
@@ -56,7 +56,7 @@ const PLATFORM_BADGE = {
 function platformBadge(p) {
   const key = (p || '').toLowerCase();
   return PLATFORM_BADGE[key]
-    || { label: p ? p.charAt(0).toUpperCase() + p.slice(1) : 'Other', bg: '#f0eeea', fg: '#7a7670' };
+    || { label: p ? p.charAt(0).toUpperCase() + p.slice(1) : 'Other', bg: 'var(--cream-2, #f0eeea)', fg: 'var(--taupe, #7a7670)' };
 }
 
 function ReviewItem({ review }) {
@@ -67,16 +67,16 @@ function ReviewItem({ review }) {
   return (
     <div style={{
       padding: '18px 24px',
-      borderBottom: '1px solid #e4e0d8',
+      borderBottom: '1px solid var(--line, #e4e0d8)',
       display: 'flex', gap: 14, alignItems: 'flex-start'
     }}>
       {/* Avatar */}
       <div style={{
         width: 36, height: 36, borderRadius: '50%',
-        background: '#f0eeea', display: 'flex',
+        background: 'var(--cream-2, #f0eeea)', display: 'flex',
         alignItems: 'center', justifyContent: 'center',
         fontSize: '0.78rem', fontWeight: 700,
-        color: '#7a7670', flexShrink: 0
+        color: 'var(--taupe, #7a7670)', flexShrink: 0
       }}>
         {review.reviewer_name?.charAt(0) || '?'}
       </div>
@@ -102,7 +102,7 @@ function ReviewItem({ review }) {
         {/* Review text */}
         {review.review_text && (
           <div style={{
-            fontSize: '0.825rem', color: '#7a7670',
+            fontSize: '0.825rem', color: 'var(--taupe, #7a7670)',
             lineHeight: 1.6, marginBottom: 8,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
           }}>
@@ -113,10 +113,10 @@ function ReviewItem({ review }) {
         {/* Reply preview */}
         {review.posted_reply && (
           <div style={{
-            background: '#f8f7f4', borderLeft: '3px solid #0a0a0a',
+            background: 'var(--cream, #f8f7f4)', borderLeft: '3px solid var(--ink, #0a0a0a)',
             padding: '10px 14px', borderRadius: '0 8px 8px 0', marginBottom: 8
           }}>
-            <div style={{ fontSize: '0.8rem', lineHeight: 1.6, color: '#0a0a0a' }}>
+            <div style={{ fontSize: '0.8rem', lineHeight: 1.6, color: 'var(--ink, #0a0a0a)' }}>
               {review.posted_reply.substring(0, 120)}
               {review.posted_reply.length > 120 ? '...' : ''}
             </div>
@@ -128,26 +128,26 @@ function ReviewItem({ review }) {
           {isReplied && (
             <span style={{
               display: 'flex', alignItems: 'center', gap: 5,
-              background: '#e8f5ef', color: '#1a6b45',
+              background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)',
               padding: '3px 10px', borderRadius: 50,
               fontSize: '0.68rem', fontWeight: 700
             }}>✓ Replied</span>
           )}
           {isPending && (
             <span style={{
-              background: '#fef3cd', color: '#92690a',
+              background: '#fef3cd', color: 'var(--amber-tx, #92690a)',
               padding: '3px 10px', borderRadius: 50,
               fontSize: '0.68rem', fontWeight: 700
             }}>⏳ Pending</span>
           )}
           {review.status === 'error' && (
             <span style={{
-              background: '#fee2e2', color: '#c0392b',
+              background: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)',
               padding: '3px 10px', borderRadius: 50,
               fontSize: '0.68rem', fontWeight: 700
             }}>⚠ Error</span>
           )}
-          <span style={{ fontSize: '0.72rem', color: '#7a7670' }}>
+          <span style={{ fontSize: '0.72rem', color: 'var(--taupe, #7a7670)' }}>
             {new Date(review.review_date).toLocaleDateString()}
           </span>
         </div>
@@ -231,29 +231,29 @@ export default function Dashboard() {
     <DashboardLayout>
       {/* Top bar */}
       <div style={{
-        background: 'white', borderBottom: '1px solid #e4e0d8',
+        background: 'white', borderBottom: '1px solid var(--line, #e4e0d8)',
         padding: '16px 32px', display: 'flex',
         alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 50
       }}>
         <div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, color: '#1a1a18', letterSpacing: '-.01em' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, color: 'var(--tx, #1a1a18)', letterSpacing: '-.01em' }}>
             {greeting()}{customer?.name ? `, ${customer.name.split(' ')[0]}` : ''}
           </h2>
-          <p style={{ fontSize: '0.8rem', color: '#7a7670', marginTop: 2 }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 6,
-            background: '#e8f5ef', color: '#1a6b45',
+            background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)',
             padding: '5px 12px', borderRadius: 50,
             fontSize: '0.72rem', fontWeight: 700
           }}>
             <span style={{
               width: 6, height: 6, borderRadius: '50%',
-              background: '#1a6b45'
+              background: 'var(--green, #1a6b45)'
             }}></span>
             Live & Running
           </div>
@@ -349,15 +349,15 @@ export default function Dashboard() {
               if (d < 0) return `↓ ${d} vs last month`;
               return 'Same as last month';
             })()}
-            subColor={(parseInt(stats?.reviews_this_month) || 0) >= (parseInt(stats?.reviews_last_month) || 0) ? '#1a6b45' : '#c0392b'}
+            subColor={(parseInt(stats?.reviews_this_month) || 0) >= (parseInt(stats?.reviews_last_month) || 0) ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)'}
             dest="/dashboard/reviews"
           />
           <StatCard
             label="✦ AI Visibility Score"
             value={stats?.ai_visibility_score != null ? `${stats.ai_visibility_score}/100` : '—'}
             sub={stats?.ai_visibility_score != null ? 'Latest scan' : 'Run your first scan →'}
-            subColor="#0a0a0a"
-            accent="#f5c842"
+            subColor="var(--ink, #0a0a0a)"
+            accent="var(--honey, #f5c842)"
             dest="/dashboard/ai-visibility"
           />
           <StatCard
@@ -368,7 +368,7 @@ export default function Dashboard() {
               const s = stats.nps_score;
               return s >= 50 ? 'Excellent' : s >= 30 ? 'Great' : s >= 0 ? 'Good' : 'Needs attention';
             })()}
-            subColor={stats?.nps_score == null ? '#7a7670' : stats.nps_score >= 0 ? '#1a6b45' : '#c0392b'}
+            subColor={stats?.nps_score == null ? 'var(--taupe, #7a7670)' : stats.nps_score >= 0 ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)'}
             dest="/dashboard/grow"
           />
           <StatCard
@@ -385,11 +385,11 @@ export default function Dashboard() {
         <div className="grid-responsive-2" style={{ marginBottom: 28 }}>
           {/* Reviews feed */}
           <div style={{
-            background: 'white', border: '1.5px solid #e4e0d8',
+            background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
             borderRadius: 14, overflow: 'hidden'
           }}>
             <div style={{
-              padding: '18px 24px', borderBottom: '1px solid #e4e0d8',
+              padding: '18px 24px', borderBottom: '1px solid var(--line, #e4e0d8)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
               <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>
@@ -404,7 +404,7 @@ export default function Dashboard() {
                   }}
                   style={{
                     fontSize: '0.78rem', padding: '4px 10px',
-                    border: '1.5px solid #e4e0d8', borderRadius: 8,
+                    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 8,
                     background: 'white', cursor: 'pointer'
                   }}
                 >
@@ -421,13 +421,13 @@ export default function Dashboard() {
                 <ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton />
               </>
             ) : reviews.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#7a7670' }}>
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)' }}>
                 <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
                 <div style={{ fontSize: '0.875rem', marginBottom: 16 }}>
                   No reviews yet — your swarm is ready and waiting.
                 </div>
                 <a href="/dashboard/grow" style={{
-                  display: 'inline-block', background: '#0a0a0a', color: 'white',
+                  display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
                   padding: '9px 18px', borderRadius: 50,
                   fontSize: '0.82rem', fontWeight: 700, textDecoration: 'none'
                 }}>Send a review request</a>
@@ -442,16 +442,16 @@ export default function Dashboard() {
 
           {/* Locations panel */}
           <div style={{
-            background: 'white', border: '1.5px solid #e4e0d8',
+            background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
             borderRadius: 14, overflow: 'hidden'
           }}>
             <div style={{
-              padding: '18px 24px', borderBottom: '1px solid #e4e0d8',
+              padding: '18px 24px', borderBottom: '1px solid var(--line, #e4e0d8)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
               <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Your Locations</span>
               <a href="/dashboard/billing" title="Add or remove locations in Manage Billing" style={{
-                fontSize: '0.78rem', color: '#7a7670', textDecoration: 'none'
+                fontSize: '0.78rem', color: 'var(--taupe, #7a7670)', textDecoration: 'none'
               }}>Manage →</a>
             </div>
 
@@ -469,11 +469,11 @@ export default function Dashboard() {
               </>
             ) : locations.length === 0 ? (
               <div style={{ padding: 24, textAlign: 'center' }}>
-                <div style={{ fontSize: '0.875rem', color: '#7a7670', marginBottom: 16 }}>
+                <div style={{ fontSize: '0.875rem', color: 'var(--taupe, #7a7670)', marginBottom: 16 }}>
                   No locations connected yet
                 </div>
                 <a href="/dashboard/locations/add" style={{
-                  display: 'inline-block', background: '#0a0a0a', color: 'white',
+                  display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
                   padding: '10px 20px', borderRadius: 50,
                   fontSize: '0.825rem', fontWeight: 600, textDecoration: 'none'
                 }}>Connect Google Business</a>
@@ -481,20 +481,20 @@ export default function Dashboard() {
             ) : (
               locations.map(loc => (
                 <div key={loc.id} style={{
-                  padding: '14px 24px', borderBottom: '1px solid #e4e0d8',
+                  padding: '14px 24px', borderBottom: '1px solid var(--line, #e4e0d8)',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                 }}>
                   <div>
                     <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                       {loc.business_name}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#7a7670', marginTop: 2, textTransform: 'capitalize' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--taupe, #7a7670)', marginTop: 2, textTransform: 'capitalize' }}>
                       {loc.platform} · {loc.tone} tone
                     </div>
                   </div>
                   <div style={{
                     width: 8, height: 8, borderRadius: '50%',
-                    background: loc.is_active ? '#1a6b45' : '#e53e3e'
+                    background: loc.is_active ? 'var(--green, #1a6b45)' : '#e53e3e'
                   }}></div>
                 </div>
               ))
