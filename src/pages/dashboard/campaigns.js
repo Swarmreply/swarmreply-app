@@ -250,7 +250,7 @@ function SocialPostsTab() {
           {posts.length === 0 ? (
             <div style={{ padding: 16 }}>
               <EmptyState compact title="No posts yet"
-                description="Create your first post and it will publish to every connected platform at once." />
+                body="Create your first post and it will publish to every connected platform at once." />
             </div>
           ) : posts.map(post => {
             const platforms = SOCIAL_PLATFORMS.filter(p => post.platforms.includes(p.id));

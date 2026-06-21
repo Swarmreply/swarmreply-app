@@ -9,7 +9,7 @@ import { FEATURES } from '../../utils/featureFlags';
 import SetupProgressCard from '../../components/SetupProgressCard';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
-import { Card as KitCard } from '../../components/ui';
+import { Card as KitCard, EmptyState } from '../../components/ui';
 import { useAuth } from '../../hooks/useAuth';
 import { getLocations, updateLocationSettings, getAccount, updateAccount, updateLocationProfile } from '../../utils/api';
 import { BUSINESS_TYPES } from '../../constants/businessTypes';
@@ -646,9 +646,7 @@ function ReviewLinksTab() {
       {loading ? (
         <div style={{ padding: 32, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-sm, 0.8125rem)' }}>Loading locations…</div>
       ) : locations.length === 0 ? (
-        <Card style={{ padding: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)' }}>No locations yet. Add a location first to set up review links.</div>
-        </Card>
+        <EmptyState compact title="No locations yet" body="Add a location first to set up review links." />
       ) : locations.map(loc => (
         <Card key={loc.id} style={{ padding: 22, marginBottom: 16 }}>
           <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', marginBottom: 18 }}>{loc.business_name || 'Location'}</div>

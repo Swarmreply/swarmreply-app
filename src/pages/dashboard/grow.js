@@ -281,7 +281,7 @@ function RequestsTab() {
               <div style={{ padding: 16 }}>
                 <EmptyState compact
                   title={search ? 'No matches' : 'No completed surveys yet'}
-                  description={search ? 'No surveys match your search — try different terms.' : 'Send your first request and completed surveys will land here.'} />
+                  body={search ? 'No surveys match your search — try different terms.' : 'Send your first request and completed surveys will land here.'} />
               </div>
             ) : filtered.map(s => (
               <div role="button" tabIndex={0} onKeyDown={keyClick} key={s.id}
@@ -1087,7 +1087,7 @@ function BulkSendTab() {
               <div style={{ padding: 16 }}>
                 <EmptyState compact
                   title="No contacts yet"
-                  description="Import a CSV on the Import tab and your contacts will appear here, ready for bulk sending." />
+                  body="Import a CSV on the Import tab and your contacts will appear here, ready for bulk sending." />
               </div>
             ) : filtered.map(c => {
               const isSel = selected.includes(c.id);
@@ -1230,7 +1230,7 @@ function SurveysTab() {
           </div>
         ) : total === 0 ? (
           <EmptyState compact title="No responses yet"
-            description="When customers answer your NPS surveys, their promoter / passive / detractor split shows up here." />
+            body="When customers answer your NPS surveys, their promoter / passive / detractor split shows up here." />
         ) : rows.map(([l, n, c]) => (
           <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9 }}>
             <span style={{ width: 80, fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 500 }}>{l}</span>

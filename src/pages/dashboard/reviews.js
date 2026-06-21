@@ -214,13 +214,13 @@ export default function Reviews() {
                 <EmptyState
                   icon="🎉"
                   title="No reviews need attention"
-                  description="No negative reviews right now — nice work keeping customers happy."
+                  body="No negative reviews right now — nice work keeping customers happy."
                 />
               ) : reviews.length === 0 ? (
                 <EmptyState
                   icon="⭐"
                   title="No reviews yet"
-                  description="Send your first review request and new reviews will appear here automatically."
+                  body="Send your first review request and new reviews will appear here automatically."
                   action={<Button href="/dashboard/grow" size="sm">Send a review request</Button>}
                 />
               ) : (
@@ -228,7 +228,7 @@ export default function Reviews() {
                   compact
                   icon="🔍"
                   title="No reviews match this filter"
-                  description="Try a different filter above to see more."
+                  body="Try a different filter above to see more."
                 />
               )}
             </div>

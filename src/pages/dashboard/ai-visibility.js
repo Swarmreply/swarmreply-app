@@ -124,7 +124,7 @@ function buildClientSummary(report) {
 }
 
 function OverviewTab({ report, onGoCompetitors }) {
-  if (!report) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" description="Run your first scan to see how often AI assistants like ChatGPT recommend your business." /></div>;
+  if (!report) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" body="Run your first scan to see how often AI assistants like ChatGPT recommend your business." /></div>;
 
   const { run, byLLM = [] } = report;
   const summary = report.executiveSummary || buildClientSummary(report);
@@ -208,7 +208,7 @@ function OverviewTab({ report, onGoCompetitors }) {
 // ── BY MODEL TAB ──────────────────────────────────────────────────────────────
 function ByModelTab({ report }) {
   const [expanded, setExpanded] = React.useState(null);
-  if (!report?.byLLM?.length) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" description="Run your first scan to see results broken down by AI model." /></div>;
+  if (!report?.byLLM?.length) return <div style={{ padding: 24 }}><EmptyState title="No scan data yet" body="Run your first scan to see results broken down by AI model." /></div>;
   const models = report.byLLM;
   const meta = { chatgpt:{color:'#74aa9c',desc:'OpenAI · ChatGPT'}, gemini:{color:'#e8453c',desc:'Google · Gemini'}, claude:{color:'var(--ink, #0a0a0a)',desc:'Anthropic · Claude'} };
   const sc = { positive:{bg:'#dcfce7',color:'var(--green, #1a6b45)',label:'Positive'}, neutral:{bg:'#fef9c3',color:'var(--amber-tx, #92690a)',label:'Neutral'}, negative:{bg:'var(--danger-bg, #fee2e2)',color:'var(--danger, #c0392b)',label:'Negative'} };

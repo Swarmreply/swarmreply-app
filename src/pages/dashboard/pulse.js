@@ -254,7 +254,7 @@ function TrendLine({ points, height = 70 }) {
 }
 
 function NoData({ icon = '📊', title, body }) {
-  return <div style={{ padding: '32px 8px' }}><EmptyState icon={icon} title={title} description={body} /></div>;
+  return <div style={{ padding: '32px 8px' }}><EmptyState icon={icon} title={title} body={body} /></div>;
 }
 
 // ── Loading state (the signature bounce) ─────────────

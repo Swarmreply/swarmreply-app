@@ -381,7 +381,7 @@ export default function Billing() {
           {invoices.length === 0 ? (
             <div style={{ padding: '8px 0' }}>
               <EmptyState compact title="No invoices yet"
-                description="Your invoices will appear here after your first billing cycle." />
+                body="Your invoices will appear here after your first billing cycle." />
             </div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>

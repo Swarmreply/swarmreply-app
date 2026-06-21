@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
-import { Card, Button } from '../../components/ui';
+import { Card, Button, EmptyState } from '../../components/ui';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 function authH() {
@@ -166,11 +166,7 @@ export function RankTrackingPanel() {
             {loading ? (
               <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)' }}>Loading...</div>
             ) : data.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)' }}>
-                <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom: 10 }}>📍</div>
-                <div style={{ fontWeight: 600, marginBottom: 6 }}>No keywords yet</div>
-                <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)' }}>Add keywords below to start tracking your Google positions.</div>
-              </div>
+              <EmptyState compact title="No keywords yet" body="Add keywords below to start tracking your Google positions." />
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-sm, 0.8125rem)' }}>
                 <thead>

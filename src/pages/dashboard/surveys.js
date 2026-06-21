@@ -9,7 +9,7 @@ import { keyClick } from '../../utils/a11y';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import DashboardLayout from '../../components/DashboardLayout';
-import { PageHeader, Card, Button, SectionLabel } from '../../components/ui';
+import { PageHeader, Card, Button, SectionLabel, EmptyState } from '../../components/ui';
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 function authHeaders() {
@@ -180,12 +180,7 @@ export default function SurveysPage() {
         {loading ? (
           <Card style={{ textAlign: 'center', color: 'var(--taupe, #7a7670)', padding: 48 }}>Loading your surveys…</Card>
         ) : templates.length === 0 ? (
-          <Card style={{ textAlign: 'center', padding: 48 }}>
-            <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 10 }}>📝</div>
-            <div style={{ fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6 }}>No surveys yet</div>
-            <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', margin: '0 0 16px' }}>Create your first survey to start collecting feedback.</p>
-            <Button variant="gold" onClick={createNew}>New survey</Button>
-          </Card>
+          <EmptyState title="No surveys yet" body="Create your first survey to start collecting feedback." actionLabel="New survey" onAction={createNew} />
         ) : (() => {
           const ql = q.trim().toLowerCase();
           const filtered = ql ? templates.filter((t) => (t.name || '').toLowerCase().includes(ql)) : templates;

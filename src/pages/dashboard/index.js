@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../hooks/useAuth';
 import { getStats, getReviews, getLocations, getOpenChatSessions, getRecentDetractors, getIntegrationErrors } from '../../utils/api';
-import { StatCard, QueueItem, SectionLabel } from '../../components/ui';
+import { StatCard, QueueItem, SectionLabel, EmptyState } from '../../components/ui';
 import SetupProgressCard from '../../components/SetupProgressCard';
 import { Skeleton } from '../../components/Skeleton';
 
@@ -421,17 +421,7 @@ export default function Dashboard() {
                 <ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton /><ReviewRowSkeleton />
               </>
             ) : reviews.length === 0 ? (
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)' }}>
-                <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 12 }}>🐝</div>
-                <div style={{ fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 16 }}>
-                  No reviews yet — your swarm is ready and waiting.
-                </div>
-                <a href="/dashboard/grow" style={{
-                  display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
-                  padding: '9px 18px', borderRadius: 'var(--r-pill, 999px)',
-                  fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, textDecoration: 'none'
-                }}>Send a review request</a>
-              </div>
+              <EmptyState title="No reviews yet" body="Your swarm is ready and waiting." actionLabel="Send a review request" href="/dashboard/grow" />
             ) : (
               reviews.map(review => (
                 <ReviewItem key={review.id} review={review} />
@@ -468,16 +458,7 @@ export default function Dashboard() {
                 ))}
               </>
             ) : locations.length === 0 ? (
-              <div style={{ padding: 24, textAlign: 'center' }}>
-                <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', marginBottom: 16 }}>
-                  No locations connected yet
-                </div>
-                <a href="/dashboard/locations/add" style={{
-                  display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
-                  padding: '10px 20px', borderRadius: 'var(--r-pill, 999px)',
-                  fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, textDecoration: 'none'
-                }}>Connect Google Business</a>
-              </div>
+              <EmptyState compact title="No locations connected yet" actionLabel="Connect Google Business" href="/dashboard/locations/add" />
             ) : (
               locations.map(loc => (
                 <div key={loc.id} style={{

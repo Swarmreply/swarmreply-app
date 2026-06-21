@@ -117,7 +117,7 @@ export default function Inbox() {
             ) : sessions.length === 0 ? (
               <div style={{ padding: '24px 12px' }}>
                 <EmptyState compact title="No conversations"
-                  description="When website visitors chat with your AI agent, conversations land here." />
+                  body="When website visitors chat with your AI agent, conversations land here." />
               </div>
             ) : sessions.map(s => (
               <div role="button" tabIndex={0} onKeyDown={keyClick} key={s.id} onClick={() => openSession(s)} style={{
