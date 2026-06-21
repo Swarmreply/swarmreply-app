@@ -330,7 +330,7 @@ function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }
   return (
     <div className="sr-card" style={{
       background: 'white', border: `1px solid ${connected ? 'var(--line, #e4e0d8)' : 'var(--line, #e4e0d8)'}`,
-      borderRadius: 14, overflow: 'hidden',
+      borderRadius: 16, overflow: 'hidden',
       borderTop: connected ? `3px solid ${integration.color}` : '3px solid transparent',
       transition: 'all .15s',
     }}>
@@ -606,7 +606,7 @@ export default function Integrations() {
                 ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
                 : filtered.length === 0
                 ? (
-                  <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14,
+                  <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 16,
                     padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '.875rem' }}>
                     No integrations match — try a different search or category.
                   </div>
@@ -624,7 +624,7 @@ export default function Integrations() {
                   const card = (integration) => (
                     <div key={integration.id} id={`int-${integration.id}`}
                       style={highlightId === integration.id
-                        ? { borderRadius: 14, boxShadow: '0 0 0 3px var(--honey, #f5c842)', transition: 'box-shadow .3s' } : undefined}>
+                        ? { borderRadius: 16, boxShadow: '0 0 0 3px var(--honey, #f5c842)', transition: 'box-shadow .3s' } : undefined}>
                       <IntegrationCard
                         integration={integration}
                         connectedData={getConnected(integration.id)}
