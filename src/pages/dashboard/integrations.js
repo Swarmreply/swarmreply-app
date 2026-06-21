@@ -180,25 +180,39 @@ function toMinutes(value, unit) {
   return unit === 'days' ? v * 1440 : unit === 'hours' ? v * 60 : v;
 }
 
-function SendTiming({ provider, currentMinutes, onSaved }) {
+function SendTiming({ provider, currentMinutes, currentType, currentSurveyId, onSaved }) {
   const init = toValueUnit(currentMinutes ?? 60);
   const [value, setValue] = useState(init.value);
   const [unit, setUnit]   = useState(init.unit);
+  const [followUpType, setFollowUpType] = useState(currentType === 'survey' ? 'survey' : 'review_request');
+  const [surveyId, setSurveyId] = useState(currentSurveyId || '');
+  const [surveys, setSurveys] = useState([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved]   = useState(false);
   const anchor = TIMING_ANCHORS[provider] || 'after the trigger';
   const minutes = toMinutes(value, unit);
 
+  useEffect(() => {
+    axios.get(`${API}/survey-templates`, { headers: authH() })
+      .then((r) => {
+        const list = r.data.templates || [];
+        setSurveys(list);
+        setSurveyId((prev) => prev || (list.find((t) => t.is_default) || list[0] || {}).id || '');
+      })
+      .catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function save() {
     setSaving(true); setSaved(false);
     try {
       await axios.put(`${API}/integrations/${provider}/settings`,
-        { delayMinutes: minutes }, { headers: authH() });
+        { delayMinutes: minutes, followUpType, surveyTemplateId: followUpType === 'survey' ? (surveyId || null) : null },
+        { headers: authH() });
       setSaved(true);
       onSaved && onSaved(minutes);
       setTimeout(() => setSaved(false), 2500);
     } catch (e) {
-      alert(`Could not save timing — please try again. (${e.response?.data?.error || e.message})`);
+      alert(`Could not save — please try again. (${e.response?.data?.error || e.message})`);
     } finally {
       setSaving(false);
     }
@@ -209,33 +223,50 @@ function SendTiming({ provider, currentMinutes, onSaved }) {
     fontSize: '.82rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18',
   };
 
+  const rowStyle = { display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' };
   return (
     <div style={{
       borderTop: '1px solid #f0eeea', padding: '12px 20px 14px',
-      display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+      display: 'flex', flexDirection: 'column', gap: 10,
       background: '#fcfbf8',
     }}>
-      <span style={{ fontSize: '.78rem', fontWeight: 700, color: '#1a1a18' }}>Send timing:</span>
-      <input type="number" min="0" max="999" value={value}
-        onChange={e => setValue(e.target.value)}
-        style={{ ...inputStyle, width: 64 }} aria-label="Delay amount" />
-      <select value={unit} onChange={e => setUnit(e.target.value)}
-        style={inputStyle} aria-label="Delay unit">
-        <option value="minutes">minutes</option>
-        <option value="hours">hours</option>
-        <option value="days">days</option>
-      </select>
-      <span style={{ fontSize: '.78rem', color: '#7a7670' }}>
-        {minutes === 0 ? `immediately ${anchor}` : `${anchor}`}
-      </span>
-      <button onClick={save} disabled={saving} style={{
-        marginLeft: 'auto', padding: '7px 16px', borderRadius: 50, border: 'none',
-        background: saved ? '#1a6b45' : '#0a0a0a', color: 'white', cursor: 'pointer',
-        fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit',
-        opacity: saving ? .6 : 1, transition: 'background .2s',
-      }}>
-        {saved ? 'Saved ✓' : saving ? 'Saving…' : 'Save'}
-      </button>
+      <div style={rowStyle}>
+        <span style={{ fontSize: '.78rem', fontWeight: 700, color: '#1a1a18' }}>Send:</span>
+        <select value={followUpType} onChange={e => setFollowUpType(e.target.value)} style={inputStyle} aria-label="Follow-up type">
+          <option value="review_request">a review request</option>
+          <option value="survey">an NPS survey</option>
+        </select>
+        {followUpType === 'survey' && (
+          <select value={surveyId} onChange={e => setSurveyId(e.target.value)} style={inputStyle} aria-label="Survey">
+            {surveys.length === 0 && <option value="">default survey</option>}
+            {surveys.map((t) => <option key={t.id} value={t.id}>{(t.name || 'Untitled survey') + ((t.config && t.config.type === 'custom') ? ' (Custom)' : ' (NPS)')}</option>)}
+          </select>
+        )}
+        {followUpType === 'survey' && <span style={{ fontSize: '.74rem', color: '#a8a39a' }}>respondents are also invited to leave a review</span>}
+      </div>
+      <div style={rowStyle}>
+        <span style={{ fontSize: '.78rem', fontWeight: 700, color: '#1a1a18' }}>Send timing:</span>
+        <input type="number" min="0" max="999" value={value}
+          onChange={e => setValue(e.target.value)}
+          style={{ ...inputStyle, width: 64 }} aria-label="Delay amount" />
+        <select value={unit} onChange={e => setUnit(e.target.value)}
+          style={inputStyle} aria-label="Delay unit">
+          <option value="minutes">minutes</option>
+          <option value="hours">hours</option>
+          <option value="days">days</option>
+        </select>
+        <span style={{ fontSize: '.78rem', color: '#7a7670' }}>
+          {minutes === 0 ? `immediately ${anchor}` : `${anchor}`}
+        </span>
+        <button onClick={save} disabled={saving} style={{
+          marginLeft: 'auto', padding: '7px 16px', borderRadius: 50, border: 'none',
+          background: saved ? '#1a6b45' : '#0a0a0a', color: 'white', cursor: 'pointer',
+          fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit',
+          opacity: saving ? .6 : 1, transition: 'background .2s',
+        }}>
+          {saved ? 'Saved ✓' : saving ? 'Saving…' : 'Save'}
+        </button>
+      </div>
     </div>
   );
 }
@@ -353,6 +384,8 @@ function IntegrationCard({ integration, connectedData, onConnect, onDisconnect }
         <SendTiming
           provider={integration.id}
           currentMinutes={connectedData?.delay_minutes ?? integration.delay}
+          currentType={connectedData?.follow_up_type}
+          currentSurveyId={connectedData?.survey_template_id}
           onSaved={onConnect}
         />
       )}
