@@ -1251,10 +1251,23 @@ function ImportTab() {
   const [result, setResult]   = useState(null);
   const [error, setError]     = useState('');
   const [history, setHistory] = useState([]);
+  const [surveys, setSurveys] = useState([]);
+  const [autoSurvey, setAutoSurvey] = useState(false);
+  const [surveyId, setSurveyId] = useState('');
+  const [delayDays, setDelayDays] = useState(3);
 
   const API = process.env.NEXT_PUBLIC_API_URL;
 
-  useEffect(() => { loadHistory(); }, []);
+  useEffect(() => { loadHistory(); loadSurveys(); }, []);
+
+  async function loadSurveys() {
+    try {
+      const res = await axios.get(`${API}/survey-templates`, { headers: authHeaders() });
+      const list = res.data.templates || [];
+      setSurveys(list);
+      setSurveyId(prev => prev || (list.find(t => t.is_default) || list[0] || {}).id || '');
+    } catch (e) { /* no surveys yet */ }
+  }
 
   async function loadHistory() {
     try {
@@ -1269,13 +1282,14 @@ function ImportTab() {
     // Detect header row
     const header = lines[0].toLowerCase();
     const hasHeader = /name|email|phone|segment/.test(header);
-    let nameIdx = 0, emailIdx = 1, phoneIdx = 2, segIdx = 3;
+    let nameIdx = 0, emailIdx = 1, phoneIdx = 2, segIdx = 3, visitIdx = -1;
     if (hasHeader) {
       const cols = lines[0].split(',').map(c => c.trim().toLowerCase());
       nameIdx  = cols.findIndex(c => c.includes('name'));
       emailIdx = cols.findIndex(c => c.includes('email') || c.includes('e-mail'));
       phoneIdx = cols.findIndex(c => c.includes('phone') || c.includes('mobile') || c.includes('cell'));
       segIdx   = cols.findIndex(c => c.includes('segment') || c.includes('tag') || c.includes('group'));
+      visitIdx = cols.findIndex(c => c.includes('visit') || c.includes('service date') || c.includes('appointment') || c.includes('completed') || c === 'date');
     }
     const dataLines = hasHeader ? lines.slice(1) : lines;
     return dataLines.map(line => {
@@ -1285,16 +1299,17 @@ function ImportTab() {
         email:   emailIdx >= 0 ? (cells[emailIdx] || '') : '',
         phone:   phoneIdx >= 0 ? (cells[phoneIdx] || '') : '',
         segment: segIdx   >= 0 ? (cells[segIdx]   || '') : '',
+        visit_date: visitIdx >= 0 ? (cells[visitIdx] || '') : '',
       };
     }).filter(r => r.email);   // email is the only required field
   }
 
   function downloadTemplate() {
     const csv = [
-      'Name,Email,Cell Phone,Segment',
-      'Jane Smith,jane@example.com,555-123-4567,vip',
-      'John Doe,john@example.com,,',
-      'Maria Garcia,maria@example.com,555-987-6543,lapsed',
+      'Name,Email,Cell Phone,Segment,Visit Date',
+      'Jane Smith,jane@example.com,555-123-4567,vip,2026-06-15',
+      'John Doe,john@example.com,,,2026-06-18',
+      'Maria Garcia,maria@example.com,555-987-6543,lapsed,',
     ].join('\n') + '\n';
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -1330,7 +1345,7 @@ function ImportTab() {
     setError('');
     try {
       const res = await axios.post(`${API}/contacts/import`,
-        { rows: parsed, filename },
+        { rows: parsed, filename, autoSurvey: autoSurvey ? { enabled: true, surveyTemplateId: surveyId || null, delayDays: Number(delayDays) || 0 } : null },
         { headers: authHeaders() });
       setResult(res.data);
       setParsed([]);
@@ -1347,6 +1362,8 @@ function ImportTab() {
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
+  const selStyle = { border: '1.5px solid #e4e0d8', borderRadius: 9, padding: '7px 10px', fontSize: '.82rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18' };
+
   return (
     <div style={{ padding: 24 }}>
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
@@ -1359,7 +1376,7 @@ function ImportTab() {
               ⬇ CSV template
             </button>
           </div>
-          <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.6 }}>Upload a CSV from your PMS, CRM, or POS with <strong>Name, Email, Cell Phone, and Segment</strong> columns. Only email is required. Existing contacts with a matching email or phone are updated, not duplicated — and any mobile numbers are also added to your SMS audience in Campaigns › Contacts.</div>
+          <div style={{ fontSize: '.8rem', color: '#7a7670', marginBottom: 16, lineHeight: 1.6 }}>Upload a CSV from your PMS, CRM, or POS with <strong>Name, Email, Cell Phone, and Segment</strong> columns. Only email is required. Add an optional <strong>Visit Date</strong> column to automatically survey each contact a few days after their visit. Existing contacts with a matching email or phone are updated, not duplicated — and any mobile numbers are also added to your SMS audience in Campaigns › Contacts.</div>
 
           {result ? (
             <div style={{ background: '#e8f5ef', border: '1px solid #bbf7d0', borderRadius: 12, padding: '16px 18px', marginBottom: 14 }}>
@@ -1369,6 +1386,7 @@ function ImportTab() {
                 {result.updated > 0 ? `, ${result.updated} updated` : ''}
                 {result.skipped > 0 ? `, ${result.skipped} skipped (missing email)` : ''}.
                 {result.smsImported > 0 ? ` ${result.smsImported} mobile number${result.smsImported !== 1 ? 's' : ''} added to Campaigns › Contacts.` : ''}
+                {result.scheduledSurveys > 0 ? ` ${result.scheduledSurveys} survey${result.scheduledSurveys !== 1 ? 's' : ''} scheduled.` : ''}
               </div>
               <button onClick={() => setResult(null)} style={{ marginTop: 10, padding: '7px 16px', borderRadius: 50, background: 'white', border: '1.5px solid #bbf7d0', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit', color: '#1a6b45' }}>Import another</button>
             </div>
@@ -1381,7 +1399,7 @@ function ImportTab() {
                   {filename ? filename : 'Drop CSV here or click to browse'}
                 </div>
                 <div style={{ fontSize: '.78rem', color: '#7a7670' }}>
-                  {parsed.length ? `${parsed.length} contact${parsed.length !== 1 ? 's' : ''} ready to import` : 'CSV columns: Name, Email, Cell Phone, Segment (email required)'}
+                  {parsed.length ? `${parsed.length} contact${parsed.length !== 1 ? 's' : ''} ready to import` : 'CSV columns: Name, Email, Cell Phone, Segment, Visit Date (email required)'}
                 </div>
                 <input id="csv-input" type="file" accept=".csv,text/csv" style={{ display: 'none' }}
                   onChange={e => handleFile(e.target.files[0])} />
@@ -1401,6 +1419,27 @@ function ImportTab() {
                     </div>
                   ))}
                   {parsed.length > 50 && <div style={{ padding: '7px 12px', fontSize: '.73rem', color: '#7a7670', textAlign: 'center' }}>+ {parsed.length - 50} more</div>}
+                </div>
+              )}
+
+              {parsed.length > 0 && parsed.some(r => r.visit_date) && (
+                <div style={{ border: '1.5px solid #e4e0d8', borderRadius: 12, padding: 14, marginBottom: 12, background: '#fcfbf8' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, color: '#1a1a18' }}>
+                    <input type="checkbox" checked={autoSurvey} onChange={e => setAutoSurvey(e.target.checked)} />
+                    Send a survey after each visit date
+                  </label>
+                  {autoSurvey && (
+                    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: '.82rem', color: '#4a4a48' }}>
+                      <span>Send</span>
+                      <select value={surveyId} onChange={e => setSurveyId(e.target.value)} style={selStyle}>
+                        {surveys.length === 0 && <option value="">default survey</option>}
+                        {surveys.map(t => <option key={t.id} value={t.id}>{(t.name || 'Untitled survey') + ((t.config && t.config.type === 'custom') ? ' (Custom)' : ' (NPS)')}</option>)}
+                      </select>
+                      <input type="number" min="0" max="365" value={delayDays} onChange={e => setDelayDays(e.target.value)} style={{ ...selStyle, width: 56 }} />
+                      <span>day{Number(delayDays) === 1 ? '' : 's'} after each visit.</span>
+                    </div>
+                  )}
+                  {autoSurvey && <p style={{ fontSize: '.74rem', color: '#a8a39a', margin: '10px 0 0', lineHeight: 1.5 }}>Contacts whose visit was over 60 days ago are skipped; anyone whose window has already passed is surveyed shortly after import. Tracked in Surveys › Send survey › Scheduled sends.</p>}
                 </div>
               )}
 
