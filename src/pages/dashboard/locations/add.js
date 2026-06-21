@@ -6,6 +6,7 @@
 //   • Card on file bills the proration on confirm (works today).
 //   • PAYMENT SEAM: entering a NEW card inline (Stripe Payment Element / SetupIntent)
 //     lands in the Stripe build. Until then "Change / Add a card" uses the Stripe portal.
+import { keyClick } from '../../../utils/a11y';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../../components/DashboardLayout';
@@ -100,7 +101,7 @@ function IndustryCombobox({ value, onChange }) {
         <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff', border: '1px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', boxShadow: '0 12px 32px rgba(0,0,0,.10)', maxHeight: 220, overflowY: 'auto', zIndex: 50, padding: 5 }}>
           {matches.length === 0 && <div style={{ padding: '9px 11px', fontSize: 'var(--fs-sm, 0.8125rem)', color: '#a39e95' }}>No match</div>}
           {matches.map(opt => (
-            <div key={opt}
+            <div role="button" tabIndex={0} onKeyDown={keyClick} key={opt}
               onMouseDown={e => e.preventDefault()}
               onClick={() => { onChange(opt); setOpen(false); setQ(''); }}
               style={{ padding: '8px 11px', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--ink, #0a0a0a)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}>
