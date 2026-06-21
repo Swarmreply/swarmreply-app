@@ -726,9 +726,10 @@ function Editor({ template, onBack }) {
               </Card>
 
               <PathEditor
-                path={{ key: 'questions', label: 'Questions', desc: 'Asked in order, to everyone', tone: '#6d28d9', bg: '#ede9fe', bd: '#ddd6fe' }}
+                path={{ key: 'questions', label: 'Questions', desc: 'Asked in order', tone: '#6d28d9', bg: '#ede9fe', bd: '#ddd6fe' }}
                 blocks={cfg.questions || []}
                 showMessage={false}
+                allowConditions
                 onAdd={(type) => addQuestion(type)}
                 onUpdate={(i, patch) => updateQuestion(i, patch)}
                 onRemove={(i) => removeQuestion(i)}
@@ -774,7 +775,7 @@ function Stepper({ title, value, min, max, onChange }) {
   );
 }
 
-function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUpdate, onRemove, onMove }) {
+function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUpdate, onRemove, onMove, allowConditions }) {
   const [adding, setAdding] = useState(false);
   return (
     <Card style={{ marginBottom: 16, borderColor: path.bd }}>
@@ -795,6 +796,7 @@ function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUp
       ) : (
         blocks.map((b, i) => (
           <BlockCard key={b.blockId || i} block={b} idx={i} total={blocks.length}
+            priorChoiceBlocks={allowConditions ? blocks.slice(0, i).filter((x) => ['multiple_choice', 'dropdown', 'yes_no'].includes(x.type)) : []}
             onUpdate={(patch) => onUpdate(i, patch)} onRemove={() => onRemove(i)} onMove={(dir) => onMove(i, dir)} />
         ))
       )}
@@ -819,7 +821,7 @@ function PathEditor({ path, blocks, message, onMessage, showMessage, onAdd, onUp
   );
 }
 
-function BlockCard({ block, idx, total, onUpdate, onRemove, onMove }) {
+function BlockCard({ block, idx, total, priorChoiceBlocks, onUpdate, onRemove, onMove }) {
   const meta = BLOCK_TYPES.find((t) => t.type === block.type) || { label: block.type, icon: '\u2022' };
   const isMC = block.type === 'multiple_choice';
   const isDropdown = block.type === 'dropdown';
@@ -830,6 +832,14 @@ function BlockCard({ block, idx, total, onUpdate, onRemove, onMove }) {
   function addOpt() { onUpdate({ options: [...(block.options || []), ''] }); }
   function rmOpt(i) { const o = [...(block.options || [])]; o.splice(i, 1); onUpdate({ options: o }); }
   const mini = { width: 26, height: 26, borderRadius: 7, border: '1.5px solid #e4e0d8', background: 'white', cursor: 'pointer', color: '#a8a39a', fontSize: '.85rem', lineHeight: 1, fontFamily: 'inherit' };
+  const condValues = (block.condition && block.condition.values) || [];
+  const sourceBlock = block.condition ? (priorChoiceBlocks || []).find((p) => p.blockId === block.condition.blockId) : null;
+  const sourceOptions = sourceBlock ? (sourceBlock.type === 'yes_no' ? ['Yes', 'No'] : (sourceBlock.options || []).filter((o) => o && o.trim())) : [];
+  function toggleCondVal(o) {
+    const has = condValues.includes(o);
+    onUpdate({ condition: { ...block.condition, values: has ? condValues.filter((x) => x !== o) : [...condValues, o] } });
+  }
+  const condSel = { border: '1.5px solid #e4e0d8', borderRadius: 8, padding: '6px 9px', fontSize: '.78rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18', maxWidth: 230 };
 
   return (
     <div style={{ border: '1px solid #ece9e3', borderRadius: 12, padding: 14, marginBottom: 10, background: '#fcfbf9' }}>
@@ -874,6 +884,40 @@ function BlockCard({ block, idx, total, onUpdate, onRemove, onMove }) {
               </label>
             );
           })}
+        </div>
+      )}
+      {(priorChoiceBlocks || []).length > 0 && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #e9e5dd' }}>
+          {!block.condition ? (
+            <button onClick={() => onUpdate({ condition: { blockId: priorChoiceBlocks[0].blockId, op: 'is', values: [] } })}
+              style={{ background: 'none', border: 'none', color: '#6d28d9', fontSize: '.78rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+              + Only show this question if…
+            </button>
+          ) : (
+            <div>
+              <div style={{ fontSize: '.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: '#6d28d9', marginBottom: 8 }}>Conditional — show only if</div>
+              <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', alignItems: 'center', marginBottom: 8 }}>
+                <select value={block.condition.blockId} onChange={(e) => onUpdate({ condition: { ...block.condition, blockId: e.target.value, values: [] } })} style={condSel}>
+                  {priorChoiceBlocks.map((p) => <option key={p.blockId} value={p.blockId}>{(p.question || 'Untitled question').slice(0, 40)}</option>)}
+                </select>
+                <select value={block.condition.op || 'is'} onChange={(e) => onUpdate({ condition: { ...block.condition, op: e.target.value } })} style={condSel}>
+                  <option value="is">is</option>
+                  <option value="is_not">is not</option>
+                </select>
+              </div>
+              {sourceOptions.length > 0 ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                  {sourceOptions.map((o) => {
+                    const on = condValues.includes(o);
+                    return <button key={o} onClick={() => toggleCondVal(o)} style={{ padding: '5px 11px', borderRadius: 50, border: '1.5px solid', borderColor: on ? '#6d28d9' : '#e4e0d8', background: on ? '#f5f3ff' : 'white', color: on ? '#6d28d9' : '#7a7670', fontSize: '.76rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{on ? '\u2713 ' : ''}{o}</button>;
+                  })}
+                </div>
+              ) : (
+                <p style={{ fontSize: '.74rem', color: '#a8a39a', margin: '0 0 8px' }}>Add options to the question above to choose values.</p>
+              )}
+              <button onClick={() => onUpdate({ condition: null })} style={{ background: 'none', border: 'none', color: '#a8a39a', fontSize: '.74rem', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Remove condition</button>
+            </div>
+          )}
         </div>
       )}
     </div>
