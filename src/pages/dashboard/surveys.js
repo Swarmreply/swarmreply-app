@@ -108,8 +108,9 @@ export default function SurveysPage() {
   const [err, setErr] = useState('');
   const [flash, setFlash] = useState('');
   const [q, setQ] = useState('');
+  const [locations, setLocations] = useState([]);
 
-  useEffect(() => { loadList(); }, []);
+  useEffect(() => { loadList(); loadLocations(); }, []);
   useEffect(() => { if (!flash) return; const t = setTimeout(() => setFlash(''), 3500); return () => clearTimeout(t); }, [flash]);
   async function loadList() {
     setLoading(true); setErr('');
@@ -119,6 +120,10 @@ export default function SurveysPage() {
     } catch (e) { setErr('Could not load your surveys. ' + (e.response?.data?.error || e.message)); }
     setLoading(false);
   }
+  async function loadLocations() {
+    try { const r = await axios.get(`${API}/locations`, { headers: authHeaders() }); setLocations(r.data.locations || []); } catch (e) { /* single-location or unavailable */ }
+  }
+  const locName = (id) => { const l = locations.find((x) => x.id === id); return l ? (l.business_name || 'Location') : 'Location'; };
 
   function openEdit(t) { setSelected(t); setView('edit'); }
   function createNew() { setView('pick'); }
@@ -183,7 +188,7 @@ export default function SurveysPage() {
                 <Card style={{ textAlign: 'center', color: '#7a7670', padding: 32, fontSize: '.88rem' }}>No surveys match {'\u201C'}{q}{'\u201D'}.</Card>
               ) : (
                 <div style={{ maxHeight: '62vh', overflowY: 'auto', paddingRight: 2 }}>
-                  {filtered.map((t) => <SurveyRow key={t.id} t={t} onEdit={() => openEdit(t)} onDelete={() => remove(t)} />)}
+                  {filtered.map((t) => <SurveyRow key={t.id} t={t} locName={locName} onEdit={() => openEdit(t)} onDelete={() => remove(t)} />)}
                 </div>
               )}
             </>
@@ -194,7 +199,7 @@ export default function SurveysPage() {
   );
 }
 
-function SurveyRow({ t, onEdit, onDelete }) {
+function SurveyRow({ t, locName, onEdit, onDelete }) {
   const type = (t.config && t.config.type) || 'nps';
   const isCustom = type === 'custom';
   const tc = isCustom ? { bg: '#ede9fe', fg: '#6d28d9' } : { bg: '#dcfce7', fg: '#1a6b45' };
@@ -205,6 +210,7 @@ function SurveyRow({ t, onEdit, onDelete }) {
           <span style={{ fontWeight: 700, color: '#1a1a18', fontSize: '.98rem' }}>{t.name || 'Untitled survey'}</span>
           <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: tc.fg, background: tc.bg, borderRadius: 50, padding: '2px 8px' }}>{isCustom ? 'Custom' : 'NPS'}</span>
           {t.is_default && <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: '#92690a', background: '#fef9c3', borderRadius: 50, padding: '2px 8px' }}>Default</span>}
+          {t.scope === 'location' && t.location_id && <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: '#3730a3', background: '#eef2ff', borderRadius: 50, padding: '2px 8px' }}>{locName ? locName(t.location_id) : 'Location'}</span>}
         </div>
         <div style={{ fontSize: '.76rem', color: '#a8a39a', marginTop: 3 }}>
           {isCustom ? 'Standalone survey' : 'Scored · Promoter / Passive / Detractor'}{t.is_default ? ' · sent with review requests' : ''}
@@ -518,8 +524,15 @@ function SendSurvey({ onBack }) {
               {scheduled.map((s) => (
                 <div key={s.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, border: '1px solid #f0eeea', borderRadius: 10, padding: '11px 14px' }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 600, fontSize: '.88rem', color: '#1a1a18', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.survey_name || 'Default survey'} <span style={{ color: '#a8a39a', fontWeight: 500 }}>{'\u2192'} {Array.isArray(s.contact_emails) && s.contact_emails.length ? `${s.contact_emails.length} ${s.contact_emails.length === 1 ? 'person' : 'people'}` : (s.segment === 'all' ? 'All contacts' : s.segment)}</span></div>
-                    <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2 }}>{new Date(s.send_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                    <div style={{ fontWeight: 600, fontSize: '.88rem', color: '#1a1a18', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.survey_name || 'Default survey'} <span style={{ color: '#a8a39a', fontWeight: 500 }}>{'\u2192'} {Array.isArray(s.contact_emails) && s.contact_emails.length === 1 ? s.contact_emails[0] : (Array.isArray(s.contact_emails) && s.contact_emails.length ? `${s.contact_emails.length} people` : (s.segment === 'all' ? 'All contacts' : s.segment))}</span></div>
+                    <div style={{ fontSize: '.78rem', color: '#7a7670', marginTop: 2, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                      <span>{new Date(s.send_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                      {s.source && s.source !== 'manual' && (
+                        <span style={{ fontSize: '.66rem', fontWeight: 700, background: '#fff6dc', color: '#8a6d1a', padding: '1px 8px', borderRadius: 50, whiteSpace: 'nowrap' }}>
+                          {s.source === 'integration' ? 'Automated · Integration' : s.source === 'csv_import' ? 'Automated · Visit date' : 'Automated'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <button onClick={() => cancelScheduled(s.id)} style={{ flexShrink: 0, padding: '7px 13px', borderRadius: 8, border: '1.5px solid #e4e0d8', background: 'white', color: '#7a7670', fontSize: '.78rem', fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer' }}>Cancel</button>
                 </div>
@@ -536,16 +549,25 @@ function Editor({ template, onBack }) {
   const [tpl, setTpl] = useState(template && template.id ? template : null);
   const [cfg, setCfg] = useState(() => mergeConfig(template && template.config));
   const [name, setName] = useState((template && template.name) || 'Untitled survey');
+  const [scope, setScope] = useState((template && template.scope) || 'account');
+  const [locationId, setLocationId] = useState((template && template.location_id) || '');
+  const [locations, setLocations] = useState([]);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+
+  useEffect(() => {
+    axios.get(`${API}/locations`, { headers: authHeaders() })
+      .then((r) => setLocations(r.data.locations || []))
+      .catch(() => {});
+  }, []);
 
   async function save() {
     setSaving(true); setErr('');
     try {
       if (tpl && tpl.id) {
-        await axios.put(`${API}/survey-templates/${tpl.id}`, { name, config: cfg }, { headers: authHeaders() });
+        await axios.put(`${API}/survey-templates/${tpl.id}`, { name, config: cfg, scope, locationId: scope === 'location' ? (locationId || null) : null }, { headers: authHeaders() });
       } else {
-        await axios.post(`${API}/survey-templates`, { name, config: cfg, scope: 'account', isDefault: !!(template && template.is_default) }, { headers: authHeaders() });
+        await axios.post(`${API}/survey-templates`, { name, config: cfg, scope, locationId: scope === 'location' ? (locationId || null) : null, isDefault: !!(template && template.is_default) }, { headers: authHeaders() });
       }
       onBack(name); // saved — return to the list, which shows a confirmation
       return;
@@ -622,6 +644,25 @@ function Editor({ template, onBack }) {
               <label style={label}>Survey name</label>
               <input value={name} onChange={(e) => setName(e.target.value)} style={input} placeholder="e.g. Post-visit feedback" />
               <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '8px 0 0' }}>Just for you — customers never see this.</p>
+              {locations.length > 1 && (
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #f0eeea' }}>
+                  <label style={label}>Applies to</label>
+                  <select
+                    value={scope === 'location' ? (locationId || '') : 'account'}
+                    onChange={(e) => { const v = e.target.value; if (v === 'account') { setScope('account'); setLocationId(''); } else { setScope('location'); setLocationId(v); } }}
+                    style={input}
+                    disabled={!!(template && template.is_default)}
+                  >
+                    <option value="account">All locations</option>
+                    {locations.map((l, i) => <option key={l.id} value={l.id}>{l.business_name || `Location ${i + 1}`}</option>)}
+                  </select>
+                  <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '8px 0 0', lineHeight: 1.5 }}>
+                    {template && template.is_default
+                      ? 'This is your default survey — used across all locations. Set another survey as the default to free it up for a specific location.'
+                      : 'Assign this survey to one location, or keep it available across all locations. Governs automated and integration-triggered sends; manual sends use the survey you pick when sending.'}
+                  </p>
+                </div>
+              )}
             </Card>
 
             {cfg.type !== 'custom' && (<>
