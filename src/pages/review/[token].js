@@ -84,12 +84,16 @@ export default function ReviewPage({ preview }) {
   }
 
   function answerBlock(block, value) {
-    const ans = {
-      blockId: block.blockId, type: block.type, question: block.question,
-      text: value.text ?? null, number: value.number ?? null, options: value.options ?? null,
-    };
-    const next = [...answers, ans];
-    setAnswers(next);
+    const isDisplay = block.type === 'section';
+    let next = answers;
+    if (!isDisplay) {
+      const ans = {
+        blockId: block.blockId, type: block.type, question: block.question,
+        text: value.text ?? null, number: value.number ?? null, options: value.options ?? null,
+      };
+      next = [...answers, ans];
+      setAnswers(next);
+    }
     const bl = isCustom ? (survey.questions || []) : ((survey.paths && survey.paths[classification]) || []);
     if (blockIdx + 1 < bl.length) setBlockIdx(blockIdx + 1);
     else goShare(next, score, classification);
@@ -252,6 +256,8 @@ function ScaleInput({ classifier, color, onPick }) {
 function BlockInput({ block, color, businessName, onAnswer }) {
   const [text, setText] = useState('');
   const [opts, setOpts] = useState([]);
+  const [date, setDate] = useState('');
+  const [contact, setContact] = useState({});
   const q = (block.question || '').replace(/\{business\}/g, businessName || '');
   const type = block.type;
   const labelStyle = { display: 'block', fontSize: '1.05rem', fontWeight: 700, textAlign: 'center', marginBottom: 20, lineHeight: 1.5, color: '#0a0a0a' };
@@ -312,6 +318,59 @@ function BlockInput({ block, color, businessName, onAnswer }) {
       <div>
         <label style={labelStyle}>{q}</label>
         <ScaleInput classifier={{ type, scale }} color={color} onPick={(n) => onAnswer({ number: n, text: type === 'smiley' ? String(n) : null })} />
+      </div>
+    );
+  }
+
+  if (type === 'dropdown') {
+    const options = block.options || [];
+    return (
+      <div>
+        <label style={labelStyle}>{q}</label>
+        <select value={text} onChange={(e) => setText(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #e4e0d8', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16, background: 'white' }}>
+          <option value="">Choose…</option>
+          {options.map((o) => <option key={o} value={o}>{o}</option>)}
+        </select>
+        <ContinueBtn color={color} onClick={() => onAnswer({ text: text || null, options: text ? [text] : null })} />
+      </div>
+    );
+  }
+
+  if (type === 'date') {
+    return (
+      <div>
+        <label style={labelStyle}>{q}</label>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #e4e0d8', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 16 }} />
+        <ContinueBtn color={color} onClick={() => onAnswer({ text: date || null })} />
+      </div>
+    );
+  }
+
+  if (type === 'contact') {
+    const fields = block.fields || ['name', 'email', 'phone'];
+    const fieldInput = (key, ph, inputType) => fields.includes(key) ? (
+      <input key={key} type={inputType} value={contact[key] || ''} onChange={(e) => setContact({ ...contact, [key]: e.target.value })} placeholder={ph} style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #e4e0d8', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', marginBottom: 10 }} />
+    ) : null;
+    const filled = fields.map((k) => contact[k]).filter(Boolean);
+    return (
+      <div>
+        <label style={labelStyle}>{q || 'Your contact details'}</label>
+        {fieldInput('name', 'Name', 'text')}
+        {fieldInput('email', 'Email', 'email')}
+        {fieldInput('phone', 'Phone', 'tel')}
+        <div style={{ marginTop: 6 }}>
+          <ContinueBtn color={color} onClick={() => onAnswer({ text: filled.join(' \u2022 ') || null })} />
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'section') {
+    return (
+      <div>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0a0a0a', textAlign: 'center', marginBottom: block.description ? 10 : 22, lineHeight: 1.4 }}>{q}</h3>
+        {block.description ? <p style={{ fontSize: '.9rem', color: '#4a4a48', textAlign: 'center', lineHeight: 1.65, marginBottom: 22 }}>{block.description.replace(/\{business\}/g, businessName || '')}</p> : null}
+        <ContinueBtn color={color} onClick={() => onAnswer({ section: true })} />
       </div>
     );
   }
