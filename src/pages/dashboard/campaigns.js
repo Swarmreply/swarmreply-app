@@ -552,7 +552,8 @@ function SocialPostsTab() {
 }
 
 function SurveySendTab({ segments }) {
-  const [survey, setSurvey] = useState(null);
+  const [surveys, setSurveys] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [segment, setSegment] = useState('all');
   const [sending, setSending] = useState(false);
@@ -561,17 +562,24 @@ function SurveySendTab({ segments }) {
 
   useEffect(() => {
     axios.get(`${API}/survey-templates`, { headers: authHeaders() })
-      .then((r) => setSurvey((r.data.templates || [])[0] || null))
+      .then((r) => {
+        const list = r.data.templates || [];
+        setSurveys(list);
+        const def = list.find((t) => t.is_default) || list[0];
+        if (def) setSelectedId(def.id);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const selected = surveys.find((t) => t.id === selectedId) || null;
 
   const segList = segments || [];
 
   async function send() {
     setSending(true); setErr(''); setResult(null);
     try {
-      const r = await axios.post(`${API}/campaigns/survey-send`, { segment, surveyTemplateId: survey?.id }, { headers: authHeaders() });
+      const r = await axios.post(`${API}/campaigns/survey-send`, { segment, surveyTemplateId: selectedId }, { headers: authHeaders() });
       setResult(r.data);
     } catch (e) { setErr(e.response?.data?.error || e.message || 'Send failed'); }
     setSending(false);
@@ -587,13 +595,20 @@ function SurveySendTab({ segments }) {
           Email your survey to a group of contacts. Everyone who responds is also invited to leave a public review — no one is filtered out.
         </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#fcfbf9', border: '1px solid #ece9e3', borderRadius: 10, marginBottom: 18 }}>
-          <div>
-            <div style={{ fontSize: '.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', color: '#a8a39a', marginBottom: 2 }}>Survey</div>
-            <div style={{ fontSize: '.9rem', fontWeight: 700, color: '#1a1a18' }}>{loading ? 'Loading…' : (survey?.name || 'Post-visit feedback')}</div>
-          </div>
-          <a href="/dashboard/surveys" style={{ fontSize: '.8rem', fontWeight: 700, color: '#7a5a06', textDecoration: 'none' }}>Edit →</a>
-        </div>
+        <label style={lbl}>Survey</label>
+        <select value={selectedId || ''} onChange={(e) => setSelectedId(e.target.value)} disabled={loading} style={{ width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.9rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18', marginBottom: 6 }}>
+          {loading && <option>Loading…</option>}
+          {!loading && surveys.length === 0 && <option value="">No surveys yet</option>}
+          {surveys.map((t) => (
+            <option key={t.id} value={t.id}>{(t.name || 'Untitled survey') + (((t.config && t.config.type) === 'custom') ? ' (Custom)' : ' (NPS)') + (t.is_default ? ' — default' : '')}</option>
+          ))}
+        </select>
+        <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '0 0 18px' }}>
+          {selected && (selected.config && selected.config.type) === 'custom'
+            ? 'A custom survey — respondents see a public-review invitation at the end if you left that toggle on.'
+            : 'A scored NPS survey — every respondent is also invited to leave a public review.'}
+          {' '}<a href="/dashboard/surveys" style={{ color: '#7a7670', fontWeight: 700 }}>Manage surveys →</a>
+        </p>
 
         <label style={lbl}>Send to</label>
         <select value={segment} onChange={(e) => setSegment(e.target.value)} style={{ width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.9rem', fontFamily: 'inherit', background: 'white', color: '#1a1a18', marginBottom: 6 }}>
@@ -604,7 +619,7 @@ function SurveySendTab({ segments }) {
         </select>
         <p style={{ fontSize: '.75rem', color: '#a8a39a', margin: '0 0 20px' }}>Contacts are managed in <a href="/dashboard/grow?tab=import" style={{ color: '#7a7670' }}>Grow › Import</a>. Anyone opted out is skipped automatically.</p>
 
-        <button onClick={send} disabled={sending} style={{ padding: '11px 24px', borderRadius: 50, background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408', border: 'none', cursor: sending ? 'default' : 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: sending ? .6 : 1 }}>
+        <button onClick={send} disabled={sending || !selectedId} style={{ padding: '11px 24px', borderRadius: 50, background: 'linear-gradient(135deg,#f5c842,#d4a515)', color: '#1a1408', border: 'none', cursor: (sending || !selectedId) ? 'default' : 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: (sending || !selectedId) ? .6 : 1 }}>
           {sending ? 'Sending…' : 'Send survey'}
         </button>
 
