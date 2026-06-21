@@ -47,6 +47,21 @@ function classify(score, thresholds) {
 
 const card = { background: 'white', borderRadius: 16, padding: '32px 28px', boxShadow: '0 4px 24px rgba(0,0,0,.08)', maxWidth: 520, width: '100%', margin: '0 auto' };
 
+// 5d-1: conditional display. A question with a condition is shown only when an
+// earlier choice answer matches. No condition (or no values) → always shown.
+// answers carry the selected value(s) in `options` (multiple-choice/dropdown) or
+// `text` (yes/no, single-select), so we check both.
+function condMet(condition, answers) {
+  if (!condition || !condition.blockId || !(condition.values || []).length) return true;
+  const a = (answers || []).find((x) => x && x.blockId === condition.blockId);
+  if (!a) return false; // the trigger question wasn't answered (e.g. itself skipped)
+  const answered = (a.options && a.options.length)
+    ? a.options
+    : (a.text != null && a.text !== '' ? [String(a.text)] : []);
+  const hit = answered.some((v) => condition.values.includes(v));
+  return condition.op === 'is_not' ? !hit : hit;
+}
+
 export default function ReviewPage({ preview }) {
   const router = useRouter();
   const { token } = router.query;
@@ -78,7 +93,9 @@ export default function ReviewPage({ preview }) {
     setClassification(cls);
     const blocks = (survey.paths && survey.paths[cls]) || [];
     setTimeout(() => {
-      if (blocks.length) { setBlockIdx(0); setPhase('blocks'); }
+      let i = 0;
+      while (i < blocks.length && !condMet(blocks[i].condition, [])) i++;
+      if (i < blocks.length) { setBlockIdx(i); setPhase('blocks'); }
       else goShare([], n, cls);
     }, 280);
   }
@@ -96,7 +113,9 @@ export default function ReviewPage({ preview }) {
       setAnswers(next);
     }
     const bl = isCustom ? (survey.questions || []) : ((survey.paths && survey.paths[classification]) || []);
-    if (blockIdx + 1 < bl.length) setBlockIdx(blockIdx + 1);
+    let nextIdx = blockIdx + 1;
+    while (nextIdx < bl.length && !condMet(bl[nextIdx].condition, next)) nextIdx++;
+    if (nextIdx < bl.length) setBlockIdx(nextIdx);
     else goShare(next, score, classification);
   }
 
@@ -130,7 +149,9 @@ export default function ReviewPage({ preview }) {
   // Custom surveys have no scoring step — start directly on the questions.
   useEffect(() => {
     if (survey.type === 'custom' && phase === 'classifier') {
-      if (blocks.length) { setBlockIdx(0); setPhase('blocks'); }
+      let i = 0;
+      while (i < blocks.length && !condMet(blocks[i].condition, [])) i++;
+      if (i < blocks.length) { setBlockIdx(i); setPhase('blocks'); }
       else goShare([], null, null);
     }
   }, [survey.type]); // eslint-disable-line react-hooks/exhaustive-deps
