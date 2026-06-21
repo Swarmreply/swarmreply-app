@@ -233,7 +233,7 @@ export default function Reviews() {
               )}
             </div>
           ) : (
-            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1.5px solid #e4e0d8', overflow: 'hidden' }}>
+            <div style={{ background: 'white', margin: 24, borderRadius: 14, border: '1.5px solid #e4e0d8', overflow: 'hidden', maxHeight: 'calc(100vh - 210px)', overflowY: 'auto' }}>
               {filtered.map(r => <ReviewCard key={r.id} review={r} onApprove={load} />)}
             </div>
           )}

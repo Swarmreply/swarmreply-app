@@ -555,7 +555,7 @@ function TemplatesTab() {
   async function save() {
     try {
       await axios.put(`${API}/templates`, { template: {
-        brandColor, brandLogo: tmpl.brandLogo, brandLogoPosition: tmpl.brandLogoPosition, buttonText: tmpl.buttonText,
+        brandColor: tmpl.brandColor, brandLogo: tmpl.brandLogo, brandLogoPosition: tmpl.brandLogoPosition, buttonText: tmpl.buttonText,
         promoterMin, neutralMin,
         smsRequest: tmpl.smsRequest, emailSubject: tmpl.emailSubject, emailBody: tmpl.emailBody,
         npsQuestion: tmpl.npsQuestion, promoterMessage: tmpl.promoterMessage,

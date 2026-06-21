@@ -521,7 +521,6 @@ function SendSurvey({ onBack }) {
               <Button variant="gold" onClick={send} disabled={sending || !selectedId || !channels.email || (audienceMode === 'contacts' && selectedEmails.length === 0)}>{sending ? (when === 'later' ? 'Scheduling…' : 'Sending…') : (when === 'later' ? 'Schedule survey' : 'Send survey')}</Button>
               {!channels.email && <span style={{ fontSize: '.8rem', color: '#a8a39a' }}>Turn on a channel to send.</span>}
             </div>
-            <p style={{ fontSize: '.78rem', color: '#a8a39a', lineHeight: 1.6, marginTop: 18 }}>Survey emails count toward your 5,000-per-location monthly email allowance, shared with review requests.</p>
           </>
         )}
 

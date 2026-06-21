@@ -356,13 +356,39 @@ function ReportRatings({ d }) {
 // REPORT 3 — Review Velocity & Goal
 // ============================================================
 function ReportVelocity({ d }) {
+  const [goal, setGoal] = useState(25);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('25');
+  const [saving, setSaving] = useState(false);
+  const [goalErr, setGoalErr] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    axios.get(`${API}/account`, { headers: authHeaders() })
+      .then((r) => { const g = r.data && r.data.reviewGoal; if (active && g != null && g > 0) { setGoal(g); setDraft(String(g)); } })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  async function saveGoal() {
+    const n = parseInt(draft, 10);
+    if (isNaN(n) || n < 1) { setGoalErr('Enter a number of 1 or more.'); return; }
+    setSaving(true); setGoalErr(null);
+    try {
+      await axios.put(`${API}/account`, { reviewGoal: n }, { headers: authHeaders() });
+      setGoal(n); setEditing(false);
+    } catch (e) {
+      setGoalErr(e.response?.data?.error || 'Could not save goal.');
+    } finally { setSaving(false); }
+  }
+
   if (!d.hasData) return <NoData icon="🚀" title="No reviews yet" body="Set the pace — send review requests and watch your velocity build here." />;
   const pts = d.trend.points;
   const bars = pts.map((p) => ({ value: p.count, label: d.trend.bucket === 'month' ? monthLabel(p.period) : weekLabel(p.period) }));
   const total = pts.reduce((a, p) => a + p.count, 0);
   const perBucket = pts.length ? total / pts.length : 0;
   const monthly = d.trend.bucket === 'month' ? perBucket : perBucket * 4.33;
-  const GOAL = 25; // monthly target
+  const GOAL = goal;
   const goalPct = Math.min(100, Math.round((monthly / GOAL) * 100));
 
   return (
@@ -378,7 +404,27 @@ function ReportVelocity({ d }) {
       </div>
 
       <div className="rep-card" style={{ marginBottom: 20 }}>
-        <SectionTitle right={<span style={{ fontSize: '.74rem', color: C.taupe }}>{goalPct}% of goal</span>}>Monthly goal</SectionTitle>
+        <SectionTitle right={editing ? null : (
+          <button onClick={() => { setDraft(String(goal)); setGoalErr(null); setEditing(true); }} style={{ background: 'none', border: 'none', color: C.amber, fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>Edit goal</button>
+        )}>Monthly goal</SectionTitle>
+
+        {editing ? (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <input type="number" min="1" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') saveGoal(); }} style={{ width: 90, padding: '8px 10px', border: `1.5px solid ${C.line}`, borderRadius: 8, fontSize: '.85rem', fontFamily: 'inherit', outline: 'none' }} />
+              <span style={{ fontSize: '.82rem', color: C.taupe }}>reviews / month</span>
+              <button onClick={saveGoal} disabled={saving} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: C.ink, color: 'white', fontSize: '.8rem', fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}>{saving ? 'Saving…' : 'Save'}</button>
+              <button onClick={() => { setEditing(false); setGoalErr(null); }} style={{ padding: '8px 12px', borderRadius: 8, border: `1.5px solid ${C.line}`, background: 'white', color: C.taupe, fontSize: '.8rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+            </div>
+            {goalErr && <div style={{ fontSize: '.76rem', color: C.red, marginTop: 8 }}>{goalErr}</div>}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10, gap: 12 }}>
+            <span style={{ fontSize: '.82rem', color: C.taupe }}>Target: <strong style={{ color: C.ink }}>{goal}</strong> reviews/month</span>
+            <span style={{ fontSize: '.74rem', color: C.taupe }}>{goalPct}% of goal</span>
+          </div>
+        )}
+
         <div style={{ height: 14, background: '#f0eeea', borderRadius: 50, overflow: 'hidden' }}>
           <div className="rep-fill" style={{ width: `${goalPct}%`, height: '100%', background: goalPct >= 100 ? C.green : C.amber, borderRadius: 50, transition: 'width .8s cubic-bezier(.3,1.1,.4,1)' }} />
         </div>
