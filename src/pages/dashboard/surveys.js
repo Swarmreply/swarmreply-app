@@ -40,6 +40,7 @@ const newBlockId = () => 'b' + Date.now() + '_' + (_bid++);
 
 function blankConfig() {
   return {
+    type: 'nps',
     classifier: {
       type: 'nps', scale: '0-10',
       question: 'How likely are you to recommend us to a friend or family member?',
@@ -55,40 +56,106 @@ function blankConfig() {
 const label = { display: 'block', fontSize: '.72rem', fontWeight: 700, color: '#7a7670', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 };
 const input = { width: '100%', padding: '10px 13px', border: '1.5px solid #e4e0d8', borderRadius: 9, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', color: '#1a1a18' };
 
-export default function SurveyBuilder() {
-  const [tpl, setTpl] = useState(null);
-  const [cfg, setCfg] = useState(blankConfig());
-  const [name, setName] = useState('Post-visit feedback');
+function mergeConfig(c0) {
+  const base = blankConfig();
+  const c = c0 || {};
+  return {
+    ...base, ...c,
+    type: c.type || 'nps',
+    classifier: { ...base.classifier, ...(c.classifier || {}), thresholds: { ...base.classifier.thresholds, ...((c.classifier || {}).thresholds || {}) } },
+    paths: { promoter: (c.paths || {}).promoter || [], passive: (c.paths || {}).passive || [], detractor: (c.paths || {}).detractor || [] },
+    messages: { ...base.messages, ...(c.messages || {}) },
+    brand: { ...base.brand, ...(c.brand || {}) },
+  };
+}
+
+export default function SurveysPage() {
+  const [view, setView] = useState('list');
+  const [templates, setTemplates] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [err, setErr] = useState('');
 
-  useEffect(() => { load(); }, []);
-
-  async function load() {
+  useEffect(() => { loadList(); }, []);
+  async function loadList() {
     setLoading(true); setErr('');
     try {
       const r = await axios.get(`${API}/survey-templates`, { headers: authHeaders() });
-      const t = (r.data.templates || [])[0];
-      if (t) {
-        setTpl(t);
-        setName(t.name || 'Survey');
-        const base = blankConfig();
-        const c = t.config || {};
-        setCfg({
-          ...base, ...c,
-          classifier: { ...base.classifier, ...(c.classifier || {}), thresholds: { ...base.classifier.thresholds, ...((c.classifier || {}).thresholds || {}) } },
-          paths: { promoter: (c.paths || {}).promoter || [], passive: (c.paths || {}).passive || [], detractor: (c.paths || {}).detractor || [] },
-          messages: { ...base.messages, ...(c.messages || {}) },
-          brand: { ...base.brand, ...(c.brand || {}) },
-        });
-      }
-    } catch (e) {
-      setErr('Could not load your survey. ' + (e.response?.data?.error || e.message));
-    }
+      setTemplates(r.data.templates || []);
+    } catch (e) { setErr('Could not load your surveys. ' + (e.response?.data?.error || e.message)); }
     setLoading(false);
   }
+
+  function openEdit(t) { setSelected(t); setView('edit'); }
+  function createNew() {
+    setSelected({ id: null, name: 'Untitled survey', config: { ...blankConfig(), type: 'nps' }, is_default: templates.length === 0 });
+    setView('edit');
+  }
+  async function remove(t) {
+    if (!t.id || !window.confirm(`Delete "${t.name}"? This cannot be undone.`)) return;
+    try { await axios.delete(`${API}/survey-templates/${t.id}`, { headers: authHeaders() }); loadList(); }
+    catch (e) { alert('Could not delete: ' + (e.response?.data?.error || e.message)); }
+  }
+
+  if (view === 'edit') {
+    return <Editor template={selected} onBack={() => { setView('list'); loadList(); }} />;
+  }
+
+  return (
+    <DashboardLayout>
+      <PageHeader
+        title="Surveys"
+        subtitle="Build and manage the feedback surveys your customers see. Every customer is invited to leave a public review — your questions are how you listen."
+        action={<Button variant="gold" onClick={createNew}>New survey</Button>}
+      />
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px' }}>
+        {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
+        {loading ? (
+          <Card style={{ textAlign: 'center', color: '#7a7670', padding: 48 }}>Loading your surveys…</Card>
+        ) : templates.length === 0 ? (
+          <Card style={{ textAlign: 'center', padding: 48 }}>
+            <div style={{ fontSize: '2rem', marginBottom: 10 }}>📝</div>
+            <div style={{ fontWeight: 700, color: '#1a1a18', marginBottom: 6 }}>No surveys yet</div>
+            <p style={{ fontSize: '.85rem', color: '#7a7670', margin: '0 0 16px' }}>Create your first survey to start collecting feedback.</p>
+            <Button variant="gold" onClick={createNew}>New survey</Button>
+          </Card>
+        ) : (
+          templates.map((t) => <SurveyRow key={t.id} t={t} onEdit={() => openEdit(t)} onDelete={() => remove(t)} />)
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
+
+function SurveyRow({ t, onEdit, onDelete }) {
+  const type = (t.config && t.config.type) || 'nps';
+  const isCustom = type === 'custom';
+  const tc = isCustom ? { bg: '#ede9fe', fg: '#6d28d9' } : { bg: '#dcfce7', fg: '#1a6b45' };
+  return (
+    <Card style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 700, color: '#1a1a18', fontSize: '.98rem' }}>{t.name || 'Untitled survey'}</span>
+          <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: tc.fg, background: tc.bg, borderRadius: 50, padding: '2px 8px' }}>{isCustom ? 'Custom' : 'NPS'}</span>
+          {t.is_default && <span style={{ fontSize: '.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', color: '#92690a', background: '#fef9c3', borderRadius: 50, padding: '2px 8px' }}>Default</span>}
+        </div>
+        <div style={{ fontSize: '.76rem', color: '#a8a39a', marginTop: 3 }}>
+          {isCustom ? 'Standalone survey' : 'Scored · Promoter / Passive / Detractor'}{t.is_default ? ' · sent with review requests' : ''}
+        </div>
+      </div>
+      <Button variant="ghost" onClick={onEdit}>Edit</Button>
+      {!t.is_default && <button onClick={onDelete} title="Delete survey" style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid #f0d0d0', background: 'white', color: '#c0392b', cursor: 'pointer', fontSize: '1rem', fontWeight: 700, fontFamily: 'inherit' }}>{'\u00D7'}</button>}
+    </Card>
+  );
+}
+
+function Editor({ template, onBack }) {
+  const [tpl, setTpl] = useState(template && template.id ? template : null);
+  const [cfg, setCfg] = useState(() => mergeConfig(template && template.config));
+  const [name, setName] = useState((template && template.name) || 'Untitled survey');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [err, setErr] = useState('');
 
   async function save() {
     setSaving(true); setErr('');
@@ -97,7 +164,7 @@ export default function SurveyBuilder() {
         const r = await axios.put(`${API}/survey-templates/${tpl.id}`, { name, config: cfg }, { headers: authHeaders() });
         setTpl(r.data.template);
       } else {
-        const r = await axios.post(`${API}/survey-templates`, { name, config: cfg, scope: 'account', isDefault: true }, { headers: authHeaders() });
+        const r = await axios.post(`${API}/survey-templates`, { name, config: cfg, scope: 'account', isDefault: !!(template && template.is_default) }, { headers: authHeaders() });
         setTpl(r.data.template);
       }
       setSaved(true); setTimeout(() => setSaved(false), 2500);
@@ -145,15 +212,13 @@ export default function SurveyBuilder() {
   return (
     <DashboardLayout>
       <PageHeader
-        title="Surveys"
+        title="Edit survey"
         subtitle="Build the feedback survey your customers see. Every customer is invited to leave a public review — the questions below are how you listen."
-        action={SaveBtn}
+        action={<div style={{ display: 'flex', gap: 10, alignItems: 'center' }}><Button variant="ghost" onClick={onBack}>{'\u2190'} All surveys</Button>{SaveBtn}</div>}
       />
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px' }}>
-        {loading ? (
-          <Card style={{ textAlign: 'center', color: '#7a7670', padding: 48 }}>Loading your survey…</Card>
-        ) : (
+        {(
           <>
             {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
 
