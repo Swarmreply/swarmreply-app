@@ -95,8 +95,11 @@ export default function SurveysPage() {
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
+  const [flash, setFlash] = useState('');
+  const [q, setQ] = useState('');
 
   useEffect(() => { loadList(); }, []);
+  useEffect(() => { if (!flash) return; const t = setTimeout(() => setFlash(''), 3500); return () => clearTimeout(t); }, [flash]);
   async function loadList() {
     setLoading(true); setErr('');
     try {
@@ -120,7 +123,7 @@ export default function SurveysPage() {
   }
 
   if (view === 'edit') {
-    return <Editor template={selected} onBack={() => { setView('list'); loadList(); }} />;
+    return <Editor template={selected} onBack={(savedName) => { setView('list'); loadList(); if (savedName) setFlash(`"${savedName}" saved`); }} />;
   }
 
   if (view === 'pick') {
@@ -143,6 +146,7 @@ export default function SurveysPage() {
         action={<Button variant="gold" onClick={createNew}>New survey</Button>}
       />
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '8px 0 60px' }}>
+        {flash && <div style={{ background: '#dcfce7', border: '1px solid #86efac', color: '#166534', borderRadius: 12, padding: '11px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}><span>{'\u2713'}</span>{flash}</div>}
         {err && <div style={{ background: '#fee2e2', border: '1px solid #fca5a5', color: '#c0392b', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: '.85rem', fontWeight: 600 }}>{err}</div>}
         {loading ? (
           <Card style={{ textAlign: 'center', color: '#7a7670', padding: 48 }}>Loading your surveys…</Card>
@@ -153,9 +157,22 @@ export default function SurveysPage() {
             <p style={{ fontSize: '.85rem', color: '#7a7670', margin: '0 0 16px' }}>Create your first survey to start collecting feedback.</p>
             <Button variant="gold" onClick={createNew}>New survey</Button>
           </Card>
-        ) : (
-          templates.map((t) => <SurveyRow key={t.id} t={t} onEdit={() => openEdit(t)} onDelete={() => remove(t)} />)
-        )}
+        ) : (() => {
+          const ql = q.trim().toLowerCase();
+          const filtered = ql ? templates.filter((t) => (t.name || '').toLowerCase().includes(ql)) : templates;
+          return (
+            <>
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search surveys by name…" style={{ ...input, marginBottom: 14 }} />
+              {filtered.length === 0 ? (
+                <Card style={{ textAlign: 'center', color: '#7a7670', padding: 32, fontSize: '.88rem' }}>No surveys match {'\u201C'}{q}{'\u201D'}.</Card>
+              ) : (
+                <div style={{ maxHeight: '62vh', overflowY: 'auto', paddingRight: 2 }}>
+                  {filtered.map((t) => <SurveyRow key={t.id} t={t} onEdit={() => openEdit(t)} onDelete={() => remove(t)} />)}
+                </div>
+              )}
+            </>
+          );
+        })()}
       </div>
     </DashboardLayout>
   );
@@ -207,20 +224,18 @@ function Editor({ template, onBack }) {
   const [cfg, setCfg] = useState(() => mergeConfig(template && template.config));
   const [name, setName] = useState((template && template.name) || 'Untitled survey');
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [err, setErr] = useState('');
 
   async function save() {
     setSaving(true); setErr('');
     try {
       if (tpl && tpl.id) {
-        const r = await axios.put(`${API}/survey-templates/${tpl.id}`, { name, config: cfg }, { headers: authHeaders() });
-        setTpl(r.data.template);
+        await axios.put(`${API}/survey-templates/${tpl.id}`, { name, config: cfg }, { headers: authHeaders() });
       } else {
-        const r = await axios.post(`${API}/survey-templates`, { name, config: cfg, scope: 'account', isDefault: !!(template && template.is_default) }, { headers: authHeaders() });
-        setTpl(r.data.template);
+        await axios.post(`${API}/survey-templates`, { name, config: cfg, scope: 'account', isDefault: !!(template && template.is_default) }, { headers: authHeaders() });
       }
-      setSaved(true); setTimeout(() => setSaved(false), 2500);
+      onBack(name); // saved — return to the list, which shows a confirmation
+      return;
     } catch (e) {
       setErr(e.response?.data?.error || e.message || 'Save failed');
     }
@@ -272,7 +287,7 @@ function Editor({ template, onBack }) {
 
   const SaveBtn = (
     <Button variant="gold" onClick={save} disabled={saving}>
-      {saving ? 'Saving…' : saved ? 'Saved \u2713' : 'Save survey'}
+      {saving ? 'Saving…' : 'Save survey'}
     </Button>
   );
 
