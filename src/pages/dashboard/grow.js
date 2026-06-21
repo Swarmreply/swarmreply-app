@@ -204,8 +204,8 @@ function RequestsTab() {
       detractor: { bg: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)', label: `Detractor · ${score}` },
     }[path] || { bg: 'var(--cream-2, #f0eeea)', color: 'var(--taupe, #7a7670)', label: score };
     return (
-      <span style={{ background: cfg.bg, color: cfg.color, fontSize: '.67rem', fontWeight: 700,
-        padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>
+      <span style={{ background: cfg.bg, color: cfg.color, fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700,
+        padding: '3px 9px', borderRadius: 'var(--r-pill, 999px)', whiteSpace: 'nowrap' }}>
         {cfg.label}
       </span>
     );
@@ -232,29 +232,29 @@ function RequestsTab() {
           <Card>
             {/* Header + search + filter */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line, #e4e0d8)' }}>
-              <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 12 }}>Completed surveys</div>
+              <div style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 12 }}>Completed surveys</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 {/* Search */}
                 <div style={{ flex: 1, position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--taupe, #7a7670)', fontSize: '.85rem' }}>🔍</span>
+                  <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>🔍</span>
                   <input
                     value={search} onChange={e => setSearch(e.target.value)}
                     placeholder="Search by name or email…"
-                    style={{ width: '100%', padding: '8px 12px 8px 30px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9,
-                      fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '8px 12px 8px 30px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)',
+                      fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
                 {/* Date filter */}
                 <select value={dateFilter} onChange={e => setDateFilter(e.target.value)}
-                  style={{ padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9,
-                    fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', background: 'white', cursor: 'pointer' }}>
+                  style={{ padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)',
+                    fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', background: 'white', cursor: 'pointer' }}>
                   <option value="all">All time</option>
                   <option value="today">Today</option>
                   <option value="week">Last 7 days</option>
                   <option value="month">Last 30 days</option>
                 </select>
-                <button onClick={loadSurveys} style={{ padding: '8px 14px', borderRadius: 9, background: 'var(--cream-2, #f0eeea)',
-                  border: 'none', cursor: 'pointer', fontSize: '.8rem', color: 'var(--tx-2, #4a4a48)', fontFamily: 'inherit' }}>
+                <button onClick={loadSurveys} style={{ padding: '8px 14px', borderRadius: 'var(--r-xs, 8px)', background: 'var(--cream-2, #f0eeea)',
+                  border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--tx-2, #4a4a48)', fontFamily: 'inherit' }}>
                   ↻
                 </button>
               </div>
@@ -263,7 +263,7 @@ function RequestsTab() {
             {/* Table header */}
             <div className="m-survey-row" style={{ display: 'grid', gridTemplateColumns: '1fr 180px 90px 80px 70px',
               padding: '8px 20px', background: 'var(--cream, #f8f7f4)',
-              fontSize: '.67rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
+              fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
               <span>Customer</span>
               <span className="hide-mobile">Email</span>
               <span>Result</span>
@@ -292,33 +292,33 @@ function RequestsTab() {
                 onMouseLeave={e => e.currentTarget.style.background='white'}>
                 {/* Name */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--cream-2, #f0eeea)',
+                  <div style={{ width: 30, height: 30, borderRadius: 'var(--r-full, 50%)', background: 'var(--cream-2, #f0eeea)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 700, fontSize: '.78rem', flexShrink: 0, color: 'var(--tx-2, #4a4a48)' }}>
+                    fontWeight: 700, fontSize: 'var(--fs-xs, 0.75rem)', flexShrink: 0, color: 'var(--tx-2, #4a4a48)' }}>
                     {s.customer_name?.[0] || '?'}
                   </div>
-                  <span style={{ fontWeight: 600, fontSize: '.84rem', color: 'var(--ink, #0a0a0a)',
+                  <span style={{ fontWeight: 600, fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--ink, #0a0a0a)',
                     textDecoration: 'underline', textDecorationColor: 'var(--mute-2, #c8c4bc)' }}>
                     {s.customer_name}
                   </span>
                 </div>
                 {/* Email */}
-                <span className="hide-mobile" style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span className="hide-mobile" style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {s.customer_email}
                 </span>
                 {/* Path badge */}
                 <span>{pathBadge(s.path, s.nps_score)}</span>
                 {/* Left review */}
-                <span className="hide-mobile" style={{ fontSize: '.78rem', color: s.left_review ? 'var(--green, #1a6b45)' : 'var(--mute-2, #c8c4bc)', fontWeight: 600 }}>
+                <span className="hide-mobile" style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: s.left_review ? 'var(--green, #1a6b45)' : 'var(--mute-2, #c8c4bc)', fontWeight: 600 }}>
                   {s.left_review ? '✓ Yes' : '— No'}
                 </span>
                 {/* Date */}
-                <span className="hide-mobile" style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>{fmtDate(s.completed_at)}</span>
+                <span className="hide-mobile" style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{fmtDate(s.completed_at)}</span>
               </div>
             ))}
 
             {/* Footer count */}
-            <div style={{ padding: '10px 20px', borderTop: '1px solid var(--line, #e4e0d8)', fontSize: '.73rem', color: 'var(--taupe, #7a7670)' }}>
+            <div style={{ padding: '10px 20px', borderTop: '1px solid var(--line, #e4e0d8)', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
               {filtered.length} of {surveys.length} surveys
             </div>
           </Card>
@@ -326,14 +326,14 @@ function RequestsTab() {
 
         {/* Send request panel */}
         <Card style={{ padding: 20, height: 'fit-content' }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Send a review request</div>
-          {sent && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: 'var(--green, #1a6b45)', marginBottom: 12 }}>✓ Review request sent!</div>}
-          {sendError && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>✗ {sendError}</div>}
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Send a review request</div>
+          {sent && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)', marginBottom: 12 }}>✓ Review request sent!</div>}
+          {sendError && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>✗ {sendError}</div>}
           {[['Customer name','text','Enter name… (optional)',name,setName],['Email *','email','customer@example.com',email,setEmail],['Phone (SMS, optional)','tel','+1 555 000 0000',phone,setPhone]].map(([l,t,p,v,s]) => (
             <div key={l} style={{ marginBottom: 10 }}>
-              <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 4 }}>{l}</label>
+              <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 4 }}>{l}</label>
               <input type={t} value={v} onChange={e => s(e.target.value)} placeholder={p}
-                style={{ width: '100%', padding: '9px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none' }} />
+                style={{ width: '100%', padding: '9px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none' }} />
             </div>
           ))}
           <KitButton onClick={send} disabled={sending} variant="dark" style={{ width: '100%', marginTop: 4 }}>
@@ -352,33 +352,33 @@ function RequestsTab() {
             boxShadow: '-4px 0 32px rgba(0,0,0,.12)', display: 'flex', flexDirection: 'column' }}>
             {/* Panel header */}
             <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--line, #e4e0d8)', display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--cream-2, #f0eeea)',
+              <div style={{ width: 44, height: 44, borderRadius: 'var(--r-full, 50%)', background: 'var(--cream-2, #f0eeea)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 800, fontSize: '1rem', flexShrink: 0 }}>
+                fontWeight: 800, fontSize: 'var(--fs-lg, 1rem)', flexShrink: 0 }}>
                 {selected.customer_name?.[0]}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: '.95rem' }}>{selected.customer_name}</div>
-                <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>{selected.customer_email}</div>
+                <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)' }}>{selected.customer_name}</div>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>{selected.customer_email}</div>
               </div>
               <button onClick={() => setSelected(null)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: 'var(--taupe, #7a7670)', padding: '4px 8px' }}>✕</button>
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-xl, 1.25rem)', color: 'var(--taupe, #7a7670)', padding: '4px 8px' }}>✕</button>
             </div>
 
             <div style={{ padding: 24, flex: 1 }}>
               {/* Score + path */}
               <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20 }}>
-                <div style={{ width: 56, height: 56, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '1.5rem', fontWeight: 800,
+                <div style={{ width: 56, height: 56, borderRadius: 'var(--r-md, 16px)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 800,
                   background: selected.path === 'promoter' ? '#dcfce7' : selected.path === 'detractor' ? 'var(--danger-bg, #fee2e2)' : '#fef9c3',
                   color: selected.path === 'promoter' ? 'var(--green, #1a6b45)' : selected.path === 'detractor' ? 'var(--danger, #c0392b)' : 'var(--amber-tx, #92690a)' }}>
                   {selected.nps_score}
                 </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '.9rem', textTransform: 'capitalize' }}>{selected.path}</div>
-                  <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>{fmtDate(selected.completed_at)}</div>
+                  <div style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', textTransform: 'capitalize' }}>{selected.path}</div>
+                  <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>{fmtDate(selected.completed_at)}</div>
                 </div>
-                <div style={{ marginLeft: 'auto', fontSize: '.78rem', fontWeight: 600,
+                <div style={{ marginLeft: 'auto', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600,
                   color: selected.left_review ? 'var(--green, #1a6b45)' : 'var(--taupe, #7a7670)' }}>
                   {selected.left_review ? '✓ Left a review' : '✗ No review left'}
                 </div>
@@ -387,25 +387,25 @@ function RequestsTab() {
               {/* Detractor answers */}
               {selected.path === 'detractor' && (
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '.84rem', marginBottom: 14, color: 'var(--danger, #c0392b)' }}>Detractor feedback</div>
+                  <div style={{ fontWeight: 700, fontSize: 'var(--fs-sm, 0.8125rem)', marginBottom: 14, color: 'var(--danger, #c0392b)' }}>Detractor feedback</div>
                   {selected.detractor_q1 && (
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>What fell short</div>
-                      <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.65 }}>
+                      <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>What fell short</div>
+                      <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 'var(--r-sm, 10px)', padding: '12px 14px', fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.65 }}>
                         "{selected.detractor_q1}"
                       </div>
                     </div>
                   )}
                   {selected.detractor_q2 && (
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>How to improve</div>
-                      <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.65 }}>
+                      <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 6 }}>How to improve</div>
+                      <div style={{ background: '#fff5f5', border: '1px solid #fecaca', borderRadius: 'var(--r-sm, 10px)', padding: '12px 14px', fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.65 }}>
                         "{selected.detractor_q2}"
                       </div>
                     </div>
                   )}
                   {!selected.detractor_q1 && !selected.detractor_q2 && (
-                    <div style={{ color: 'var(--taupe, #7a7670)', fontSize: '.84rem' }}>No written feedback provided.</div>
+                    <div style={{ color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-sm, 0.8125rem)' }}>No written feedback provided.</div>
                   )}
                 </div>
               )}
@@ -413,8 +413,8 @@ function RequestsTab() {
               {/* Neutral path result */}
               {selected.path === 'neutral' && (
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '.84rem', marginBottom: 14, color: 'var(--amber-tx, #92690a)' }}>Neutral response</div>
-                  <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: 'var(--tx-3, #3a3a38)' }}>
+                  <div style={{ fontWeight: 700, fontSize: 'var(--fs-sm, 0.8125rem)', marginBottom: 14, color: 'var(--amber-tx, #92690a)' }}>Neutral response</div>
+                  <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 'var(--r-sm, 10px)', padding: '12px 14px', fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)' }}>
                     Would return: <strong>{selected.would_return ? 'Yes' : 'No'}</strong>
                     {selected.would_return
                       ? ' — Customer was directed to leave a review.'
@@ -426,8 +426,8 @@ function RequestsTab() {
               {/* Promoter path result */}
               {selected.path === 'promoter' && (
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '.84rem', marginBottom: 14, color: 'var(--green, #1a6b45)' }}>Promoter response</div>
-                  <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 10, padding: '12px 14px', fontSize: '.875rem', color: 'var(--tx-3, #3a3a38)' }}>
+                  <div style={{ fontWeight: 700, fontSize: 'var(--fs-sm, 0.8125rem)', marginBottom: 14, color: 'var(--green, #1a6b45)' }}>Promoter response</div>
+                  <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 'var(--r-sm, 10px)', padding: '12px 14px', fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)' }}>
                     {selected.left_review
                       ? '✓ Customer clicked through to leave a review.'
                       : 'Customer was shown the review prompt but did not click through.'}
@@ -439,22 +439,22 @@ function RequestsTab() {
               <div style={{ marginTop: 24, display: 'flex', gap: 8 }}>
                 <button
                   onClick={resendRequest} disabled={resending || resent}
-                  style={{ flex: 1, padding: '10px 0', borderRadius: 50,
+                  style={{ flex: 1, padding: '10px 0', borderRadius: 'var(--r-pill, 999px)',
                     background: resent ? 'var(--green, #1a6b45)' : 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))',
                     color: resent ? 'white' : '#1a1408',
-                    border: 'none', cursor: resent ? 'default' : 'pointer', fontSize: '.82rem', fontWeight: 700,
+                    border: 'none', cursor: resent ? 'default' : 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700,
                     fontFamily: 'inherit', opacity: resending ? .6 : 1 }}>
                   {resent ? 'Request sent ✓' : resending ? 'Sending…' : '⚡ Send another request'}
                 </button>
                 <button
                   onClick={copyEmail}
-                  style={{ padding: '10px 16px', borderRadius: 50, background: 'white', color: 'var(--tx, #1a1a18)',
-                    border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.82rem', fontWeight: 600, fontFamily: 'inherit' }}>
+                  style={{ padding: '10px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'white', color: 'var(--tx, #1a1a18)',
+                    border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, fontFamily: 'inherit' }}>
                   {copied ? 'Copied ✓' : 'Copy email'}
                 </button>
                 <button onClick={() => setSelected(null)}
-                  style={{ padding: '10px 18px', borderRadius: 50, background: 'white', color: 'var(--tx-2, #4a4a48)',
-                    border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.82rem', fontFamily: 'inherit' }}>
+                  style={{ padding: '10px 18px', borderRadius: 'var(--r-pill, 999px)', background: 'white', color: 'var(--tx-2, #4a4a48)',
+                    border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit' }}>
                   Close
                 </button>
               </div>
@@ -496,15 +496,15 @@ const DEFAULT_TMPL = {
 // Hoisted to module scope so they keep a stable identity across renders.
 // (Defining TField inside TemplatesTab remounted every input on each keystroke,
 // which dropped focus after a single character.)
-const inp = { width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' };
-const lbl = { fontWeight: 600, fontSize: '.78rem', color: 'var(--tx-2, #4a4a48)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6, display: 'block' };
+const inp = { width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', resize: 'vertical' };
+const lbl = { fontWeight: 600, fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--tx-2, #4a4a48)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6, display: 'block' };
 
 function TField({ label, hint, children }) {
   return (
     <div style={{ marginBottom: 18 }}>
       <span style={lbl}>{label}</span>
       {children}
-      {hint && <div style={{ fontSize: '.73rem', color: 'var(--taupe, #7a7670)', marginTop: 5, lineHeight: 1.5 }}>{hint}</div>}
+      {hint && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 5, lineHeight: 1.5 }}>{hint}</div>}
     </div>
   );
 }
@@ -611,20 +611,20 @@ function TemplatesTab() {
   const sections = {
     branding: (
       <div style={{ maxWidth: 560 }}>
-        <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
+        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
           Your brand color and logo appear in the email banner and footer of every review request sent to your customers.
         </div>
 
         <TField label="Brand color" hint="Used for the email banner, button, and footer background.">
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 6 }}>
             <input type="color" value={tmpl.brandColor} onChange={e => updateTmpl('brandColor', e.target.value)}
-              style={{ width: 48, height: 40, border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
+              style={{ width: 48, height: 40, border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', cursor: 'pointer', padding: 2 }} />
             <input value={tmpl.brandColor} onChange={e => updateTmpl('brandColor', e.target.value)}
               style={{ ...inp, width: 120, resize: 'none' }} placeholder="var(--honey, #f5c842)" />
             <div style={{ display: 'flex', gap: 6 }}>
               {['var(--ink, #0a0a0a)','var(--honey, #f5c842)','#1877F2','#4285F4','#D32323','var(--green, #1a6b45)','#7c3aed','#ea580c'].map(c => (
                 <button key={c} onClick={() => updateTmpl('brandColor', c)}
-                  style={{ width: 24, height: 24, borderRadius: '50%', background: c, border: tmpl.brandColor === c ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent', cursor: 'pointer' }} />
+                  style={{ width: 24, height: 24, borderRadius: 'var(--r-full, 50%)', background: c, border: tmpl.brandColor === c ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent', cursor: 'pointer' }} />
               ))}
             </div>
           </div>
@@ -646,8 +646,8 @@ function TemplatesTab() {
 
         {/* Request message — merged in from the old standalone tab */}
         <div style={{ borderTop: '1px solid var(--cream-2, #f0eeea)', margin: '4px 0 18px' }} />
-        <div style={{ fontWeight: 700, fontSize: '.95rem', color: 'var(--ink, #0a0a0a)', marginBottom: 4 }}>Request message</div>
-        <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', marginBottom: 18, lineHeight: 1.6 }}>
+        <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', color: 'var(--ink, #0a0a0a)', marginBottom: 4 }}>Request message</div>
+        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 18, lineHeight: 1.6 }}>
           The wording your customers receive. Use the variables <code>{'{name}'}</code>, <code>{'{business}'}</code> and <code>{'{link}'}</code> — they’re filled in automatically.
         </div>
 
@@ -659,35 +659,35 @@ function TemplatesTab() {
         </TField>
         <TField label="SMS message" hint="Max 160 chars. Variables: {name} {business} {link}">
           <textarea rows={3} style={inp} maxLength={160} value={tmpl.smsRequest} onChange={e => updateTmpl('smsRequest', e.target.value)} />
-          <div style={{ fontSize: '.7rem', color: tmpl.smsRequest.length > 150 ? 'var(--danger, #c0392b)' : 'var(--taupe, #7a7670)', textAlign: 'right', marginTop: 4 }}>{tmpl.smsRequest.length}/160</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: tmpl.smsRequest.length > 150 ? 'var(--danger, #c0392b)' : 'var(--taupe, #7a7670)', textAlign: 'right', marginTop: 4 }}>{tmpl.smsRequest.length}/160</div>
         </TField>
 
         {/* Live email preview */}
         <div style={{ marginTop: 8 }}>
           <span style={lbl}>Email preview</span>
-          <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, overflow: 'hidden', fontFamily: 'sans-serif' }}>
+          <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', overflow: 'hidden', fontFamily: 'sans-serif' }}>
             {/* Banner */}
             <div style={{ background: tmpl.brandColor, padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: ({ left: 'flex-start', middle: 'center', right: 'flex-end' })[tmpl.brandLogoPosition] || 'flex-start' }}>
               {tmpl.brandLogo
                 ? <img src={tmpl.brandLogo} alt="Logo" style={{ maxHeight: 48, maxWidth: 160, objectFit: 'contain' }} onError={e => e.target.style.display='none'} />
-                : <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--ink, #0a0a0a)', letterSpacing: '-.01em' }}>Your Business</div>
+                : <div style={{ fontWeight: 800, fontSize: 'var(--fs-lg, 1rem)', color: 'var(--ink, #0a0a0a)', letterSpacing: '-.01em' }}>Your Business</div>
               }
             </div>
             {/* Body */}
             <div style={{ padding: '28px 32px', background: 'white' }}>
-              <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink, #0a0a0a)', marginBottom: 12 }}>{(tmpl.emailSubject || 'How did we do, {name}?').replace(/{name}/g, 'Test Customer').replace(/{business}/g, 'Your Business')}</div>
-              <div style={{ fontSize: '.875rem', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap' }}>
+              <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', color: 'var(--ink, #0a0a0a)', marginBottom: 12 }}>{(tmpl.emailSubject || 'How did we do, {name}?').replace(/{name}/g, 'Test Customer').replace(/{business}/g, 'Your Business')}</div>
+              <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, marginBottom: 20, whiteSpace: 'pre-wrap' }}>
                 {tmpl.emailBody.split('{link}')[0].replace(/{name}/g, 'Test Customer').replace(/{business}/g, 'Your Business')}
               </div>
               <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                <div style={{ display: 'inline-block', background: tmpl.brandColor, color: 'var(--ink, #0a0a0a)', padding: '14px 28px', borderRadius: 50, fontWeight: 700, fontSize: '.9rem', cursor: 'pointer' }}>
+                <div style={{ display: 'inline-block', background: tmpl.brandColor, color: 'var(--ink, #0a0a0a)', padding: '14px 28px', borderRadius: 'var(--r-pill, 999px)', fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', cursor: 'pointer' }}>
                   {tmpl.buttonText || 'Share Your Feedback →'}
                 </div>
               </div>
             </div>
             {/* Footer */}
             <div style={{ background: tmpl.brandColor, padding: '14px 32px', opacity: .85 }}>
-              <div style={{ fontSize: '.72rem', color: 'var(--ink, #0a0a0a)', opacity: .7, textAlign: 'center' }}>Sent by SwarmReply on behalf of Your Business</div>
+              <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--ink, #0a0a0a)', opacity: .7, textAlign: 'center' }}>Sent by SwarmReply on behalf of Your Business</div>
             </div>
           </div>
         </div>
@@ -695,15 +695,15 @@ function TemplatesTab() {
     ),
     thresholds: (
       <div>
-        <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
+        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
           Define what score range qualifies as Promoter, Neutral, or Detractor. This controls which follow-up path a customer is sent down after completing the NPS survey.
         </div>
-        <div style={{ display: 'flex', borderRadius: 10, overflow: 'hidden', height: 40, marginBottom: 12 }}>
-          <div style={{ flex: neutralMin - 1, background: 'var(--danger-bg, #fee2e2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: 'var(--danger, #c0392b)' }}>Detractor · 1–{detractorMax}</div>
-          <div style={{ flex: Math.max(1, promoterMin - neutralMin), background: '#fef9c3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: 'var(--amber-tx, #92690a)' }}>Neutral · {neutralMin}–{neutralMax}</div>
-          <div style={{ flex: 11 - promoterMin, background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 700, color: 'var(--green, #1a6b45)' }}>Promoter · {promoterMin}–10</div>
+        <div style={{ display: 'flex', borderRadius: 'var(--r-sm, 10px)', overflow: 'hidden', height: 40, marginBottom: 12 }}>
+          <div style={{ flex: neutralMin - 1, background: 'var(--danger-bg, #fee2e2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--danger, #c0392b)' }}>Detractor · 1–{detractorMax}</div>
+          <div style={{ flex: Math.max(1, promoterMin - neutralMin), background: '#fef9c3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--amber-tx, #92690a)' }}>Neutral · {neutralMin}–{neutralMax}</div>
+          <div style={{ flex: 11 - promoterMin, background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--green, #1a6b45)' }}>Promoter · {promoterMin}–10</div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: 'var(--taupe, #7a7670)', marginBottom: 20, padding: '0 2px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--taupe, #7a7670)', marginBottom: 20, padding: '0 2px' }}>
           {[1,2,3,4,5,6,7,8,9,10].map(n => <span key={n} style={{ fontWeight: 600 }}>{n}</span>)}
         </div>
         <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
@@ -711,7 +711,7 @@ function TemplatesTab() {
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
               {[1,2,3,4,5,6,7].map(n => (
                 <button key={n} onClick={() => n < promoterMin && setNeutralMin(n)}
-                  style={{ width: 36, height: 36, borderRadius: 8, border: '1.5px solid', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit',
+                  style={{ width: 36, height: 36, borderRadius: 'var(--r-xs, 8px)', border: '1.5px solid', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit',
                     borderColor: neutralMin === n ? 'var(--honey, #f5c842)' : 'var(--line, #e4e0d8)',
                     background: neutralMin === n ? 'var(--honey, #f5c842)' : 'white',
                     color: neutralMin === n ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)' }}>{n}</button>
@@ -722,7 +722,7 @@ function TemplatesTab() {
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
               {[7,8,9,10].map(n => (
                 <button key={n} onClick={() => n > neutralMin && setPromoterMin(n)}
-                  style={{ width: 36, height: 36, borderRadius: 8, border: '1.5px solid', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit',
+                  style={{ width: 36, height: 36, borderRadius: 'var(--r-xs, 8px)', border: '1.5px solid', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit',
                     borderColor: promoterMin === n ? '#22c55e' : 'var(--line, #e4e0d8)',
                     background: promoterMin === n ? '#dcfce7' : 'white',
                     color: promoterMin === n ? 'var(--green, #1a6b45)' : 'var(--taupe, #7a7670)' }}>{n}</button>
@@ -736,9 +736,9 @@ function TemplatesTab() {
             { label: 'Neutral', range: `${neutralMin}–${neutralMax}`, bg: '#fef9c3', border: '#fde68a', tc: 'var(--amber-tx, #92690a)', desc: 'Asked if they would return. Yes → Promoter. No → Detractor.' },
             { label: 'Promoter', range: `${promoterMin}–10`, bg: '#dcfce7', border: '#bbf7d0', tc: 'var(--green, #1a6b45)', desc: 'Asked to leave a review on your priority platform.' },
           ].map(p => (
-            <div key={p.label} style={{ background: p.bg, border: `1px solid ${p.border}`, borderRadius: 12, padding: 14 }}>
-              <div style={{ fontWeight: 700, fontSize: '.84rem', color: p.tc, marginBottom: 4 }}>{p.label} · {p.range}</div>
-              <div style={{ fontSize: '.75rem', color: p.tc, lineHeight: 1.55, opacity: .85 }}>{p.desc}</div>
+            <div key={p.label} style={{ background: p.bg, border: `1px solid ${p.border}`, borderRadius: 'var(--r-md, 16px)', padding: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: 'var(--fs-sm, 0.8125rem)', color: p.tc, marginBottom: 4 }}>{p.label} · {p.range}</div>
+              <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: p.tc, lineHeight: 1.55, opacity: .85 }}>{p.desc}</div>
             </div>
           ))}
         </div>
@@ -747,7 +747,7 @@ function TemplatesTab() {
 
     platforms: (
       <div>
-        <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
+        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
           Choose which review platforms to send Promoters to, and in what priority order. Slot 1 is shown first.
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 460 }}>
@@ -755,12 +755,12 @@ function TemplatesTab() {
             const platform = PLATFORMS.find(p => p.id === sv);
             return (
               <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--ink, #0a0a0a)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.72rem', fontWeight: 800, flexShrink: 0 }}>{idx+1}</div>
+                <div style={{ width: 28, height: 28, borderRadius: 'var(--r-full, 50%)', background: 'var(--ink, #0a0a0a)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 800, flexShrink: 0 }}>{idx+1}</div>
                 {platform ? (
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: `2px solid ${platform.color}`, borderRadius: 10, padding: '10px 14px' }}>
-                    <span style={{ fontWeight: 700, fontSize: '1rem', color: platform.color }}>{platform.icon}</span>
-                    <span style={{ fontWeight: 600, fontSize: '.875rem', flex: 1 }}>{platform.label}</span>
-                    <button onClick={() => removeSlot(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--mute-2, #c8c4bc)', fontSize: '1rem', padding: '2px 4px' }}
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, background: 'white', border: `2px solid ${platform.color}`, borderRadius: 'var(--r-sm, 10px)', padding: '10px 14px' }}>
+                    <span style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', color: platform.color }}>{platform.icon}</span>
+                    <span style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', flex: 1 }}>{platform.label}</span>
+                    <button onClick={() => removeSlot(idx)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--mute-2, #c8c4bc)', fontSize: 'var(--fs-lg, 1rem)', padding: '2px 4px' }}
                       onMouseEnter={e => e.currentTarget.style.color='var(--danger, #c0392b)'}
                       onMouseLeave={e => e.currentTarget.style.color='var(--mute-2, #c8c4bc)'}>✕</button>
                   </div>
@@ -768,9 +768,9 @@ function TemplatesTab() {
                   <div style={{ flex: 1, display: 'flex', gap: 8 }}>
                     {PLATFORMS.map(p => (
                       <button key={p.id} onClick={() => setSlot(idx, p.id)} disabled={slots.includes(p.id)}
-                        style={{ flex: 1, padding: '10px 8px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, background: 'white',
+                        style={{ flex: 1, padding: '10px 8px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', background: 'white',
                           cursor: slots.includes(p.id) ? 'not-allowed' : 'pointer', opacity: slots.includes(p.id) ? .3 : 1,
-                          fontSize: '.78rem', fontWeight: 600, color: 'var(--ink, #0a0a0a)', fontFamily: 'inherit' }}>
+                          fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, color: 'var(--ink, #0a0a0a)', fontFamily: 'inherit' }}>
                         {p.icon} {p.label}
                       </button>
                     ))}
@@ -788,15 +788,15 @@ function TemplatesTab() {
         <TField label="Survey question" hint="Variables: {business}">
           <textarea rows={2} style={inp} value={tmpl.npsQuestion} onChange={e => updateTmpl('npsQuestion', e.target.value)} />
         </TField>
-        <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 12, padding: 16, marginTop: 4 }}>
-          <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>Live preview</div>
-          <div style={{ fontSize: '.9rem', color: 'var(--ink, #0a0a0a)', fontWeight: 500, marginBottom: 14 }}>{tmpl.npsQuestion.replace(/{business}/g, 'Your Business')}</div>
+        <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-md, 16px)', padding: 16, marginTop: 4 }}>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>Live preview</div>
+          <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--ink, #0a0a0a)', fontWeight: 500, marginBottom: 14 }}>{tmpl.npsQuestion.replace(/{business}/g, 'Your Business')}</div>
           <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
             {[1,2,3,4,5,6,7,8,9,10].map(n => (
-              <div key={n} style={{ width: 34, height: 34, borderRadius: 8, border: '1.5px solid var(--line, #e4e0d8)', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.8rem', fontWeight: 600, color: 'var(--taupe, #7a7670)' }}>{n}</div>
+              <div key={n} style={{ width: 34, height: 34, borderRadius: 'var(--r-xs, 8px)', border: '1.5px solid var(--line, #e4e0d8)', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, color: 'var(--taupe, #7a7670)' }}>{n}</div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.7rem', color: 'var(--taupe, #7a7670)', marginTop: 6 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--taupe, #7a7670)', marginTop: 6 }}>
             <span>Not likely at all</span><span>Extremely likely</span>
           </div>
         </div>
@@ -805,20 +805,20 @@ function TemplatesTab() {
 
     promoter: (
       <div style={{ maxWidth: 560 }}>
-        <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 14px', fontSize: '.8rem', color: 'var(--green, #1a6b45)', marginBottom: 20 }}>
+        <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 'var(--r-sm, 10px)', padding: '10px 14px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)', marginBottom: 20 }}>
           Shown to customers who scored {promoterMin}–10
         </div>
         <TField label="Promoter message" hint="Shown after NPS score, before review platform buttons.">
           <textarea rows={4} style={inp} value={tmpl.promoterMessage} onChange={e => updateTmpl('promoterMessage', e.target.value)} />
         </TField>
-        <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>Platform buttons preview</div>
+        <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-md, 16px)', padding: 16 }}>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>Platform buttons preview</div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {slots.filter(Boolean).map(sid => {
               const p = PLATFORMS.find(x => x.id === sid);
-              return <div key={sid} style={{ padding: '9px 16px', borderRadius: 50, background: p.color, color: 'white', fontSize: '.8rem', fontWeight: 700 }}>{p.icon} Leave a review on {p.label}</div>;
+              return <div key={sid} style={{ padding: '9px 16px', borderRadius: 'var(--r-pill, 999px)', background: p.color, color: 'white', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700 }}>{p.icon} Leave a review on {p.label}</div>;
             })}
-            {!slots.some(Boolean) && <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)' }}>No platforms selected — add them in Review Platforms.</div>}
+            {!slots.some(Boolean) && <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)' }}>No platforms selected — add them in Review Platforms.</div>}
           </div>
         </div>
       </div>
@@ -826,18 +826,18 @@ function TemplatesTab() {
 
     neutral: (
       <div style={{ maxWidth: 560 }}>
-        <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 14px', fontSize: '.8rem', color: 'var(--amber-tx, #92690a)', marginBottom: 20 }}>
+        <div style={{ background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 'var(--r-sm, 10px)', padding: '10px 14px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--amber-tx, #92690a)', marginBottom: 20 }}>
           Shown to customers who scored {neutralMin}–{neutralMax}
         </div>
         <TField label="Follow-up question" hint="Shown after NPS. Yes → Promoter path. No → Detractor path. Variables: {business}">
           <textarea rows={2} style={inp} value={tmpl.neutralQuestion} onChange={e => updateTmpl('neutralQuestion', e.target.value)} />
         </TField>
-        <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 12 }}>Routing preview</div>
-          <div style={{ fontSize: '.875rem', color: 'var(--ink, #0a0a0a)', marginBottom: 14 }}>{tmpl.neutralQuestion.replace(/{business}/g, 'Your Business')}</div>
+        <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-md, 16px)', padding: 16 }}>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 12 }}>Routing preview</div>
+          <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--ink, #0a0a0a)', marginBottom: 14 }}>{tmpl.neutralQuestion.replace(/{business}/g, 'Your Business')}</div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: '#dcfce7', border: '1px solid #bbf7d0', fontSize: '.8rem', color: 'var(--green, #1a6b45)', fontWeight: 600, textAlign: 'center' }}>Yes → Promoter path</div>
-            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', fontSize: '.8rem', color: 'var(--danger, #c0392b)', fontWeight: 600, textAlign: 'center' }}>No → Detractor path</div>
+            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 'var(--r-sm, 10px)', background: '#dcfce7', border: '1px solid #bbf7d0', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)', fontWeight: 600, textAlign: 'center' }}>Yes → Promoter path</div>
+            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 'var(--r-sm, 10px)', background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)', fontWeight: 600, textAlign: 'center' }}>No → Detractor path</div>
           </div>
         </div>
       </div>
@@ -845,7 +845,7 @@ function TemplatesTab() {
 
     detractor: (
       <div style={{ maxWidth: 560 }}>
-        <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 10, padding: '10px 14px', fontSize: '.8rem', color: 'var(--danger, #c0392b)', marginBottom: 20 }}>
+        <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 'var(--r-sm, 10px)', padding: '10px 14px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)', marginBottom: 20 }}>
           Shown to customers who scored 1–{detractorMax}, or neutral customers who said they would not return
         </div>
         <TField label="Opening message"><textarea rows={2} style={inp} value={tmpl.detractorOpening} onChange={e => updateTmpl('detractorOpening', e.target.value)} /></TField>
@@ -857,7 +857,7 @@ function TemplatesTab() {
 
     locations: (
       <div style={{ maxWidth: 520 }}>
-        <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
+        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 20, lineHeight: 1.7 }}>
           Control whether this template is shared with or visible from other locations on your account.
         </div>
         {[
@@ -865,13 +865,13 @@ function TemplatesTab() {
           { val: suppress, setter: setSuppress, title: 'Suppress templates from other locations', desc: 'Hide templates shared by other locations. Only your own templates will appear.', bg: suppress ? 'var(--cream, #f8f7f4)' : 'white', border: suppress ? 'var(--mute-2, #c8c4bc)' : 'var(--line, #e4e0d8)' },
         ].map((item, i) => (
           <div key={i} onClick={() => item.setter(v => !v)}
-            style={{ background: item.bg, border: `1.5px solid ${item.border}`, borderRadius: 12, padding: '14px 16px', marginBottom: 12, display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer', transition: 'all .15s' }}>
-            <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${item.val ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)'}`, background: item.val ? 'var(--ink, #0a0a0a)' : 'white', flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {item.val && <span style={{ color: 'white', fontSize: '.65rem', fontWeight: 900 }}>✓</span>}
+            style={{ background: item.bg, border: `1.5px solid ${item.border}`, borderRadius: 'var(--r-md, 16px)', padding: '14px 16px', marginBottom: 12, display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer', transition: 'all .15s' }}>
+            <div style={{ width: 20, height: 20, borderRadius: 'var(--r-xs, 8px)', border: `2px solid ${item.val ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)'}`, background: item.val ? 'var(--ink, #0a0a0a)' : 'white', flexShrink: 0, marginTop: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {item.val && <span style={{ color: 'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 900 }}>✓</span>}
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '.875rem', color: 'var(--ink, #0a0a0a)', marginBottom: 3 }}>{item.title}</div>
-              <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.55 }}>{item.desc}</div>
+              <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--ink, #0a0a0a)', marginBottom: 3 }}>{item.title}</div>
+              <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.55 }}>{item.desc}</div>
             </div>
           </div>
         ))}
@@ -885,10 +885,10 @@ function TemplatesTab() {
     <div style={{ padding: 24 }}>
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20 }}>
         <div>
-          <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', overflow: 'hidden' }}>
             {NAV.map(n => (
               <button key={n.id} onClick={() => setSection(n.id)}
-                style={{ width: '100%', padding: '11px 14px', border: 'none', textAlign: 'left', background: section === n.id ? 'var(--ink, #0a0a0a)' : 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: '.78rem', fontWeight: section === n.id ? 700 : 500, color: section === n.id ? 'white' : 'var(--tx-2, #4a4a48)', borderBottom: '1px solid var(--cream-2, #f0eeea)', transition: 'all .12s' }}>
+                style={{ width: '100%', padding: '11px 14px', border: 'none', textAlign: 'left', background: section === n.id ? 'var(--ink, #0a0a0a)' : 'white', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: section === n.id ? 700 : 500, color: section === n.id ? 'white' : 'var(--tx-2, #4a4a48)', borderBottom: '1px solid var(--cream-2, #f0eeea)', transition: 'all .12s' }}>
                 {n.label}
               </button>
             ))}
@@ -897,24 +897,24 @@ function TemplatesTab() {
         <div>
           <Card style={{ padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <div style={{ fontWeight: 700, fontSize: '1rem' }}>{titles[section]}</div>
+              <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)' }}>{titles[section]}</div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => setShowTest(v => !v)} style={{ padding: '8px 16px', borderRadius: 50, background: 'white', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.8rem', fontWeight: 600, fontFamily: 'inherit', color: 'var(--tx-2, #4a4a48)' }}>✉ Send test</button>
-                <button onClick={save} style={{ padding: '8px 18px', borderRadius: 50, background: saved ? 'var(--green, #1a6b45)' : 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit', transition: 'background .2s' }}>
+                <button onClick={() => setShowTest(v => !v)} style={{ padding: '8px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'white', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, fontFamily: 'inherit', color: 'var(--tx-2, #4a4a48)' }}>✉ Send test</button>
+                <button onClick={save} style={{ padding: '8px 18px', borderRadius: 'var(--r-pill, 999px)', background: saved ? 'var(--green, #1a6b45)' : 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit', transition: 'background .2s' }}>
                   {saved ? '✓ Saved' : 'Save'}
                 </button>
               </div>
             </div>
             {showTest && (
-              <div style={{ background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 8 }}>
+              <div style={{ background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', padding: '12px 16px', marginBottom: 20, display: 'flex', gap: 8 }}>
                 <input placeholder="Your email or phone number..." value={testEmail} onChange={e => setTestEmail(e.target.value)}
-                  style={{ flex: 1, padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 8, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none' }} />
-                <button onClick={sendTest} disabled={sending} style={{ padding: '8px 16px', borderRadius: 50, background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408', border: 'none', cursor: sending ? 'not-allowed' : 'pointer', fontSize: '.8rem', fontWeight: 700, fontFamily: 'inherit', opacity: sending ? .7 : 1 }}>{sending ? 'Sending…' : 'Send'}</button>
-                <button onClick={() => setShowTest(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--taupe, #7a7670)', fontSize: '1rem' }}>✕</button>
+                  style={{ flex: 1, padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none' }} />
+                <button onClick={sendTest} disabled={sending} style={{ padding: '8px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408', border: 'none', cursor: sending ? 'not-allowed' : 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit', opacity: sending ? .7 : 1 }}>{sending ? 'Sending…' : 'Send'}</button>
+                <button onClick={() => setShowTest(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-lg, 1rem)' }}>✕</button>
               </div>
             )}
-            {testSent && <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 14px', marginBottom: 16, fontSize: '.82rem', color: 'var(--green, #1a6b45)', fontWeight: 600 }}>✓ Test sent to {testEmail} — check your inbox</div>}
-            {testError && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 14px', marginBottom: 16, fontSize: '.82rem', color: 'var(--danger, #c0392b)' }}>✗ {testError}</div>}
+            {testSent && <div style={{ background: '#dcfce7', border: '1px solid #bbf7d0', borderRadius: 'var(--r-xs, 8px)', padding: '9px 14px', marginBottom: 16, fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)', fontWeight: 600 }}>✓ Test sent to {testEmail} — check your inbox</div>}
+            {testError && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 'var(--r-xs, 8px)', padding: '9px 14px', marginBottom: 16, fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)' }}>✗ {testError}</div>}
             {sections[section]}
           </Card>
         </div>
@@ -1039,12 +1039,12 @@ function BulkSendTab() {
 
   if (result) return (
     <div style={{ padding: 32, textAlign: 'center' }}>
-      <div style={{ fontSize: '2.5rem', marginBottom: 16 }}>📨</div>
-      <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: 8 }}>Review requests sent!</div>
-      <div style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', marginBottom: 24 }}>
+      <div style={{ fontSize: 'var(--fs-4xl, 2.5rem)', marginBottom: 16 }}>📨</div>
+      <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', marginBottom: 8 }}>Review requests sent!</div>
+      <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', marginBottom: 24 }}>
         {result.sent} request{result.sent !== 1 ? 's' : ''} sent successfully{result.failed > 0 ? `, ${result.failed} failed` : ''}{result.skipped > 0 ? `, ${result.skipped} skipped (opted out)` : ''}.
       </div>
-      <button onClick={() => setResult(null)} style={{ padding: '10px 24px', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>Send more</button>
+      <button onClick={() => setResult(null)} style={{ padding: '10px 24px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 700, fontFamily: 'inherit' }}>Send more</button>
     </div>
   );
 
@@ -1054,26 +1054,26 @@ function BulkSendTab() {
         {/* Contact list */}
         <Card>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line, #e4e0d8)' }}>
-            <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 12 }}>Select contacts</div>
+            <div style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 12 }}>Select contacts</div>
             <div style={{ display: 'flex', gap: 8 }}>
               <select value={segment} onChange={e => setSegment(e.target.value)}
-                style={{ padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', background: 'white', cursor: 'pointer' }}>
+                style={{ padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', background: 'white', cursor: 'pointer' }}>
                 {segments.map(s => <option key={s.id} value={s.id}>{s.name} ({s.count})</option>)}
               </select>
               <div style={{ flex: 1, position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--taupe, #7a7670)', fontSize: '.85rem' }}>🔍</span>
+                <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>🔍</span>
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or email…"
-                  style={{ width: '100%', padding: '8px 12px 8px 30px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '8px 12px 8px 30px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
               </div>
             </div>
           </div>
 
           {/* Select all */}
           <div onClick={toggleAll} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)', cursor: 'pointer', background: 'var(--cream, #f8f7f4)' }}>
-            <div style={{ width: 18, height: 18, borderRadius: 5, border: '2px solid', borderColor: allFilteredSelected ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)', background: allFilteredSelected ? 'var(--ink, #0a0a0a)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {allFilteredSelected && <span style={{ color: 'white', fontSize: '.6rem', fontWeight: 900 }}>✓</span>}
+            <div style={{ width: 18, height: 18, borderRadius: 'var(--r-xs, 8px)', border: '2px solid', borderColor: allFilteredSelected ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)', background: allFilteredSelected ? 'var(--ink, #0a0a0a)' : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {allFilteredSelected && <span style={{ color: 'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 900 }}>✓</span>}
             </div>
-            <span style={{ fontSize: '.8rem', fontWeight: 600, color: 'var(--tx-2, #4a4a48)' }}>Select all ({selectable.length})</span>
+            <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, color: 'var(--tx-2, #4a4a48)' }}>Select all ({selectable.length})</span>
           </div>
 
           {/* Rows */}
@@ -1094,43 +1094,43 @@ function BulkSendTab() {
               return (
                 <div key={c.id} onClick={() => { if (menuFor === c.id) setMenuFor(null); else if (!isOut) toggle(c.id); }}
                   style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 20px', borderBottom: '1px solid var(--cream, #f8f7f4)', cursor: isOut ? 'default' : 'pointer', background: isSel ? '#fafaf9' : 'white', opacity: isOut ? .6 : 1, position: 'relative' }}>
-                  <div style={{ width: 18, height: 18, borderRadius: 5, border: '2px solid', borderColor: isOut ? 'var(--line, #e4e0d8)' : (isSel ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)'), background: (isSel && !isOut) ? 'var(--ink, #0a0a0a)' : 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {isSel && !isOut && <span style={{ color: 'white', fontSize: '.6rem', fontWeight: 900 }}>✓</span>}
+                  <div style={{ width: 18, height: 18, borderRadius: 'var(--r-xs, 8px)', border: '2px solid', borderColor: isOut ? 'var(--line, #e4e0d8)' : (isSel ? 'var(--ink, #0a0a0a)' : 'var(--mute-2, #c8c4bc)'), background: (isSel && !isOut) ? 'var(--ink, #0a0a0a)' : 'white', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {isSel && !isOut && <span style={{ color: 'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 900 }}>✓</span>}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <span onClick={e => { e.stopPropagation(); setMenuFor(menuFor === c.id ? null : c.id); }}
                       title="Click to opt out / re-enable"
-                      style={{ fontWeight: 600, fontSize: '.84rem', color: 'var(--ink, #0a0a0a)', cursor: 'pointer', borderBottom: '1px dotted var(--mute-2, #c8c4bc)' }}>
+                      style={{ fontWeight: 600, fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--ink, #0a0a0a)', cursor: 'pointer', borderBottom: '1px dotted var(--mute-2, #c8c4bc)' }}>
                       {c.name || '(no name)'}
                     </span>
-                    <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>{c.email}{c.phone ? ' · ' + c.phone : ''}</div>
+                    <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{c.email}{c.phone ? ' · ' + c.phone : ''}</div>
                     {menuFor === c.id && (
-                      <div onClick={e => e.stopPropagation()} style={{ position: 'absolute', zIndex: 5, marginTop: 4, background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, boxShadow: '0 8px 28px rgba(0,0,0,.12)', padding: 6, minWidth: 210 }}>
+                      <div onClick={e => e.stopPropagation()} style={{ position: 'absolute', zIndex: 5, marginTop: 4, background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', boxShadow: '0 8px 28px rgba(0,0,0,.12)', padding: 6, minWidth: 210 }}>
                         {isOut ? (
                           <button onClick={() => optOut(c, false)} disabled={optingId === c.id}
-                            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 7, cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit', color: 'var(--green, #1a6b45)', fontWeight: 600 }}>
+                            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 'var(--r-xs, 8px)', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', color: 'var(--green, #1a6b45)', fontWeight: 600 }}>
                             {optingId === c.id ? 'Saving…' : '↺ Re-enable review requests'}
                           </button>
                         ) : (
                           <button onClick={() => optOut(c, true)} disabled={optingId === c.id}
-                            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 7, cursor: 'pointer', fontSize: '.8rem', fontFamily: 'inherit', color: 'var(--danger, #c0392b)', fontWeight: 600 }}>
+                            style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 'var(--r-xs, 8px)', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', color: 'var(--danger, #c0392b)', fontWeight: 600 }}>
                             {optingId === c.id ? 'Saving…' : '🚫 Opt out of review requests'}
                           </button>
                         )}
                         <button onClick={() => setMenuFor(null)}
-                          style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 7, cursor: 'pointer', fontSize: '.78rem', fontFamily: 'inherit', color: 'var(--taupe, #7a7670)' }}>
+                          style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '8px 10px', borderRadius: 'var(--r-xs, 8px)', cursor: 'pointer', fontSize: 'var(--fs-xs, 0.75rem)', fontFamily: 'inherit', color: 'var(--taupe, #7a7670)' }}>
                           Cancel
                         </button>
                       </div>
                     )}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                    {isOut && <span style={{ fontSize: '.66rem', color: 'var(--danger, #c0392b)', background: 'var(--danger-bg, #fee2e2)', padding: '2px 7px', borderRadius: 50, fontWeight: 700 }}>Opted out</span>}
+                    {isOut && <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--danger, #c0392b)', background: 'var(--danger-bg, #fee2e2)', padding: '2px 7px', borderRadius: 'var(--r-pill, 999px)', fontWeight: 700 }}>Opted out</span>}
                     {c.segment && c.segment !== 'all' && (
-                      <span style={{ fontSize: '.66rem', color: 'var(--tx-2, #4a4a48)', background: 'var(--cream-2, #f0eeea)', padding: '2px 7px', borderRadius: 50, textTransform: 'capitalize' }}>{c.segment}</span>
+                      <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--tx-2, #4a4a48)', background: 'var(--cream-2, #f0eeea)', padding: '2px 7px', borderRadius: 'var(--r-pill, 999px)', textTransform: 'capitalize' }}>{c.segment}</span>
                     )}
                     {c.request_count > 0 && (
-                      <span style={{ fontSize: '.68rem', color: 'var(--amber-tx, #92690a)', background: '#fef9c3', padding: '2px 7px', borderRadius: 50, whiteSpace: 'nowrap' }}
+                      <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--amber-tx, #92690a)', background: '#fef9c3', padding: '2px 7px', borderRadius: 'var(--r-pill, 999px)', whiteSpace: 'nowrap' }}
                         title={`${c.request_count} review request${c.request_count === 1 ? '' : 's'} sent`}>
                         {c.request_count}× · last {new Date(c.last_request).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
                       </span>
@@ -1144,13 +1144,13 @@ function BulkSendTab() {
 
         {/* Send panel */}
         <Card style={{ padding: 20, height: 'fit-content' }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Send review requests</div>
-          <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 10, padding: '14px 16px', marginBottom: 16, textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--ink, #0a0a0a)' }}>{selected.length}</div>
-            <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>contact{selected.length !== 1 ? 's' : ''} selected</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Send review requests</div>
+          <div style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-sm, 10px)', padding: '14px 16px', marginBottom: 16, textAlign: 'center' }}>
+            <div style={{ fontSize: 'var(--fs-3xl, 2rem)', fontWeight: 800, color: 'var(--ink, #0a0a0a)' }}>{selected.length}</div>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>contact{selected.length !== 1 ? 's' : ''} selected</div>
           </div>
-          {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.8rem', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>✗ {error}</div>}
-          <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6, marginBottom: 16 }}>
+          {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>✗ {error}</div>}
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.6, marginBottom: 16 }}>
             Each contact will receive your branded review request email with a link to the NPS survey. Contacts without an email are skipped.
           </div>
           <KitButton onClick={sendBulk} disabled={sending || selected.length === 0} variant="dark" style={{ width: '100%' }}>
@@ -1159,14 +1159,14 @@ function BulkSendTab() {
 
           {/* Organize selected contacts into a shared segment (same field SMS Campaigns target) */}
           <div style={{ borderTop: '1px solid var(--cream-2, #f0eeea)', marginTop: 16, paddingTop: 16 }}>
-            <div style={{ fontWeight: 600, fontSize: '.8rem', marginBottom: 4 }}>Add to a segment</div>
-            <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.5, marginBottom: 10 }}>
+            <div style={{ fontWeight: 600, fontSize: 'var(--fs-sm, 0.8125rem)', marginBottom: 4 }}>Add to a segment</div>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.5, marginBottom: 10 }}>
               Tag the selected contacts so you can target them here and in SMS Campaigns.
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <input value={segName} onChange={e => setSegName(e.target.value)} placeholder="e.g. vip, lapsed"
                 list="bulk-segment-options"
-                style={{ flex: 1, minWidth: 0, padding: '8px 11px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.82rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                style={{ flex: 1, minWidth: 0, padding: '8px 11px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
               <datalist id="bulk-segment-options">
                 {segments.filter(s => s.id !== 'all').map(s => <option key={s.id} value={s.id} />)}
               </datalist>
@@ -1174,7 +1174,7 @@ function BulkSendTab() {
                 {assigning ? '…' : 'Add'}
               </KitButton>
             </div>
-            {assignMsg && <div style={{ fontSize: '.72rem', color: 'var(--green, #1a6b45)', marginTop: 8 }}>✓ {assignMsg}</div>}
+            {assignMsg && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--green, #1a6b45)', marginTop: 8 }}>✓ {assignMsg}</div>}
           </div>
         </Card>
       </div>
@@ -1208,19 +1208,19 @@ function SurveysTab() {
       <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
         {SURVEY_TIMEFRAMES.map(t => (
           <button key={t.days} onClick={() => setDays(t.days)}
-            style={{ padding: '7px 14px', borderRadius: 50, border: '1.5px solid',
+            style={{ padding: '7px 14px', borderRadius: 'var(--r-pill, 999px)', border: '1.5px solid',
               borderColor: days === t.days ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)',
               background: days === t.days ? 'var(--ink, #0a0a0a)' : 'white',
               color: days === t.days ? 'white' : 'var(--tx-2, #4a4a48)',
-              fontSize: '.8rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
             {t.short} ({t.days} days)
           </button>
         ))}
       </div>
       <SurveyStatsRow g={g} label={tf.label} />
       <Card style={{ padding: 20, maxWidth: 560 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>NPS breakdown</div>
-        <div style={{ fontSize: '.73rem', color: 'var(--taupe, #7a7670)', marginBottom: 14 }}>
+        <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 4 }}>NPS breakdown</div>
+        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginBottom: 14 }}>
           {total > 0 ? `From ${total} response${total === 1 ? '' : 's'} in the ${tf.label.toLowerCase()}` : tf.label}
         </div>
         {!g ? (
@@ -1232,11 +1232,11 @@ function SurveysTab() {
             description="When customers answer your NPS surveys, their promoter / passive / detractor split shows up here." />
         ) : rows.map(([l, n, c]) => (
           <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 9 }}>
-            <span style={{ width: 80, fontSize: '.8rem', fontWeight: 500 }}>{l}</span>
-            <div style={{ flex: 1, height: 8, background: 'var(--cream-2, #f0eeea)', borderRadius: 4, overflow: 'hidden' }}>
-              <div style={{ width: `${pct(n)}%`, height: '100%', background: c, borderRadius: 4, transition: 'width .4s ease' }} />
+            <span style={{ width: 80, fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 500 }}>{l}</span>
+            <div style={{ flex: 1, height: 8, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-xs, 8px)', overflow: 'hidden' }}>
+              <div style={{ width: `${pct(n)}%`, height: '100%', background: c, borderRadius: 'var(--r-xs, 8px)', transition: 'width .4s ease' }} />
             </div>
-            <span style={{ fontSize: '.8rem', fontWeight: 600, color: c, width: 64, textAlign: 'right' }}>{n} · {pct(n)}%</span>
+            <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, color: c, width: 64, textAlign: 'right' }}>{n} · {pct(n)}%</span>
           </div>
         ))}
       </Card>
@@ -1370,7 +1370,7 @@ function ImportTab() {
     return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
-  const selStyle = { border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, padding: '7px 10px', fontSize: '.82rem', fontFamily: 'inherit', background: 'white', color: 'var(--tx, #1a1a18)' };
+  const selStyle = { border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', padding: '7px 10px', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', background: 'white', color: 'var(--tx, #1a1a18)' };
 
   return (
     <div style={{ padding: 24 }}>
@@ -1378,77 +1378,77 @@ function ImportTab() {
         {/* Import card */}
         <Card style={{ padding: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 6 }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem' }}>Import contacts</div>
+            <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>Import contacts</div>
             <button onClick={downloadTemplate}
-              style={{ background: 'none', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 50, padding: '5px 12px', fontSize: '.74rem', fontWeight: 600, color: 'var(--tx-2, #4a4a48)', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+              style={{ background: 'none', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-pill, 999px)', padding: '5px 12px', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, color: 'var(--tx-2, #4a4a48)', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
               ⬇ CSV template
             </button>
           </div>
-          <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', marginBottom: 16, lineHeight: 1.6 }}>Upload a CSV from your PMS, CRM, or POS with <strong>Name, Email, Cell Phone, and Segment</strong> columns. Only email is required. Add an optional <strong>Visit Date</strong> column to automatically survey each contact a few days after their visit. Existing contacts with a matching email or phone are updated, not duplicated — and any mobile numbers are also added to your SMS audience in Campaigns › Contacts.</div>
+          <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 16, lineHeight: 1.6 }}>Upload a CSV from your PMS, CRM, or POS with <strong>Name, Email, Cell Phone, and Segment</strong> columns. Only email is required. Add an optional <strong>Visit Date</strong> column to automatically survey each contact a few days after their visit. Existing contacts with a matching email or phone are updated, not duplicated — and any mobile numbers are also added to your SMS audience in Campaigns › Contacts.</div>
 
           {result ? (
-            <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 12, padding: '16px 18px', marginBottom: 14 }}>
-              <div style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--green, #1a6b45)', marginBottom: 4 }}>✓ Import complete</div>
-              <div style={{ fontSize: '.82rem', color: 'var(--green, #1a6b45)' }}>
+            <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 'var(--r-md, 16px)', padding: '16px 18px', marginBottom: 14 }}>
+              <div style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--green, #1a6b45)', marginBottom: 4 }}>✓ Import complete</div>
+              <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)' }}>
                 {result.imported} new contact{result.imported !== 1 ? 's' : ''}
                 {result.updated > 0 ? `, ${result.updated} updated` : ''}
                 {result.skipped > 0 ? `, ${result.skipped} skipped (missing email)` : ''}.
                 {result.smsImported > 0 ? ` ${result.smsImported} mobile number${result.smsImported !== 1 ? 's' : ''} added to Campaigns › Contacts.` : ''}
                 {result.scheduledSurveys > 0 ? ` ${result.scheduledSurveys} survey${result.scheduledSurveys !== 1 ? 's' : ''} scheduled.` : ''}
               </div>
-              <button onClick={() => setResult(null)} style={{ marginTop: 10, padding: '7px 16px', borderRadius: 50, background: 'white', border: '1.5px solid #bbf7d0', cursor: 'pointer', fontSize: '.78rem', fontWeight: 600, fontFamily: 'inherit', color: 'var(--green, #1a6b45)' }}>Import another</button>
+              <button onClick={() => setResult(null)} style={{ marginTop: 10, padding: '7px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'white', border: '1.5px solid #bbf7d0', cursor: 'pointer', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, fontFamily: 'inherit', color: 'var(--green, #1a6b45)' }}>Import another</button>
             </div>
           ) : (
             <>
               <div onClick={() => document.getElementById('csv-input').click()}
-                style={{ border: '2px dashed var(--line, #e4e0d8)', borderRadius: 12, padding: 32, textAlign: 'center', marginBottom: 14, cursor: 'pointer' }}>
-                <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>⇪</div>
-                <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 4 }}>
+                style={{ border: '2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: 32, textAlign: 'center', marginBottom: 14, cursor: 'pointer' }}>
+                <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom: 8 }}>⇪</div>
+                <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 4 }}>
                   {filename ? filename : 'Drop CSV here or click to browse'}
                 </div>
-                <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
                   {parsed.length ? `${parsed.length} contact${parsed.length !== 1 ? 's' : ''} ready to import` : 'CSV columns: Name, Email, Cell Phone, Segment, Visit Date (email required)'}
                 </div>
                 <input id="csv-input" type="file" accept=".csv,text/csv" style={{ display: 'none' }}
                   onChange={e => handleFile(e.target.files[0])} />
               </div>
 
-              {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 9, padding: '9px 12px', fontSize: '.8rem', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>✗ {error}</div>}
+              {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fca5a5', borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>✗ {error}</div>}
 
               {parsed.length > 0 && (
-                <div style={{ marginBottom: 12, maxHeight: 140, overflowY: 'auto', border: '1px solid var(--cream-2, #f0eeea)', borderRadius: 9 }}>
+                <div style={{ marginBottom: 12, maxHeight: 140, overflowY: 'auto', border: '1px solid var(--cream-2, #f0eeea)', borderRadius: 'var(--r-xs, 8px)' }}>
                   {parsed.slice(0, 50).map((r, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '7px 12px', borderBottom: '1px solid var(--cream, #f8f7f4)', fontSize: '.78rem' }}>
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '7px 12px', borderBottom: '1px solid var(--cream, #f8f7f4)', fontSize: 'var(--fs-xs, 0.75rem)' }}>
                       <span style={{ fontWeight: 600, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name || '(no name)'}</span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--taupe, #7a7670)', flexShrink: 0 }}>
-                        {r.segment && <span style={{ fontSize: '.66rem', background: 'var(--cream-2, #f0eeea)', color: 'var(--tx-2, #4a4a48)', padding: '1px 7px', borderRadius: 50, textTransform: 'capitalize' }}>{r.segment}</span>}
+                        {r.segment && <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', background: 'var(--cream-2, #f0eeea)', color: 'var(--tx-2, #4a4a48)', padding: '1px 7px', borderRadius: 'var(--r-pill, 999px)', textTransform: 'capitalize' }}>{r.segment}</span>}
                         {r.email}
                       </span>
                     </div>
                   ))}
-                  {parsed.length > 50 && <div style={{ padding: '7px 12px', fontSize: '.73rem', color: 'var(--taupe, #7a7670)', textAlign: 'center' }}>+ {parsed.length - 50} more</div>}
+                  {parsed.length > 50 && <div style={{ padding: '7px 12px', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', textAlign: 'center' }}>+ {parsed.length - 50} more</div>}
                 </div>
               )}
 
               {parsed.length > 0 && locations.length > 1 && (
-                <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, padding: 14, marginBottom: 12, background: '#fcfbf8' }}>
-                  <label style={{ display: 'block', fontSize: '.84rem', fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 8 }}>Assign these contacts to a location</label>
+                <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: 14, marginBottom: 12, background: '#fcfbf8' }}>
+                  <label style={{ display: 'block', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 8 }}>Assign these contacts to a location</label>
                   <select value={importLocationId} onChange={e => setImportLocationId(e.target.value)} style={{ ...selStyle, width: '100%', maxWidth: 340 }}>
                     <option value="">All locations (no specific location)</option>
                     {locations.map((l, i) => <option key={l.id} value={l.id}>{l.business_name || `Location ${i + 1}`}</option>)}
                   </select>
-                  <p style={{ fontSize: '.74rem', color: 'var(--mute, #a8a39a)', margin: '8px 0 0', lineHeight: 1.5 }}>Tags every imported contact with this location, so their surveys use that location&apos;s survey. A &quot;Location&quot; column in your CSV overrides this per row.</p>
+                  <p style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--mute, #a8a39a)', margin: '8px 0 0', lineHeight: 1.5 }}>Tags every imported contact with this location, so their surveys use that location&apos;s survey. A &quot;Location&quot; column in your CSV overrides this per row.</p>
                 </div>
               )}
 
               {parsed.length > 0 && parsed.some(r => r.visit_date) && (
-                <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12, padding: 14, marginBottom: 12, background: '#fcfbf8' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, color: 'var(--tx, #1a1a18)' }}>
+                <div style={{ border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: 14, marginBottom: 12, background: '#fcfbf8' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, color: 'var(--tx, #1a1a18)' }}>
                     <input type="checkbox" checked={autoSurvey} onChange={e => setAutoSurvey(e.target.checked)} />
                     Send a survey after each visit date
                   </label>
                   {autoSurvey && (
-                    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: '.82rem', color: 'var(--tx-2, #4a4a48)' }}>
+                    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--tx-2, #4a4a48)' }}>
                       <span>Send</span>
                       <select value={surveyId} onChange={e => setSurveyId(e.target.value)} style={selStyle}>
                         {surveys.length === 0 && <option value="">default survey</option>}
@@ -1458,12 +1458,12 @@ function ImportTab() {
                       <span>day{Number(delayDays) === 1 ? '' : 's'} after each visit.</span>
                     </div>
                   )}
-                  {autoSurvey && <p style={{ fontSize: '.74rem', color: 'var(--mute, #a8a39a)', margin: '10px 0 0', lineHeight: 1.5 }}>Contacts whose visit was over 60 days ago are skipped; anyone whose window has already passed is surveyed shortly after import. Tracked in Surveys › Send survey › Scheduled sends.</p>}
+                  {autoSurvey && <p style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--mute, #a8a39a)', margin: '10px 0 0', lineHeight: 1.5 }}>Contacts whose visit was over 60 days ago are skipped; anyone whose window has already passed is surveyed shortly after import. Tracked in Surveys › Send survey › Scheduled sends.</p>}
                 </div>
               )}
 
               <button onClick={doImport} disabled={!parsed.length || importing}
-                style={{ width: '100%', padding: 11, borderRadius: 50, background: (!parsed.length || importing) ? 'var(--cream-2, #f0eeea)' : 'var(--ink, #0a0a0a)', color: (!parsed.length || importing) ? 'var(--mute-2, #c8c4bc)' : 'white', border: 'none', cursor: (!parsed.length || importing) ? 'not-allowed' : 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' }}>
+                style={{ width: '100%', padding: 11, borderRadius: 'var(--r-pill, 999px)', background: (!parsed.length || importing) ? 'var(--cream-2, #f0eeea)' : 'var(--ink, #0a0a0a)', color: (!parsed.length || importing) ? 'var(--mute-2, #c8c4bc)' : 'white', border: 'none', cursor: (!parsed.length || importing) ? 'not-allowed' : 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit' }}>
                 {importing ? 'Importing…' : parsed.length ? `Import ${parsed.length} contact${parsed.length !== 1 ? 's' : ''}` : 'Import contacts'}
               </button>
             </>
@@ -1472,19 +1472,19 @@ function ImportTab() {
 
         {/* Recent imports */}
         <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Recent imports</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Recent imports</div>
           {history.length === 0 ? (
-            <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', textAlign: 'center', padding: '24px 0' }}>
-              <div style={{ fontSize: '1.4rem', marginBottom: 6, opacity: .5 }}>📥</div>
+            <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom: 6, opacity: .5 }}>📥</div>
               No imports yet.
             </div>
           ) : history.map(imp => (
-            <div key={imp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'var(--cream, #f8f7f4)', borderRadius: 10, marginBottom: 8 }}>
+            <div key={imp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-sm, 10px)', marginBottom: 8 }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '.84rem' }}>{imp.filename}</div>
-                <div style={{ fontSize: '.73rem', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>{imp.imported} imported{imp.skipped > 0 ? ` · ${imp.skipped} skipped` : ''} · {fmtDate(imp.created_at)}</div>
+                <div style={{ fontWeight: 600, fontSize: 'var(--fs-sm, 0.8125rem)' }}>{imp.filename}</div>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>{imp.imported} imported{imp.skipped > 0 ? ` · ${imp.skipped} skipped` : ''} · {fmtDate(imp.created_at)}</div>
               </div>
-              <span style={{ background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)', fontSize: '.67rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>Complete</span>
+              <span style={{ background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--r-pill, 999px)' }}>Complete</span>
             </div>
           ))}
         </Card>
@@ -1511,7 +1511,7 @@ export default function Grow() {
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: '14px 16px', border: 'none', background: 'transparent', cursor: 'pointer',
-            fontSize: '.84rem', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit',
+            fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit',
             color: tab === t.id ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)',
             borderBottom: tab === t.id ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent',
           }}>{t.label}</button>

@@ -43,8 +43,8 @@ function Card({ children, style = {} }) {
 
 function Toggle({ on, onChange }) {
   return (
-    <div onClick={() => onChange(!on)} style={{ width: 42, height: 24, background: on ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', borderRadius: 50, position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0 }}>
-      <div style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 18, height: 18, background: 'white', borderRadius: '50%', transition: 'left .2s' }} />
+    <div onClick={() => onChange(!on)} style={{ width: 42, height: 24, background: on ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', borderRadius: 'var(--r-pill, 999px)', position: 'relative', cursor: 'pointer', transition: 'background .2s', flexShrink: 0 }}>
+      <div style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 18, height: 18, background: 'white', borderRadius: 'var(--r-full, 50%)', transition: 'left .2s' }} />
     </div>
   );
 }
@@ -52,14 +52,14 @@ function Toggle({ on, onChange }) {
 function Field({ label, children }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>{label}</label>
+      <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>{label}</label>
       {children}
     </div>
   );
 }
 
-const inp = { width: '100%', padding: '9px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none' };
-const btn = (primary) => ({ padding: '10px 22px', borderRadius: 50, border: primary ? 'none' : '1.5px solid var(--line, #e4e0d8)', background: primary ? 'var(--ink, #0a0a0a)' : 'transparent', color: primary ? 'white' : 'var(--tx-2, #4a4a48)', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' });
+const inp = { width: '100%', padding: '9px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none' };
+const btn = (primary) => ({ padding: '10px 22px', borderRadius: 'var(--r-pill, 999px)', border: primary ? 'none' : '1.5px solid var(--line, #e4e0d8)', background: primary ? 'var(--ink, #0a0a0a)' : 'transparent', color: primary ? 'white' : 'var(--tx-2, #4a4a48)', cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit' });
 
 function AITab() {
   const { customer } = useAuth();
@@ -112,7 +112,7 @@ function AITab() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {locations.length > 1 && (
           <Card style={{ padding: 20 }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 10 }}>Location</div>
+            <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 10 }}>Location</div>
             <select
               style={inp}
               value={selected?.id || ''}
@@ -128,44 +128,44 @@ function AITab() {
           </Card>
         )}
         <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Reply tone</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Reply tone</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {TONES.map(t => (
-              <label key={t.id} onClick={() => setTone(t.id)} style={{ border: tone === t.id ? '2px solid var(--ink, #0a0a0a)' : '1.5px solid var(--line, #e4e0d8)', borderRadius: 11, padding: '12px 14px', cursor: 'pointer', display: 'flex', gap: 11, alignItems: 'center', background: tone === t.id ? 'var(--cream, #f8f7f4)' : 'white', transition: 'all .15s' }}>
+              <label key={t.id} onClick={() => setTone(t.id)} style={{ border: tone === t.id ? '2px solid var(--ink, #0a0a0a)' : '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '12px 14px', cursor: 'pointer', display: 'flex', gap: 11, alignItems: 'center', background: tone === t.id ? 'var(--cream, #f8f7f4)' : 'white', transition: 'all .15s' }}>
                 <input type="radio" name="tone" checked={tone === t.id} onChange={() => setTone(t.id)} style={{ accentColor: 'var(--ink, #0a0a0a)' }} />
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '.875rem' }}>{t.label}</div>
-                  <div style={{ fontSize: '.74rem', color: 'var(--taupe, #7a7670)' }}>{t.desc}</div>
+                  <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>{t.label}</div>
+                  <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{t.desc}</div>
                 </div>
               </label>
             ))}
           </div>
         </Card>
         <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Reply preferences</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Reply preferences</div>
           <Field label="Always include"><input style={inp} value={alwaysInclude} onChange={e => setAlways(e.target.value)} placeholder="e.g. family-owned, since 2012" /></Field>
           <Field label="Never include"><input style={inp} value={neverInclude} onChange={e => setNever(e.target.value)} placeholder="e.g. competitor names, discounts" /></Field>
           {FEATURES.autoReply && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderTop: '1px solid var(--cream-2, #f0eeea)' }}>
             <div>
-              <div style={{ fontSize: '.875rem', fontWeight: 500 }}>Auto-reply enabled</div>
-              <div style={{ fontSize: '.74rem', color: 'var(--taupe, #7a7670)' }}>AI replies automatically within hours</div>
+              <div style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 500 }}>Auto-reply enabled</div>
+              <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>AI replies automatically within hours</div>
             </div>
             <Toggle on={autoReply} onChange={setAutoReply} />
           </div>
           )}
-          {saved && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: 'var(--green, #1a6b45)', marginBottom: 10 }}>✓ Saved</div>}
-          {saveError && <div style={{ background: '#fdecea', border: '1px solid #f5c6cb', borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', color: '#a4282a', marginBottom: 10 }}>{saveError}</div>}
+          {saved && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)', marginBottom: 10 }}>✓ Saved</div>}
+          {saveError && <div style={{ background: '#fdecea', border: '1px solid #f5c6cb', borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', color: '#a4282a', marginBottom: 10 }}>{saveError}</div>}
           <button onClick={save} disabled={saving} style={{ ...btn(true), width: '100%', padding: 12, marginTop: 8, opacity: saving ? .6 : 1 }}>{saving ? 'Saving…' : 'Save AI settings'}</button>
         </Card>
       </div>
       <Card style={{ padding: 20, height: 'fit-content' }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 8 }}>How AI replies work</div>
-        <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7, marginBottom: 14 }}>SwarmReply reads every new review and generates a reply that sounds like you — in your tone, with your business personality.</div>
+        <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 8 }}>How AI replies work</div>
+        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.7, marginBottom: 14 }}>SwarmReply reads every new review and generates a reply that sounds like you — in your tone, with your business personality.</div>
         {[['Response time','Within 1 business day of the review being posted'],['Review flagging','Negative reviews (1–2 stars) are sent to alerts first'],['Edit before posting','Turn on Approval mode to review AI replies before they go live']].map(([t,d]) => (
-          <div key={t} style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 10, padding: 13, marginBottom: 8 }}>
-            <div style={{ fontSize: '.78rem', fontWeight: 600, marginBottom: 3 }}>{t}</div>
-            <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>{d}</div>
+          <div key={t} style={{ background: 'var(--cream, #f8f7f4)', borderRadius: 'var(--r-sm, 10px)', padding: 13, marginBottom: 8 }}>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, marginBottom: 3 }}>{t}</div>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{d}</div>
           </div>
         ))}
       </Card>
@@ -312,21 +312,21 @@ function WebchatTab() {
     background: m.type === 'error' ? '#fdecea' : 'var(--green-bg, #e8f5ef)',
     border: `1px solid ${m.type === 'error' ? '#f5c6cb' : '#bbf7d0'}`,
     color: m.type === 'error' ? '#a4282a' : 'var(--green, #1a6b45)',
-    borderRadius: 9, padding: '9px 12px', fontSize: '.82rem', marginBottom: 10,
+    borderRadius: 'var(--r-xs, 8px)', padding: '9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', marginBottom: 10,
   });
 
   if (loading && !locations.length) {
-    return <div style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', padding: 20 }}>Loading…</div>;
+    return <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', padding: 20 }}>Loading…</div>;
   }
   if (!locations.length) {
-    return <div style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', padding: 20 }}>Add a location first to set up webchat.</div>;
+    return <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', padding: 20 }}>Add a location first to set up webchat.</div>;
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {locations.length > 1 && (
         <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 10 }}>Location</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 10 }}>Location</div>
           <select style={inp} value={locationId || ''} onChange={e => setLocationId(e.target.value)}>
             {locations.map(l => <option key={l.id} value={l.id}>{l.business_name || 'Location'}</option>)}
           </select>
@@ -336,18 +336,18 @@ function WebchatTab() {
       <SmsGateBanner feature="Webchat text-back &amp; SMS notifications" enabled={smsGate.enabled} loading={smsGate.loading} liveDate={smsGate.liveDate} />
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
         <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Webchat widget</div>
-          <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', marginBottom: 14, lineHeight: 1.6 }}>Embed a chat bubble on your website. Visitors start a conversation — their number is captured and moves to SMS.</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 6 }}>Webchat widget</div>
+          <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 14, lineHeight: 1.6 }}>Embed a chat bubble on your website. Visitors start a conversation — their number is captured and moves to SMS.</div>
           <Field label="Greeting title"><input style={inp} value={greetingTitle} onChange={e => setGreetingTitle(e.target.value)} placeholder="Chat with us" /></Field>
           <Field label="Welcome message"><input style={inp} value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} placeholder="Hi! 👋 How can we help you today?" /></Field>
 
-          <div style={{ fontWeight: 600, fontSize: '.875rem', margin: '14px 0 10px' }}>Embed code</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', margin: '14px 0 10px' }}>Embed code</div>
           {embedCode ? (
-            <div style={{ background: 'var(--ink, #0a0a0a)', color: 'var(--honey, #f5c842)', borderRadius: 10, padding: 12, fontFamily: 'monospace', fontSize: '.72rem', lineHeight: 1.6, marginBottom: 8, wordBreak: 'break-all' }}>
+            <div style={{ background: 'var(--ink, #0a0a0a)', color: 'var(--honey, #f5c842)', borderRadius: 'var(--r-sm, 10px)', padding: 12, fontFamily: 'monospace', fontSize: 'var(--fs-xs, 0.75rem)', lineHeight: 1.6, marginBottom: 8, wordBreak: 'break-all' }}>
               {embedCode}
             </div>
           ) : (
-            <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>No embed token yet — generate one to get your install snippet.</div>
+            <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>No embed token yet — generate one to get your install snippet.</div>
           )}
           {embedCode
             ? <button onClick={copyEmbed} style={{ ...btn(false), width: '100%', textAlign: 'center' }}>{copied ? '✓ Copied' : 'Copy embed code'}</button>
@@ -360,7 +360,7 @@ function WebchatTab() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <Card style={{ padding: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div style={{ fontWeight: 600, fontSize: '.875rem' }}>AI Chat Agent</div>
+              <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>AI Chat Agent</div>
               <Toggle on={agentOn} onChange={setAgentOn} />
             </div>
             <Field label="Agent mode">
@@ -375,10 +375,10 @@ function WebchatTab() {
             <button onClick={saveAI} disabled={savingAI} style={{ ...btn(true), width: '100%', padding: 11, marginTop: 4, opacity: savingAI ? .6 : 1 }}>{savingAI ? 'Saving…' : 'Save AI agent'}</button>
           </Card>
           <Card style={{ padding: 20 }}>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Notifications</div>
+            <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Notifications</div>
             <Field label="Alert email"><input style={inp} type="email" value={notifyEmail} onChange={e => setNotifyEmail(e.target.value)} placeholder="you@business.com" /></Field>
             <Field label="Alert SMS"><input style={inp} type="tel" value={notifySms} onChange={e => setNotifySms(e.target.value)} placeholder="+1 555 000 1234" /></Field>
-            <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)' }}>Saved with “Save widget settings”.</div>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>Saved with “Save widget settings”.</div>
           </Card>
         </div>
       </div>
@@ -481,7 +481,7 @@ function IntegrationsTab() {
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', marginBottom: 24, lineHeight: 1.7 }}>
+      <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 24, lineHeight: 1.7 }}>
         Connect your social media accounts to enable posting from the <strong>Social Posts</strong> section in Campaigns.
         Each connection is per-location — connect separately for each business location if needed.
       </div>
@@ -492,39 +492,39 @@ function IntegrationsTab() {
           const isConnecting = connecting === p.id;
           return (
             <div key={p.id} style={{ background: 'white', border: `1.5px solid ${isConnected ? p.color : 'var(--line, #e4e0d8)'}`,
-              borderRadius: 14, padding: '18px 20px', transition: 'border-color .2s' }}>
+              borderRadius: 'var(--r-md, 16px)', padding: '18px 20px', transition: 'border-color .2s' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
                 {/* Icon */}
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: p.color + '18',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', flexShrink: 0 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 'var(--r-md, 16px)', background: p.color + '18',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-xl, 1.25rem)', flexShrink: 0 }}>
                   {p.icon}
                 </div>
 
                 {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                    <span style={{ fontWeight: 700, fontSize: '.9rem' }}>{p.name}</span>
-                    <span style={{ fontSize: '.73rem', color: 'var(--taupe, #7a7670)' }}>{p.subtitle}</span>
+                    <span style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)' }}>{p.name}</span>
+                    <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{p.subtitle}</span>
                     {p.note && (
-                      <span style={{ fontSize: '.67rem', background: '#fef9c3', color: 'var(--amber-tx, #92690a)',
-                        padding: '2px 7px', borderRadius: 50, fontWeight: 700 }}>
+                      <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', background: '#fef9c3', color: 'var(--amber-tx, #92690a)',
+                        padding: '2px 7px', borderRadius: 'var(--r-pill, 999px)', fontWeight: 700 }}>
                         ⚠ {p.note}
                       </span>
                     )}
                     {isConnected && (
-                      <span style={{ fontSize: '.67rem', background: '#dcfce7', color: 'var(--green, #1a6b45)',
-                        padding: '2px 7px', borderRadius: 50, fontWeight: 700 }}>✓ Connected</span>
+                      <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', background: '#dcfce7', color: 'var(--green, #1a6b45)',
+                        padding: '2px 7px', borderRadius: 'var(--r-pill, 999px)', fontWeight: 700 }}>✓ Connected</span>
                     )}
                   </div>
-                  <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6, marginBottom: 10 }}>
+                  <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.6, marginBottom: 10 }}>
                     {p.description}
                   </div>
 
                   {/* What it unlocks */}
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
                     {p.provides?.map(pr => (
-                      <span key={pr} style={{ fontSize: '.67rem', background: 'var(--cream-2, #f0eeea)', color: 'var(--tx-2, #4a4a48)',
-                        padding: '2px 8px', borderRadius: 50, fontWeight: 600 }}>{pr}</span>
+                      <span key={pr} style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', background: 'var(--cream-2, #f0eeea)', color: 'var(--tx-2, #4a4a48)',
+                        padding: '2px 8px', borderRadius: 'var(--r-pill, 999px)', fontWeight: 600 }}>{pr}</span>
                     ))}
                   </div>
 
@@ -532,17 +532,17 @@ function IntegrationsTab() {
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     {isConnected ? (
                       <button onClick={() => disconnect(p.id)}
-                        style={{ padding: '8px 16px', borderRadius: 50, background: 'white',
-                          border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.78rem',
+                        style={{ padding: '8px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'white',
+                          border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-xs, 0.75rem)',
                           fontWeight: 600, fontFamily: 'inherit', color: 'var(--taupe, #7a7670)' }}>
                         Disconnect
                       </button>
                     ) : (
                       <button onClick={() => connect(p)}
                         disabled={isConnecting}
-                        style={{ padding: '9px 20px', borderRadius: 50, background: isConnecting ? 'var(--cream-2, #f0eeea)' : p.color,
+                        style={{ padding: '9px 20px', borderRadius: 'var(--r-pill, 999px)', background: isConnecting ? 'var(--cream-2, #f0eeea)' : p.color,
                           border: 'none', cursor: isConnecting ? 'not-allowed' : 'pointer',
-                          fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit',
+                          fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit',
                           color: isConnecting ? 'var(--taupe, #7a7670)' : 'white', transition: 'all .15s' }}>
                         {isConnecting ? 'Connecting…' : `Connect ${p.name}`}
                       </button>
@@ -552,7 +552,7 @@ function IntegrationsTab() {
                     <button
                       onClick={() => setTooltip(tooltip === p.id ? null : p.id)}
                       style={{ background: 'none', border: 'none', cursor: 'pointer',
-                        fontSize: '.78rem', color: 'var(--taupe, #7a7670)', padding: '4px 8px',
+                        fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', padding: '4px 8px',
                         textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
                       How does this work?
                     </button>
@@ -561,7 +561,7 @@ function IntegrationsTab() {
                   {/* Tooltip */}
                   {tooltip === p.id && (
                     <div style={{ marginTop: 12, background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)',
-                      borderRadius: 10, padding: '12px 14px', fontSize: '.8rem', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.65 }}>
+                      borderRadius: 'var(--r-sm, 10px)', padding: '12px 14px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--tx-2, #4a4a48)', lineHeight: 1.65 }}>
                       <div style={{ fontWeight: 700, marginBottom: 6 }}>ℹ What you need</div>
                       {p.tooltip}
                       <div style={{ marginTop: 8, fontWeight: 600, color: 'var(--ink, #0a0a0a)' }}>
@@ -627,8 +627,8 @@ function ReviewLinksTab() {
     }
   }
 
-  const inp = { width: '100%', padding: '9px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' };
-  const label = { display: 'block', fontSize: '.72rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 5 };
+  const inp = { width: '100%', padding: '9px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' };
+  const label = { display: 'block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 5 };
 
   const PLATFORMS = [
     { key: 'google_review_url',   name: 'Google',   color: '#4285F4', placeholder: 'https://g.page/r/...', hint: 'In your Google Business Profile, go to "Ask for reviews" to copy your short review link.' },
@@ -638,38 +638,38 @@ function ReviewLinksTab() {
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', marginBottom: 24, lineHeight: 1.7 }}>
+      <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 24, lineHeight: 1.7 }}>
         When a happy customer (a promoter) completes your survey, they'll be sent to these links to leave a public review. Only platforms with a link set will be shown to customers.
       </div>
 
       {loading ? (
-        <div style={{ padding: 32, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '.84rem' }}>Loading locations…</div>
+        <div style={{ padding: 32, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-sm, 0.8125rem)' }}>Loading locations…</div>
       ) : locations.length === 0 ? (
         <Card style={{ padding: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)' }}>No locations yet. Add a location first to set up review links.</div>
+          <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)' }}>No locations yet. Add a location first to set up review links.</div>
         </Card>
       ) : locations.map(loc => (
         <Card key={loc.id} style={{ padding: 22, marginBottom: 16 }}>
-          <div style={{ fontWeight: 700, fontSize: '.95rem', marginBottom: 18 }}>{loc.business_name || 'Location'}</div>
+          <div style={{ fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', marginBottom: 18 }}>{loc.business_name || 'Location'}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {PLATFORMS.map(p => (
               <div key={p.key}>
                 <label style={label}>
-                  <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: p.color, marginRight: 6 }} />
+                  <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 'var(--r-full, 50%)', background: p.color, marginRight: 6 }} />
                   {p.name} review link
                 </label>
                 <input style={inp} type="url" placeholder={p.placeholder}
                   value={loc[p.key] || ''} onChange={e => update(loc.id, p.key, e.target.value)} />
-                <div style={{ fontSize: '.72rem', color: '#a8a4a0', marginTop: 4 }}>{p.hint}</div>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#a8a4a0', marginTop: 4 }}>{p.hint}</div>
               </div>
             ))}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 18 }}>
             <button onClick={() => save(loc)} disabled={saving === loc.id}
-              style={{ padding: '9px 22px', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: saving === loc.id ? 'wait' : 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit' }}>
+              style={{ padding: '9px 22px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: saving === loc.id ? 'wait' : 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit' }}>
               {saving === loc.id ? 'Saving…' : 'Save links'}
             </button>
-            {savedId === loc.id && <span style={{ fontSize: '.8rem', color: 'var(--green, #1a6b45)', fontWeight: 600 }}>✓ Saved</span>}
+            {savedId === loc.id && <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)', fontWeight: 600 }}>✓ Saved</span>}
           </div>
         </Card>
       ))}
@@ -680,10 +680,10 @@ function ReviewLinksTab() {
 function SetupTab() {
   return (
     <div style={{ maxWidth: 640 }}>
-      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.15rem', fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6 }}>
+      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 700, color: 'var(--tx, #1a1a18)', marginBottom: 6 }}>
         Setup wizard
       </h3>
-      <p style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', marginBottom: 16, lineHeight: 1.6 }}>
+      <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', marginBottom: 16, lineHeight: 1.6 }}>
         The guided walkthrough that gets SwarmReply fully working — connect Google, set your review
         links, send a test request, and switch on AI replies. You can re-open it any time; your
         progress is saved.
@@ -694,12 +694,12 @@ function SetupTab() {
       <Link href="/onboarding" className="sr-btn sr-btn-gold" style={{
         display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 16,
         background: 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))', color: '#1a1408',
-        borderRadius: 50, padding: '11px 24px', fontSize: '.875rem', fontWeight: 700,
+        borderRadius: 'var(--r-pill, 999px)', padding: '11px 24px', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700,
         textDecoration: 'none',
       }}>
         Open the setup wizard →
       </Link>
-      <p style={{ fontSize: '.75rem', color: '#a39e93', marginTop: 12 }}>
+      <p style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#a39e93', marginTop: 12 }}>
         All set already? The wizard shows everything as complete — nothing will be changed by opening it.
       </p>
     </div>
@@ -726,20 +726,20 @@ function SearchableSelect({ value, options, onChange, disabled, placeholder }) {
         style={{ ...inp, cursor: disabled ? 'default' : 'pointer', display: 'flex', alignItems: 'center',
                  opacity: disabled ? .6 : 1 }}>
         <span style={{ color: value ? 'var(--ink, #0a0a0a)' : 'var(--mute, #a8a39a)' }}>{value || placeholder || 'Select…'}</span>
-        <span style={{ marginLeft: 'auto', color: 'var(--mute, #a8a39a)', fontSize: '.7rem' }}>{open ? '\u25b4' : '\u25be'}</span>
+        <span style={{ marginLeft: 'auto', color: 'var(--mute, #a8a39a)', fontSize: 'var(--fs-2xs, 0.6875rem)' }}>{open ? '\u25b4' : '\u25be'}</span>
       </div>
       {open && (
         <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: '#fff',
-                      border: '1px solid var(--line, #e4e0d8)', borderRadius: 11, boxShadow: '0 12px 32px rgba(0,0,0,.13)',
+                      border: '1px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', boxShadow: '0 12px 32px rgba(0,0,0,.13)',
                       maxHeight: 240, overflowY: 'auto', zIndex: 60 }}>
           <input
             autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Type to search…"
             style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: '1px solid var(--cream-2, #f0eeea)',
-                     outline: 'none', fontSize: '.875rem', fontFamily: 'inherit', boxSizing: 'border-box' }} />
-          {shown.length === 0 && <div style={{ padding: '10px 14px', fontSize: '.85rem', color: 'var(--taupe, #7a7670)' }}>No matches</div>}
+                     outline: 'none', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+          {shown.length === 0 && <div style={{ padding: '10px 14px', fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)' }}>No matches</div>}
           {shown.map(o => (
             <div key={o} onClick={() => { onChange(o); setOpen(false); }}
-                 style={{ padding: '9px 14px', fontSize: '.86rem', cursor: 'pointer',
+                 style={{ padding: '9px 14px', fontSize: 'var(--fs-base, 0.875rem)', cursor: 'pointer',
                           background: o === value ? '#f6f4f0' : '#fff', color: 'var(--ink, #0a0a0a)' }}
                  onMouseEnter={e => e.currentTarget.style.background = '#f6f4f0'}
                  onMouseLeave={e => e.currentTarget.style.background = o === value ? '#f6f4f0' : '#fff'}>
@@ -818,7 +818,7 @@ function AccountTab() {
   return (
     <div style={{ maxWidth: 520, display: 'flex', flexDirection: 'column', gap: 14 }}>
       <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Business details</div>
+        <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Business details</div>
         <Field label="Business name">
           <input style={inp} value={name} onChange={e => setName(e.target.value)} disabled={loading} placeholder={loading ? 'Loading…' : ''} />
         </Field>
@@ -837,22 +837,22 @@ function AccountTab() {
           ) : (
             <div style={{ ...inp, color: 'var(--taupe, #7a7670)', background: '#faf9f6', display: 'flex', alignItems: 'center' }}>
               {businessType || '—'}
-              <span style={{ marginLeft: 'auto', fontSize: '.72rem', color: 'var(--mute, #a8a39a)' }}>Admins only</span>
+              <span style={{ marginLeft: 'auto', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--mute, #a8a39a)' }}>Admins only</span>
             </div>
           )}
         </Field>
       </Card>
       <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 14 }}>Alert preferences</div>
+        <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 14 }}>Alert preferences</div>
         {ALERTS.map(([key, label]) => (
           <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
-            <span style={{ fontSize: '.875rem', fontWeight: 500 }}>{label}</span>
+            <span style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 500 }}>{label}</span>
             <Toggle on={!!prefs[key]} onChange={v => setPrefs(p => ({ ...p, [key]: v }))} />
           </div>
         ))}
       </Card>
       {msg && (
-        <div style={{ fontSize: '.82rem', fontWeight: 600, color: msg.ok ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)' }}>{msg.text}</div>
+        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, color: msg.ok ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)' }}>{msg.text}</div>
       )}
       <button onClick={save} disabled={saving || loading} style={{ ...btn(true), width: '100%', padding: 12, opacity: (saving || loading) ? .6 : 1 }}>
         {saving ? 'Saving…' : 'Save changes'}
@@ -868,17 +868,17 @@ function BillingTab() {
       <Card style={{ padding: 20, marginBottom: 14 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.5rem', fontWeight: 900, marginBottom: 4 }}>
-              SwarmReply <span style={{ background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)', fontSize: '.72rem', fontWeight: 700, padding: '3px 10px', borderRadius: 50, fontFamily: 'inherit' }}>Active</span>
+            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900, marginBottom: 4 }}>
+              SwarmReply <span style={{ background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, padding: '3px 10px', borderRadius: 'var(--r-pill, 999px)', fontFamily: 'inherit' }}>Active</span>
             </div>
-            <div style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)' }}>Month-to-month · No contracts</div>
+            <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)' }}>Month-to-month · No contracts</div>
           </div>
           <Link href="/dashboard/billing" style={{ ...btn(false), textDecoration: 'none' }}>Manage billing →</Link>
         </div>
       </Card>
       <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>How pricing works</div>
-        <div style={{ fontSize: '.85rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
+        <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 6 }}>How pricing works</div>
+        <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
           You're billed per active location — $99/mo each for your first two locations, $89/mo each for
           locations 3–25, and $79/mo each for 26–99. Your total updates automatically when you add
           or remove a location. See your current total and full breakdown on the{' '}
@@ -893,17 +893,17 @@ function APITab() {
   return (
     <div style={{ maxWidth: 580, display: 'flex', flexDirection: 'column', gap: 14 }}>
       <Card style={{ padding: 28, textAlign: 'center' }}>
-        <div style={{ fontSize: '1.8rem', marginBottom: 10 }}>🔌</div>
-        <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.3rem', fontWeight: 900, marginBottom: 8 }}>API &amp; Zapier — coming soon</div>
-        <div style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7, marginBottom: 18, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+        <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 10 }}>🔌</div>
+        <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 900, marginBottom: 8 }}>API &amp; Zapier — coming soon</div>
+        <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.7, marginBottom: 18, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
           A public API and Zapier integration are on the way — connect SwarmReply to thousands of apps, trigger automations on new reviews, and sync contacts both ways. Want to be first in line?
         </div>
         <a href="mailto:hello@swarmreply.com?subject=SwarmReply%20API%20early%20access" style={{ ...btn(true), textDecoration: 'none', display: 'inline-flex' }}>Request early access →</a>
       </Card>
       <Card style={{ padding: 20 }}>
-        <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>What you'll be able to do</div>
+        <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 12 }}>What you'll be able to do</div>
         {[['Triggers', 'New review · New negative review'], ['Actions', 'Send review request · Add contact'], ['Searches', 'Find customer · Get stats']].map(([k, v]) => (
-          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--cream-2, #f0eeea)', fontSize: '.875rem' }}>
+          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--cream-2, #f0eeea)', fontSize: 'var(--fs-base, 0.875rem)' }}>
             <span style={{ color: 'var(--taupe, #7a7670)' }}>{k}</span><span style={{ fontWeight: 600 }}>{v}</span>
           </div>
         ))}
@@ -934,7 +934,7 @@ const ROLES = {
 
 function RoleBadge({ role }) {
   const r = ROLES[role] || ROLES.staff;
-  return <span style={{ background: r.color, color: r.textColor, fontSize: '.7rem', fontWeight: 700, padding: '2px 9px', borderRadius: 50 }}>{r.label}</span>;
+  return <span style={{ background: r.color, color: r.textColor, fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 9px', borderRadius: 'var(--r-pill, 999px)' }}>{r.label}</span>;
 }
 
 function StatusBadge({ status }) {
@@ -944,7 +944,7 @@ function StatusBadge({ status }) {
     suspended: ['var(--danger-bg, #fee2e2)','var(--danger, #c0392b)','Suspended'],
   };
   const [bg, color, label] = styles[status] || styles.invited;
-  return <span style={{ background: bg, color, fontSize: '.67rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>{label}</span>;
+  return <span style={{ background: bg, color, fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--r-pill, 999px)' }}>{label}</span>;
 }
 
 function TeamTab() {
@@ -1033,31 +1033,31 @@ function TeamTab() {
   return (
     <div style={{ maxWidth: 860 }}>
       {/* Team members bar */}
-      <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: '16px 20px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '16px 20px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 3 }}>Team members</div>
-          <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 3 }}>Team members</div>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
             {activeCount} active {activeCount === 1 ? 'member' : 'members'}
           </div>
         </div>
         <button onClick={() => setShowInvite(true)}
-          style={{ padding: '9px 20px', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit' }}>
+          style={{ padding: '9px 20px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit' }}>
           + Invite member
         </button>
       </div>
 
-      {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', borderRadius: 10, padding: '10px 14px', fontSize: '.82rem', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>{error}</div>}
+      {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', borderRadius: 'var(--r-sm, 10px)', padding: '10px 14px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)', marginBottom: 12 }}>{error}</div>}
 
       {/* Members table */}
-      <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, overflow: 'hidden', marginBottom: 20 }}>
+      <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', overflow: 'hidden', marginBottom: 20 }}>
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)' }}>Loading team…</div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.84rem' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-sm, 0.8125rem)' }}>
             <thead>
               <tr style={{ background: 'var(--cream, #f8f7f4)' }}>
                 {['Member','Role','Status','Last active',''].map(h => (
-                  <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '.65rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', borderBottom: '1px solid var(--line, #e4e0d8)' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', borderBottom: '1px solid var(--line, #e4e0d8)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1066,12 +1066,12 @@ function TeamTab() {
                 <tr key={m.id} style={{ borderBottom: '1px solid var(--cream, #f8f7f4)', opacity: m.status === 'suspended' ? .5 : 1 }}>
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--cream-2, #f0eeea)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '.8rem', flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 'var(--r-full, 50%)', background: 'var(--cream-2, #f0eeea)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 'var(--fs-sm, 0.8125rem)', flexShrink: 0 }}>
                         {m.name?.charAt(0)?.toUpperCase()}
                       </div>
                       <div>
                         <div style={{ fontWeight: 600 }}>{m.name}</div>
-                        <div style={{ fontSize: '.73rem', color: 'var(--taupe, #7a7670)' }}>{m.email}</div>
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{m.email}</div>
                       </div>
                     </div>
                   </td>
@@ -1083,7 +1083,7 @@ function TeamTab() {
                           value={m.role}
                           disabled={changingRole === m.id}
                           onChange={e => changeRole(m.id, e.target.value)}
-                          style={{ border: 'none', background: 'transparent', fontSize: '.72rem', color: 'var(--taupe, #7a7670)', cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
+                          style={{ border: 'none', background: 'transparent', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
                         >
                           <option value="manager">Manager</option>
                           <option value="staff">Staff</option>
@@ -1092,7 +1092,7 @@ function TeamTab() {
                     </div>
                   </td>
                   <td style={{ padding: '12px 16px' }}><StatusBadge status={m.status} /></td>
-                  <td style={{ padding: '12px 16px', color: 'var(--taupe, #7a7670)', fontSize: '.78rem' }}>
+                  <td style={{ padding: '12px 16px', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-xs, 0.75rem)' }}>
                     {m.status === 'invited'
                       ? `Invite sent ${new Date(m.invite_sent_at).toLocaleDateString()}`
                       : m.last_login_at
@@ -1102,10 +1102,10 @@ function TeamTab() {
                   <td style={{ padding: '12px 16px' }}>
                     {m.role !== 'admin' && (
                       <div style={{ display: 'flex', gap: 6 }}>
-                        <button onClick={() => toggleSuspend(m)} style={{ padding: '4px 10px', borderRadius: 50, border: '1.5px solid var(--line, #e4e0d8)', background: 'transparent', cursor: 'pointer', fontSize: '.72rem', fontWeight: 600, fontFamily: 'inherit', color: 'var(--taupe, #7a7670)' }}>
+                        <button onClick={() => toggleSuspend(m)} style={{ padding: '4px 10px', borderRadius: 'var(--r-pill, 999px)', border: '1.5px solid var(--line, #e4e0d8)', background: 'transparent', cursor: 'pointer', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, fontFamily: 'inherit', color: 'var(--taupe, #7a7670)' }}>
                           {m.status === 'suspended' ? 'Reactivate' : 'Suspend'}
                         </button>
-                        <button onClick={() => removeMember(m.id)} style={{ padding: '4px 10px', borderRadius: 50, border: '1.5px solid #fecaca', background: 'transparent', cursor: 'pointer', fontSize: '.72rem', fontWeight: 600, fontFamily: 'inherit', color: 'var(--danger, #c0392b)' }}>
+                        <button onClick={() => removeMember(m.id)} style={{ padding: '4px 10px', borderRadius: 'var(--r-pill, 999px)', border: '1.5px solid #fecaca', background: 'transparent', cursor: 'pointer', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, fontFamily: 'inherit', color: 'var(--danger, #c0392b)' }}>
                           Remove
                         </button>
                       </div>
@@ -1121,15 +1121,15 @@ function TeamTab() {
       {/* Role breakdown */}
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12 }}>
         {Object.entries(ROLES).map(([key, role]) => (
-          <div key={key} style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: '18px 20px', borderTop: `3px solid ${role.color}` }}>
+          <div key={key} style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '18px 20px', borderTop: `3px solid ${role.color}` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <RoleBadge role={key} />
-              <span style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>{role.description}</span>
+              <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{role.description}</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {role.access.map(a => (
-                <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '.78rem', color: 'var(--tx-3, #3a3a38)' }}>
-                  <span style={{ color: 'var(--green, #1a6b45)', fontWeight: 700, fontSize: '.7rem' }}>✓</span> {a}
+                <div key={a} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--tx-3, #3a3a38)' }}>
+                  <span style={{ color: 'var(--green, #1a6b45)', fontWeight: 700, fontSize: 'var(--fs-2xs, 0.6875rem)' }}>✓</span> {a}
                 </div>
               ))}
             </div>
@@ -1140,31 +1140,31 @@ function TeamTab() {
       {/* Invite modal */}
       {showInvite && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(10,10,10,.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: 'white', borderRadius: 20, width: '100%', maxWidth: 480, boxShadow: '0 24px 80px rgba(0,0,0,.2)' }}>
+          <div style={{ background: 'white', borderRadius: 'var(--r-md, 16px)', width: '100%', maxWidth: 480, boxShadow: '0 24px 80px rgba(0,0,0,.2)' }}>
             <div style={{ padding: '22px 28px', borderBottom: '1px solid var(--line, #e4e0d8)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.2rem', fontWeight: 900 }}>Invite a team member</div>
-              <button onClick={() => setShowInvite(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: 'var(--taupe, #7a7670)' }}>✕</button>
+              <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 900 }}>Invite a team member</div>
+              <button onClick={() => setShowInvite(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-xl, 1.25rem)', color: 'var(--taupe, #7a7670)' }}>✕</button>
             </div>
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {inviteSent && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 9, padding: '10px 13px', fontSize: '.84rem', color: 'var(--green, #1a6b45)' }}>✓ Invite sent! They will receive an email with a link to set up their account.</div>}
-              {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', borderRadius: 9, padding: '10px 13px', fontSize: '.84rem', color: 'var(--danger, #c0392b)' }}>{error}</div>}
+              {inviteSent && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 'var(--r-xs, 8px)', padding: '10px 13px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)' }}>✓ Invite sent! They will receive an email with a link to set up their account.</div>}
+              {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', borderRadius: 'var(--r-xs, 8px)', padding: '10px 13px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)' }}>{error}</div>}
               {[['Full name','text',inviteName,setInviteName],['Email address','email',inviteEmail,setInviteEmail]].map(([label,type,val,set]) => (
                 <div key={label}>
-                  <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>{label}</label>
+                  <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>{label}</label>
                   <input type={type} value={val} onChange={e => set(e.target.value)}
-                    style={{ width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none' }} />
+                    style={{ width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none' }} />
                 </div>
               ))}
               <div>
-                <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>Role</label>
+                <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>Role</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {Object.entries(ROLES).map(([key, role]) => (
-                    <label key={key} onClick={() => setInviteRole(key)} style={{ border: inviteRole === key ? '2px solid var(--ink, #0a0a0a)' : '1.5px solid var(--line, #e4e0d8)', borderRadius: 11, padding: '11px 14px', cursor: 'pointer', display: 'flex', gap: 11, alignItems: 'flex-start', background: inviteRole === key ? 'var(--cream, #f8f7f4)' : 'white', transition: 'all .15s' }}>
+                    <label key={key} onClick={() => setInviteRole(key)} style={{ border: inviteRole === key ? '2px solid var(--ink, #0a0a0a)' : '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '11px 14px', cursor: 'pointer', display: 'flex', gap: 11, alignItems: 'flex-start', background: inviteRole === key ? 'var(--cream, #f8f7f4)' : 'white', transition: 'all .15s' }}>
                       <input type="radio" name="inviteRole" checked={inviteRole === key} onChange={() => setInviteRole(key)} style={{ marginTop: 2, accentColor: 'var(--ink, #0a0a0a)' }} />
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}><RoleBadge role={key} /><span style={{ fontWeight: 600, fontSize: '.875rem' }}>{role.label}</span></div>
-                        <div style={{ fontSize: '.76rem', color: 'var(--taupe, #7a7670)' }}>{role.description}</div>
-                        <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)', marginTop: 4 }}>Access: {role.access.join(' · ')}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}><RoleBadge role={key} /><span style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>{role.label}</span></div>
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{role.description}</div>
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 4 }}>Access: {role.access.join(' · ')}</div>
                       </div>
                     </label>
                   ))}
@@ -1172,8 +1172,8 @@ function TeamTab() {
               </div>
             </div>
             <div style={{ padding: '14px 28px 22px', display: 'flex', gap: 10, borderTop: '1px solid var(--line, #e4e0d8)' }}>
-              <button onClick={() => setShowInvite(false)} style={{ flex: 1, padding: 11, borderRadius: 50, background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.875rem', fontWeight: 600, fontFamily: 'inherit' }}>Cancel</button>
-              <button onClick={sendInvite} disabled={sending || !inviteName.trim() || !inviteEmail.trim()} style={{ flex: 2, padding: 11, borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: !inviteName.trim() || !inviteEmail.trim() ? .5 : 1 }}>
+              <button onClick={() => setShowInvite(false)} style={{ flex: 1, padding: 11, borderRadius: 'var(--r-pill, 999px)', background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600, fontFamily: 'inherit' }}>Cancel</button>
+              <button onClick={sendInvite} disabled={sending || !inviteName.trim() || !inviteEmail.trim()} style={{ flex: 2, padding: 11, borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit', opacity: !inviteName.trim() || !inviteEmail.trim() ? .5 : 1 }}>
                 {sending ? 'Sending invite…' : 'Send invite →'}
               </button>
             </div>
@@ -1200,7 +1200,7 @@ export default function Settings() {
     <DashboardLayout title="Settings">
       <div style={{ background: 'white', borderBottom: '1px solid var(--line, #e4e0d8)', padding: '0 24px', display: 'flex', gap: 2, overflowX: 'auto' }}>
         {TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: '14px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '.84rem', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit', color: tab === t.id ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)', borderBottom: tab === t.id ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent', whiteSpace: 'nowrap', transition: 'all .15s' }}>{t.label}</button>
+          <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: '14px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit', color: tab === t.id ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)', borderBottom: tab === t.id ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent', whiteSpace: 'nowrap', transition: 'all .15s' }}>{t.label}</button>
         ))}
       </div>
       <div style={{ padding: 24 }}>

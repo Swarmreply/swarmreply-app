@@ -65,19 +65,19 @@ function ApprovalCard({ item, onAction }) {
       <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
           <div>
-            <span style={{ fontWeight: 700, fontSize: '.9rem' }}>{item.reviewer_name || 'Anonymous'}</span>
-            <span style={{ color: 'var(--honey, #f5c842)', fontSize: '.875rem', marginLeft: 10 }}>{STARS(item.star_rating)}</span>
+            <span style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)' }}>{item.reviewer_name || 'Anonymous'}</span>
+            <span style={{ color: 'var(--honey, #f5c842)', fontSize: 'var(--fs-base, 0.875rem)', marginLeft: 10 }}>{STARS(item.star_rating)}</span>
           </div>
-          <span style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)' }}>{new Date(item.review_date).toLocaleDateString()}</span>
+          <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{new Date(item.review_date).toLocaleDateString()}</span>
         </div>
         {item.review_text && (
-          <p style={{ fontSize: '.875rem', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, margin: 0 }}>{item.review_text}</p>
+          <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, margin: 0 }}>{item.review_text}</p>
         )}
       </div>
 
       {/* AI Draft Reply */}
       <div style={{ padding: '14px 20px', background: 'var(--cream, #f8f7f4)', borderBottom: '1px solid var(--cream-2, #f0eeea)' }}>
-        <div style={{ fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
           <span>✦</span> AI Draft Reply
         </div>
         {editing ? (
@@ -85,10 +85,10 @@ function ApprovalCard({ item, onAction }) {
             value={editText}
             onChange={e => setEditText(e.target.value)}
             rows={4}
-            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--ink, #0a0a0a)', borderRadius: 9, fontSize: '.875rem', fontFamily: 'inherit', resize: 'vertical', outline: 'none', lineHeight: 1.6 }}
+            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid var(--ink, #0a0a0a)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', resize: 'vertical', outline: 'none', lineHeight: 1.6 }}
           />
         ) : (
-          <p style={{ fontSize: '.875rem', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, margin: 0 }}>{item.reply_text}</p>
+          <p style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx-3, #3a3a38)', lineHeight: 1.7, margin: 0 }}>{item.reply_text}</p>
         )}
       </div>
 
@@ -100,7 +100,7 @@ function ApprovalCard({ item, onAction }) {
             value={rejNote}
             onChange={e => setRejNote(e.target.value)}
             rows={2}
-            style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #fecaca', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', resize: 'none', outline: 'none' }}
+            style={{ width: '100%', padding: '8px 12px', border: '1.5px solid #fecaca', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', resize: 'none', outline: 'none' }}
           />
         </div>
       )}
@@ -109,33 +109,33 @@ function ApprovalCard({ item, onAction }) {
       <div style={{ padding: '12px 20px', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         {!editing && !showReject && (
           <>
-            <button onClick={() => act('approve')} disabled={!!loading} style={{ padding: '8px 20px', borderRadius: 50, background: 'var(--green, #1a6b45)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit', opacity: loading === 'approve' ? .6 : 1 }}>
+            <button onClick={() => act('approve')} disabled={!!loading} style={{ padding: '8px 20px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--green, #1a6b45)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit', opacity: loading === 'approve' ? .6 : 1 }}>
               {loading === 'approve' ? 'Posting...' : '✓ Approve & Post'}
             </button>
             <Button onClick={() => setEditing(true)} variant="ghost" size="sm">
               Edit reply
             </Button>
-            <button onClick={() => setShowReject(true)} style={{ padding: '8px 18px', borderRadius: 50, background: 'transparent', color: 'var(--danger, #c0392b)', border: '1.5px solid #fecaca', cursor: 'pointer', fontSize: '.84rem', fontWeight: 600, fontFamily: 'inherit' }}>
+            <button onClick={() => setShowReject(true)} style={{ padding: '8px 18px', borderRadius: 'var(--r-pill, 999px)', background: 'transparent', color: 'var(--danger, #c0392b)', border: '1.5px solid #fecaca', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, fontFamily: 'inherit' }}>
               Reject
             </button>
           </>
         )}
         {editing && (
           <>
-            <button onClick={() => act('edit', { replyText: editText })} disabled={!editText.trim() || !!loading} style={{ padding: '8px 20px', borderRadius: 50, background: 'var(--green, #1a6b45)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit', opacity: !editText.trim() ? .5 : 1 }}>
+            <button onClick={() => act('edit', { replyText: editText })} disabled={!editText.trim() || !!loading} style={{ padding: '8px 20px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--green, #1a6b45)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit', opacity: !editText.trim() ? .5 : 1 }}>
               {loading === 'edit' ? 'Posting...' : 'Post edited reply →'}
             </button>
-            <button onClick={() => setEditing(false)} style={{ padding: '8px 16px', borderRadius: 50, background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.84rem', fontFamily: 'inherit' }}>
+            <button onClick={() => setEditing(false)} style={{ padding: '8px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit' }}>
               Cancel
             </button>
           </>
         )}
         {showReject && (
           <>
-            <button onClick={() => act('reject', { note: rejNote })} disabled={!!loading} style={{ padding: '8px 20px', borderRadius: 50, background: 'var(--danger, #c0392b)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.84rem', fontWeight: 700, fontFamily: 'inherit' }}>
+            <button onClick={() => act('reject', { note: rejNote })} disabled={!!loading} style={{ padding: '8px 20px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--danger, #c0392b)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit' }}>
               {loading === 'reject' ? 'Rejecting...' : 'Confirm reject'}
             </button>
-            <button onClick={() => setShowReject(false)} style={{ padding: '8px 16px', borderRadius: 50, background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.84rem', fontFamily: 'inherit' }}>
+            <button onClick={() => setShowReject(false)} style={{ padding: '8px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit' }}>
               Cancel
             </button>
           </>
@@ -181,18 +181,18 @@ export function ApprovalsPanel() {
         {/* Mode toggle */}
         <Card pad="18px 20px" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 4 }}>Reply mode</div>
-            <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6 }}>
+            <div style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 4 }}>Reply mode</div>
+            <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.6 }}>
               {mode === 'auto'
                 ? 'AI is posting replies automatically — they go live without review.'
                 : 'Approval mode on — AI drafts replies here and you post them manually.'}
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => toggleMode('auto')} disabled={savingMode} style={{ padding: '8px 18px', borderRadius: 50, border: '1.5px solid', borderColor: mode === 'auto' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', background: mode === 'auto' ? 'var(--ink, #0a0a0a)' : 'transparent', color: mode === 'auto' ? 'white' : 'var(--taupe, #7a7670)', fontSize: '.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', opacity: savingMode ? .5 : 1 }}>
+            <button onClick={() => toggleMode('auto')} disabled={savingMode} style={{ padding: '8px 18px', borderRadius: 'var(--r-pill, 999px)', border: '1.5px solid', borderColor: mode === 'auto' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', background: mode === 'auto' ? 'var(--ink, #0a0a0a)' : 'transparent', color: mode === 'auto' ? 'white' : 'var(--taupe, #7a7670)', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', opacity: savingMode ? .5 : 1 }}>
               Auto-reply
             </button>
-            <button onClick={() => toggleMode('approve')} disabled={savingMode} style={{ padding: '8px 18px', borderRadius: 50, border: '1.5px solid', borderColor: mode === 'approve' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', background: mode === 'approve' ? 'var(--ink, #0a0a0a)' : 'transparent', color: mode === 'approve' ? 'white' : 'var(--taupe, #7a7670)', fontSize: '.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', opacity: savingMode ? .5 : 1 }}>
+            <button onClick={() => toggleMode('approve')} disabled={savingMode} style={{ padding: '8px 18px', borderRadius: 'var(--r-pill, 999px)', border: '1.5px solid', borderColor: mode === 'approve' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', background: mode === 'approve' ? 'var(--ink, #0a0a0a)' : 'transparent', color: mode === 'approve' ? 'white' : 'var(--taupe, #7a7670)', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', opacity: savingMode ? .5 : 1 }}>
               Approve before posting
             </button>
           </div>
@@ -206,11 +206,11 @@ export function ApprovalsPanel() {
           </>
         ) : items.length === 0 ? (
           <Card pad={48} style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', marginBottom: 12 }}>{mode === 'auto' ? '🐝' : '🎉'}</div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.2rem', fontWeight: 900, marginBottom: 8 }}>
+            <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 12 }}>{mode === 'auto' ? '🐝' : '🎉'}</div>
+            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 900, marginBottom: 8 }}>
               {mode === 'auto' ? 'Auto-reply is on' : "You're all caught up"}
             </div>
-            <div style={{ fontSize: '.875rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
+            <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
               {mode === 'auto'
                 ? 'Switch to "Approve before posting" above to review AI replies before they go live.'
                 : 'No replies waiting — new AI drafts will appear here for you to review and post.'}
@@ -218,7 +218,7 @@ export function ApprovalsPanel() {
           </Card>
         ) : (
           <>
-            <div style={{ fontSize: '.78rem', color: 'var(--taupe, #7a7670)', marginBottom: 14 }}>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginBottom: 14 }}>
               {items.length} repl{items.length === 1 ? 'y' : 'ies'} waiting for your approval
             </div>
             {items.map(item => (

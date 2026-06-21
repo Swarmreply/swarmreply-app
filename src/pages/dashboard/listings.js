@@ -62,18 +62,18 @@ const STATUS_CHIP = {
 function Chip({ status }) {
   const [bg, color, label] = STATUS_CHIP[status] || STATUS_CHIP.not_connected;
   return (
-    <span style={{ background: bg, color, fontSize: '.72rem', fontWeight: 700,
-      padding: '4px 11px', borderRadius: 50, whiteSpace: 'nowrap' }}>{label}</span>
+    <span style={{ background: bg, color, fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700,
+      padding: '4px 11px', borderRadius: 'var(--r-pill, 999px)', whiteSpace: 'nowrap' }}>{label}</span>
   );
 }
 
 const field = {
-  width: '100%', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 12,
-  padding: '11px 13px', fontSize: 16, fontFamily: 'inherit',
+  width: '100%', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)',
+  padding: '11px 13px', fontSize: 'var(--fs-lg, 1rem)', fontFamily: 'inherit',
   background: 'white', color: 'var(--tx, #1a1a18)', outline: 'none', boxSizing: 'border-box',
 };
 const lbl = {
-  fontSize: '.7rem', fontWeight: 700, letterSpacing: '.06em',
+  fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.06em',
   textTransform: 'uppercase', color: '#a39e93', display: 'block', marginBottom: 5,
 };
 
@@ -216,8 +216,8 @@ function BusinessInfoCard({ location, locationId, reload }) {
 
   return (
     <Card>
-      <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem', marginBottom: 4 }}>Business info — your single source of truth</div>
-      <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', marginBottom: 18 }}>
+      <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', marginBottom: 4 }}>Business info — your single source of truth</div>
+      <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 18 }}>
         This is the canonical version of your business. Every sync and every guided setup uses exactly these details.
       </div>
       <div className="m-grid-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -239,7 +239,7 @@ function BusinessInfoCard({ location, locationId, reload }) {
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16, flexWrap: 'wrap' }}>
         <Button onClick={save} disabled={saving}>{saved ? 'Saved ✓' : saving ? 'Saving…' : 'Save business info'}</Button>
-        <span style={{ fontSize: '.72rem', color: '#a39e93' }}>
+        <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#a39e93' }}>
           Name and address changes on Google go through a short platform review (~3 days).
         </span>
       </div>
@@ -275,13 +275,13 @@ function GoogleCard({ platforms, googleConnected, locationId, reload }) {
   return (
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4, flexWrap: 'wrap' }}>
-        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Google Business Profile</div>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)' }}>Google Business Profile</div>
         {connected ? (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)', fontSize: '.72rem', fontWeight: 700, padding: '4px 11px', borderRadius: 50 }}>Connected ✓</span>
+            <span style={{ background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, padding: '4px 11px', borderRadius: 'var(--r-pill, 999px)' }}>Connected ✓</span>
             <Button size="sm" onClick={push} disabled={pushing}>{pushing ? 'Pushing…' : 'Push my info live'}</Button>
             <button onClick={disconnect} disabled={disc}
-              style={{ background: 'none', border: '1.5px solid #f0d0d0', color: '#b3261e', borderRadius: 50, padding: '6px 14px', fontSize: '.78rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ background: 'none', border: '1.5px solid #f0d0d0', color: '#b3261e', borderRadius: 'var(--r-pill, 999px)', padding: '6px 14px', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
               {disc ? 'Disconnecting…' : 'Disconnect'}
             </button>
           </div>
@@ -290,7 +290,7 @@ function GoogleCard({ platforms, googleConnected, locationId, reload }) {
         )}
       </div>
 
-      <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', marginBottom: connected ? 16 : 14 }}>
+      <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: connected ? 16 : 14 }}>
         {connected
           ? 'Your info is pushed live to Google and re-checked daily. This is the listing customers see first — and the source the rest of your web presence pulls from.'
           : 'Google is where most customers find you first. Connect it once and SwarmReply pushes your business info live, keeps it in sync, and posts AI replies to your reviews.'}
@@ -298,25 +298,25 @@ function GoogleCard({ platforms, googleConnected, locationId, reload }) {
 
       {/* Leverage summary — Google accuracy propagates to these surfaces */}
       {connected && (
-        <div style={{ background: '#f6faf8', border: '1px solid #d8ebe1', borderRadius: 12, padding: '14px 16px' }}>
-          <div style={{ fontSize: '.78rem', fontWeight: 700, color: 'var(--green, #1a6b45)', marginBottom: 8 }}>
+        <div style={{ background: '#f6faf8', border: '1px solid #d8ebe1', borderRadius: 'var(--r-md, 16px)', padding: '14px 16px' }}>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: 'var(--green, #1a6b45)', marginBottom: 8 }}>
             Get Google right, and {GOOGLE_SURFACES.length} more surfaces stay right
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
             {GOOGLE_SURFACES.map(s => (
-              <span key={s} style={{ fontSize: '.74rem', background: 'white', border: '1px solid #d8ebe1',
-                color: 'var(--tx-3, #3a3a38)', padding: '4px 10px', borderRadius: 50 }}>{s}</span>
+              <span key={s} style={{ fontSize: 'var(--fs-xs, 0.75rem)', background: 'white', border: '1px solid #d8ebe1',
+                color: 'var(--tx-3, #3a3a38)', padding: '4px 10px', borderRadius: 'var(--r-pill, 999px)' }}>{s}</span>
             ))}
           </div>
-          <div style={{ fontSize: '.72rem', color: '#7a8a82', marginTop: 9 }}>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#7a8a82', marginTop: 9 }}>
             Your Google profile feeds all of these — so one accurate listing keeps your whole core web presence consistent.
           </div>
         </div>
       )}
 
-      {result?._error && <div style={{ fontSize: '.78rem', color: '#b3261e', fontWeight: 600, marginTop: 10 }}>{result._error}</div>}
+      {result?._error && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#b3261e', fontWeight: 600, marginTop: 10 }}>{result._error}</div>}
       {result && !result._error && result.google && (
-        <div style={{ fontSize: '.78rem', marginTop: 10, color: result.google.success ? 'var(--green, #1a6b45)' : '#b3261e', fontWeight: 600 }}>
+        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', marginTop: 10, color: result.google.success ? 'var(--green, #1a6b45)' : '#b3261e', fontWeight: 600 }}>
           {result.google.success ? 'Pushed to Google ✓' : result.google.error}
         </div>
       )}
@@ -369,34 +369,34 @@ function MismatchAlert({ issues, location, locationId, reload }) {
   return (
     <Card style={{ border: '1.5px solid #f0c9c0', background: '#fdf6f4' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '1.1rem' }}>⚠️</span>
-        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem', color: '#9a2b1c' }}>
+        <span style={{ fontSize: 'var(--fs-lg, 1rem)' }}>⚠️</span>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', color: '#9a2b1c' }}>
           {issues.length} {issues.length === 1 ? 'listing needs' : 'listings need'} your attention
         </div>
         <button onClick={rescan} disabled={rescanning}
-          style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#9a2b1c', fontSize: '.78rem',
+          style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#9a2b1c', fontSize: 'var(--fs-xs, 0.75rem)',
             fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>
           {rescanning ? 'Re-scanning…' : 'Re-scan now'}
         </button>
       </div>
-      <div style={{ fontSize: '.8rem', color: '#7a5a54', marginBottom: 12 }}>
+      <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: '#7a5a54', marginBottom: 12 }}>
         Customers see your business info across the web. These don’t match what you’ve told us — here’s exactly what’s off and how to fix it.
       </div>
 
       {issues.map((issue, i) => (
         <div key={i} style={{ borderTop: '1px solid #f3ddd6', padding: '12px 0' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-            <span style={{ fontWeight: 700, fontSize: '.86rem', color: 'var(--tx, #1a1a18)' }}>{issue.name}</span>
+            <span style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--tx, #1a1a18)' }}>{issue.name}</span>
             {issue.kind === 'google' && (
-              <span style={{ fontSize: '.72rem', color: '#9a6a08', fontWeight: 600 }}>
+              <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#9a6a08', fontWeight: 600 }}>
                 differs on {issue.fields.map(f => FIELD_LABEL[f] || f).join(', ')}
               </span>
             )}
             {issue.kind === 'error' && (
-              <span style={{ fontSize: '.72rem', color: '#b3261e', fontWeight: 600 }}>connection issue</span>
+              <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#b3261e', fontWeight: 600 }}>connection issue</span>
             )}
             {issue.kind === 'monitored' && issue.fields.length > 0 && (
-              <span style={{ fontSize: '.72rem', color: '#9a6a08', fontWeight: 600 }}>
+              <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#9a6a08', fontWeight: 600 }}>
                 lists a different {issue.fields.map(f => (FIELD_LABEL[f] || f).toLowerCase()).join(', ')}
               </span>
             )}
@@ -408,7 +408,7 @@ function MismatchAlert({ issues, location, locationId, reload }) {
             const theirs = f === 'name' ? issue.found?.name : f === 'phone' ? issue.found?.phone : f === 'address' ? issue.found?.address : null;
             if (!mine && !theirs) return null;
             return (
-              <div key={f} style={{ fontSize: '.76rem', padding: '2px 0', lineHeight: 1.5 }}>
+              <div key={f} style={{ fontSize: 'var(--fs-xs, 0.75rem)', padding: '2px 0', lineHeight: 1.5 }}>
                 <span style={{ color: '#a39e93', fontWeight: 700 }}>{FIELD_LABEL[f] || f}: </span>
                 <span style={{ color: 'var(--green, #1a6b45)', fontWeight: 600 }}>{mine || '—'}</span>
                 <span style={{ color: '#a39e93' }}> · they list </span>
@@ -418,7 +418,7 @@ function MismatchAlert({ issues, location, locationId, reload }) {
           })}
 
           {issue.kind === 'error' && issue.message && (
-            <div style={{ fontSize: '.76rem', color: '#b3261e' }}>{String(issue.message).slice(0, 120)}</div>
+            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#b3261e' }}>{String(issue.message).slice(0, 120)}</div>
           )}
 
           {/* Fix CTA */}
@@ -429,12 +429,12 @@ function MismatchAlert({ issues, location, locationId, reload }) {
               </Button>
             ) : issue.kind === 'monitored' ? (
               <a href={DIR_FIX_URL[issue.platform] || '#'} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-block', fontSize: '.78rem', fontWeight: 700, color: '#9a2b1c',
-                  textDecoration: 'none', border: '1.5px solid #e7b3a8', borderRadius: 50, padding: '6px 14px' }}>
+                style={{ display: 'inline-block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: '#9a2b1c',
+                  textDecoration: 'none', border: '1.5px solid #e7b3a8', borderRadius: 'var(--r-pill, 999px)', padding: '6px 14px' }}>
                 Fix on {issue.name} ↗
               </a>
             ) : (
-              <a href="/dashboard/integrations" style={{ fontSize: '.78rem', fontWeight: 700, color: '#9a2b1c' }}>
+              <a href="/dashboard/integrations" style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, color: '#9a2b1c' }}>
                 Reconnect {issue.name} →
               </a>
             )}
@@ -442,7 +442,7 @@ function MismatchAlert({ issues, location, locationId, reload }) {
         </div>
       ))}
 
-      {msg && <div style={{ fontSize: '.78rem', fontWeight: 600, color: 'var(--green, #1a6b45)', marginTop: 10 }}>{msg}</div>}
+      {msg && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, color: 'var(--green, #1a6b45)', marginTop: 10 }}>{msg}</div>}
     </Card>
   );
 }
@@ -481,16 +481,16 @@ function MonitoredCard({ monitored, locationId, reload }) {
   return (
     <Card>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 4, flexWrap: 'wrap' }}>
-        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem' }}>Monitored directories</div>
+        <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)' }}>Monitored directories</div>
         <Button size="sm" onClick={scan} disabled={scanning}>
           {scanning ? 'Scanning…' : 'Scan for inconsistencies'}
         </Button>
       </div>
-      <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', marginBottom: 14 }}>
+      <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginBottom: 14 }}>
         These can’t be written to by API, but we watch them for you and flag the moment your name,
         phone, or address drifts from your business info — so you can fix it before customers see it.
       </div>
-      {scanMsg && <div style={{ fontSize: '.76rem', fontWeight: 600, color: '#27508f', marginBottom: 10 }}>{scanMsg}</div>}
+      {scanMsg && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, color: '#27508f', marginBottom: 10 }}>{scanMsg}</div>}
 
       {MONITORED.map(m => {
         const d = byKey[m.id] || {};
@@ -516,35 +516,35 @@ function MonitoredCard({ monitored, locationId, reload }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 0', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: 180 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontWeight: 600, fontSize: '.875rem' }}>{m.name}</span>
+                  <span style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>{m.name}</span>
                   {m.id === 'foursquare' && (
                     <button onClick={() => setOpenFeed(o => !o)}
-                      style={{ background: 'none', border: 'none', color: '#1a4baa', fontSize: '.72rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+                      style={{ background: 'none', border: 'none', color: '#1a4baa', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
                       {openFeed ? 'Hide sites ▴' : `Feeds ${FOURSQUARE_FEEDS.length}+ sites ▾`}
                     </button>
                   )}
                 </div>
-                <div style={{ fontSize: '.74rem', color: subColor }}>{sub}</div>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: subColor }}>{sub}</div>
               </div>
-              <span style={{ background: chipBg, color: chipColor, fontSize: '.72rem', fontWeight: 700,
-                padding: '4px 11px', borderRadius: 50, whiteSpace: 'nowrap' }}>{chipLabel}</span>
+              <span style={{ background: chipBg, color: chipColor, fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700,
+                padding: '4px 11px', borderRadius: 'var(--r-pill, 999px)', whiteSpace: 'nowrap' }}>{chipLabel}</span>
               {/* Connect / disconnect for connectable monitored platforms (Facebook) */}
               {m.connectable && (fbConnected ? (
                 <button onClick={disconnectFb} disabled={disc === 'facebook'}
-                  style={{ background: 'none', border: '1.5px solid #f0d0d0', color: '#b3261e', borderRadius: 50, padding: '5px 13px', fontSize: '.74rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ background: 'none', border: '1.5px solid #f0d0d0', color: '#b3261e', borderRadius: 'var(--r-pill, 999px)', padding: '5px 13px', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                   {disc === 'facebook' ? '…' : 'Disconnect'}
                 </button>
               ) : (
                 <button onClick={() => router.push('/onboarding')}
-                  style={{ background: 'var(--ink, #0a0a0a)', border: 'none', color: 'white', borderRadius: 50, padding: '5px 13px', fontSize: '.74rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ background: 'var(--ink, #0a0a0a)', border: 'none', color: 'white', borderRadius: 'var(--r-pill, 999px)', padding: '5px 13px', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Connect
                 </button>
               ))}
               {/* Guided setup link for non-connectable directories the customer claims themselves (Foursquare) */}
               {!m.connectable && m.setupUrl && (
                 <a href={m.setupUrl} target="_blank" rel="noopener noreferrer"
-                  style={{ background: 'var(--ink, #0a0a0a)', color: 'white', borderRadius: 50, padding: '5px 13px',
-                    fontSize: '.74rem', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+                  style={{ background: 'var(--ink, #0a0a0a)', color: 'white', borderRadius: 'var(--r-pill, 999px)', padding: '5px 13px',
+                    fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
                   Set up on {m.name} →
                 </a>
               )}
@@ -552,20 +552,20 @@ function MonitoredCard({ monitored, locationId, reload }) {
 
             {/* Guided-setup helper copy for directories the customer claims themselves */}
             {!m.connectable && m.setupNote && (
-              <div style={{ background: '#f7f9fc', border: '1px solid #e3e9f3', borderRadius: 12, padding: '11px 14px', marginBottom: 12 }}>
-                <div style={{ fontSize: '.76rem', color: '#41506b', lineHeight: 1.5 }}>{m.setupNote}</div>
+              <div style={{ background: '#f7f9fc', border: '1px solid #e3e9f3', borderRadius: 'var(--r-md, 16px)', padding: '11px 14px', marginBottom: 12 }}>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#41506b', lineHeight: 1.5 }}>{m.setupNote}</div>
               </div>
             )}
 
             {m.id === 'foursquare' && openFeed && (
-              <div style={{ background: '#faf9f6', border: '1px solid #ece8e0', borderRadius: 12, padding: '12px 14px', marginBottom: 12 }}>
-                <div style={{ fontSize: '.74rem', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>
+              <div style={{ background: '#faf9f6', border: '1px solid #ece8e0', borderRadius: 'var(--r-md, 16px)', padding: '12px 14px', marginBottom: 12 }}>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginBottom: 8 }}>
                   Foursquare licenses its location data to dozens of major apps. Fix your info here once and it propagates to places like:
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
                   {FOURSQUARE_FEEDS.map(s => (
-                    <span key={s} style={{ fontSize: '.74rem', background: 'white', border: '1px solid #ece8e0',
-                      color: 'var(--tx-3, #3a3a38)', padding: '4px 10px', borderRadius: 50 }}>{s}</span>
+                    <span key={s} style={{ fontSize: 'var(--fs-xs, 0.75rem)', background: 'white', border: '1px solid #ece8e0',
+                      color: 'var(--tx-3, #3a3a38)', padding: '4px 10px', borderRadius: 'var(--r-pill, 999px)' }}>{s}</span>
                   ))}
                 </div>
               </div>
@@ -583,9 +583,9 @@ function MonitoredCard({ monitored, locationId, reload }) {
 function HistoryCard({ history }) {
   return (
     <Card>
-      <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: '1.05rem', marginBottom: 12 }}>Recent sync activity</div>
+      <div style={{ fontFamily: SERIF, fontWeight: 700, fontSize: 'var(--fs-lg, 1rem)', marginBottom: 12 }}>Recent sync activity</div>
       {history.slice(0, 8).map((h, i) => (
-        <div key={h.id || i} style={{ display: 'flex', gap: 10, fontSize: '.78rem', padding: '7px 0',
+        <div key={h.id || i} style={{ display: 'flex', gap: 10, fontSize: 'var(--fs-xs, 0.75rem)', padding: '7px 0',
           borderTop: i ? '1px solid var(--cream-2, #f0eeea)' : 'none', alignItems: 'baseline' }}>
           <span style={{ color: '#a39e93', minWidth: 86 }}>{new Date(h.created_at).toLocaleDateString()}</span>
           <span style={{ fontWeight: 600, minWidth: 64, textTransform: 'capitalize' }}>{h.platform}</span>

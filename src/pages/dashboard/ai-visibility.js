@@ -41,13 +41,13 @@ function ModelBadge({ name }) {
     claude:     { background: 'var(--cream-2, #f0eeea)', color: 'var(--ink, #0a0a0a)'  },
   };
   const s = styles[name?.toLowerCase()] || styles.claude;
-  return <span style={{ ...s, fontSize: '.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50 }}>{name}</span>;
+  return <span style={{ ...s, fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--r-pill, 999px)' }}>{name}</span>;
 }
 
 function Bar({ pct, color = 'var(--ink, #0a0a0a)', height = 8 }) {
   return (
-    <div style={{ flex: 1, height, background: 'var(--cream-2, #f0eeea)', borderRadius: 4, overflow: 'hidden' }}>
-      <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: color, borderRadius: 4, transition: 'width .5s' }} />
+    <div style={{ flex: 1, height, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-xs, 8px)', overflow: 'hidden' }}>
+      <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: color, borderRadius: 'var(--r-xs, 8px)', transition: 'width .5s' }} />
     </div>
   );
 }
@@ -70,15 +70,15 @@ function ScoreGauge({ score = 73, delta = 8 }) {
           />
         </svg>
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '2rem', fontWeight: 900, lineHeight: 1, color: 'var(--ink, #0a0a0a)' }}>{score}</div>
-          <div style={{ fontSize: '.62rem', fontWeight: 700, color: 'var(--taupe, #7a7670)', letterSpacing: '.05em' }}>/100</div>
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-3xl, 2rem)', fontWeight: 900, lineHeight: 1, color: 'var(--ink, #0a0a0a)' }}>{score}</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, color: 'var(--taupe, #7a7670)', letterSpacing: '.05em' }}>/100</div>
         </div>
       </div>
-      <div style={{ fontWeight: 700, fontSize: '.9rem', marginBottom: 4 }}>AI Visibility Score</div>
-      <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>Mentioned in {score}% of AI queries</div>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 11px', background: delta >= 0 ? 'var(--green-bg, #e8f5ef)' : 'var(--danger-bg, #fee2e2)', borderRadius: 50 }}>
-        <span style={{ color: delta >= 0 ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)', fontWeight: 700, fontSize: '.78rem' }}>{delta >= 0 ? '+' : ''}{delta}</span>
-        <span style={{ fontSize: '.72rem', color: delta >= 0 ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)' }}>vs last week</span>
+      <div style={{ fontWeight: 700, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 4 }}>AI Visibility Score</div>
+      <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>Mentioned in {score}% of AI queries</div>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 11px', background: delta >= 0 ? 'var(--green-bg, #e8f5ef)' : 'var(--danger-bg, #fee2e2)', borderRadius: 'var(--r-pill, 999px)' }}>
+        <span style={{ color: delta >= 0 ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)', fontWeight: 700, fontSize: 'var(--fs-xs, 0.75rem)' }}>{delta >= 0 ? '+' : ''}{delta}</span>
+        <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: delta >= 0 ? 'var(--green, #1a6b45)' : 'var(--danger, #c0392b)' }}>vs last week</span>
       </div>
     </Card>
   );
@@ -141,16 +141,16 @@ function OverviewTab({ report, onGoCompetitors }) {
             <StatCard label="Missed queries"  value={run.total_not_found ?? 0}              accent="#f59e0b" valueColor="#b45309" sub="not mentioned" />
           </div>
           <Card style={{ padding: 16 }}>
-            <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>Visibility by AI model</div>
+            <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 10 }}>Visibility by AI model</div>
             {byLLM.map(m => {
               const colors = { chatgpt:'#74aa9c', gemini:'#e8453c', claude:'var(--ink, #0a0a0a)' };
               const color  = colors[m.llm_name?.toLowerCase()] || 'var(--ink, #0a0a0a)';
               const pct    = parseInt(m.visibility_pct) || 0;
               return (
                 <div key={m.llm_name} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ fontSize: '.84rem', fontWeight: 600, width: 90, textTransform: 'capitalize' }}>{m.llm_name}</span>
+                  <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, width: 90, textTransform: 'capitalize' }}>{m.llm_name}</span>
                   <Bar pct={pct} color={color} />
-                  <span style={{ fontSize: '.8rem', fontWeight: 700, width: 36, color: pct >= 70 ? 'var(--green, #1a6b45)' : pct >= 50 ? '#f59e0b' : 'var(--danger, #c0392b)' }}>{pct}%</span>
+                  <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, width: 36, color: pct >= 70 ? 'var(--green, #1a6b45)' : pct >= 50 ? '#f59e0b' : 'var(--danger, #c0392b)' }}>{pct}%</span>
                 </div>
               );
             })}
@@ -160,30 +160,30 @@ function OverviewTab({ report, onGoCompetitors }) {
       <Card style={{ padding: 0, overflow: 'hidden' }}>
         <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--line, #e4e0d8)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Executive summary</div>
+            <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 2 }}>Executive summary</div>
             {report.lastScanAt && (
-              <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>
+              <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
                 Updated {new Date(report.lastScanAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
               </div>
             )}
           </div>
-          <span style={{ fontSize: '.66rem', fontWeight: 700, color: 'var(--amber-tx, #92690a)', background: '#fff8e8', padding: '3px 9px', borderRadius: 50, whiteSpace: 'nowrap' }}>Refreshes weekly</span>
+          <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, color: 'var(--amber-tx, #92690a)', background: '#fff8e8', padding: '3px 9px', borderRadius: 'var(--r-pill, 999px)', whiteSpace: 'nowrap' }}>Refreshes weekly</span>
         </div>
         <div style={{ padding: '18px 20px' }}>
-          <p style={{ fontSize: '.92rem', lineHeight: 1.7, color: '#2a2a28', margin: 0, borderLeft: '3px solid var(--honey, #f5c842)', paddingLeft: 14 }}>
+          <p style={{ fontSize: 'var(--fs-base, 0.875rem)', lineHeight: 1.7, color: '#2a2a28', margin: 0, borderLeft: '3px solid var(--honey, #f5c842)', paddingLeft: 14 }}>
             {summary}
           </p>
           {tries.length > 0 && (
             <div style={{ marginTop: 18 }}>
-              <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 12 }}>What to try this week</div>
+              <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 12 }}>What to try this week</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
                 {tries.map((rec, i) => (
                   <div key={i} style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
-                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--honey, #f5c842)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', fontWeight: 800, color: 'var(--ink, #0a0a0a)', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                    <span style={{ width: 22, height: 22, borderRadius: 'var(--r-full, 50%)', background: 'var(--honey, #f5c842)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 800, color: 'var(--ink, #0a0a0a)', flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '.85rem', fontWeight: 600, color: 'var(--tx, #1a1a18)', lineHeight: 1.5 }}>{rec.action}</div>
+                      <div style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600, color: 'var(--tx, #1a1a18)', lineHeight: 1.5 }}>{rec.action}</div>
                       {(rec.rationale || (rec.steps && rec.steps[0])) && (
-                        <div style={{ fontSize: '.78rem', color: '#6a6a66', lineHeight: 1.55, marginTop: 3 }}>
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: '#6a6a66', lineHeight: 1.55, marginTop: 3 }}>
                           {rec.rationale || rec.steps[0]}
                         </div>
                       )}
@@ -193,7 +193,7 @@ function OverviewTab({ report, onGoCompetitors }) {
               </div>
             </div>
           )}
-          <div style={{ marginTop: 16, fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>
+          <div style={{ marginTop: 16, fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
             See{' '}
             <button onClick={() => onGoCompetitors && onGoCompetitors()} style={{ background: 'none', border: 'none', color: 'var(--green, #1a6b45)', fontWeight: 600, cursor: 'pointer', padding: 0, font: 'inherit' }}>AI Competitors</button>
             {' '}for the full breakdown and the step-by-step behind each move.
@@ -222,19 +222,19 @@ function ByModelTab({ report }) {
             <div style={{ padding:'16px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', cursor:'pointer' }} onClick={() => setExpanded(open?null:m.llm_name)}>
               <div style={{ display:'flex', alignItems:'center', gap:14 }}>
                 <div>
-                  <div style={{ fontWeight:700, fontSize:'.9rem', textTransform:'capitalize', marginBottom:2 }}>{m.llm_name}</div>
-                  <div style={{ fontSize:'.72rem', color:'var(--taupe, #7a7670)' }}>{mm.desc}</div>
+                  <div style={{ fontWeight:700, fontSize: 'var(--fs-base, 0.875rem)', textTransform:'capitalize', marginBottom:2 }}>{m.llm_name}</div>
+                  <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)' }}>{mm.desc}</div>
                 </div>
                 <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
-                  <span style={{ background:'var(--green-bg, #e8f5ef)', color:'var(--green, #1a6b45)', fontSize:'.67rem', fontWeight:600, padding:'2px 7px', borderRadius:50 }}>{m.mentions||0} mentions</span>
-                  <span style={{ background:sent.bg, color:sent.color, fontSize:'.67rem', fontWeight:600, padding:'2px 7px', borderRadius:50 }}>{sent.label}</span>
-                  <span style={{ background:'#fff8e8', color:'var(--amber-tx, #92690a)', fontSize:'.67rem', fontWeight:600, padding:'2px 7px', borderRadius:50 }}>{(m.total_queries||0)-(m.mentions||0)} missed</span>
+                  <span style={{ background:'var(--green-bg, #e8f5ef)', color:'var(--green, #1a6b45)', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:600, padding:'2px 7px', borderRadius: 'var(--r-pill, 999px)' }}>{m.mentions||0} mentions</span>
+                  <span style={{ background:sent.bg, color:sent.color, fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:600, padding:'2px 7px', borderRadius: 'var(--r-pill, 999px)' }}>{sent.label}</span>
+                  <span style={{ background:'#fff8e8', color:'var(--amber-tx, #92690a)', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:600, padding:'2px 7px', borderRadius: 'var(--r-pill, 999px)' }}>{(m.total_queries||0)-(m.mentions||0)} missed</span>
                 </div>
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:14 }}>
                 <div style={{ textAlign:'right' }}>
-                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.7rem', fontWeight:900, color:pc, lineHeight:1 }}>{pct}%</div>
-                  <div style={{ fontSize:'.65rem', color:'var(--taupe, #7a7670)' }}>visibility</div>
+                  <div style={{ fontFamily:"'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight:900, color:pc, lineHeight:1 }}>{pct}%</div>
+                  <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)' }}>visibility</div>
                 </div>
                 <span style={{ color:'var(--taupe, #7a7670)', display:'block', transition:'transform .2s', transform:open?'rotate(180deg)':'none' }}>▾</span>
               </div>
@@ -242,30 +242,30 @@ function ByModelTab({ report }) {
             {open && (
               <div className="m-grid-1" style={{ borderTop:'1px solid var(--line, #e4e0d8)', display:'grid', gridTemplateColumns:'1fr 1fr 1fr' }}>
                 <div style={{ padding:'14px 16px', borderRight:'1px solid var(--line, #e4e0d8)' }}>
-                  <div style={{ fontSize:'.69rem', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Mention snippets</div>
-                  {(m.snippets||[]).length===0 ? <div style={{ fontSize:'.78rem', color:'var(--mute-2, #c8c4bc)' }}>No mentions yet</div> : (m.snippets||[]).map((s,i)=>(
+                  <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Mention snippets</div>
+                  {(m.snippets||[]).length===0 ? <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--mute-2, #c8c4bc)' }}>No mentions yet</div> : (m.snippets||[]).map((s,i)=>(
                     <div key={i} style={{ marginBottom:10 }}>
-                      <div style={{ fontSize:'.67rem', fontWeight:700, color:mm.color, marginBottom:3, textTransform:'uppercase' }}>{s.query}</div>
-                      <div style={{ background:'var(--cream, #f8f7f4)', borderLeft:'3px solid '+(mm.color||'var(--line, #e4e0d8)'), borderRadius:'0 8px 8px 0', padding:'7px 9px', fontSize:'.76rem', color:'var(--tx-3, #3a3a38)', lineHeight:1.6, fontStyle:'italic' }}>{s.text}</div>
+                      <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, color:mm.color, marginBottom:3, textTransform:'uppercase' }}>{s.query}</div>
+                      <div style={{ background:'var(--cream, #f8f7f4)', borderLeft:'3px solid '+(mm.color||'var(--line, #e4e0d8)'), borderRadius:'0 8px 8px 0', padding:'7px 9px', fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--tx-3, #3a3a38)', lineHeight:1.6, fontStyle:'italic' }}>{s.text}</div>
                     </div>
                   ))}
                 </div>
                 <div style={{ padding:'14px 16px', borderRight:'1px solid var(--line, #e4e0d8)' }}>
-                  <div style={{ fontSize:'.69rem', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Where it finds you</div>
+                  <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>Where it finds you</div>
                   {(m.citations||[]).map((c,i)=>(
                     <div key={i} style={{ display:'flex', alignItems:'center', gap:7, marginBottom:7 }}>
-                      <div style={{ width:6, height:6, borderRadius:'50%', background:mm.color||'var(--line, #e4e0d8)', flexShrink:0 }} />
-                      <span style={{ fontSize:'.8rem', color:'var(--tx-3, #3a3a38)', fontWeight:500 }}>{c}</span>
+                      <div style={{ width:6, height:6, borderRadius: 'var(--r-full, 50%)', background:mm.color||'var(--line, #e4e0d8)', flexShrink:0 }} />
+                      <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--tx-3, #3a3a38)', fontWeight:500 }}>{c}</span>
                     </div>
                   ))}
-                  <div style={{ marginTop:7, fontSize:'.7rem', color:'var(--taupe, #7a7670)', lineHeight:1.5 }}>The directories this AI pulls your data from.</div>
+                  <div style={{ marginTop:7, fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', lineHeight:1.5 }}>The directories this AI pulls your data from.</div>
                 </div>
                 <div style={{ padding:'14px 16px' }}>
-                  <div style={{ fontSize:'.69rem', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>How to improve</div>
+                  <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:8 }}>How to improve</div>
                   {(m.recommendations||[]).map((r,i)=>(
                     <div key={i} style={{ display:'flex', gap:7, marginBottom:8 }}>
                       <span style={{ color:'var(--honey, #f5c842)', fontWeight:700, flexShrink:0 }}>✦</span>
-                      <span style={{ fontSize:'.77rem', color:'var(--tx-3, #3a3a38)', lineHeight:1.6 }}>{r}</span>
+                      <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--tx-3, #3a3a38)', lineHeight:1.6 }}>{r}</span>
                     </div>
                   ))}
                 </div>
@@ -304,30 +304,30 @@ function ResultsTab({ report }) {
           {label:'Lost mentions',value:wowLost>0?'-'+wowLost:'0',sub:'dropped this scan',c:wowLost>0?'var(--danger, #c0392b)':'var(--taupe, #7a7670)'},
         ].map(s=>(
           <Card key={s.label} style={{ padding:'12px 14px' }}>
-            <div style={{ fontSize:'.7rem', color:'var(--taupe, #7a7670)', marginBottom:3 }}>{s.label}</div>
-            <div style={{ fontSize:'1.5rem', fontWeight:900, color:s.c, lineHeight:1, fontFamily:"'Playfair Display',serif" }}>{s.value}</div>
-            <div style={{ fontSize:'.68rem', color:'var(--taupe, #7a7670)', marginTop:2 }}>{s.sub}</div>
+            <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginBottom:3 }}>{s.label}</div>
+            <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight:900, color:s.c, lineHeight:1, fontFamily:"'Playfair Display',serif" }}>{s.value}</div>
+            <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginTop:2 }}>{s.sub}</div>
           </Card>
         ))}
       </div>
       <div style={{ display: 'flex', gap: 9, marginBottom: 16 }}>
-        <select value={modelFilter} onChange={e => setModelFilter(e.target.value)} style={{ padding: '7px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.8rem', fontFamily: 'inherit', outline: 'none' }}>
+        <select value={modelFilter} onChange={e => setModelFilter(e.target.value)} style={{ padding: '7px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none' }}>
           <option value="all">All models</option>
           <option value="chatgpt">ChatGPT</option>
           <option value="gemini">Gemini</option>
           <option value="claude">Claude</option>
         </select>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '7px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.8rem', fontFamily: 'inherit', outline: 'none' }}>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ padding: '7px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none' }}>
           <option value="all">All results</option>
           <option value="mentioned">Mentioned</option>
           <option value="missed">Not mentioned</option>
         </select>
       </div>
       <Card style={{ overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.82rem' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--fs-sm, 0.8125rem)' }}>
           <thead><tr style={{ background: 'var(--cream, #f8f7f4)' }}>
             {['Query','AI Model','Result','Position','Sentiment'].map(h => (
-              <th key={h} style={{ padding: '9px 16px', textAlign: 'left', fontSize: '.65rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', borderBottom: '1px solid var(--line, #e4e0d8)' }}>{h}</th>
+              <th key={h} style={{ padding: '9px 16px', textAlign: 'left', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', borderBottom: '1px solid var(--line, #e4e0d8)' }}>{h}</th>
             ))}
           </tr></thead>
           <tbody>
@@ -336,7 +336,7 @@ function ResultsTab({ report }) {
                 <td style={{ padding: '10px 16px', fontWeight: 500, maxWidth: 240 }}>{r.query_text}</td>
                 <td style={{ padding: '10px 16px' }}><ModelBadge name={r.llm_name} /></td>
                 <td style={{ padding: '10px 16px' }}>
-                  <span style={{ fontSize: '.67rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50, background: r.mentioned ? 'var(--green-bg, #e8f5ef)' : '#fff8e8', color: r.mentioned ? 'var(--green, #1a6b45)' : 'var(--amber-tx, #92690a)' }}>
+                  <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--r-pill, 999px)', background: r.mentioned ? 'var(--green-bg, #e8f5ef)' : '#fff8e8', color: r.mentioned ? 'var(--green, #1a6b45)' : 'var(--amber-tx, #92690a)' }}>
                     {r.mentioned ? 'Mentioned' : 'Not mentioned'}
                   </span>
                 </td>
@@ -344,7 +344,7 @@ function ResultsTab({ report }) {
                   {r.mention_position ? `#${r.mention_position}` : '—'}
                 </td>
                 <td style={{ padding: '10px 16px' }}>
-                  <span style={{ fontSize: '.67rem', fontWeight: 700, padding: '2px 8px', borderRadius: 50, background: r.sentiment === 'positive' ? 'var(--green-bg, #e8f5ef)' : r.sentiment === 'negative' ? 'var(--danger-bg, #fee2e2)' : 'var(--cream-2, #f0eeea)', color: r.sentiment === 'positive' ? 'var(--green, #1a6b45)' : r.sentiment === 'negative' ? 'var(--danger, #c0392b)' : 'var(--taupe, #7a7670)' }}>
+                  <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--r-pill, 999px)', background: r.sentiment === 'positive' ? 'var(--green-bg, #e8f5ef)' : r.sentiment === 'negative' ? 'var(--danger-bg, #fee2e2)' : 'var(--cream-2, #f0eeea)', color: r.sentiment === 'positive' ? 'var(--green, #1a6b45)' : r.sentiment === 'negative' ? 'var(--danger, #c0392b)' : 'var(--taupe, #7a7670)' }}>
                     {r.sentiment === 'not_mentioned' ? 'N/A' : r.sentiment}
                   </span>
                 </td>
@@ -369,9 +369,9 @@ function InfoTip({ text }) {
     <span style={{ position: 'relative', display: 'inline-flex' }}>
       <button onClick={() => setOpen(o => !o)} onBlur={() => setTimeout(() => setOpen(false), 150)}
         aria-label="What is this?"
-        style={{ width: 18, height: 18, borderRadius: '50%', border: '1.5px solid var(--mute-2, #c8c4bc)', background: 'white', color: 'var(--taupe, #7a7670)', fontSize: '.64rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit', lineHeight: 1, padding: 0 }}>i</button>
+        style={{ width: 18, height: 18, borderRadius: 'var(--r-full, 50%)', border: '1.5px solid var(--mute-2, #c8c4bc)', background: 'white', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit', lineHeight: 1, padding: 0 }}>i</button>
       {open && (
-        <span style={{ position: 'absolute', top: 24, left: 0, zIndex: 30, width: 290, background: 'var(--ink, #0a0a0a)', color: 'white', fontSize: '.74rem', lineHeight: 1.55, padding: '11px 13px', borderRadius: 10, boxShadow: '0 8px 28px rgba(0,0,0,.22)', fontWeight: 400, textAlign: 'left' }}>{text}</span>
+        <span style={{ position: 'absolute', top: 24, left: 0, zIndex: 30, width: 290, background: 'var(--ink, #0a0a0a)', color: 'white', fontSize: 'var(--fs-xs, 0.75rem)', lineHeight: 1.55, padding: '11px 13px', borderRadius: 'var(--r-sm, 10px)', boxShadow: '0 8px 28px rgba(0,0,0,.22)', fontWeight: 400, textAlign: 'left' }}>{text}</span>
       )}
     </span>
   );
@@ -452,46 +452,46 @@ function CompetitorsTab({ report }) {
   const label = (n) => llmLabel[n] || n;
   const visibleRecs = showAll ? recs : recs.slice(0, 2);
 
-  const tag = (text, bg, color) => <span style={{ fontSize:'.64rem', fontWeight:700, color, background:bg, padding:'2px 7px', borderRadius:50, whiteSpace:'nowrap' }}>{text}</span>;
+  const tag = (text, bg, color) => <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, color, background:bg, padding:'2px 7px', borderRadius: 'var(--r-pill, 999px)', whiteSpace:'nowrap' }}>{text}</span>;
 
   return (
     <div style={{ padding: 24 }}>
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
-        <div style={{ fontWeight:700, fontSize:'1rem' }}>Local competition</div>
+        <div style={{ fontWeight:700, fontSize: 'var(--fs-lg, 1rem)' }}>Local competition</div>
         <InfoTip text="Each competitor is tagged by where we found them: a green Google pill if they're a nearby business in your category, and a purple AI pill if AI assistants recommend them. Businesses carrying both pills are your strongest competitors, so they sit at the top. Shows up to 10." />
         <a href="https://swarmreply.com/help#competitor-benchmarking" target="_blank" rel="noreferrer"
-          style={{ marginLeft:'auto', fontSize:'.78rem', fontWeight:600, color:'var(--tx-2, #4a4a48)', textDecoration:'none', borderBottom:'1px solid var(--line, #e4e0d8)' }}>How this works →</a>
+          style={{ marginLeft:'auto', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:600, color:'var(--tx-2, #4a4a48)', textDecoration:'none', borderBottom:'1px solid var(--line, #e4e0d8)' }}>How this works →</a>
       </div>
 
-      {err && <div style={{ background:'var(--danger-bg, #fee2e2)', border:'1px solid #fca5a5', borderRadius:9, padding:'9px 12px', fontSize:'.8rem', color:'var(--danger, #c0392b)', marginBottom:14 }}>{err}</div>}
+      {err && <div style={{ background:'var(--danger-bg, #fee2e2)', border:'1px solid #fca5a5', borderRadius: 'var(--r-xs, 8px)', padding:'9px 12px', fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--danger, #c0392b)', marginBottom:14 }}>{err}</div>}
 
       {/* ZONE 1 — Where you stand */}
       <div className="m-grid-2" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:18 }}>
         <Card style={{ padding:'14px 16px' }}>
-          <div style={{ fontSize:'.7rem', color:'var(--taupe, #7a7670)', marginBottom:3 }}>Local rank</div>
-          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.5rem', fontWeight:900, lineHeight:1 }}>{hasBench ? `#${ours.rank}` : '—'}</div>
-          <div style={{ fontSize:'.68rem', color:'var(--taupe, #7a7670)', marginTop:3 }}>{hasBench ? `of ${ours.total} nearby` : 'Scan to see'}</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginBottom:3 }}>Local rank</div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight:900, lineHeight:1 }}>{hasBench ? `#${ours.rank}` : '—'}</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginTop:3 }}>{hasBench ? `of ${ours.total} nearby` : 'Scan to see'}</div>
         </Card>
         <Card style={{ padding:'14px 16px' }}>
-          <div style={{ fontSize:'.7rem', color:'var(--taupe, #7a7670)', marginBottom:3 }}>Your rating</div>
-          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.5rem', fontWeight:900, lineHeight:1 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
-          <div style={{ fontSize:'.68rem', color:'var(--taupe, #7a7670)', marginTop:3 }}>{hasBench ? (benchmark.ratingDiff >= 0 ? `+${benchmark.ratingDiff} vs area avg` : `${benchmark.ratingDiff} vs area avg`) : 'vs area average'}</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginBottom:3 }}>Your rating</div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight:900, lineHeight:1 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginTop:3 }}>{hasBench ? (benchmark.ratingDiff >= 0 ? `+${benchmark.ratingDiff} vs area avg` : `${benchmark.ratingDiff} vs area avg`) : 'vs area average'}</div>
         </Card>
         <Card style={{ padding:'14px 16px' }}>
-          <div style={{ fontSize:'.7rem', color:'var(--taupe, #7a7670)', marginBottom:3 }}>AI visibility</div>
-          <div style={{ fontFamily:"'Playfair Display',serif", fontSize:'1.5rem', fontWeight:900, lineHeight:1, color: aiScore != null ? (aiScore>=70?'var(--green, #1a6b45)':aiScore>=50?'#f59e0b':'var(--danger, #c0392b)') : 'var(--ink, #0a0a0a)' }}>{aiScore != null ? `${aiScore}%` : '—'}</div>
-          <div style={{ fontSize:'.68rem', color:'var(--taupe, #7a7670)', marginTop:3 }}>{aiScore != null ? 'of AI queries mention you' : 'Run a scan'}</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginBottom:3 }}>AI visibility</div>
+          <div style={{ fontFamily:"'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight:900, lineHeight:1, color: aiScore != null ? (aiScore>=70?'var(--green, #1a6b45)':aiScore>=50?'#f59e0b':'var(--danger, #c0392b)') : 'var(--ink, #0a0a0a)' }}>{aiScore != null ? `${aiScore}%` : '—'}</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginTop:3 }}>{aiScore != null ? 'of AI queries mention you' : 'Run a scan'}</div>
         </Card>
       </div>
 
       {/* ZONE 2 — Your competition (merged) */}
       <Card style={{ marginBottom:18, overflow:'hidden', padding:0 }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 18px', borderBottom:'1px solid var(--line, #e4e0d8)' }}>
-          <div style={{ fontWeight:600, fontSize:'.875rem' }}>Your competition</div>
+          <div style={{ fontWeight:600, fontSize: 'var(--fs-base, 0.875rem)' }}>Your competition</div>
           {configured && (
             <button onClick={scan} disabled={refreshing}
-              style={{ padding:'6px 12px', borderRadius:50, border:'1.5px solid var(--line, #e4e0d8)', background:'white', fontSize:'.74rem', fontWeight:600, cursor:refreshing?'default':'pointer', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>
+              style={{ padding:'6px 12px', borderRadius: 'var(--r-pill, 999px)', border:'1.5px solid var(--line, #e4e0d8)', background:'white', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:600, cursor:refreshing?'default':'pointer', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>
               {refreshing ? 'Scanning…' : hasBench ? '↻ Refresh' : '↻ Scan nearby'}
             </button>
           )}
@@ -501,11 +501,11 @@ function CompetitorsTab({ report }) {
         {(hasBench || aiScore != null) && (
           <div style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'center', padding:'12px 18px', background:'rgba(245,200,66,.09)', borderBottom:'1px solid var(--cream-2, #f0eeea)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:0, flexWrap:'wrap' }}>
-              <span style={{ fontWeight:700, fontSize:'.86rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ours ? ours.name : ((bench && bench.businessName) || 'Your business')}</span>
+              <span style={{ fontWeight:700, fontSize: 'var(--fs-base, 0.875rem)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ours ? ours.name : ((bench && bench.businessName) || 'Your business')}</span>
               {tag('You', '#fef3c7', 'var(--amber-tx, #92690a)')}
             </div>
-            <div style={{ textAlign:'right', fontSize:'.82rem', fontWeight:700 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
-            <div style={{ textAlign:'right', fontSize:'.78rem', color:'var(--taupe, #7a7670)', width:84 }}>{hasBench ? `${ours.totalReviews} rev` : '—'}</div>
+            <div style={{ textAlign:'right', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight:700 }}>{hasBench ? fmtStars(ours.rating) : '—'}</div>
+            <div style={{ textAlign:'right', fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', width:84 }}>{hasBench ? `${ours.totalReviews} rev` : '—'}</div>
           </div>
         )}
 
@@ -514,11 +514,11 @@ function CompetitorsTab({ report }) {
           <div style={{ padding:'22px 18px' }}>
             {configured ? (
               <div style={{ textAlign:'center' }}>
-                <div style={{ fontSize:'.84rem', color:'var(--taupe, #7a7670)', marginBottom:12 }}>{hasBench ? 'No competitors found nearby yet.' : 'Scan to see the nearest businesses in your category — and run an AI visibility scan to see who AI recommends.'}</div>
-                {!hasBench && <button onClick={scan} disabled={refreshing} style={{ padding:'8px 16px', borderRadius:50, border:'none', background:'var(--ink, #0a0a0a)', color:'white', fontSize:'.8rem', fontWeight:700, cursor:refreshing?'default':'pointer', fontFamily:'inherit' }}>{refreshing ? 'Scanning…' : 'Try scanning now'}</button>}
+                <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)', marginBottom:12 }}>{hasBench ? 'No competitors found nearby yet.' : 'Scan to see the nearest businesses in your category — and run an AI visibility scan to see who AI recommends.'}</div>
+                {!hasBench && <button onClick={scan} disabled={refreshing} style={{ padding:'8px 16px', borderRadius: 'var(--r-pill, 999px)', border:'none', background:'var(--ink, #0a0a0a)', color:'white', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight:700, cursor:refreshing?'default':'pointer', fontFamily:'inherit' }}>{refreshing ? 'Scanning…' : 'Try scanning now'}</button>}
               </div>
             ) : (
-              <div style={{ fontSize:'.82rem', color:'var(--taupe, #7a7670)', textAlign:'center' }}>Competitor scanning isn’t enabled on this account yet.</div>
+              <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)', textAlign:'center' }}>Competitor scanning isn’t enabled on this account yet.</div>
             )}
           </div>
         ) : competitors.map((c, i) => {
@@ -526,50 +526,50 @@ function CompetitorsTab({ report }) {
             <div key={i} style={{ display:'grid', gridTemplateColumns:'1fr auto auto', gap:12, alignItems:'start', padding:'12px 18px', borderBottom: i < competitors.length-1 ? '1px solid var(--cream, #f8f7f4)' : 'none' }}>
               <div style={{ minWidth:0 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
-                  <span style={{ fontWeight:600, fontSize:'.85rem' }}>{c.name}</span>
+                  <span style={{ fontWeight:600, fontSize: 'var(--fs-base, 0.875rem)' }}>{c.name}</span>
                   {c.nearby && (
                     <span title="A nearby business in your category, found via Google"
-                      style={{ fontSize:'.64rem', fontWeight:700, color:'var(--green, #1a6b45)', background:'var(--green-bg, #e8f5ef)', padding:'2px 7px', borderRadius:50, whiteSpace:'nowrap', cursor:'help' }}>
+                      style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, color:'var(--green, #1a6b45)', background:'var(--green-bg, #e8f5ef)', padding:'2px 7px', borderRadius: 'var(--r-pill, 999px)', whiteSpace:'nowrap', cursor:'help' }}>
                       Google
                     </span>
                   )}
                   {c.ai && (
                     <span title={`Recommended by AI assistants${c.mentions ? ` — named in ${c.mentions} ${c.mentions === 1 ? 'query' : 'queries'} we ran` : ''}`}
-                      style={{ fontSize:'.64rem', fontWeight:700, color:'#6d28d9', background:'#ede9fe', padding:'2px 7px', borderRadius:50, whiteSpace:'nowrap', cursor:'help' }}>
+                      style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, color:'#6d28d9', background:'#ede9fe', padding:'2px 7px', borderRadius: 'var(--r-pill, 999px)', whiteSpace:'nowrap', cursor:'help' }}>
                       AI recommends
                     </span>
                   )}
                 </div>
-                {c.address && <div style={{ fontSize:'.7rem', color:'var(--taupe, #7a7670)', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{c.address}</div>}
+                {c.address && <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{c.address}</div>}
                 {c.reasons && c.reasons.length > 0 && (
                   <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginTop:6 }}>
-                    {c.reasons.slice(0,3).map((r,j) => <span key={j} style={{ fontSize:'.7rem', color:'var(--tx-2, #4a4a48)', background:'var(--cream, #f8f7f4)', border:'1px solid var(--cream-2, #f0eeea)', borderRadius:50, padding:'2px 8px' }}>{r}</span>)}
+                    {c.reasons.slice(0,3).map((r,j) => <span key={j} style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--tx-2, #4a4a48)', background:'var(--cream, #f8f7f4)', border:'1px solid var(--cream-2, #f0eeea)', borderRadius: 'var(--r-pill, 999px)', padding:'2px 8px' }}>{r}</span>)}
                   </div>
                 )}
               </div>
-              <div style={{ textAlign:'right', fontSize:'.82rem', fontWeight:600 }}>{fmtStars(c.rating)}</div>
-              <div style={{ textAlign:'right', fontSize:'.78rem', color:'var(--taupe, #7a7670)', width:84 }}>{c.reviews != null ? `${c.reviews} rev` : '—'}</div>
+              <div style={{ textAlign:'right', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight:600 }}>{fmtStars(c.rating)}</div>
+              <div style={{ textAlign:'right', fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', width:84 }}>{c.reviews != null ? `${c.reviews} rev` : '—'}</div>
             </div>
           );
         })}
 
         {hasBench && benchmark.lastUpdated && (
-          <div style={{ fontSize:'.68rem', color:'var(--taupe, #7a7670)', padding:'10px 18px' }}>Nearby data from Google · updated {new Date(benchmark.lastUpdated).toLocaleDateString('en-US',{month:'short',day:'numeric'})} · refreshes weekly</div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', padding:'10px 18px' }}>Nearby data from Google · updated {new Date(benchmark.lastUpdated).toLocaleDateString('en-US',{month:'short',day:'numeric'})} · refreshes weekly</div>
         )}
       </Card>
 
       {/* ZONE 3 — What to do next */}
       {(gap > 0 || recs.length > 0) && (
         <Card style={{ padding:20 }}>
-          <div style={{ fontWeight:600, fontSize:'.875rem', marginBottom:14 }}>What to do next</div>
+          <div style={{ fontWeight:600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom:14 }}>What to do next</div>
 
           {gap > 0 && (
-            <div style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', background:'#fff8e8', border:'1px solid #fde68a', borderRadius:12, marginBottom:12 }}>
+            <div style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px 14px', background:'#fff8e8', border:'1px solid #fde68a', borderRadius: 'var(--r-md, 16px)', marginBottom:12 }}>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:'.84rem', fontWeight:700, color:'var(--amber-tx, #92690a)' }}>Close the review gap</div>
-                <div style={{ fontSize:'.78rem', color:'var(--taupe, #7a7670)', marginTop:2 }}>You're {gap} review{gap===1?'':'s'} behind {topName}, the most-reviewed business nearby.</div>
+                <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight:700, color:'var(--amber-tx, #92690a)' }}>Close the review gap</div>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', marginTop:2 }}>You're {gap} review{gap===1?'':'s'} behind {topName}, the most-reviewed business nearby.</div>
               </div>
-              <a href="/dashboard/grow" style={{ alignSelf:'center', padding:'7px 14px', borderRadius:50, background:'var(--ink, #0a0a0a)', color:'white', textDecoration:'none', fontSize:'.76rem', fontWeight:700, whiteSpace:'nowrap' }}>Send requests →</a>
+              <a href="/dashboard/grow" style={{ alignSelf:'center', padding:'7px 14px', borderRadius: 'var(--r-pill, 999px)', background:'var(--ink, #0a0a0a)', color:'white', textDecoration:'none', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, whiteSpace:'nowrap' }}>Send requests →</a>
             </div>
           )}
 
@@ -578,11 +578,11 @@ function CompetitorsTab({ report }) {
             return (
               <div key={i} style={{ padding:'10px 0', borderBottom: i < visibleRecs.length-1 ? '1px solid var(--cream-2, #f0eeea)' : 'none' }}>
                 <div style={{ marginBottom:4 }}>{tag(p.text, p.bg, p.color)}</div>
-                <div style={{ fontSize:'.83rem', fontWeight:600, lineHeight:1.45 }}>{r.action}</div>
-                {r.rationale && <div style={{ fontSize:'.76rem', color:'var(--taupe, #7a7670)', lineHeight:1.55, marginTop:3 }}>{r.rationale}</div>}
+                <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight:600, lineHeight:1.45 }}>{r.action}</div>
+                {r.rationale && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', lineHeight:1.55, marginTop:3 }}>{r.rationale}</div>}
                 {showAll && r.steps && r.steps.length > 0 && (
                   <ul style={{ margin:'7px 0 0', paddingLeft:16 }}>
-                    {r.steps.map((s,k) => <li key={k} style={{ fontSize:'.76rem', color:'var(--tx-2, #4a4a48)', lineHeight:1.5, marginBottom:3 }}>{s}</li>)}
+                    {r.steps.map((s,k) => <li key={k} style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--tx-2, #4a4a48)', lineHeight:1.5, marginBottom:3 }}>{s}</li>)}
                   </ul>
                 )}
               </div>
@@ -591,18 +591,18 @@ function CompetitorsTab({ report }) {
 
           {(recs.length > 2 || gaps.length > 0) && (
             <button onClick={() => setShowAll(s => !s)}
-              style={{ marginTop:12, background:'none', border:'none', color:'var(--ink, #0a0a0a)', fontSize:'.78rem', fontWeight:700, cursor:'pointer', fontFamily:'inherit', padding:0 }}>
+              style={{ marginTop:12, background:'none', border:'none', color:'var(--ink, #0a0a0a)', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, cursor:'pointer', fontFamily:'inherit', padding:0 }}>
               {showAll ? '− Show less' : `+ See all moves${recs.length>2?` (${recs.length})`:''}`}
             </button>
           )}
 
           {showAll && gaps.length > 0 && (
             <div style={{ marginTop:14, paddingTop:14, borderTop:'1px solid var(--cream-2, #f0eeea)' }}>
-              <div style={{ fontSize:'.78rem', fontWeight:700, marginBottom:8 }}>Searches where AI didn't mention you</div>
+              <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, marginBottom:8 }}>Searches where AI didn't mention you</div>
               {gaps.map((g,i) => (
                 <div key={i} style={{ marginBottom:8 }}>
-                  <div style={{ fontSize:'.78rem', color:'var(--ink, #0a0a0a)' }}>&ldquo;{g.query_text}&rdquo;</div>
-                  <div style={{ fontSize:'.7rem', color:'var(--danger, #c0392b)', marginTop:2 }}>Missing on {(g.missedOn || []).map(label).join(', ')}</div>
+                  <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--ink, #0a0a0a)' }}>&ldquo;{g.query_text}&rdquo;</div>
+                  <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--danger, #c0392b)', marginTop:2 }}>Missing on {(g.missedOn || []).map(label).join(', ')}</div>
                 </div>
               ))}
             </div>
@@ -696,21 +696,21 @@ function QueriesTab() {
         <Card style={{ padding: 18 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Weekly query budget</div>
-              <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>{totalUsed} used · {remaining} remaining</div>
+              <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 2 }}>Weekly query budget</div>
+              <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{totalUsed} used · {remaining} remaining</div>
             </div>
-            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.6rem', fontWeight: 900 }}>{totalUsed}<span style={{ fontSize: '.8rem', fontWeight: 400, color: 'var(--taupe, #7a7670)' }}>/{MAX}</span></div>
+            <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900 }}>{totalUsed}<span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 400, color: 'var(--taupe, #7a7670)' }}>/{MAX}</span></div>
           </div>
-          <div style={{ height: 8, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden', marginBottom: 8 }}>
-            <div style={{ width: `${pct}%`, height: '100%', background: pct >= 90 ? '#f59e0b' : 'var(--ink, #0a0a0a)', borderRadius: 50, transition: 'width .4s' }} />
+          <div style={{ height: 8, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden', marginBottom: 8 }}>
+            <div style={{ width: `${pct}%`, height: '100%', background: pct >= 90 ? '#f59e0b' : 'var(--ink, #0a0a0a)', borderRadius: 'var(--r-pill, 999px)', transition: 'width .4s' }} />
           </div>
-          <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)' }}>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
             {remaining > 0 ? `${remaining} slots remaining` : 'Maximum reached'}
           </div>
         </Card>
         <Card style={{ padding: 18 }}>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 6 }}>Scan schedule</div>
-          <div style={{ fontSize: '.8rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 6 }}>Scan schedule</div>
+          <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.7 }}>
             {data?.nextScanAt ? (
               <>Next scan: <strong>{new Date(data.nextScanAt).toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })}</strong></>
             ) : 'Next scan: this week'}
@@ -720,11 +720,11 @@ function QueriesTab() {
             ) : 'No scans run yet'}
           </div>
           {locked ? (
-            <div style={{ marginTop: 10, background: '#fff8e8', border: '1px solid #fde68a', borderRadius: 9, padding: '8px 12px', fontSize: '.78rem', color: 'var(--amber-tx, #92690a)' }}>
+            <div style={{ marginTop: 10, background: '#fff8e8', border: '1px solid #fde68a', borderRadius: 'var(--r-xs, 8px)', padding: '8px 12px', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--amber-tx, #92690a)' }}>
               🔒 Queries are locked within 24h of your scheduled scan. You can edit them after the scan completes.
             </div>
           ) : (
-            <div style={{ marginTop: 10, background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 9, padding: '8px 12px', fontSize: '.78rem', color: 'var(--green, #1a6b45)' }}>
+            <div style={{ marginTop: 10, background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 'var(--r-xs, 8px)', padding: '8px 12px', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--green, #1a6b45)' }}>
               ✓ Queries are editable — changes apply to your next weekly scan.
             </div>
           )}
@@ -738,22 +738,22 @@ function QueriesTab() {
           <Card style={{ overflow: 'hidden' }}>
             <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--line, #e4e0d8)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '.875rem' }}>Your queries</div>
-                <div style={{ fontSize: '.73rem', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>All queries are editable — pre-loaded ones give you a head start</div>
+                <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>Your queries</div>
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>All queries are editable — pre-loaded ones give you a head start</div>
               </div>
-              <span style={{ background: 'var(--ink, #0a0a0a)', color: 'white', fontSize: '.7rem', fontWeight: 700, padding: '2px 9px', borderRadius: 50 }}>{totalUsed}/{MAX}</span>
+              <span style={{ background: 'var(--ink, #0a0a0a)', color: 'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 9px', borderRadius: 'var(--r-pill, 999px)' }}>{totalUsed}/{MAX}</span>
             </div>
             <div style={{ maxHeight: 420, overflowY: 'auto' }}>
               {allQueries.length === 0 ? (
-                <div style={{ padding: '24px 20px', textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '.84rem' }}>
+                <div style={{ padding: '24px 20px', textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-sm, 0.8125rem)' }}>
                   No queries yet. Add your first query below.
                 </div>
               ) : allQueries.map((q, i) => (
                 <div key={i} style={{ padding: '11px 20px', borderBottom: '1px solid var(--cream, #f8f7f4)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--cream, #f8f7f4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '.7rem', fontWeight: 700, color: 'var(--ink, #0a0a0a)', flexShrink: 0 }}>{i + 1}</div>
-                  <span style={{ fontSize: '.84rem', color: 'var(--tx-3, #3a3a38)', flex: 1, lineHeight: 1.5 }}>{q}</span>
+                  <div style={{ width: 22, height: 22, borderRadius: 'var(--r-full, 50%)', background: 'var(--cream, #f8f7f4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, color: 'var(--ink, #0a0a0a)', flexShrink: 0 }}>{i + 1}</div>
+                  <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--tx-3, #3a3a38)', flex: 1, lineHeight: 1.5 }}>{q}</span>
                   {!locked && (
-                    <button onClick={() => removeQuery(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--mute-2, #c8c4bc)', fontSize: '.9rem', padding: '2px 6px', borderRadius: 5, lineHeight: 1, transition: 'color .15s' }}
+                    <button onClick={() => removeQuery(i)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--mute-2, #c8c4bc)', fontSize: 'var(--fs-base, 0.875rem)', padding: '2px 6px', borderRadius: 'var(--r-xs, 8px)', lineHeight: 1, transition: 'color .15s' }}
                       onMouseEnter={e => e.currentTarget.style.color='var(--danger, #c0392b)'}
                       onMouseLeave={e => e.currentTarget.style.color='var(--mute-2, #c8c4bc)'}
                       title="Remove">✕</button>
@@ -770,9 +770,9 @@ function QueriesTab() {
                   placeholder={remaining > 0 ? 'Add a query… (press Enter)' : 'Maximum 15 queries reached'}
                   disabled={remaining <= 0}
                   maxLength={200}
-                  style={{ flex: 1, padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 9, fontSize: '.84rem', fontFamily: 'inherit', outline: 'none', opacity: remaining <= 0 ? .5 : 1 }}
+                  style={{ flex: 1, padding: '8px 12px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', opacity: remaining <= 0 ? .5 : 1 }}
                 />
-                <button onClick={addQuery} disabled={!newQuery.trim() || remaining <= 0} style={{ padding: '8px 16px', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit', opacity: !newQuery.trim() || remaining <= 0 ? .4 : 1 }}>Add</button>
+                <button onClick={addQuery} disabled={!newQuery.trim() || remaining <= 0} style={{ padding: '8px 16px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit', opacity: !newQuery.trim() || remaining <= 0 ? .4 : 1 }}>Add</button>
               </div>
             )}
           </Card>
@@ -780,9 +780,9 @@ function QueriesTab() {
           {/* Save button */}
           {!locked && (
             <div>
-              {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', borderRadius: 9, padding: '9px 13px', fontSize: '.82rem', color: 'var(--danger, #c0392b)', marginBottom: 10 }}>{error}</div>}
-              {saved && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 9, padding: '9px 13px', fontSize: '.82rem', color: 'var(--green, #1a6b45)', marginBottom: 10 }}>✓ Queries saved — will apply to your next weekly scan.</div>}
-              <button onClick={saveQueries} disabled={saving} style={{ width: '100%', padding: 12, borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: saving ? .6 : 1 }}>
+              {error && <div style={{ background: 'var(--danger-bg, #fee2e2)', border: '1px solid #fecaca', borderRadius: 'var(--r-xs, 8px)', padding: '9px 13px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--danger, #c0392b)', marginBottom: 10 }}>{error}</div>}
+              {saved && <div style={{ background: 'var(--green-bg, #e8f5ef)', border: '1px solid #bbf7d0', borderRadius: 'var(--r-xs, 8px)', padding: '9px 13px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--green, #1a6b45)', marginBottom: 10 }}>✓ Queries saved — will apply to your next weekly scan.</div>}
+              <button onClick={saveQueries} disabled={saving} style={{ width: '100%', padding: 12, borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit', opacity: saving ? .6 : 1 }}>
                 {saving ? 'Saving…' : 'Save queries'}
               </button>
             </div>
@@ -791,9 +791,9 @@ function QueriesTab() {
 
         {/* Tips sidebar */}
         <Card style={{ padding: 16, height: 'fit-content' }}>
-          <div style={{ fontWeight: 600, fontSize: '.78rem', marginBottom: 10, color: 'var(--ink, #0a0a0a)' }}>Tips for good queries</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-xs, 0.75rem)', marginBottom: 10, color: 'var(--ink, #0a0a0a)' }}>Tips for good queries</div>
           {['Include your city or neighbourhood — "best dentist in Midtown Sacramento"','Think like a customer — what would they ask AI before choosing you?','Try category + location combos — "Italian catering Sacramento weddings"','Use competitor-adjacent queries — "alternatives to [category] near me"'].map((tip, i) => (
-            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 7, fontSize: '.78rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.55 }}>
+            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 7, fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.55 }}>
               <span style={{ color: 'var(--honey, #f5c842)', fontWeight: 700, flexShrink: 0 }}>✦</span>
               <span>{tip}</span>
             </div>
@@ -871,17 +871,17 @@ export function AiVisibilityPanel() {
       <div style={{ background: 'white', borderBottom: '1px solid var(--line, #e4e0d8)', padding: '10px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: 2 }} className="tabs-scrollable">
           {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: '10px 14px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '.84rem', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit', color: tab === t.id ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)', borderBottom: tab === t.id ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent', transition: 'all .15s' }}>{t.label}</button>
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: '10px 14px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit', color: tab === t.id ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)', borderBottom: tab === t.id ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent', transition: 'all .15s' }}>{t.label}</button>
           ))}
         </div>
         <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-          {lastScanned && <span style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>Last scan: {new Date(lastScanned).toLocaleDateString()}</span>}
+          {lastScanned && <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>Last scan: {new Date(lastScanned).toLocaleDateString()}</span>}
           {scanning ? (
-            <span style={{ fontSize: '.82rem', color: 'var(--amber-tx, #92690a)', fontWeight: 700 }}>↻ Scanning…</span>
+            <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--amber-tx, #92690a)', fontWeight: 700 }}>↻ Scanning…</span>
           ) : report?.nextScanAt && new Date(report.nextScanAt) > new Date() ? (
-            <div style={{ background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 8, padding: '6px 14px', textAlign: 'right' }}>
-              <div style={{ fontSize: '.7rem', color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
-              <div style={{ fontSize: '.82rem', fontWeight: 600, color: 'var(--ink, #0a0a0a)', marginTop: 2 }}>
+            <div style={{ background: 'var(--cream, #f8f7f4)', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', padding: '6px 14px', textAlign: 'right' }}>
+              <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: 'var(--taupe, #7a7670)', textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>Next scan</div>
+              <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, color: 'var(--ink, #0a0a0a)', marginTop: 2 }}>
                 {new Date(report.nextScanAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
               </div>
             </div>
@@ -895,7 +895,7 @@ export function AiVisibilityPanel() {
 
       {/* In-progress banner — scan runs server-side, so leaving the page is fine */}
       {scanning && (
-        <div style={{ background: '#fffbeb', borderBottom: '1px solid #f5e4b8', padding: '10px 24px', fontSize: '.82rem', color: 'var(--amber-tx, #92690a)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ background: '#fffbeb', borderBottom: '1px solid #f5e4b8', padding: '10px 24px', fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--amber-tx, #92690a)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
           <span style={{ fontWeight: 700 }}>Scan in progress.</span>
           <span>This usually takes a few minutes. You can leave this page or use the rest of the app — your results will appear here automatically when they're ready.</span>
         </div>
@@ -903,7 +903,7 @@ export function AiVisibilityPanel() {
 
       {/* Skipped-provider note — honest when a model was temporarily unavailable */}
       {skipped.length > 0 && (
-        <div style={{ background: 'var(--cream, #f8f7f4)', borderBottom: '1px solid var(--line, #e4e0d8)', padding: '8px 24px', fontSize: '.78rem', color: 'var(--taupe, #7a7670)' }}>
+        <div style={{ background: 'var(--cream, #f8f7f4)', borderBottom: '1px solid var(--line, #e4e0d8)', padding: '8px 24px', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
           {skipped.map(s => LLM_LABEL[s.llm_name] || s.llm_name).join(', ')} {skipped.length > 1 ? 'were' : 'was'} unavailable in this scan and excluded — included again next scan.
         </div>
       )}

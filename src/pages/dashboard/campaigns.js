@@ -43,18 +43,18 @@ function UsageMeter({ used = 0, limit = 1000, resetAt = null }) {
     <Card style={{ padding: 18, marginBottom: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
         <div>
-          <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 2 }}>Monthly SMS campaign limit</div>
-          <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>Resets {resetLabel}</div>
+          <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 2 }}>Monthly SMS campaign limit</div>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>Resets {resetLabel}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.4rem', fontWeight: 900 }}>{used.toLocaleString()}</div>
-          <div style={{ fontSize: '.72rem', color: 'var(--taupe, #7a7670)' }}>of {limit.toLocaleString()} used</div>
+          <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 900 }}>{used.toLocaleString()}</div>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>of {limit.toLocaleString()} used</div>
         </div>
       </div>
-      <div style={{ height: 8, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden', marginBottom: 8 }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 50, transition: 'width .5s' }} />
+      <div style={{ height: 8, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden', marginBottom: 8 }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 'var(--r-pill, 999px)', transition: 'width .5s' }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
         <span style={{ color, fontWeight: 600 }}>{(limit - used).toLocaleString()} remaining</span>
       </div>
     </Card>
@@ -199,28 +199,28 @@ function SocialPostsTab() {
       scheduled:        { bg:'#e0f2fe', color:'#0369a1', label:'Scheduled' },
       failed:           { bg:'var(--danger-bg, #fee2e2)', color:'var(--danger, #c0392b)', label:'Failed' },
     }[status] || { bg:'var(--cream-2, #f0eeea)', color:'var(--taupe, #7a7670)', label: status };
-    return <span style={{ background:cfg.bg, color:cfg.color, fontSize:'.67rem', fontWeight:700, padding:'2px 8px', borderRadius:50 }}>{cfg.label}</span>;
+    return <span style={{ background:cfg.bg, color:cfg.color, fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:700, padding:'2px 8px', borderRadius: 'var(--r-pill, 999px)' }}>{cfg.label}</span>;
   }
 
-  const inp = { width:'100%', padding:'10px 13px', border:'1.5px solid var(--line, #e4e0d8)', borderRadius:9, fontSize:'.84rem', fontFamily:'inherit', outline:'none', boxSizing:'border-box' };
+  const inp = { width:'100%', padding:'10px 13px', border:'1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily:'inherit', outline:'none', boxSizing:'border-box' };
 
   if (published) return (
     <div style={{ padding:32, textAlign:'center' }}>
-      <div style={{ fontSize:'2.5rem', marginBottom:16 }}>🎉</div>
-      <div style={{ fontWeight:700, fontSize:'1.1rem', marginBottom:8 }}>
+      <div style={{ fontSize: 'var(--fs-4xl, 2.5rem)', marginBottom:16 }}>🎉</div>
+      <div style={{ fontWeight:700, fontSize: 'var(--fs-lg, 1rem)', marginBottom:8 }}>
         {scheduleDate ? 'Post scheduled!' : 'Post submitted!'}
       </div>
       {publishResults && Object.values(publishResults).some(r => r.status === 'error') && (
         <div style={{ maxWidth:420, margin:'0 auto 16px', textAlign:'left' }}>
           {Object.entries(publishResults).map(([plat, r]) => (
-            <div key={plat} style={{ display:'flex', justifyContent:'space-between', fontSize:'.78rem', padding:'4px 0', color: r.status==='error' ? 'var(--danger, #c0392b)' : 'var(--green, #1a6b45)' }}>
+            <div key={plat} style={{ display:'flex', justifyContent:'space-between', fontSize: 'var(--fs-xs, 0.75rem)', padding:'4px 0', color: r.status==='error' ? 'var(--danger, #c0392b)' : 'var(--green, #1a6b45)' }}>
               <span style={{ textTransform:'capitalize' }}>{plat}</span>
               <span>{r.status === 'error' ? ('Failed: ' + (r.error||'')) : r.status === 'pending_approval' ? 'Pending approval' : 'Posted'}</span>
             </div>
           ))}
         </div>
       )}
-      <div style={{ fontSize:'.84rem', color:'var(--taupe, #7a7670)', marginBottom:24, lineHeight:1.65 }}>
+      <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)', marginBottom:24, lineHeight:1.65 }}>
         {scheduleDate
           ? `Your post will go live on ${new Date(scheduleDate+'T'+scheduleTime).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}.`
           : 'Your post has been sent to the selected platforms. It may take a few minutes to appear.'}
@@ -229,8 +229,8 @@ function SocialPostsTab() {
         )}
       </div>
       <div style={{ display:'flex', gap:10, justifyContent:'center' }}>
-        <button onClick={reset} style={{ padding:'10px 24px', borderRadius:50, background:'var(--ink, #0a0a0a)', color:'white', border:'none', cursor:'pointer', fontWeight:700, fontFamily:'inherit' }}>Create another post</button>
-        <button onClick={() => { reset(); setView('history'); }} style={{ padding:'10px 24px', borderRadius:50, background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>View post history</button>
+        <button onClick={reset} style={{ padding:'10px 24px', borderRadius: 'var(--r-pill, 999px)', background:'var(--ink, #0a0a0a)', color:'white', border:'none', cursor:'pointer', fontWeight:700, fontFamily:'inherit' }}>Create another post</button>
+        <button onClick={() => { reset(); setView('history'); }} style={{ padding:'10px 24px', borderRadius: 'var(--r-pill, 999px)', background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>View post history</button>
       </div>
     </div>
   );
@@ -239,8 +239,8 @@ function SocialPostsTab() {
     <div style={{ padding:24 }}>
       {/* Top bar */}
       <div style={{ display:'flex', gap:8, marginBottom:20 }}>
-        <button onClick={() => setView('create')} style={{ padding:'8px 18px', borderRadius:50, background: view==='create' ? 'var(--ink, #0a0a0a)' : 'white', color: view==='create' ? 'white' : 'var(--tx-2, #4a4a48)', border:'1.5px solid', borderColor: view==='create' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize:'.82rem', fontFamily:'inherit' }}>+ Create post</button>
-        <button onClick={() => setView('history')} style={{ padding:'8px 18px', borderRadius:50, background: view==='history' ? 'var(--ink, #0a0a0a)' : 'white', color: view==='history' ? 'white' : 'var(--tx-2, #4a4a48)', border:'1.5px solid', borderColor: view==='history' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize:'.82rem', fontFamily:'inherit' }}>Post history</button>
+        <button onClick={() => setView('create')} style={{ padding:'8px 18px', borderRadius: 'var(--r-pill, 999px)', background: view==='create' ? 'var(--ink, #0a0a0a)' : 'white', color: view==='create' ? 'white' : 'var(--tx-2, #4a4a48)', border:'1.5px solid', borderColor: view==='create' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily:'inherit' }}>+ Create post</button>
+        <button onClick={() => setView('history')} style={{ padding:'8px 18px', borderRadius: 'var(--r-pill, 999px)', background: view==='history' ? 'var(--ink, #0a0a0a)' : 'white', color: view==='history' ? 'white' : 'var(--tx-2, #4a4a48)', border:'1.5px solid', borderColor: view==='history' ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily:'inherit' }}>Post history</button>
       </div>
 
       {/* POST HISTORY VIEW */}
@@ -254,13 +254,13 @@ function SocialPostsTab() {
           ) : posts.map(post => {
             const platforms = SOCIAL_PLATFORMS.filter(p => post.platforms.includes(p.id));
             return (
-              <div key={post.id} style={{ background:'white', border:'1px solid var(--line, #e4e0d8)', borderRadius:12, padding:'16px 20px', marginBottom:12 }}>
+              <div key={post.id} style={{ background:'white', border:'1px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding:'16px 20px', marginBottom:12 }}>
                 <div style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:'.875rem', color:'var(--ink, #0a0a0a)', lineHeight:1.6, marginBottom:10 }}>{post.text}</div>
+                    <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color:'var(--ink, #0a0a0a)', lineHeight:1.6, marginBottom:10 }}>{post.text}</div>
                     <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:8 }}>
                       {platforms.map(p => (
-                        <span key={p.id} style={{ display:'flex', alignItems:'center', gap:4, background: p.color+'18', color:p.color, fontSize:'.72rem', fontWeight:700, padding:'3px 9px', borderRadius:50 }}>
+                        <span key={p.id} style={{ display:'flex', alignItems:'center', gap:4, background: p.color+'18', color:p.color, fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, padding:'3px 9px', borderRadius: 'var(--r-pill, 999px)' }}>
                           {p.icon} {p.name}
                           {post.platform_statuses?.[p.id] && (
                             <span style={{ opacity:.7 }}>· {post.platform_statuses[p.id] === 'live' ? 'Live' : post.platform_statuses[p.id] === 'pending_approval' ? 'Pending' : post.platform_statuses[p.id]}</span>
@@ -271,7 +271,7 @@ function SocialPostsTab() {
                   </div>
                   <div style={{ textAlign:'right', flexShrink:0 }}>
                     {statusBadge(post.status)}
-                    <div style={{ fontSize:'.73rem', color:'var(--taupe, #7a7670)', marginTop:6 }}>{fmtDate(post.published_at)}</div>
+                    <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', marginTop:6 }}>{fmtDate(post.published_at)}</div>
                   </div>
                 </div>
               </div>
@@ -294,10 +294,10 @@ function SocialPostsTab() {
               return (
                 <React.Fragment key={s}>
                   <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                    <div style={{ width:26, height:26, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'.72rem', fontWeight:800, background: done ? 'var(--ink, #0a0a0a)' : active ? 'var(--honey, #f5c842)' : 'var(--cream-2, #f0eeea)', color: done ? 'white' : active ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)' }}>
+                    <div style={{ width:26, height:26, borderRadius: 'var(--r-full, 50%)', display:'flex', alignItems:'center', justifyContent:'center', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:800, background: done ? 'var(--ink, #0a0a0a)' : active ? 'var(--honey, #f5c842)' : 'var(--cream-2, #f0eeea)', color: done ? 'white' : active ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)' }}>
                       {done ? '✓' : n}
                     </div>
-                    <span style={{ fontSize:'.75rem', fontWeight: active ? 700 : 500, color: active ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)' }}>{label}</span>
+                    <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: active ? 700 : 500, color: active ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)' }}>{label}</span>
                   </div>
                   {i < arr.length-1 && <div style={{ flex:1, height:1, background:'var(--line, #e4e0d8)', minWidth:16 }} />}
                 </React.Fragment>
@@ -308,18 +308,18 @@ function SocialPostsTab() {
           {/* STEP 1: Content type */}
           {step === 'type' && (
             <div>
-              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:6 }}>What type of content are you posting?</div>
-              <div style={{ fontSize:'.82rem', color:'var(--taupe, #7a7670)', marginBottom:16 }}>Your selection will determine which platforms are available.</div>
+              <div style={{ fontWeight:700, fontSize: 'var(--fs-lg, 1rem)', marginBottom:6 }}>What type of content are you posting?</div>
+              <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)', marginBottom:16 }}>Your selection will determine which platforms are available.</div>
               <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                 {CONTENT_TYPES.map(ct => (
                   <div key={ct.id} onClick={() => setContentType(ct.id)}
-                    style={{ padding:'14px 16px', border:'1.5px solid', borderRadius:12, cursor:'pointer', display:'flex', alignItems:'center', gap:14, transition:'all .12s',
+                    style={{ padding:'14px 16px', border:'1.5px solid', borderRadius: 'var(--r-md, 16px)', cursor:'pointer', display:'flex', alignItems:'center', gap:14, transition:'all .12s',
                       borderColor: contentType===ct.id ? 'var(--ink, #0a0a0a)' : 'var(--line, #e4e0d8)',
                       background: contentType===ct.id ? 'var(--ink, #0a0a0a)' : 'white' }}>
-                    <span style={{ fontSize:'1.3rem' }}>{ct.icon}</span>
+                    <span style={{ fontSize: 'var(--fs-xl, 1.25rem)' }}>{ct.icon}</span>
                     <div>
-                      <div style={{ fontWeight:700, fontSize:'.875rem', color: contentType===ct.id ? 'white' : 'var(--ink, #0a0a0a)' }}>{ct.label}</div>
-                      <div style={{ fontSize:'.75rem', color: contentType===ct.id ? 'rgba(255,255,255,.7)' : 'var(--taupe, #7a7670)', marginTop:2 }}>{ct.desc}</div>
+                      <div style={{ fontWeight:700, fontSize: 'var(--fs-base, 0.875rem)', color: contentType===ct.id ? 'white' : 'var(--ink, #0a0a0a)' }}>{ct.label}</div>
+                      <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: contentType===ct.id ? 'rgba(255,255,255,.7)' : 'var(--taupe, #7a7670)', marginTop:2 }}>{ct.desc}</div>
                     </div>
                   </div>
                 ))}
@@ -333,37 +333,37 @@ function SocialPostsTab() {
           {/* STEP 2: Platform selector */}
           {step === 'platforms' && (
             <div>
-              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:6 }}>Select platforms to post to</div>
-              <div style={{ fontSize:'.82rem', color:'var(--taupe, #7a7670)', marginBottom:16 }}>Greyed out platforms don't support your content type.</div>
+              <div style={{ fontWeight:700, fontSize: 'var(--fs-lg, 1rem)', marginBottom:6 }}>Select platforms to post to</div>
+              <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)', marginBottom:16 }}>Greyed out platforms don't support your content type.</div>
               <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
                 {compatiblePlatforms().map(p => {
                   const isSelected = selectedPlatforms.includes(p.id);
                   const disabled = !p.compatible;
                   return (
                     <div key={p.id} onClick={() => !disabled && togglePlatform(p.id)}
-                      style={{ padding:'14px 16px', border:'1.5px solid', borderRadius:12,
+                      style={{ padding:'14px 16px', border:'1.5px solid', borderRadius: 'var(--r-md, 16px)',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         opacity: disabled ? .45 : 1, transition:'all .12s',
                         borderColor: isSelected ? p.color : 'var(--line, #e4e0d8)',
                         background: isSelected ? p.color+'12' : 'white' }}>
                       <div style={{ display:'flex', alignItems:'center', gap:12 }}>
                         {/* Checkbox */}
-                        <div style={{ width:20, height:20, borderRadius:5, border:'2px solid', flexShrink:0,
+                        <div style={{ width:20, height:20, borderRadius: 'var(--r-xs, 8px)', border:'2px solid', flexShrink:0,
                           borderColor: isSelected ? p.color : 'var(--mute-2, #c8c4bc)',
                           background: isSelected ? p.color : 'white',
                           display:'flex', alignItems:'center', justifyContent:'center' }}>
-                          {isSelected && <span style={{ color:'white', fontSize:'.65rem', fontWeight:900 }}>✓</span>}
+                          {isSelected && <span style={{ color:'white', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight:900 }}>✓</span>}
                         </div>
-                        <span style={{ fontSize:'1.2rem' }}>{p.icon}</span>
+                        <span style={{ fontSize: 'var(--fs-xl, 1.25rem)' }}>{p.icon}</span>
                         <div style={{ flex:1 }}>
-                          <div style={{ fontWeight:700, fontSize:'.875rem' }}>{p.name}</div>
+                          <div style={{ fontWeight:700, fontSize: 'var(--fs-base, 0.875rem)' }}>{p.name}</div>
                           {disabled && p.unsupported_reason && (
-                            <div style={{ fontSize:'.73rem', color:'var(--taupe, #7a7670)', marginTop:2 }}>
+                            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', marginTop:2 }}>
                               ⊘ {p.unsupported_reason}
                             </div>
                           )}
                           {p.id === 'tiktok' && isSelected && (
-                            <div style={{ fontSize:'.73rem', color:'var(--amber-tx, #92690a)', marginTop:2 }}>
+                            <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--amber-tx, #92690a)', marginTop:2 }}>
                               ⚠ Videos go to TikTok Drafts — you'll approve from the TikTok app
                             </div>
                           )}
@@ -374,7 +374,7 @@ function SocialPostsTab() {
                 })}
               </div>
               <div style={{ display:'flex', gap:8, marginTop:20 }}>
-                <button onClick={() => setStep('type')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>← Back</button>
+                <button onClick={() => setStep('type')} style={{ padding:'11px 20px', borderRadius: 'var(--r-pill, 999px)', background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize: 'var(--fs-base, 0.875rem)', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>← Back</button>
                 <KitButton disabled={selectedPlatforms.length === 0} onClick={() => setStep('compose')} variant="dark">
                   Next: Write your post →
                 </KitButton>
@@ -385,7 +385,7 @@ function SocialPostsTab() {
           {/* STEP 3: Compose */}
           {step === 'compose' && (
             <div>
-              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:16 }}>Write your post</div>
+              <div style={{ fontWeight:700, fontSize: 'var(--fs-lg, 1rem)', marginBottom:16 }}>Write your post</div>
 
               {/* Platform char limit hints */}
               <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:14 }}>
@@ -393,7 +393,7 @@ function SocialPostsTab() {
                   const p = SOCIAL_PLATFORMS.find(x => x.id === pid);
                   const limits = { facebook:'63,206 chars', instagram:'2,200 chars', linkedin:'3,000 chars', google:'1,500 chars', tiktok:'2,200 chars' };
                   return (
-                    <span key={pid} style={{ fontSize:'.68rem', background: p.color+'18', color:p.color, padding:'2px 8px', borderRadius:50, fontWeight:600 }}>
+                    <span key={pid} style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', background: p.color+'18', color:p.color, padding:'2px 8px', borderRadius: 'var(--r-pill, 999px)', fontWeight:600 }}>
                       {p.icon} {p.name} · {limits[pid]}
                     </span>
                   );
@@ -402,17 +402,17 @@ function SocialPostsTab() {
 
               {/* Post text */}
               <div style={{ marginBottom:16 }}>
-                <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Post text</label>
+                <label style={{ display:'block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Post text</label>
                 <textarea rows={6} value={postText} onChange={e => setPostText(e.target.value)}
                   placeholder="Write your post here…"
                   style={{ ...inp, resize:'vertical' }} />
-                <div style={{ fontSize:'.7rem', color:'var(--taupe, #7a7670)', textAlign:'right', marginTop:4 }}>{postText.length} characters</div>
+                <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', textAlign:'right', marginTop:4 }}>{postText.length} characters</div>
               </div>
 
               {/* Link field */}
               {(contentType === 'link') && (
                 <div style={{ marginBottom:16 }}>
-                  <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>URL</label>
+                  <label style={{ display:'block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>URL</label>
                   <input type="url" value={postLink} onChange={e => setPostLink(e.target.value)}
                     placeholder="https://" style={{ ...inp }} />
                 </div>
@@ -421,19 +421,19 @@ function SocialPostsTab() {
               {/* Image upload */}
               {(contentType === 'text_image') && (
                 <div style={{ marginBottom:16 }}>
-                  <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Image</label>
-                  <div style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius:12, padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
+                  <label style={{ display:'block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Image</label>
+                  <div style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
                     onClick={() => document.getElementById('img-upload').click()}>
                     {postImage ? (
                       <div>
-                        <img src={URL.createObjectURL(postImage)} alt="" style={{ maxHeight:120, maxWidth:'100%', borderRadius:8, objectFit:'contain' }} />
-                        <div style={{ fontSize:'.75rem', color:'var(--taupe, #7a7670)', marginTop:8 }}>{postImage.name}</div>
+                        <img src={URL.createObjectURL(postImage)} alt="" style={{ maxHeight:120, maxWidth:'100%', borderRadius: 'var(--r-xs, 8px)', objectFit:'contain' }} />
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', marginTop:8 }}>{postImage.name}</div>
                       </div>
                     ) : (
                       <div>
-                        <div style={{ fontSize:'1.5rem', marginBottom:8 }}>🖼</div>
-                        <div style={{ fontSize:'.82rem', color:'var(--taupe, #7a7670)' }}>Click to upload an image</div>
-                        <div style={{ fontSize:'.72rem', color:'var(--mute-2, #c8c4bc)', marginTop:4 }}>JPG, PNG or GIF · Max 10MB</div>
+                        <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom:8 }}>🖼</div>
+                        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)' }}>Click to upload an image</div>
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--mute-2, #c8c4bc)', marginTop:4 }}>JPG, PNG or GIF · Max 10MB</div>
                       </div>
                     )}
                     <input id="img-upload" type="file" accept="image/*" style={{ display:'none' }}
@@ -445,20 +445,20 @@ function SocialPostsTab() {
               {/* Video upload */}
               {(contentType === 'video' || contentType === 'reel') && (
                 <div style={{ marginBottom:16 }}>
-                  <label style={{ display:'block', fontSize:'.72rem', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Video file</label>
-                  <div style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius:12, padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
+                  <label style={{ display:'block', fontSize: 'var(--fs-xs, 0.75rem)', fontWeight:700, color:'var(--taupe, #7a7670)', textTransform:'uppercase', letterSpacing:'.06em', marginBottom:6 }}>Video file</label>
+                  <div style={{ border:'2px dashed var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding:'24px', textAlign:'center', cursor:'pointer', background:'var(--cream, #f8f7f4)' }}
                     onClick={() => document.getElementById('vid-upload').click()}>
                     {postVideo ? (
                       <div>
-                        <div style={{ fontSize:'1.5rem', marginBottom:8 }}>🎬</div>
-                        <div style={{ fontSize:'.82rem', fontWeight:600 }}>{postVideo.name}</div>
-                        <div style={{ fontSize:'.72rem', color:'var(--taupe, #7a7670)', marginTop:4 }}>{(postVideo.size/1024/1024).toFixed(1)} MB</div>
+                        <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom:8 }}>🎬</div>
+                        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight:600 }}>{postVideo.name}</div>
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', marginTop:4 }}>{(postVideo.size/1024/1024).toFixed(1)} MB</div>
                       </div>
                     ) : (
                       <div>
-                        <div style={{ fontSize:'1.5rem', marginBottom:8 }}>🎬</div>
-                        <div style={{ fontSize:'.82rem', color:'var(--taupe, #7a7670)' }}>Click to upload a video</div>
-                        <div style={{ fontSize:'.72rem', color:'var(--mute-2, #c8c4bc)', marginTop:4 }}>MP4 or MOV · Max 500MB</div>
+                        <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom:8 }}>🎬</div>
+                        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)' }}>Click to upload a video</div>
+                        <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--mute-2, #c8c4bc)', marginTop:4 }}>MP4 or MOV · Max 500MB</div>
                       </div>
                     )}
                     <input id="vid-upload" type="file" accept="video/*" style={{ display:'none' }}
@@ -468,26 +468,26 @@ function SocialPostsTab() {
               )}
 
               {/* Schedule */}
-              <div style={{ background:'var(--cream, #f8f7f4)', borderRadius:12, padding:'14px 16px', marginBottom:16 }}>
-                <div style={{ fontWeight:600, fontSize:'.82rem', marginBottom:10 }}>Schedule (optional)</div>
+              <div style={{ background:'var(--cream, #f8f7f4)', borderRadius: 'var(--r-md, 16px)', padding:'14px 16px', marginBottom:16 }}>
+                <div style={{ fontWeight:600, fontSize: 'var(--fs-sm, 0.8125rem)', marginBottom:10 }}>Schedule (optional)</div>
                 <div style={{ display:'flex', gap:10 }}>
                   <div style={{ flex:1 }}>
-                    <label style={{ display:'block', fontSize:'.7rem', color:'var(--taupe, #7a7670)', marginBottom:4 }}>Date</label>
+                    <label style={{ display:'block', fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginBottom:4 }}>Date</label>
                     <input type="date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
                       style={{ ...inp }} />
                   </div>
                   <div style={{ flex:1 }}>
-                    <label style={{ display:'block', fontSize:'.7rem', color:'var(--taupe, #7a7670)', marginBottom:4 }}>Time</label>
+                    <label style={{ display:'block', fontSize: 'var(--fs-2xs, 0.6875rem)', color:'var(--taupe, #7a7670)', marginBottom:4 }}>Time</label>
                     <input type="time" value={scheduleTime} onChange={e => setScheduleTime(e.target.value)}
                       style={{ ...inp }} />
                   </div>
                 </div>
-                {!scheduleDate && <div style={{ fontSize:'.72rem', color:'var(--taupe, #7a7670)', marginTop:8 }}>Leave blank to post immediately.</div>}
+                {!scheduleDate && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'var(--taupe, #7a7670)', marginTop:8 }}>Leave blank to post immediately.</div>}
               </div>
 
               <div style={{ display:'flex', gap:8 }}>
-                <button onClick={() => setStep('platforms')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>← Back</button>
+                <button onClick={() => setStep('platforms')} style={{ padding:'11px 20px', borderRadius: 'var(--r-pill, 999px)', background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize: 'var(--fs-base, 0.875rem)', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>← Back</button>
                 <KitButton disabled={!postText.trim()} onClick={() => setStep('confirm')} variant="dark">
                   Next: Review →
                 </KitButton>
@@ -498,26 +498,26 @@ function SocialPostsTab() {
           {/* STEP 4: Confirm & publish */}
           {step === 'confirm' && (
             <div>
-              <div style={{ fontWeight:700, fontSize:'.95rem', marginBottom:16 }}>Review your post</div>
+              <div style={{ fontWeight:700, fontSize: 'var(--fs-lg, 1rem)', marginBottom:16 }}>Review your post</div>
 
               {/* Preview */}
-              <div style={{ background:'var(--cream, #f8f7f4)', borderRadius:14, padding:'18px 20px', marginBottom:20 }}>
-                <div style={{ fontSize:'.875rem', color:'var(--ink, #0a0a0a)', lineHeight:1.7, marginBottom:14, whiteSpace:'pre-wrap' }}>{postText}</div>
-                {postLink && <div style={{ fontSize:'.78rem', color:'#1a4baa', marginBottom:10 }}>🔗 {postLink}</div>}
-                {postImage && <img src={URL.createObjectURL(postImage)} alt="" style={{ maxHeight:160, borderRadius:8, objectFit:'cover' }} />}
-                {postVideo && <div style={{ fontSize:'.82rem', color:'var(--taupe, #7a7670)' }}>🎬 {postVideo.name}</div>}
+              <div style={{ background:'var(--cream, #f8f7f4)', borderRadius: 'var(--r-md, 16px)', padding:'18px 20px', marginBottom:20 }}>
+                <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color:'var(--ink, #0a0a0a)', lineHeight:1.7, marginBottom:14, whiteSpace:'pre-wrap' }}>{postText}</div>
+                {postLink && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color:'#1a4baa', marginBottom:10 }}>🔗 {postLink}</div>}
+                {postImage && <img src={URL.createObjectURL(postImage)} alt="" style={{ maxHeight:160, borderRadius: 'var(--r-xs, 8px)', objectFit:'cover' }} />}
+                {postVideo && <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--taupe, #7a7670)' }}>🎬 {postVideo.name}</div>}
                 <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginTop:14 }}>
                   {selectedPlatforms.map(pid => {
                     const p = SOCIAL_PLATFORMS.find(x => x.id === pid);
                     return (
-                      <span key={pid} style={{ fontSize:'.72rem', background:p.color+'18', color:p.color, padding:'3px 9px', borderRadius:50, fontWeight:700 }}>
+                      <span key={pid} style={{ fontSize: 'var(--fs-xs, 0.75rem)', background:p.color+'18', color:p.color, padding:'3px 9px', borderRadius: 'var(--r-pill, 999px)', fontWeight:700 }}>
                         {p.icon} {p.name}
                       </span>
                     );
                   })}
                 </div>
                 {scheduleDate && (
-                  <div style={{ marginTop:12, fontSize:'.78rem', color:'#0369a1', fontWeight:600 }}>
+                  <div style={{ marginTop:12, fontSize: 'var(--fs-xs, 0.75rem)', color:'#0369a1', fontWeight:600 }}>
                     🕐 Scheduled for {new Date(scheduleDate+'T'+scheduleTime).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
                   </div>
                 )}
@@ -525,20 +525,20 @@ function SocialPostsTab() {
 
               {/* TikTok notice */}
               {selectedPlatforms.includes('tiktok') && (
-                <div style={{ background:'#fef9c3', border:'1px solid #fde68a', borderRadius:10, padding:'12px 14px', marginBottom:16, fontSize:'.8rem', color:'var(--amber-tx, #92690a)', lineHeight:1.65 }}>
+                <div style={{ background:'#fef9c3', border:'1px solid #fde68a', borderRadius: 'var(--r-sm, 10px)', padding:'12px 14px', marginBottom:16, fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--amber-tx, #92690a)', lineHeight:1.65 }}>
                   <strong>TikTok:</strong> Your video will be sent to your TikTok Drafts folder. Open the TikTok app to review and publish it. This is required by TikTok's API.
                 </div>
               )}
 
               {publishError && (
-                <div style={{ background:'var(--danger-bg, #fee2e2)', border:'1px solid #fca5a5', borderRadius:10, padding:'12px 14px', marginBottom:16, fontSize:'.8rem', color:'var(--danger, #c0392b)', lineHeight:1.6 }}>
+                <div style={{ background:'var(--danger-bg, #fee2e2)', border:'1px solid #fca5a5', borderRadius: 'var(--r-sm, 10px)', padding:'12px 14px', marginBottom:16, fontSize: 'var(--fs-sm, 0.8125rem)', color:'var(--danger, #c0392b)', lineHeight:1.6 }}>
                   ✗ {publishError}
                 </div>
               )}
 
               <div style={{ display:'flex', gap:8 }}>
-                <button onClick={() => setStep('compose')} style={{ padding:'11px 20px', borderRadius:50, background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize:'.875rem', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>← Edit</button>
-                <KitButton onClick={publish} disabled={publishing} style={{ flex:1, fontSize:'.95rem' }}>
+                <button onClick={() => setStep('compose')} style={{ padding:'11px 20px', borderRadius: 'var(--r-pill, 999px)', background:'white', border:'1.5px solid var(--line, #e4e0d8)', cursor:'pointer', fontWeight:600, fontSize: 'var(--fs-base, 0.875rem)', fontFamily:'inherit', color:'var(--tx-2, #4a4a48)' }}>← Edit</button>
+                <KitButton onClick={publish} disabled={publishing} style={{ flex:1, fontSize: 'var(--fs-lg, 1rem)' }}>
                   {publishing ? 'Publishing…' : scheduleDate ? '🕐 Schedule post' : '🚀 Publish now'}
                 </KitButton>
               </div>
@@ -599,10 +599,10 @@ export default function Campaigns() {
       <div style={{ background: 'white', borderBottom: '1px solid var(--line, #e4e0d8)', padding: '0 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: 2 }} className="tabs-scrollable">
           {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: '14px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '.84rem', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit', color: tab === t.id ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)', borderBottom: tab === t.id ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent' }}>{t.label}</button>
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: '14px 16px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: tab === t.id ? 700 : 500, fontFamily: 'inherit', color: tab === t.id ? 'var(--ink, #0a0a0a)' : 'var(--taupe, #7a7670)', borderBottom: tab === t.id ? '2px solid var(--ink, #0a0a0a)' : '2px solid transparent' }}>{t.label}</button>
           ))}
         </div>
-        <button onClick={() => setShowModal(true)} style={{ padding: '8px 18px', borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.82rem', fontWeight: 700, fontFamily: 'inherit', marginRight: 24 }}>+ New Campaign</button>
+        <button onClick={() => setShowModal(true)} style={{ padding: '8px 18px', borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, fontFamily: 'inherit', marginRight: 24 }}>+ New Campaign</button>
       </div>
 
       <div style={{ padding: 24 }}>
@@ -617,9 +617,9 @@ export default function Campaigns() {
               <StatCard label="Replies" value={(usage.total_replies ?? 0).toLocaleString()} sub="Across all campaigns" />
             </div>
             <Card style={{ overflow: 'hidden' }}>
-              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--line, #e4e0d8)', fontWeight: 600, fontSize: '.875rem' }}>All campaigns</div>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--line, #e4e0d8)', fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>All campaigns</div>
               {campaigns.length === 0 ? (
-                <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: '.875rem' }}>
+                <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)', fontSize: 'var(--fs-base, 0.875rem)' }}>
                   No campaigns yet — create your first one to start reaching customers.
                 </div>
               ) : campaigns.map(c => {
@@ -627,10 +627,10 @@ export default function Campaigns() {
                 return (
                   <div key={c.id} style={{ padding: '14px 20px', borderBottom: '1px solid var(--cream, #f8f7f4)', display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 3 }}>{c.name}</div>
-                      <div style={{ fontSize: '.75rem', color: 'var(--taupe, #7a7670)' }}>{c.total_recipients ? `${c.total_recipients} recipients` : 'Draft'} · {new Date(c.created_at).toLocaleDateString()}</div>
+                      <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 3 }}>{c.name}</div>
+                      <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>{c.total_recipients ? `${c.total_recipients} recipients` : 'Draft'} · {new Date(c.created_at).toLocaleDateString()}</div>
                     </div>
-                    <span style={{ background: bg, color, fontSize: '.67rem', fontWeight: 700, padding: '2px 9px', borderRadius: 50 }}>{c.status}</span>
+                    <span style={{ background: bg, color, fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, padding: '2px 9px', borderRadius: 'var(--r-pill, 999px)' }}>{c.status}</span>
                   </div>
                 );
               })}
@@ -640,30 +640,30 @@ export default function Campaigns() {
 
         {tab === 'contacts' && (
           <div style={{ textAlign: 'center', padding: 60, color: 'var(--taupe, #7a7670)' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: 8 }}>📋</div>
+            <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom: 8 }}>📋</div>
             <div style={{ fontWeight: 600, marginBottom: 6 }}>Contact management</div>
-            <div style={{ fontSize: '.875rem' }}>Contacts are imported via CSV or collected automatically from surveys, webchat, and review requests.</div>
+            <div style={{ fontSize: 'var(--fs-base, 0.875rem)' }}>Contacts are imported via CSV or collected automatically from surveys, webchat, and review requests.</div>
           </div>
         )}
 
         {tab === 'segments' && (
           <div style={{ maxWidth: 640 }}>
-            <div style={{ fontWeight: 600, fontSize: '.95rem', marginBottom: 4 }}>Audience segments</div>
-            <div style={{ fontSize: '.84rem', color: 'var(--taupe, #7a7670)', lineHeight: 1.6, marginBottom: 16 }}>
+            <div style={{ fontWeight: 600, fontSize: 'var(--fs-lg, 1rem)', marginBottom: 4 }}>Audience segments</div>
+            <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', lineHeight: 1.6, marginBottom: 16 }}>
               Segments are shared across SwarmReply — tag contacts in Grow › Bulk Send and target them here in your campaigns.
             </div>
             {segments.filter(s => s.id !== 'all').length === 0 ? (
               <Card style={{ padding: 28, textAlign: 'center', color: 'var(--taupe, #7a7670)' }}>
-                <div style={{ fontSize: '1.4rem', marginBottom: 8 }}>🎯</div>
+                <div style={{ fontSize: 'var(--fs-2xl, 1.5rem)', marginBottom: 8 }}>🎯</div>
                 <div style={{ fontWeight: 600, marginBottom: 4 }}>No segments yet</div>
-                <div style={{ fontSize: '.84rem' }}>Create one in <strong>Grow › Bulk Send</strong> by selecting contacts and adding them to a segment.</div>
+                <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)' }}>Create one in <strong>Grow › Bulk Send</strong> by selecting contacts and adding them to a segment.</div>
               </Card>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {segments.filter(s => s.id !== 'all').map(s => (
                   <Card key={s.id} style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ fontWeight: 600, fontSize: '.88rem', textTransform: 'capitalize' }}>{s.id}</div>
-                    <span style={{ fontSize: '.74rem', color: 'var(--taupe, #7a7670)', background: 'var(--cream-2, #f0eeea)', padding: '3px 10px', borderRadius: 50 }}>{s.count} contact{s.count !== 1 ? 's' : ''}</span>
+                    <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', textTransform: 'capitalize' }}>{s.id}</div>
+                    <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', background: 'var(--cream-2, #f0eeea)', padding: '3px 10px', borderRadius: 'var(--r-pill, 999px)' }}>{s.count} contact{s.count !== 1 ? 's' : ''}</span>
                   </Card>
                 ))}
               </div>
@@ -674,18 +674,18 @@ export default function Campaigns() {
         {tab === 'compliance' && (
           <div style={{ maxWidth: 640, display: 'flex', flexDirection: 'column', gap: 14 }}>
             <Card style={{ padding: 20, borderLeft: '4px solid var(--green, #1a6b45)' }}>
-              <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>What SwarmReply handles automatically</div>
+              <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 12 }}>What SwarmReply handles automatically</div>
               {['STOP opt-outs processed instantly and permanently','Global opt-out registry — applies across all campaigns','Send window enforced — 9am–8pm in your timezone (TCPA)','Carrier opt-outs caught and recorded automatically','Re-opt-in via START reply supported'].map(item => (
-                <div key={item} style={{ display: 'flex', gap: 10, marginBottom: 8, fontSize: '.84rem', lineHeight: 1.6 }}>
+                <div key={item} style={{ display: 'flex', gap: 10, marginBottom: 8, fontSize: 'var(--fs-sm, 0.8125rem)', lineHeight: 1.6 }}>
                   <span style={{ color: 'var(--green, #1a6b45)', fontWeight: 700, flexShrink: 0 }}>✓</span>
                   <span>{item}</span>
                 </div>
               ))}
             </Card>
             <Card style={{ padding: 20, borderLeft: '4px solid #f59e0b' }}>
-              <div style={{ fontWeight: 600, fontSize: '.875rem', marginBottom: 12 }}>Your responsibility</div>
+              <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 12 }}>Your responsibility</div>
               {['Only send to customers who have given prior consent','Identify your business in every message','Keep a record of when and how each contact consented'].map(item => (
-                <div key={item} style={{ display: 'flex', gap: 10, marginBottom: 8, fontSize: '.84rem', lineHeight: 1.6 }}>
+                <div key={item} style={{ display: 'flex', gap: 10, marginBottom: 8, fontSize: 'var(--fs-sm, 0.8125rem)', lineHeight: 1.6 }}>
                   <span style={{ color: '#f59e0b', fontWeight: 700, flexShrink: 0 }}>!</span>
                   <span>{item}</span>
                 </div>
@@ -698,27 +698,27 @@ export default function Campaigns() {
       {/* New campaign modal */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(10,10,10,.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div style={{ background: 'white', borderRadius: 20, width: '100%', maxWidth: 520, boxShadow: '0 24px 80px rgba(0,0,0,.2)' }}>
+          <div style={{ background: 'white', borderRadius: 'var(--r-md, 16px)', width: '100%', maxWidth: 520, boxShadow: '0 24px 80px rgba(0,0,0,.2)' }}>
             <div style={{ padding: '22px 28px', borderBottom: '1px solid var(--line, #e4e0d8)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontFamily: "'Playfair Display',serif", fontSize: '1.2rem', fontWeight: 900 }}>New SMS campaign</div>
-              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: 'var(--taupe, #7a7670)' }}>✕</button>
+              <div style={{ fontFamily: "'Playfair Display',serif", fontSize: 'var(--fs-xl, 1.25rem)', fontWeight: 900 }}>New SMS campaign</div>
+              <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-xl, 1.25rem)', color: 'var(--taupe, #7a7670)' }}>✕</button>
             </div>
             <div style={{ padding: '22px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>Campaign name</label>
-                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Weekend special" style={{ width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, fontSize: '.9rem', fontFamily: 'inherit', outline: 'none' }} />
+                <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>Campaign name</label>
+                <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Weekend special" style={{ width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '.67rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>
+                <label style={{ display: 'block', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--taupe, #7a7670)', marginBottom: 5 }}>
                   Message <span style={{ fontWeight: 400, color: message.length > 140 ? 'var(--danger, #c0392b)' : 'var(--taupe, #7a7670)' }}>{message.length}/160</span>
                 </label>
-                <textarea value={message} onChange={e => setMessage(e.target.value)} rows={4} placeholder="Hi [name]! This weekend only..." style={{ width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 10, fontSize: '.875rem', fontFamily: 'inherit', outline: 'none', resize: 'none', lineHeight: 1.6 }} />
-                <div style={{ fontSize: '.73rem', color: 'var(--taupe, #7a7670)', marginTop: 4 }}>Use [name] to personalise. Include "Reply STOP to unsubscribe."</div>
+                <textarea value={message} onChange={e => setMessage(e.target.value)} rows={4} placeholder="Hi [name]! This weekend only..." style={{ width: '100%', padding: '10px 13px', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-sm, 10px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none', resize: 'none', lineHeight: 1.6 }} />
+                <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 4 }}>Use [name] to personalise. Include "Reply STOP to unsubscribe."</div>
               </div>
             </div>
             <div style={{ padding: '16px 28px 22px', display: 'flex', gap: 10, borderTop: '1px solid var(--line, #e4e0d8)' }}>
-              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 11, borderRadius: 50, background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: '.875rem', fontWeight: 600, fontFamily: 'inherit' }}>Save draft</button>
-              <button onClick={launch} disabled={sending || !name.trim() || !message.trim() || (!smsGate.enabled && !smsGate.loading)} style={{ flex: 1, padding: 11, borderRadius: 50, background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '.875rem', fontWeight: 700, fontFamily: 'inherit', opacity: !name.trim() || !message.trim() ? .5 : 1 }}>
+              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: 11, borderRadius: 'var(--r-pill, 999px)', background: 'transparent', color: 'var(--taupe, #7a7670)', border: '1.5px solid var(--line, #e4e0d8)', cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600, fontFamily: 'inherit' }}>Save draft</button>
+              <button onClick={launch} disabled={sending || !name.trim() || !message.trim() || (!smsGate.enabled && !smsGate.loading)} style={{ flex: 1, padding: 11, borderRadius: 'var(--r-pill, 999px)', background: 'var(--ink, #0a0a0a)', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, fontFamily: 'inherit', opacity: !name.trim() || !message.trim() ? .5 : 1 }}>
                 {(!smsGate.enabled && !smsGate.loading) ? 'SMS goes live soon' : sending ? 'Sending…' : 'Send campaign →'}
               </button>
             </div>

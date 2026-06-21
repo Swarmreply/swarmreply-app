@@ -88,25 +88,25 @@ function ReportStyles() {
 
 // ── Small primitives ─────────────────────────
 function Eyebrow({ children }) {
-  return <div style={{ fontSize: '.68rem', fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase', color: C.faint }}>{children}</div>;
+  return <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.09em', textTransform: 'uppercase', color: C.faint }}>{children}</div>;
 }
 
 function Delta({ value, fmt = (v) => v, invert = false, suffix = '' }) {
-  if (value == null || value === 0) return <span style={{ fontSize: '.72rem', color: C.taupe, fontWeight: 600 }}>no change</span>;
+  if (value == null || value === 0) return <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.taupe, fontWeight: 600 }}>no change</span>;
   const up = value > 0;
   const good = invert ? !up : up;
   const color = good ? C.green : C.red;
-  return <span style={{ fontSize: '.72rem', color, fontWeight: 700, whiteSpace: 'nowrap' }}>{up ? '▲' : '▼'} {fmt(Math.abs(value))}{suffix}</span>;
+  return <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color, fontWeight: 700, whiteSpace: 'nowrap' }}>{up ? '▲' : '▼'} {fmt(Math.abs(value))}{suffix}</span>;
 }
 
 function StatTile({ label, value, sub, delta }) {
   return (
     <div className="rep-card" style={{ padding: '16px 18px' }}>
       <Eyebrow>{label}</Eyebrow>
-      <div style={{ fontFamily: SERIF, fontSize: '1.95rem', fontWeight: 700, color: C.ink, lineHeight: 1.05, letterSpacing: '-.01em', margin: '10px 0 7px' }}><CountUp value={value} /></div>
+      <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-3xl, 2rem)', fontWeight: 700, color: C.ink, lineHeight: 1.05, letterSpacing: '-.01em', margin: '10px 0 7px' }}><CountUp value={value} /></div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         {delta}
-        {sub && <span style={{ fontSize: '.74rem', color: C.taupe }}>{sub}</span>}
+        {sub && <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.taupe }}>{sub}</span>}
       </div>
     </div>
   );
@@ -114,9 +114,9 @@ function StatTile({ label, value, sub, delta }) {
 
 function Insight({ children }) {
   return (
-    <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start', background: C.amberSoft, border: `1px solid #f0e3b8`, borderRadius: 13, padding: '13px 16px', marginBottom: 22 }}>
-      <div style={{ width: 7, height: 7, borderRadius: 50, background: C.amber, flexShrink: 0, marginTop: 7 }} />
-      <div style={{ fontSize: '.86rem', color: '#5c5238', lineHeight: 1.55 }}>{children}</div>
+    <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start', background: C.amberSoft, border: `1px solid #f0e3b8`, borderRadius: 'var(--r-md, 16px)', padding: '13px 16px', marginBottom: 22 }}>
+      <div style={{ width: 7, height: 7, borderRadius: 'var(--r-pill, 999px)', background: C.amber, flexShrink: 0, marginTop: 7 }} />
+      <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: '#5c5238', lineHeight: 1.55 }}>{children}</div>
     </div>
   );
 }
@@ -124,7 +124,7 @@ function Insight({ children }) {
 function SectionTitle({ children, right }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-      <div style={{ fontWeight: 600, fontSize: '.9rem', color: C.ink }}>{children}</div>
+      <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', color: C.ink }}>{children}</div>
       {right}
     </div>
   );
@@ -150,7 +150,7 @@ function BouncyBars({ values, loading, color = C.ink, height = 168, fmt = (v) =>
         const pct = loading ? 0 : (v.value / peak) * 100;
         return (
           <div key={i} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, height: '100%', justifyContent: 'flex-end' }}>
-            {!loading && !dense && <div style={{ fontSize: '.6rem', color: C.taupe, opacity: grown ? 1 : 0, transition: 'opacity .5s .2s' }}>{fmt(v.value)}</div>}
+            {!loading && !dense && <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: C.taupe, opacity: grown ? 1 : 0, transition: 'opacity .5s .2s' }}>{fmt(v.value)}</div>}
             <div
               className={loading ? 'rbar rbar--bounce' : 'rbar'}
               style={{
@@ -163,7 +163,7 @@ function BouncyBars({ values, loading, color = C.ink, height = 168, fmt = (v) =>
                 transitionDelay: loading ? undefined : `${i * 0.028}s`,
               }}
             />
-            {!loading && !dense && <div style={{ fontSize: '.58rem', color: C.faint }}>{labelFor ? labelFor(v, i) : v.label}</div>}
+            {!loading && !dense && <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: C.faint }}>{labelFor ? labelFor(v, i) : v.label}</div>}
           </div>
         );
       })}
@@ -182,11 +182,11 @@ function HBars({ rows, color = C.ink, max, trackBg = 'var(--cream-2, #f0eeea)' }
         const col = typeof color === 'function' ? color(r) : color;
         return (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 11 }}>
-            <span style={{ width: 116, fontSize: '.8rem', color: C.ink, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.label}</span>
-            <div style={{ flex: 1, height: 11, background: trackBg, borderRadius: 50, overflow: 'hidden' }}>
-              <div className="rep-fill" style={{ width: grown ? `${(r.value / peak) * 100}%` : '0%', height: '100%', background: col, borderRadius: 50, transition: `width .75s cubic-bezier(.3,1.1,.4,1) ${i * 0.04}s` }} />
+            <span style={{ width: 116, fontSize: 'var(--fs-sm, 0.8125rem)', color: C.ink, flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.label}</span>
+            <div style={{ flex: 1, height: 11, background: trackBg, borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden' }}>
+              <div className="rep-fill" style={{ width: grown ? `${(r.value / peak) * 100}%` : '0%', height: '100%', background: col, borderRadius: 'var(--r-pill, 999px)', transition: `width .75s cubic-bezier(.3,1.1,.4,1) ${i * 0.04}s` }} />
             </div>
-            <span style={{ width: 74, textAlign: 'right', fontSize: '.76rem', color: C.taupe, flexShrink: 0 }}>{r.sub != null ? r.sub : r.value}</span>
+            <span style={{ width: 74, textAlign: 'right', fontSize: 'var(--fs-xs, 0.75rem)', color: C.taupe, flexShrink: 0 }}>{r.sub != null ? r.sub : r.value}</span>
           </div>
         );
       })}
@@ -221,7 +221,7 @@ function SegBar({ segments, height = 16 }) {
   const [grown, setGrown] = useState(false);
   useEffect(() => { let a, b; a = requestAnimationFrame(() => { b = requestAnimationFrame(() => setGrown(true)); }); return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); }; }, [segments]);
   return (
-    <div style={{ display: 'flex', height, borderRadius: 50, overflow: 'hidden', background: 'var(--cream-2, #f0eeea)' }}>
+    <div style={{ display: 'flex', height, borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden', background: 'var(--cream-2, #f0eeea)' }}>
       {segments.map((s, i) => (
         <div key={i} title={`${s.label}: ${s.value}`} style={{ width: grown ? `${(s.value / total) * 100}%` : '0%', background: s.color, transition: `width .8s cubic-bezier(.3,1,.4,1) ${i * 0.1}s` }} />
       ))}
@@ -261,9 +261,9 @@ function NoData({ icon = '📊', title, body }) {
 function LoadingState() {
   return (
     <div>
-      <div style={{ height: 46, background: C.soft, borderRadius: 12, marginBottom: 22, maxWidth: 460 }} />
+      <div style={{ height: 46, background: C.soft, borderRadius: 'var(--r-md, 16px)', marginBottom: 22, maxWidth: 460 }} />
       <div className="rep-card">
-        <div style={{ width: 150, height: 12, background: C.soft, borderRadius: 6, marginBottom: 22 }} />
+        <div style={{ width: 150, height: 12, background: C.soft, borderRadius: 'var(--r-xs, 8px)', marginBottom: 22 }} />
         <BouncyBars loading values={[]} height={180} />
       </div>
     </div>
@@ -290,14 +290,14 @@ function ReportOverview({ d }) {
 
       <div className="rep-card" style={{ display: 'flex', gap: 28, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
         <Ring value={score || 0} color={scoreColor}>
-          <div style={{ fontFamily: SERIF, fontSize: '2.5rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={score ?? '—'} /></div>
-          <div style={{ fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>Score</div>
+          <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-4xl, 2.5rem)', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={score ?? '—'} /></div>
+          <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>Score</div>
         </Ring>
         <div style={{ flex: 1, minWidth: 220 }}>
           <Eyebrow>Reputation score</Eyebrow>
-          <div style={{ fontFamily: SERIF, fontSize: '1.4rem', fontWeight: 700, color: scoreColor, margin: '6px 0 4px' }}>{grade}</div>
+          <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 700, color: scoreColor, margin: '6px 0 4px' }}>{grade}</div>
           <div style={{ marginBottom: 10 }}><Delta value={s.reputationScoreDelta} suffix=" pts" /></div>
-          <div style={{ fontSize: '.82rem', color: C.taupe, lineHeight: 1.55 }}>A blend of your rating, response rate, customer loyalty, and review momentum.</div>
+          <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe, lineHeight: 1.55 }}>A blend of your rating, response rate, customer loyalty, and review momentum.</div>
         </div>
       </div>
 
@@ -310,7 +310,7 @@ function ReportOverview({ d }) {
 
       <div className="rep-card">
         <SectionTitle>Review momentum</SectionTitle>
-        {trend.length ? <BouncyBars values={trend} color={C.ink} fmt={fmtInt} /> : <div style={{ color: C.taupe, fontSize: '.82rem' }}>No reviews in this period.</div>}
+        {trend.length ? <BouncyBars values={trend} color={C.ink} fmt={fmtInt} /> : <div style={{ color: C.taupe, fontSize: 'var(--fs-sm, 0.8125rem)' }}>No reviews in this period.</div>}
       </div>
     </div>
   );
@@ -336,7 +336,7 @@ function ReportRatings({ d }) {
       </Insight>
 
       <div className="rep-card" style={{ marginBottom: 20 }}>
-        <SectionTitle right={<span style={{ fontSize: '.74rem', color: C.amber, fontWeight: 700 }}>— avg rating</span>}>Volume &amp; rating over time</SectionTitle>
+        <SectionTitle right={<span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.amber, fontWeight: 700 }}>— avg rating</span>}>Volume &amp; rating over time</SectionTitle>
         <BouncyBars values={bars} color={C.ink} fmt={fmtInt} />
         <div style={{ marginTop: 10, paddingTop: 14, borderTop: `1px solid ${C.line}` }}><TrendLine points={pts} /></div>
       </div>
@@ -405,28 +405,28 @@ function ReportVelocity({ d }) {
 
       <div className="rep-card" style={{ marginBottom: 20 }}>
         <SectionTitle right={editing ? null : (
-          <button onClick={() => { setDraft(String(goal)); setGoalErr(null); setEditing(true); }} style={{ background: C.amberSoft, border: `1.5px solid ${C.honey}`, color: C.amber, fontSize: '.74rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: '5px 13px', borderRadius: 50 }}>Edit goal</button>
+          <button onClick={() => { setDraft(String(goal)); setGoalErr(null); setEditing(true); }} style={{ background: C.amberSoft, border: `1.5px solid ${C.honey}`, color: C.amber, fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: '5px 13px', borderRadius: 'var(--r-pill, 999px)' }}>Edit goal</button>
         )}>Monthly goal</SectionTitle>
 
         {editing ? (
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <input type="number" min="1" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') saveGoal(); }} style={{ width: 90, padding: '8px 10px', border: `1.5px solid ${C.line}`, borderRadius: 8, fontSize: '.85rem', fontFamily: 'inherit', outline: 'none' }} />
-              <span style={{ fontSize: '.82rem', color: C.taupe }}>reviews / month</span>
-              <button onClick={saveGoal} disabled={saving} style={{ padding: '8px 14px', borderRadius: 8, border: 'none', background: C.ink, color: 'white', fontSize: '.8rem', fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}>{saving ? 'Saving…' : 'Save'}</button>
-              <button onClick={() => { setEditing(false); setGoalErr(null); }} style={{ padding: '8px 12px', borderRadius: 8, border: `1.5px solid ${C.line}`, background: 'white', color: C.taupe, fontSize: '.8rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+              <input type="number" min="1" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') saveGoal(); }} style={{ width: 90, padding: '8px 10px', border: `1.5px solid ${C.line}`, borderRadius: 'var(--r-xs, 8px)', fontSize: 'var(--fs-base, 0.875rem)', fontFamily: 'inherit', outline: 'none' }} />
+              <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe }}>reviews / month</span>
+              <button onClick={saveGoal} disabled={saving} style={{ padding: '8px 14px', borderRadius: 'var(--r-xs, 8px)', border: 'none', background: C.ink, color: 'white', fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit', opacity: saving ? 0.6 : 1 }}>{saving ? 'Saving…' : 'Save'}</button>
+              <button onClick={() => { setEditing(false); setGoalErr(null); }} style={{ padding: '8px 12px', borderRadius: 'var(--r-xs, 8px)', border: `1.5px solid ${C.line}`, background: 'white', color: C.taupe, fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
             </div>
-            {goalErr && <div style={{ fontSize: '.76rem', color: C.red, marginTop: 8 }}>{goalErr}</div>}
+            {goalErr && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.red, marginTop: 8 }}>{goalErr}</div>}
           </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10, gap: 12 }}>
-            <span style={{ fontSize: '.82rem', color: C.taupe }}>Target: <strong style={{ color: C.ink }}>{goal}</strong> reviews/month</span>
-            <span style={{ fontSize: '.74rem', color: C.taupe }}>{goalPct}% of goal</span>
+            <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe }}>Target: <strong style={{ color: C.ink }}>{goal}</strong> reviews/month</span>
+            <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.taupe }}>{goalPct}% of goal</span>
           </div>
         )}
 
-        <div style={{ height: 14, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden' }}>
-          <div className="rep-fill" style={{ width: `${goalPct}%`, height: '100%', background: goalPct >= 100 ? C.green : C.amber, borderRadius: 50, transition: 'width .8s cubic-bezier(.3,1.1,.4,1)' }} />
+        <div style={{ height: 14, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden' }}>
+          <div className="rep-fill" style={{ width: `${goalPct}%`, height: '100%', background: goalPct >= 100 ? C.green : C.amber, borderRadius: 'var(--r-pill, 999px)', transition: 'width .8s cubic-bezier(.3,1.1,.4,1)' }} />
         </div>
       </div>
 
@@ -470,7 +470,7 @@ function ReportResponse({ d }) {
             ]}
             max={r.repliedCount}
           />
-        ) : <div style={{ color: C.taupe, fontSize: '.82rem' }}>No replies posted in this period yet.</div>}
+        ) : <div style={{ color: C.taupe, fontSize: 'var(--fs-sm, 0.8125rem)' }}>No replies posted in this period yet.</div>}
       </div>
     </div>
   );
@@ -500,8 +500,8 @@ function ReportSentiment({ d }) {
         ]} />
         <div style={{ display: 'flex', gap: 18, marginTop: 12, flexWrap: 'wrap' }}>
           {[['Positive', s.positive, C.green], ['Neutral', s.neutral, C.amber], ['Negative', s.negative, C.red]].map(([l, v, c]) => (
-            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '.8rem', color: C.taupe }}>
-              <span style={{ width: 9, height: 9, borderRadius: 50, background: c }} />{l} · <strong style={{ color: C.ink }}>{v}</strong>
+            <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe }}>
+              <span style={{ width: 9, height: 9, borderRadius: 'var(--r-pill, 999px)', background: c }} />{l} · <strong style={{ color: C.ink }}>{v}</strong>
             </div>
           ))}
         </div>
@@ -510,13 +510,13 @@ function ReportSentiment({ d }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }} className="m-grid-1">
         <div className="rep-card">
           <SectionTitle>What customers love</SectionTitle>
-          {s.praiseThemes.length ? <HBars rows={s.praiseThemes.map((t) => ({ label: t.theme, value: t.count }))} color={C.green} /> : <div style={{ color: C.taupe, fontSize: '.82rem' }}>No themes detected yet.</div>}
-          {topPraise?.example && <div style={{ marginTop: 12, fontSize: '.8rem', color: C.taupe, fontStyle: 'italic', lineHeight: 1.5, borderLeft: `3px solid ${C.green}`, paddingLeft: 11 }}>“{topPraise.example}”</div>}
+          {s.praiseThemes.length ? <HBars rows={s.praiseThemes.map((t) => ({ label: t.theme, value: t.count }))} color={C.green} /> : <div style={{ color: C.taupe, fontSize: 'var(--fs-sm, 0.8125rem)' }}>No themes detected yet.</div>}
+          {topPraise?.example && <div style={{ marginTop: 12, fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe, fontStyle: 'italic', lineHeight: 1.5, borderLeft: `3px solid ${C.green}`, paddingLeft: 11 }}>“{topPraise.example}”</div>}
         </div>
         <div className="rep-card">
           <SectionTitle>What to improve</SectionTitle>
-          {s.complaintThemes.length ? <HBars rows={s.complaintThemes.map((t) => ({ label: t.theme, value: t.count }))} color={C.red} /> : <div style={{ color: C.taupe, fontSize: '.82rem' }}>No recurring complaints — nice work.</div>}
-          {top?.example && <div style={{ marginTop: 12, fontSize: '.8rem', color: C.taupe, fontStyle: 'italic', lineHeight: 1.5, borderLeft: `3px solid ${C.red}`, paddingLeft: 11 }}>“{top.example}”</div>}
+          {s.complaintThemes.length ? <HBars rows={s.complaintThemes.map((t) => ({ label: t.theme, value: t.count }))} color={C.red} /> : <div style={{ color: C.taupe, fontSize: 'var(--fs-sm, 0.8125rem)' }}>No recurring complaints — nice work.</div>}
+          {top?.example && <div style={{ marginTop: 12, fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe, fontStyle: 'italic', lineHeight: 1.5, borderLeft: `3px solid ${C.red}`, paddingLeft: 11 }}>“{top.example}”</div>}
         </div>
       </div>
     </div>
@@ -542,24 +542,24 @@ function ReportLocations({ d }) {
       <div className="rep-card" style={{ padding: 0, overflow: 'hidden' }}>
         {rows.map((l, i) => (
           <div key={l.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '15px 20px', borderBottom: i < rows.length - 1 ? `1px solid ${C.line}` : 'none' }}>
-            {!single && <div style={{ fontFamily: SERIF, fontSize: '1.1rem', fontWeight: 700, color: i === 0 ? C.amber : C.faint, width: 22 }}>{i + 1}</div>}
+            {!single && <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, color: i === 0 ? C.amber : C.faint, width: 22 }}>{i + 1}</div>}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 600, fontSize: '.86rem', color: C.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
-              <div style={{ height: 7, background: 'var(--cream-2, #f0eeea)', borderRadius: 50, overflow: 'hidden', marginTop: 7, maxWidth: 260 }}>
-                <div className="rep-fill" style={{ width: `${(l.reviews / maxRev) * 100}%`, height: '100%', background: C.ink, borderRadius: 50, transition: `width .7s cubic-bezier(.3,1.1,.4,1) ${i * 0.05}s` }} />
+              <div style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)', color: C.ink, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.name}</div>
+              <div style={{ height: 7, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-pill, 999px)', overflow: 'hidden', marginTop: 7, maxWidth: 260 }}>
+                <div className="rep-fill" style={{ width: `${(l.reviews / maxRev) * 100}%`, height: '100%', background: C.ink, borderRadius: 'var(--r-pill, 999px)', transition: `width .7s cubic-bezier(.3,1.1,.4,1) ${i * 0.05}s` }} />
               </div>
             </div>
             <div style={{ textAlign: 'right', minWidth: 64 }}>
-              <div style={{ fontFamily: SERIF, fontSize: '1.05rem', fontWeight: 700, color: C.ink }}>{fmtRating(l.avgRating)}★</div>
-              <div style={{ fontSize: '.68rem', color: C.faint }}>rating</div>
+              <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, color: C.ink }}>{fmtRating(l.avgRating)}★</div>
+              <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: C.faint }}>rating</div>
             </div>
             <div style={{ textAlign: 'right', minWidth: 58 }}>
-              <div style={{ fontFamily: SERIF, fontSize: '1.05rem', fontWeight: 700, color: C.ink }}>{l.reviews}</div>
-              <div style={{ fontSize: '.68rem', color: C.faint }}>reviews</div>
+              <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, color: C.ink }}>{l.reviews}</div>
+              <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: C.faint }}>reviews</div>
             </div>
             <div style={{ textAlign: 'right', minWidth: 58 }}>
-              <div style={{ fontFamily: SERIF, fontSize: '1.05rem', fontWeight: 700, color: l.responseRate >= 70 ? C.green : C.ink }}>{l.responseRate}%</div>
-              <div style={{ fontSize: '.68rem', color: C.faint }}>replied</div>
+              <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-lg, 1rem)', fontWeight: 700, color: l.responseRate >= 70 ? C.green : C.ink }}>{l.responseRate}%</div>
+              <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', color: C.faint }}>replied</div>
             </div>
           </div>
         ))}
@@ -592,11 +592,11 @@ function ReportFunnel({ d }) {
         {steps.map((st, i) => (
           <div key={st.label} style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-              <span style={{ fontSize: '.82rem', color: C.ink, fontWeight: 500 }}>{st.label}</span>
-              <span style={{ fontSize: '.8rem', color: C.taupe }}><strong style={{ color: C.ink, fontFamily: SERIF, fontSize: '1rem' }}>{fmtInt(st.value)}</strong> · {st.pct}%</span>
+              <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: C.ink, fontWeight: 500 }}>{st.label}</span>
+              <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe }}><strong style={{ color: C.ink, fontFamily: SERIF, fontSize: 'var(--fs-lg, 1rem)' }}>{fmtInt(st.value)}</strong> · {st.pct}%</span>
             </div>
-            <div style={{ height: 13, background: 'var(--cream-2, #f0eeea)', borderRadius: 7, overflow: 'hidden' }}>
-              <div className="rep-fill" style={{ width: `${st.pct}%`, height: '100%', background: st.color, borderRadius: 7, transition: `width .8s cubic-bezier(.34,1.4,.5,1) ${i * 0.12}s` }} />
+            <div style={{ height: 13, background: 'var(--cream-2, #f0eeea)', borderRadius: 'var(--r-xs, 8px)', overflow: 'hidden' }}>
+              <div className="rep-fill" style={{ width: `${st.pct}%`, height: '100%', background: st.color, borderRadius: 'var(--r-xs, 8px)', transition: `width .8s cubic-bezier(.34,1.4,.5,1) ${i * 0.12}s` }} />
             </div>
           </div>
         ))}
@@ -650,7 +650,7 @@ function ReportNps({ d, range }) {
 
   const picker = surveys.length > 1 ? (
     <div className="rep-card" style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 14, flexWrap: 'wrap' }}>
-      <span style={{ fontSize: '.78rem', color: C.taupe, fontWeight: 600 }}>Survey</span>
+      <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.taupe, fontWeight: 600 }}>Survey</span>
       <Select value={sel} onChange={setSel} options={[
         { value: 'all', label: 'All surveys' },
         ...surveys.map((s) => ({ value: s.id, label: (s.name || 'Untitled') + ((s.config && s.config.type === 'custom') ? ' (Custom)' : '') })),
@@ -683,8 +683,8 @@ function ReportNps({ d, range }) {
 
           <div className="rep-card" style={{ display: 'flex', gap: 28, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
             <Ring value={(n.score || 0) + 100} max={200} color={npsColor}>
-              <div style={{ fontFamily: SERIF, fontSize: '2.3rem', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={n.score} /></div>
-              <div style={{ fontSize: '.62rem', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>NPS</div>
+              <div style={{ fontFamily: SERIF, fontSize: 'var(--fs-4xl, 2.5rem)', fontWeight: 700, color: C.ink, lineHeight: 1 }}><CountUp value={n.score} /></div>
+              <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: C.faint, marginTop: 3 }}>NPS</div>
             </Ring>
             <div style={{ flex: 1, minWidth: 240 }}>
               <Eyebrow>Promoters · Passives · Detractors</Eyebrow>
@@ -695,7 +695,7 @@ function ReportNps({ d, range }) {
                   { label: 'Detractors', value: n.detractors, color: C.red },
                 ]} />
               </div>
-              <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: '.8rem', color: C.taupe }}>
+              <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 'var(--fs-sm, 0.8125rem)', color: C.taupe }}>
                 <span><span style={{ color: C.green, fontWeight: 700 }}>{n.promoters}</span> promoters</span>
                 <span><span style={{ color: C.amber, fontWeight: 700 }}>{n.passives}</span> passives</span>
                 <span><span style={{ color: C.red, fontWeight: 700 }}>{n.detractors}</span> detractors</span>
@@ -723,8 +723,8 @@ function ReportNps({ d, range }) {
           {questions.map((qd, qi) => (
             <div key={qi} style={{ marginBottom: qi < questions.length - 1 ? 22 : 0, paddingBottom: qi < questions.length - 1 ? 22 : 0, borderBottom: qi < questions.length - 1 ? `1px solid ${C.line}` : 'none' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
-                <div style={{ fontSize: '.88rem', fontWeight: 700, color: C.ink }}>{qd.question}</div>
-                {qd.avg != null && <div style={{ fontSize: '.78rem', color: C.taupe, whiteSpace: 'nowrap' }}>avg <strong style={{ color: C.ink }}>{qd.avg}</strong></div>}
+                <div style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 700, color: C.ink }}>{qd.question}</div>
+                {qd.avg != null && <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.taupe, whiteSpace: 'nowrap' }}>avg <strong style={{ color: C.ink }}>{qd.avg}</strong></div>}
               </div>
               <HBars rows={qd.options.map((o) => ({ label: String(o.value), value: o.count }))} color={['rating', 'star', 'smiley', 'nps'].includes(qd.type) ? C.honey : C.green} />
             </div>
@@ -758,7 +758,7 @@ function RailIcon({ path, active }) {
 function Select({ value, onChange, options }) {
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)} style={{
-      fontSize: '.8rem', padding: '6px 10px', border: `1.5px solid ${C.line}`, borderRadius: 9,
+      fontSize: 'var(--fs-sm, 0.8125rem)', padding: '6px 10px', border: `1.5px solid ${C.line}`, borderRadius: 'var(--r-xs, 8px)',
       background: '#fff', cursor: 'pointer', fontFamily: 'inherit', color: C.ink, maxWidth: 180,
     }}>
       {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -848,13 +848,13 @@ function ReportResponses() {
           { value: '365', label: 'Last 12 months' }, { value: '3650', label: 'All time' },
         ]} />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search answers…" style={{
-          flex: 1, minWidth: 160, padding: '7px 12px', border: `1.5px solid ${C.line}`, borderRadius: 9,
-          fontSize: '.82rem', fontFamily: 'inherit', outline: 'none', color: C.ink,
+          flex: 1, minWidth: 160, padding: '7px 12px', border: `1.5px solid ${C.line}`, borderRadius: 'var(--r-xs, 8px)',
+          fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit', outline: 'none', color: C.ink,
         }} />
         <button onClick={exportCsv} disabled={!rows.length} style={{
-          padding: '8px 16px', borderRadius: 9, border: 'none', cursor: rows.length ? 'pointer' : 'default',
+          padding: '8px 16px', borderRadius: 'var(--r-xs, 8px)', border: 'none', cursor: rows.length ? 'pointer' : 'default',
           background: rows.length ? 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))' : C.soft, color: rows.length ? '#1a1408' : C.faint,
-          fontWeight: 700, fontSize: '.8rem', fontFamily: 'inherit',
+          fontWeight: 700, fontSize: 'var(--fs-sm, 0.8125rem)', fontFamily: 'inherit',
         }}>Export CSV</button>
       </div>
 
@@ -864,7 +864,7 @@ function ReportResponses() {
         <NoData icon="🗒️" title="No responses match" body="Try widening the date range or clearing filters. Responses appear here as customers complete your survey." />
       ) : (
         <>
-          <div style={{ fontSize: '.78rem', color: C.taupe, margin: '0 0 10px' }}>{rows.length} response{rows.length === 1 ? '' : 's'}</div>
+          <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.taupe, margin: '0 0 10px' }}>{rows.length} response{rows.length === 1 ? '' : 's'}</div>
           <div className="rep-card" style={{ padding: 0, overflow: 'hidden' }}>
             {rows.map((r, idx) => {
               const isOpen = open === r.uid;
@@ -874,21 +874,21 @@ function ReportResponses() {
                     width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px',
                     background: isOpen ? C.soft : 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
                   }}>
-                    <span style={{ fontSize: '.8rem', fontWeight: 700, color: C.ink, minWidth: 26 }}>{r.score == null ? '—' : r.score}</span>
-                    <span style={{ fontSize: '.64rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.04em', color: tone(r.classification), background: toneBg(r.classification), borderRadius: 50, padding: '3px 9px' }}>{r.classification || '—'}</span>
-                    <span style={{ flex: 1, minWidth: 0, fontSize: '.84rem', color: C.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.contactName || r.contactEmail || 'Anonymous'}</span>
-                    <span style={{ fontSize: '.74rem', color: C.faint }}>{r.completedAt ? new Date(r.completedAt).toLocaleDateString() : ''}</span>
-                    <span style={{ color: C.faint, fontSize: '.85rem', display: 'inline-block', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}>›</span>
+                    <span style={{ fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, color: C.ink, minWidth: 26 }}>{r.score == null ? '—' : r.score}</span>
+                    <span style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.04em', color: tone(r.classification), background: toneBg(r.classification), borderRadius: 'var(--r-pill, 999px)', padding: '3px 9px' }}>{r.classification || '—'}</span>
+                    <span style={{ flex: 1, minWidth: 0, fontSize: 'var(--fs-sm, 0.8125rem)', color: C.ink, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.contactName || r.contactEmail || 'Anonymous'}</span>
+                    <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: C.faint }}>{r.completedAt ? new Date(r.completedAt).toLocaleDateString() : ''}</span>
+                    <span style={{ color: C.faint, fontSize: 'var(--fs-base, 0.875rem)', display: 'inline-block', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .15s' }}>›</span>
                   </button>
                   {isOpen && (
                     <div style={{ padding: '4px 16px 16px 54px', background: C.soft }}>
                       {(r.answers || []).length === 0 ? (
-                        <div style={{ fontSize: '.8rem', color: C.faint, fontStyle: 'italic' }}>No follow-up answers.</div>
+                        <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: C.faint, fontStyle: 'italic' }}>No follow-up answers.</div>
                       ) : (
                         (r.answers || []).map((a, ai) => (
                           <div key={ai} style={{ marginBottom: 10 }}>
-                            <div style={{ fontSize: '.7rem', fontWeight: 700, color: C.taupe, marginBottom: 2 }}>{a.question || a.type}</div>
-                            <div style={{ fontSize: '.84rem', color: C.ink }}>{a.text != null && a.text !== '' ? a.text : (a.number != null ? a.number : ((a.options || []).join(', ') || '—'))}</div>
+                            <div style={{ fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700, color: C.taupe, marginBottom: 2 }}>{a.question || a.type}</div>
+                            <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: C.ink }}>{a.text != null && a.text !== '' ? a.text : (a.number != null ? a.number : ((a.options || []).join(', ') || '—'))}</div>
                           </div>
                         ))
                       )}
@@ -941,11 +941,11 @@ export default function Pulse() {
 
       {/* Filter bar */}
       <div style={{ background: '#fff', borderBottom: `1px solid ${C.line}`, padding: '12px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }} className="tabs-scrollable">
-        <div style={{ display: 'flex', gap: 4, background: C.soft, padding: 3, borderRadius: 11 }}>
+        <div style={{ display: 'flex', gap: 4, background: C.soft, padding: 3, borderRadius: 'var(--r-md, 16px)' }}>
           {RANGES.map((r) => (
             <button key={r.id} onClick={() => setRange(r.id)} style={{
-              padding: '6px 13px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-              fontSize: '.78rem', fontWeight: range === r.id ? 700 : 500,
+              padding: '6px 13px', borderRadius: 'var(--r-xs, 8px)', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: range === r.id ? 700 : 500,
               background: range === r.id ? '#fff' : 'transparent', color: range === r.id ? C.ink : C.taupe,
               boxShadow: range === r.id ? '0 1px 3px rgba(0,0,0,.08)' : 'none', transition: 'all .15s',
             }}>{r.label}</button>
@@ -971,7 +971,7 @@ export default function Pulse() {
         <main style={{ minWidth: 0 }}>
           <div style={{ marginBottom: 18 }}>
             <Eyebrow>Report</Eyebrow>
-            <h2 style={{ fontFamily: SERIF, fontSize: '1.6rem', fontWeight: 700, color: C.ink, margin: '4px 0 0', letterSpacing: '-.01em' }}>{active.name}</h2>
+            <h2 style={{ fontFamily: SERIF, fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 700, color: C.ink, margin: '4px 0 0', letterSpacing: '-.01em' }}>{active.name}</h2>
           </div>
           {loading || !data ? <LoadingState /> : <ActiveComp d={data} range={range} />}
         </main>

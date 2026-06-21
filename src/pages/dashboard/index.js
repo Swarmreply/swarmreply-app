@@ -23,7 +23,7 @@ function greeting() {
 // Loading placeholder matching a stat card.
 function StatSkeleton() {
   return (
-    <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 14, padding: '20px 24px' }}>
+    <div style={{ background: 'white', border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-md, 16px)', padding: '20px 24px' }}>
       <Skeleton width={90} height={11} style={{ marginBottom: 14 }} />
       <Skeleton width={70} height={26} radius={6} style={{ marginBottom: 10 }} />
       <Skeleton width={60} height={10} />
@@ -72,10 +72,10 @@ function ReviewItem({ review }) {
     }}>
       {/* Avatar */}
       <div style={{
-        width: 36, height: 36, borderRadius: '50%',
+        width: 36, height: 36, borderRadius: 'var(--r-full, 50%)',
         background: 'var(--cream-2, #f0eeea)', display: 'flex',
         alignItems: 'center', justifyContent: 'center',
-        fontSize: '0.78rem', fontWeight: 700,
+        fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700,
         color: 'var(--taupe, #7a7670)', flexShrink: 0
       }}>
         {review.reviewer_name?.charAt(0) || '?'}
@@ -84,16 +84,16 @@ function ReviewItem({ review }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* Header row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>
+          <span style={{ fontWeight: 600, fontSize: 'var(--fs-base, 0.875rem)' }}>
             {review.reviewer_name || 'Anonymous'}
           </span>
-          <span style={{ color: review.star_rating >= 4 ? '#f59e0b' : '#e53e3e', fontSize: '0.78rem' }}>
+          <span style={{ color: review.star_rating >= 4 ? '#f59e0b' : '#e53e3e', fontSize: 'var(--fs-xs, 0.75rem)' }}>
             {stars}
           </span>
           {(() => { const b = platformBadge(review.platform); return (
           <span style={{
-            fontSize: '0.68rem', background: b.bg,
-            padding: '2px 8px', borderRadius: 50,
+            fontSize: 'var(--fs-2xs, 0.6875rem)', background: b.bg,
+            padding: '2px 8px', borderRadius: 'var(--r-pill, 999px)',
             color: b.fg, fontWeight: 600
           }}>{b.label}</span>
           ); })()}
@@ -102,7 +102,7 @@ function ReviewItem({ review }) {
         {/* Review text */}
         {review.review_text && (
           <div style={{
-            fontSize: '0.825rem', color: 'var(--taupe, #7a7670)',
+            fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)',
             lineHeight: 1.6, marginBottom: 8,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
           }}>
@@ -116,7 +116,7 @@ function ReviewItem({ review }) {
             background: 'var(--cream, #f8f7f4)', borderLeft: '3px solid var(--ink, #0a0a0a)',
             padding: '10px 14px', borderRadius: '0 8px 8px 0', marginBottom: 8
           }}>
-            <div style={{ fontSize: '0.8rem', lineHeight: 1.6, color: 'var(--ink, #0a0a0a)' }}>
+            <div style={{ fontSize: 'var(--fs-sm, 0.8125rem)', lineHeight: 1.6, color: 'var(--ink, #0a0a0a)' }}>
               {review.posted_reply.substring(0, 120)}
               {review.posted_reply.length > 120 ? '...' : ''}
             </div>
@@ -129,25 +129,25 @@ function ReviewItem({ review }) {
             <span style={{
               display: 'flex', alignItems: 'center', gap: 5,
               background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)',
-              padding: '3px 10px', borderRadius: 50,
-              fontSize: '0.68rem', fontWeight: 700
+              padding: '3px 10px', borderRadius: 'var(--r-pill, 999px)',
+              fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700
             }}>✓ Replied</span>
           )}
           {isPending && (
             <span style={{
               background: '#fef3cd', color: 'var(--amber-tx, #92690a)',
-              padding: '3px 10px', borderRadius: 50,
-              fontSize: '0.68rem', fontWeight: 700
+              padding: '3px 10px', borderRadius: 'var(--r-pill, 999px)',
+              fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700
             }}>⏳ Pending</span>
           )}
           {review.status === 'error' && (
             <span style={{
               background: 'var(--danger-bg, #fee2e2)', color: 'var(--danger, #c0392b)',
-              padding: '3px 10px', borderRadius: 50,
-              fontSize: '0.68rem', fontWeight: 700
+              padding: '3px 10px', borderRadius: 'var(--r-pill, 999px)',
+              fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 700
             }}>⚠ Error</span>
           )}
-          <span style={{ fontSize: '0.72rem', color: 'var(--taupe, #7a7670)' }}>
+          <span style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)' }}>
             {new Date(review.review_date).toLocaleDateString()}
           </span>
         </div>
@@ -237,10 +237,10 @@ export default function Dashboard() {
         position: 'sticky', top: 0, zIndex: 50
       }}>
         <div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', fontWeight: 700, color: 'var(--tx, #1a1a18)', letterSpacing: '-.01em' }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'var(--fs-2xl, 1.5rem)', fontWeight: 700, color: 'var(--tx, #1a1a18)', letterSpacing: '-.01em' }}>
             {greeting()}{customer?.name ? `, ${customer.name.split(' ')[0]}` : ''}
           </h2>
-          <p style={{ fontSize: '0.8rem', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>
+          <p style={{ fontSize: 'var(--fs-sm, 0.8125rem)', color: 'var(--taupe, #7a7670)', marginTop: 2 }}>
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
@@ -248,11 +248,11 @@ export default function Dashboard() {
           <div style={{
             display: 'flex', alignItems: 'center', gap: 6,
             background: 'var(--green-bg, #e8f5ef)', color: 'var(--green, #1a6b45)',
-            padding: '5px 12px', borderRadius: 50,
-            fontSize: '0.72rem', fontWeight: 700
+            padding: '5px 12px', borderRadius: 'var(--r-pill, 999px)',
+            fontSize: 'var(--fs-xs, 0.75rem)', fontWeight: 700
           }}>
             <span style={{
-              width: 6, height: 6, borderRadius: '50%',
+              width: 6, height: 6, borderRadius: 'var(--r-full, 50%)',
               background: 'var(--green, #1a6b45)'
             }}></span>
             Live & Running
@@ -386,13 +386,13 @@ export default function Dashboard() {
           {/* Reviews feed */}
           <div style={{
             background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
-            borderRadius: 14, overflow: 'hidden'
+            borderRadius: 'var(--r-md, 16px)', overflow: 'hidden'
           }}>
             <div style={{
               padding: '18px 24px', borderBottom: '1px solid var(--line, #e4e0d8)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>
+              <span style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600 }}>
                 Recent Reviews & Replies
               </span>
               {locations.length > 1 && (
@@ -403,8 +403,8 @@ export default function Dashboard() {
                     if (loc) switchLocation(loc);
                   }}
                   style={{
-                    fontSize: '0.78rem', padding: '4px 10px',
-                    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 8,
+                    fontSize: 'var(--fs-xs, 0.75rem)', padding: '4px 10px',
+                    border: '1.5px solid var(--line, #e4e0d8)', borderRadius: 'var(--r-xs, 8px)',
                     background: 'white', cursor: 'pointer'
                   }}
                 >
@@ -422,14 +422,14 @@ export default function Dashboard() {
               </>
             ) : reviews.length === 0 ? (
               <div style={{ padding: 40, textAlign: 'center', color: 'var(--taupe, #7a7670)' }}>
-                <div style={{ fontSize: '2rem', marginBottom: 12 }}>🐝</div>
-                <div style={{ fontSize: '0.875rem', marginBottom: 16 }}>
+                <div style={{ fontSize: 'var(--fs-3xl, 2rem)', marginBottom: 12 }}>🐝</div>
+                <div style={{ fontSize: 'var(--fs-base, 0.875rem)', marginBottom: 16 }}>
                   No reviews yet — your swarm is ready and waiting.
                 </div>
                 <a href="/dashboard/grow" style={{
                   display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
-                  padding: '9px 18px', borderRadius: 50,
-                  fontSize: '0.82rem', fontWeight: 700, textDecoration: 'none'
+                  padding: '9px 18px', borderRadius: 'var(--r-pill, 999px)',
+                  fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 700, textDecoration: 'none'
                 }}>Send a review request</a>
               </div>
             ) : (
@@ -443,15 +443,15 @@ export default function Dashboard() {
           {/* Locations panel */}
           <div style={{
             background: 'white', border: '1.5px solid var(--line, #e4e0d8)',
-            borderRadius: 14, overflow: 'hidden'
+            borderRadius: 'var(--r-md, 16px)', overflow: 'hidden'
           }}>
             <div style={{
               padding: '18px 24px', borderBottom: '1px solid var(--line, #e4e0d8)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Your Locations</span>
+              <span style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 600 }}>Your Locations</span>
               <a href="/dashboard/billing" title="Add or remove locations in Manage Billing" style={{
-                fontSize: '0.78rem', color: 'var(--taupe, #7a7670)', textDecoration: 'none'
+                fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', textDecoration: 'none'
               }}>Manage →</a>
             </div>
 
@@ -469,13 +469,13 @@ export default function Dashboard() {
               </>
             ) : locations.length === 0 ? (
               <div style={{ padding: 24, textAlign: 'center' }}>
-                <div style={{ fontSize: '0.875rem', color: 'var(--taupe, #7a7670)', marginBottom: 16 }}>
+                <div style={{ fontSize: 'var(--fs-base, 0.875rem)', color: 'var(--taupe, #7a7670)', marginBottom: 16 }}>
                   No locations connected yet
                 </div>
                 <a href="/dashboard/locations/add" style={{
                   display: 'inline-block', background: 'var(--ink, #0a0a0a)', color: 'white',
-                  padding: '10px 20px', borderRadius: 50,
-                  fontSize: '0.825rem', fontWeight: 600, textDecoration: 'none'
+                  padding: '10px 20px', borderRadius: 'var(--r-pill, 999px)',
+                  fontSize: 'var(--fs-sm, 0.8125rem)', fontWeight: 600, textDecoration: 'none'
                 }}>Connect Google Business</a>
               </div>
             ) : (
@@ -485,15 +485,15 @@ export default function Dashboard() {
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                 }}>
                   <div>
-                    <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                    <div style={{ fontSize: 'var(--fs-base, 0.875rem)', fontWeight: 500 }}>
                       {loc.business_name}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--taupe, #7a7670)', marginTop: 2, textTransform: 'capitalize' }}>
+                    <div style={{ fontSize: 'var(--fs-xs, 0.75rem)', color: 'var(--taupe, #7a7670)', marginTop: 2, textTransform: 'capitalize' }}>
                       {loc.platform} · {loc.tone} tone
                     </div>
                   </div>
                   <div style={{
-                    width: 8, height: 8, borderRadius: '50%',
+                    width: 8, height: 8, borderRadius: 'var(--r-full, 50%)',
                     background: loc.is_active ? 'var(--green, #1a6b45)' : '#e53e3e'
                   }}></div>
                 </div>
