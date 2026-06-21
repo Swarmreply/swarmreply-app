@@ -3,6 +3,7 @@
 // 6-item nav matching final prototype design
 // ============================================
 
+import { keyClick } from '../utils/a11y';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -114,7 +115,7 @@ export default function Sidebar({ customer }) {
           return (
             <React.Fragment key={item.href}>
               {showHeader && (
-                <div
+                <div role="button" tabIndex={0} onKeyDown={keyClick}
                   onClick={() => toggleGroup(item.group)}
                   style={{ padding: i === 0 ? '4px 20px 5px' : '15px 20px 5px', fontSize: 'var(--fs-2xs, 0.6875rem)', fontWeight: 800, letterSpacing: '0.09em', textTransform: 'uppercase', color: 'rgba(255,255,255,.3)', cursor: 'pointer', userSelect: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'color .15s' }}
                   onMouseEnter={e => { e.currentTarget.style.color = 'rgba(245,200,66,.8)'; }}

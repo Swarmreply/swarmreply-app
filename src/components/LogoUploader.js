@@ -9,6 +9,7 @@
 //   brandColor: header color for the live preview
 // ============================================
 
+import { keyClick } from '../utils/a11y';
 import { useState, useRef, useCallback } from 'react';
 import { uploadBrandingLogo } from '../utils/api';
 
@@ -77,7 +78,7 @@ export default function LogoUploader({ value, position = 'left', onChange, brand
 
   return (
     <div>
-      <div
+      <div role="button" tabIndex={0} onKeyDown={keyClick}
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files?.[0]); }}

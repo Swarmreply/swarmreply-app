@@ -8,6 +8,7 @@
 // (or the customer explicitly skips).
 // ============================================
 
+import { keyClick } from '../utils/a11y';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
@@ -306,7 +307,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               const done    = (Array.isArray(status?.steps) ? status.steps : []).find(st => st.step === s.n)?.completed;
               const current = s.n === activeStep;
               return (
-                <div
+                <div role="button" tabIndex={0} onKeyDown={keyClick}
                   key={s.n}
                   onClick={() => !saving && setActiveStep(s.n)}
                   style={{
@@ -447,7 +448,7 @@ export default function OnboardingWizard({ customer, onComplete }) {
               {step.n === 3 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {TONES.map(t => (
-                    <div
+                    <div role="button" tabIndex={0} onKeyDown={keyClick} aria-pressed={tone === t.id}
                       key={t.id}
                       onClick={() => setTone(t.id)}
                       style={{
