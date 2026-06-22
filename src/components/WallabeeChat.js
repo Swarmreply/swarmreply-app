@@ -17,12 +17,12 @@ const GOLD = 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515)
 
 // Help Center catalog — mirrors files/help.html on the website repo.
 // If you add articles there, add them here too so Wallabee can find them.
-const ARTICLES = [
+const FALLBACK_ARTICLES = [
   { id: 'vs-yext', t: 'SwarmReply vs Yext — own your listings, don\u2019t rent them', c: 'Compare', u: '/compare/yext-alternative.html', k: 'yext alternative listings compare versus rent own sync' },
-  { id: 'vs-broadly', t: 'SwarmReply vs Broadly — honest comparison', c: 'Compare', u: '/compare/broadly-alternative.html', k: 'broadly alternative compare versus price cheaper onboarding' },
+  { id: 'vs-broadly', t: 'SwarmReply vs Broadly — honest comparison', c: 'Compare', u: '/compare/broadly-alternative.html', k: 'broadly alternative compare versus price affordable onboarding' },
   { id: 'vs-reviewtrackers', t: 'SwarmReply vs ReviewTrackers — honest comparison', c: 'Compare', u: '/compare/reviewtrackers-alternative.html', k: 'reviewtrackers alternative compare versus monitoring' },
-  { id: 'vs-birdeye', t: 'SwarmReply vs Birdeye — honest comparison', c: 'Compare', u: '/compare/birdeye-alternative.html', k: 'birdeye alternative compare versus price cheaper switch' },
-  { id: 'vs-podium', t: 'SwarmReply vs Podium — honest comparison', c: 'Compare', u: '/compare/podium-alternative.html', k: 'podium alternative compare versus price cheaper switch contract' },
+  { id: 'vs-birdeye', t: 'SwarmReply vs Birdeye — honest comparison', c: 'Compare', u: '/compare/birdeye-alternative.html', k: 'birdeye alternative compare versus price affordable switch' },
+  { id: 'vs-podium', t: 'SwarmReply vs Podium — honest comparison', c: 'Compare', u: '/compare/podium-alternative.html', k: 'podium alternative compare versus price affordable switch contract' },
   { id: 'vs-nicejob', t: 'SwarmReply vs NiceJob — honest comparison', c: 'Compare', u: '/compare/nicejob-alternative.html', k: 'nicejob alternative compare versus reviews only' },
   { id: 'ai-visibility-explained', t: 'AI search visibility — show up in ChatGPT answers', c: 'Get Found', u: '/ai-search-visibility.html', k: 'chatgpt gemini claude ai visibility recommendations search appear' },
   { id: 'welcome', t: 'Welcome to SwarmReply', c: 'Getting started' },
@@ -99,6 +99,27 @@ const ARTICLES = [
   { id: 'review-links', t: 'Setting up your review links', c: 'Settings' },
 ];
 
+// ── Single source of truth ───────────────────────────────────────────────────
+// The catalog above is a baked-in fallback. The live list is the same
+// help-catalog.json the marketing site serves. We fetch it once on mount; any
+// failure (offline / blocked / CORS) silently keeps FALLBACK_ARTICLES.
+const CATALOG_URL = 'https://swarmreply.com/help-catalog.json';
+let CATALOG = FALLBACK_ARTICLES;
+let catalogLoaded = false;
+async function loadCatalog() {
+  if (catalogLoaded) return;
+  catalogLoaded = true;
+  try {
+    const r = await fetch(CATALOG_URL, { cache: 'default' });
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data && Array.isArray(data.articles) && data.articles.length &&
+        data.articles[0] && data.articles[0].id) {
+      CATALOG = data.articles;
+    }
+  } catch { /* offline / blocked / CORS — keep fallback */ }
+}
+
 // ── Matching ─────────────────────────────────────────────────────────────────
 const STOP = new Set(['the','a','an','to','of','in','on','for','my','i','do',
   'how','can','is','it','me','with','and','or','what','where','when','why',
@@ -127,7 +148,7 @@ function tokenize(s) {
 function findArticles(question) {
   const qTokens = tokenize(question);
   if (!qTokens.length) return [];
-  const scored = ARTICLES.map(a => {
+  const scored = CATALOG.map(a => {
     const hay = tokenize(a.t + ' ' + a.c);
     let score = 0;
     qTokens.forEach(qt => {
@@ -182,6 +203,10 @@ export default function WallabeeChat({ customer }) {
     }
     setHydrated(true);
   }, []);
+
+  // Pull the shared Help Center catalog (single source of truth). Falls back to
+  // the baked-in FALLBACK_ARTICLES if the fetch fails — never blocks chat.
+  useEffect(() => { loadCatalog(); }, []);
 
   useEffect(() => {
     if (!hydrated) return;
