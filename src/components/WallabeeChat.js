@@ -10,6 +10,7 @@
 // ============================================
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import { sendSupportRequest } from '../utils/api';
 
 const HELP_BASE = 'https://swarmreply.com/help';
@@ -169,6 +170,35 @@ function saveState(s) {
   try { sessionStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch { /* full/blocked — fine */ }
 }
 
+// Route-aware opening: tailors the greeting + quick chips to the page the
+// customer is on, then falls back to a getting-started greeting. Chips are
+// canned questions — tapping one searches the catalog for that guide.
+function freshConversation(pathname) {
+  const p = String(pathname || '');
+  const ctx = [
+    ['/campaigns',  "You’re in Campaigns — here are the SMS essentials:",        ['SMS campaign limits', 'TCPA compliance', 'Managing opt-outs']],
+    ['/grow',       "Sending review requests? These help:",                       ['Send your first request', 'Importing contacts', 'When to send requests']],
+    ['/surveys',    "Setting up surveys? Start here:",                            ['Set up your NPS survey', 'How NPS routing works']],
+    ['/inbox',      "Webchat & inbox — the common ones:",                          ['Add webchat to my site', 'Set up the AI agent', 'Manage my inbox']],
+    ['/reviews',    "Managing your reviews? Try these:",                          ['Connect Facebook reviews', 'Set up the review widget', 'Review replies before posting']],
+    ['/get-found',  "Getting found by AI assistants:",                            ['Set up AI visibility monitoring', 'Improve my AI visibility']],
+    ['/ai-visib',   "Getting found by AI assistants:",                            ['Set up AI visibility monitoring', 'Improve my AI visibility']],
+    ['/listings',   "Working on your listings?",                                  ['How listings sync works', 'Get listed on Apple Maps', 'Fixing a listing mismatch']],
+    ['/pulse',      "Reading your reports — what the numbers mean:",              ['Understanding sentiment score', 'Using the keyword tracker', 'Rating velocity explained']],
+    ['/integrations', "Connecting a tool? Pick one:",                             ['Connecting Google', 'Connecting Square', 'Connecting Jobber']],
+    ['/settings',   "In Settings — the common ones:",                             ['Setting up your review links', 'Setting your alert preferences', 'Account settings overview']],
+    ['/billing',    "Billing questions? These cover most of it:",                 ['Billing FAQ', 'Adding locations', 'Updating your payment method']],
+    ['/reputation-widget', "Showing reviews on your site?",                       ['Setting up the review widget']],
+  ];
+  let line = "Hi! I’m Wallabee \uD83D\uDC1D — your support bee. A few popular starting points, or just ask me anything:";
+  let chips = ['How to connect Google', 'Send your first request', 'Inviting team members'];
+  for (const [frag, l, c] of ctx) { if (p.indexOf(frag) !== -1) { line = l; chips = c; break; } }
+  return [
+    { who: 'bee', type: 'text', text: line },
+    { who: 'bee', type: 'chips', chips },
+  ];
+}
+
 const GREETING = {
   who: 'bee', type: 'text',
   text: "Hi! I'm Wallabee \uD83D\uDC1D \u2014 SwarmReply's support bee. Ask me anything, like \u201chow do I connect Google\u201d or \u201csend my first review request\u201d, and I'll point you to the right guide.",
@@ -188,6 +218,7 @@ export default function WallabeeChat({ customer }) {
   const [sending, setSending]   = useState(false);
   const [formErr, setFormErr]   = useState('');
   const [hydrated, setHydrated] = useState(false);
+  const router = useRouter();
   const bottomRef = useRef(null);
   const lastQuestion = useRef('');
 
@@ -196,10 +227,12 @@ export default function WallabeeChat({ customer }) {
     const saved = loadState();
     if (saved) {
       setOpen(!!saved.open);
-      setMessages(saved.messages?.length ? saved.messages : [GREETING, GREETING_CHIPS]);
+      setMessages(saved.messages?.length ? saved.messages : freshConversation(router.pathname));
       setShowForm(!!saved.showForm);
       setSubject(saved.subject || '');
       lastQuestion.current = saved.lastQuestion || '';
+    } else {
+      setMessages(freshConversation(router.pathname));
     }
     setHydrated(true);
   }, []);
@@ -270,8 +303,30 @@ export default function WallabeeChat({ customer }) {
     } else if (label.startsWith('Email our team')) {
       contactTeam();
     } else {
-      escalate();
+      // Context chips are canned questions — search the catalog for the guide.
+      const hits = findArticles(label);
+      if (hits.length) {
+        beeSay([
+          { who: 'bee', type: 'text', text: 'Here you go:' },
+          { who: 'bee', type: 'articles', articles: hits.map(({ id, t, c }) => ({ id, t, c })) },
+          { who: 'bee', type: 'chips', chips: ['That helped \uD83D\uDC1D', 'I still need help'] },
+        ]);
+      } else {
+        escalate();
+      }
     }
+  }
+
+  // Quietly appends where the customer was, so the team has context.
+  function contextFooter() {
+    const bits = [];
+    if (router?.pathname) bits.push('page ' + router.pathname);
+    if (customer?.plan) bits.push('plan ' + customer.plan);
+    if (customer?.status) bits.push('status ' + customer.status);
+    if (customer?.role) bits.push('role ' + customer.role);
+    if (customer?.is_demo) bits.push('demo account');
+    if (lastQuestion.current) bits.push('asked: "' + lastQuestion.current.slice(0, 120) + '"');
+    return bits.length ? '\n\n— context (auto-added) —\n' + bits.join(' · ') : '';
   }
 
   async function sendToTeam() {
@@ -279,7 +334,7 @@ export default function WallabeeChat({ customer }) {
     if (!subject.trim() || !body.trim()) { setFormErr('Please add a subject and a message.'); return; }
     setSending(true);
     try {
-      await sendSupportRequest({ subject: subject.trim(), message: body.trim() });
+      await sendSupportRequest({ subject: subject.trim(), message: body.trim() + contextFooter() });
       setShowForm(false);
       setBody('');
       setMessages(m => [...m, { who: 'bee', type: 'text',
