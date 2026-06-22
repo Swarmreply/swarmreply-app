@@ -160,6 +160,12 @@ export async function sendSupportRequest({ subject, message }) {
   return res.data;
 }
 
+// Second-line support AI — grounded answer from the Help Center, or { escalate:true }.
+export async function askSupportAgent({ question, history }) {
+  const res = await api.post('/support/ask', { question, history });
+  return res.data;
+}
+
 export async function createLocation(data) {
   const res = await api.post('/locations', data);
   return res.data.location;
