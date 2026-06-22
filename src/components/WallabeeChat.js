@@ -150,7 +150,7 @@ function findArticles(question) {
   const qTokens = tokenize(question);
   if (!qTokens.length) return [];
   const scored = CATALOG.map(a => {
-    const hay = tokenize(a.t + ' ' + a.c);
+    const hay = tokenize(a.t + ' ' + a.c + ' ' + (a.k || ''));
     let score = 0;
     qTokens.forEach(qt => {
       if (hay.some(h => h === qt || (qt.length >= 4 && h.startsWith(qt)) || (h.length >= 4 && qt.startsWith(h)))) score += 1;
