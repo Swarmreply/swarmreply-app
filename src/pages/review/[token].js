@@ -289,9 +289,9 @@ function ScaleInput({ classifier, color, onPick }) {
   return (
     <>
       <p style={{ fontSize: '.82rem', color: '#7a7670', textAlign: 'center', margin: '0 0 18px' }}>Tap a number below</p>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10 }}>
+      <div style={{ display: 'flex', gap: 5, alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
         {nums.map((n) => (
-          <button key={n} onClick={() => pick(n)} style={{ width: 40, height: 40, borderRadius: 10, border: '1.5px solid', borderColor: sel === n ? color : '#e4e0d8', background: sel === n ? color : 'white', fontWeight: 700, fontSize: '.85rem', cursor: 'pointer', color: sel === n ? '#0a0a0a' : '#4a4a48', transition: 'all .12s' }}>{n}</button>
+          <button key={n} onClick={() => pick(n)} style={{ flex: '1 1 0', minWidth: 0, maxWidth: 46, aspectRatio: '1 / 1', borderRadius: 10, border: '1.5px solid', borderColor: sel === n ? color : '#e4e0d8', background: sel === n ? color : 'white', fontWeight: 700, fontSize: '.8rem', cursor: 'pointer', color: sel === n ? '#0a0a0a' : '#4a4a48', transition: 'all .12s', padding: 0 }}>{n}</button>
         ))}
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.72rem', color: '#7a7670' }}>
