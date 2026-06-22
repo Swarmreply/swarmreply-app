@@ -11,7 +11,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { sendSupportRequest } from '../utils/api';
+import { sendSupportRequest, askSupportAgent } from '../utils/api';
 
 const HELP_BASE = 'https://swarmreply.com/help';
 const GOLD = 'linear-gradient(135deg,var(--honey, #f5c842),var(--amber, #d4a515))';
@@ -272,7 +272,7 @@ export default function WallabeeChat({ customer }) {
         { who: 'bee', type: 'chips', chips: ['That helped \uD83D\uDC1D', 'I still need help'] },
       ]);
     } else {
-      escalate();
+      askAgent(q);
     }
   }
 
@@ -295,13 +295,48 @@ export default function WallabeeChat({ customer }) {
     setTimeout(() => setShowForm(true), 600);
   }
 
+  // Second line: when keyword search can't help, ask the support assistant for a
+  // grounded answer. On escalate/failure it falls back to the human ticket form.
+  async function askAgent(question) {
+    const q = String(question || '').trim();
+    if (!q) { escalate(); return; }
+    setTyping(true);
+    try {
+      const r = await askSupportAgent({ question: q, history: agentHistory() });
+      setTyping(false);
+      if (r && r.answer && !r.escalate) {
+        const msgs = [{ who: 'bee', type: 'text', text: r.answer }];
+        if (Array.isArray(r.articles) && r.articles.length) {
+          msgs.push({ who: 'bee', type: 'articles',
+            articles: r.articles.slice(0, 3).map(a => ({ id: a.id, t: a.title || a.t, c: a.category || a.c })) });
+        }
+        msgs.push({ who: 'bee', type: 'chips', chips: ['That helped \uD83D\uDC1D', 'Talk to a human'] });
+        setMessages(m => [...m, ...msgs]);
+      } else {
+        escalate();
+      }
+    } catch (e) {
+      setTyping(false);
+      escalate();
+    }
+  }
+
+  // Recent text turns for the agent (excludes the trailing question, sent separately).
+  function agentHistory() {
+    const txt = messages.filter(m => m.type !== 'chips' && m.type !== 'articles' && m.text);
+    const trimmed = (txt.length && txt[txt.length - 1].who === 'user') ? txt.slice(0, -1) : txt;
+    return trimmed.slice(-6).map(m => ({ role: m.who === 'user' ? 'user' : 'assistant', content: String(m.text).slice(0, 1000) }));
+  }
+
   function chip(label) {
     setMessages(m => [...m.map(x => x.type === 'chips' ? { ...x, done: true } : x),
       { who: 'user', type: 'text', text: label }]);
     if (label.startsWith('That helped')) {
       beeSay([{ who: 'bee', type: 'text', text: 'Happy to help! Buzz me anytime. \uD83D\uDC1D' }]);
-    } else if (label.startsWith('Email our team')) {
+    } else if (label.startsWith('Email our team') || label.startsWith('Talk to a human')) {
       contactTeam();
+    } else if (label.startsWith('I still need help')) {
+      askAgent(lastQuestion.current);
     } else {
       // Context chips are canned questions — search the catalog for the guide.
       const hits = findArticles(label);
@@ -312,7 +347,7 @@ export default function WallabeeChat({ customer }) {
           { who: 'bee', type: 'chips', chips: ['That helped \uD83D\uDC1D', 'I still need help'] },
         ]);
       } else {
-        escalate();
+        askAgent(label);
       }
     }
   }
