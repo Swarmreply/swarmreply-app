@@ -312,3 +312,17 @@ export async function skipOnboarding(token) {
   });
   return res.json();
 }
+
+// ============================================
+// BUSINESS TEXTING (per-customer toll-free number)
+// ============================================
+
+export async function getSmsSender() {
+  const res = await api.get('/sms/sender');
+  return res.data;
+}
+
+export async function saveSmsSenderProfile(data) {
+  const res = await api.put('/sms/sender/profile', data);
+  return res.data;
+}

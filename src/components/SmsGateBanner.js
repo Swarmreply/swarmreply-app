@@ -1,6 +1,6 @@
 // ============================================
 // SmsGateBanner — shown wherever SMS-dependent features live while
-// texting is gated (carrier A2P 10DLC registration pending).
+// texting is gated (not launched yet).
 // Renders nothing once SMS is enabled.
 // ============================================
 export default function SmsGateBanner({ feature = 'Text messaging', enabled = false, loading = false, liveDate = '', style = {} }) {
@@ -31,8 +31,9 @@ export default function SmsGateBanner({ feature = 'Text messaging', enabled = fa
       <span style={{ fontSize: 'var(--fs-lg, 1rem)', lineHeight: 1.2 }} aria-hidden="true">⏳</span>
       <span>
         <strong>{feature} goes live {when}.</strong>{' '}
-        We&rsquo;re finishing carrier registration (A2P 10DLC) so your texts deliver reliably.
-        Email features work today &mdash; SMS switches on automatically once approved, with nothing for you to do.
+        Email features work today. To be ready for texting, add your business details in{' '}
+        <a href="/dashboard/settings?tab=texting" style={{ color: 'inherit', fontWeight: 700 }}>Settings &rarr; Business Texting</a>{' '}
+        &mdash; we get you a dedicated number and handle carrier registration for you.
       </span>
     </div>
   );

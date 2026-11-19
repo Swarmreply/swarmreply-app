@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import SmsGateBanner from '../../components/SmsGateBanner';
 import { useSmsGate } from '../../hooks/useSmsGate';
 import { RepWidgetPanel } from './reputation-widget';
+import BusinessTextingTab from '../../components/BusinessTextingTab';
 
 const TABS = [
   { id: 'ai',           label: 'AI Replies',      flag: 'autoReply' }, // hidden until Q3 launch
@@ -26,6 +27,7 @@ const TABS = [
   { id: 'reviewlinks',  label: 'Review Links'     },
   { id: 'widget',       label: 'Rep Widget'       },
   { id: 'setup',        label: 'Setup Wizard'     },
+  { id: 'texting',      label: 'Business Texting' },
   { id: 'account',      label: 'Account'          },
   { id: 'team',         label: 'Team'             },
   { id: 'billing',      label: 'Billing'          },
@@ -1186,7 +1188,7 @@ function TeamTab() {
 export default function Settings() {
   const [tab, setTab] = useState(TABS[0]?.id || 'account');
 
-  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, widget: <RepWidgetPanel />, setup: <SetupTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
+  const tabContent = { ai: <AITab />, webchat: <WebchatTab />, integrations: <IntegrationsTab />, reviewlinks: <ReviewLinksTab />, widget: <RepWidgetPanel />, setup: <SetupTab />, texting: <BusinessTextingTab />, account: <AccountTab />, team: <TeamTab />, billing: <BillingTab /> };
 
   // Allow deep-linking to a tab, e.g. /dashboard/settings?tab=widget
   const router = useRouter();
